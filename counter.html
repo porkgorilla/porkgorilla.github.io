@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文字数カウンター</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 24px 16px;
+      min-height: 100vh;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      font-family: system-ui, "Hiragino Sans", "Yu Gothic", sans-serif;
+      background: #f4f5fb;
+      color: #222;
+    }
+    h1 { margin: 0; font-size: 1.6rem; }
+    textarea {
+      width: 100%;
+      max-width: 640px;
+      height: 220px;
+      padding: 12px;
+      font-size: 1rem;
+      border: 2px solid #667eea;
+      border-radius: 10px;
+      box-sizing: border-box;
+      resize: vertical;
+      font-family: inherit;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+      width: 100%;
+      max-width: 640px;
+    }
+    .stat {
+      background: #fff;
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, .1);
+    }
+    .stat b { display: block; font-size: 1.8rem; color: #764ba2; }
+    .stat span { font-size: .85rem; color: #666; }
+    .actions { display: flex; gap: 10px; }
+    button {
+      padding: .6rem 1.4rem;
+      border: none;
+      border-radius: 999px;
+      background: #667eea;
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:hover { background: #764ba2; }
+    a { color: #667eea; }
+  </style>
+</head>
+<body>
+  <h1>📝 文字数カウンター</h1>
+  <textarea id="t" placeholder="ここに文章を入力または貼り付けてください" autofocus></textarea>
+  <div class="stats">
+    <div class="stat"><b id="chars">0</b><span>文字数</span></div>
+    <div class="stat"><b id="nospace">0</b><span>空白・改行を除く</span></div>
+    <div class="stat"><b id="lines">0</b><span>行数</span></div>
+    <div class="stat"><b id="words">0</b><span>英単語数</span></div>
+    <div class="stat"><b id="bytes">0</b><span>バイト数(UTF-8)</span></div>
+  </div>
+  <div class="actions">
+    <button id="copy">コピー</button>
+    <button id="clear">クリア</button>
+  </div>
+  <a href="./">← トップへ戻る</a>
+
+  <script>
+    const t = document.getElementById('t');
+    const $ = id => document.getElementById(id);
+
+    function update() {
+      const s = t.value;
+      $('chars').textContent = [...s].length;
+      $('nospace').textContent = [...s.replace(/\s/g, '')].length;
+      $('lines').textContent = s === '' ? 0 : s.split(/\r\n|\r|\n/).length;
+      $('words').textContent = (s.match(/[A-Za-z0-9'’-]+/g) || []).length;
+      $('bytes').textContent = new TextEncoder().encode(s).length;
+    }
+
+    t.addEventListener('input', update);
+    $('clear').onclick = () => { t.value = ''; update(); t.focus(); };
+    $('copy').onclick = async () => {
+      try {
+        await navigator.clipboard.writeText(t.value);
+        $('copy').textContent = 'コピーしました!';
+      } catch (e) {
+        t.select();
+        document.execCommand('copy');
+        $('copy').textContent = 'コピーしました!';
+      }
+      setTimeout(() => $('copy').textContent = 'コピー', 1500);
+    };
+    update();
+  </script>
+</body>
+</html>
