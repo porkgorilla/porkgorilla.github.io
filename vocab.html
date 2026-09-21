@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>英単語クイズ</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 24px 16px;
+      min-height: 100vh;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      font-family: system-ui, "Hiragino Sans", "Yu Gothic", sans-serif;
+      background: #f4f5fb;
+      color: #222;
+    }
+    h1 { margin: 0; font-size: 1.6rem; }
+    #card {
+      width: 100%;
+      max-width: 480px;
+      background: #fff;
+      border-radius: 14px;
+      padding: 24px 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .12);
+      text-align: center;
+      box-sizing: border-box;
+    }
+    #progress { color: #666; font-size: .9rem; }
+    #word { font-size: 2.4rem; font-weight: bold; margin: 12px 0 4px; color: #764ba2; }
+    #speak {
+      border: none; background: none; font-size: 1.4rem; cursor: pointer;
+    }
+    #choices { display: grid; gap: 10px; margin-top: 16px; }
+    .choice {
+      padding: 14px;
+      font-size: 1.1rem;
+      border: 2px solid #667eea;
+      border-radius: 10px;
+      background: #fff;
+      color: #222;
+      cursor: pointer;
+    }
+    .choice:hover:not(:disabled) { background: #eef0ff; }
+    .choice.correct { background: #4ecca3; border-color: #4ecca3; color: #fff; }
+    .choice.wrong { background: #ff6b6b; border-color: #ff6b6b; color: #fff; }
+    #next, #restart {
+      margin-top: 16px;
+      padding: .7rem 1.8rem;
+      border: none;
+      border-radius: 999px;
+      background: #667eea;
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    #next:hover, #restart:hover { background: #764ba2; }
+    #result { font-size: 1.3rem; }
+    #result b { font-size: 2.4rem; color: #764ba2; display: block; margin: 8px 0; }
+    .hidden { display: none; }
+    a { color: #667eea; }
+  </style>
+</head>
+<body>
+  <h1>🔤 英単語クイズ</h1>
+
+  <div id="card">
+    <div id="quiz">
+      <div id="progress"></div>
+      <div id="word"></div>
+      <button id="speak" title="発音を聞く" aria-label="発音を聞く">🔊</button>
+      <div id="choices"></div>
+      <button id="next" class="hidden">次へ</button>
+    </div>
+    <div id="result" class="hidden">
+      <div>結果</div>
+      <b id="final"></b>
+      <div id="comment"></div>
+      <button id="restart">もう一度</button>
+    </div>
+  </div>
+
+  <a href="./">← トップへ戻る</a>
+
+  <script>
+    const WORDS = [
+      ['apple', 'りんご'], ['book', '本'], ['water', '水'], ['friend', '友達'],
+      ['school', '学校'], ['happy', '幸せな'], ['run', '走る'], ['eat', '食べる'],
+      ['beautiful', '美しい'], ['library', '図書館'], ['tomorrow', '明日'], ['weather', '天気'],
+      ['important', '重要な'], ['difficult', '難しい'], ['remember', '覚えている'],
+      ['travel', '旅行する'], ['knowledge', '知識'], ['delicious', 'おいしい'],
+      ['together', '一緒に'], ['question', '質問'], ['mountain', '山'], ['river', '川'],
+      ['window', '窓'], ['dream', '夢'], ['borrow', '借りる']
+    ];
+    const ROUNDS = 10;
+
+    const $ = id => document.getElementById(id);
+    let questions, index, score, answered;
+
+    function shuffle(a) {
+      a = a.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function startQuiz() {
+      questions = shuffle(WORDS).slice(0, ROUNDS);
+      index = 0;
+      score = 0;
+      $('quiz').classList.remove('hidden');
+      $('result').classList.add('hidden');
+      showQuestion();
+    }
+
+    function showQuestion() {
+      answered = false;
+      const [word, meaning] = questions[index];
+      $('progress').textContent = `${index + 1} / ${ROUNDS}問  ·  正解 ${score}`;
+      $('word').textContent = word;
+      $('next').classList.add('hidden');
+      const wrongs = shuffle(WORDS.filter(w => w[0] !== word)).slice(0, 3).map(w => w[1]);
+      const box = $('choices');
+      box.innerHTML = '';
+      shuffle([meaning, ...wrongs]).forEach(text => {
+        const b = document.createElement('button');
+        b.className = 'choice';
+        b.textContent = text;
+        b.onclick = () => answer(b, text === meaning, meaning);
+        box.appendChild(b);
+      });
+    }
+
+    function answer(btn, ok, meaning) {
+      if (answered) return;
+      answered = true;
+      if (ok) score++;
+      btn.classList.add(ok ? 'correct' : 'wrong');
+      document.querySelectorAll('.choice').forEach(b => {
+        b.disabled = true;
+        if (b.textContent === meaning) b.classList.add('correct');
+      });
+      $('next').textContent = index + 1 === ROUNDS ? '結果を見る' : '次へ';
+      $('next').classList.remove('hidden');
+    }
+
+    function next() {
+      index++;
+      if (index >= ROUNDS) return showResult();
+      showQuestion();
+    }
+
+    function showResult() {
+      $('quiz').classList.add('hidden');
+      $('result').classList.remove('hidden');
+      $('final').textContent = `${score} / ${ROUNDS}`;
+      $('comment').textContent =
+        score === ROUNDS ? '全問正解! すばらしい!' :
+        score >= 7 ? 'よくできました!' :
+        score >= 4 ? 'もう少し! 復習しよう' : 'ここから伸びしろたっぷり!';
+    }
+
+    $('next').onclick = next;
+    $('restart').onclick = startQuiz;
+    $('speak').onclick = () => {
+      if (!('speechSynthesis' in window)) return;
+      const u = new SpeechSynthesisUtterance(questions[index][0]);
+      u.lang = 'en-US';
+      speechSynthesis.cancel();
+      speechSynthesis.speak(u);
+    };
+
+    startQuiz();
+  </script>
+</body>
+</html>
