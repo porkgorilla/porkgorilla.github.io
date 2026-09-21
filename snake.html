@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Snake Game</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      font-family: system-ui, "Hiragino Sans", "Yu Gothic", sans-serif;
+      background: #1a1a2e;
+      color: #fff;
+      user-select: none;
+    }
+    h1 { margin: 0; font-size: 1.6rem; }
+    #info { font-size: 1.1rem; }
+    canvas {
+      background: #16213e;
+      border: 3px solid #667eea;
+      border-radius: 8px;
+      max-width: 92vw;
+      height: auto;
+    }
+    #pad {
+      display: grid;
+      grid-template-columns: repeat(3, 60px);
+      grid-template-rows: repeat(2, 60px);
+      gap: 6px;
+    }
+    #pad button {
+      font-size: 1.5rem;
+      border: none;
+      border-radius: 10px;
+      background: #667eea;
+      color: #fff;
+      cursor: pointer;
+    }
+    #pad button:active { background: #764ba2; }
+    #up { grid-column: 2; grid-row: 1; }
+    #left { grid-column: 1; grid-row: 2; }
+    #down { grid-column: 2; grid-row: 2; }
+    #right { grid-column: 3; grid-row: 2; }
+    a { color: #9fb0ff; }
+  </style>
+</head>
+<body>
+  <h1>🐍 Snake Game</h1>
+  <div id="info">スコア: <span id="score">0</span> / ハイスコア: <span id="best">0</span></div>
+  <canvas id="c" width="400" height="400"></canvas>
+  <div id="msg">矢印キー / WASD / 下のボタンでスタート</div>
+  <div id="pad">
+    <button id="up">↑</button>
+    <button id="left">←</button>
+    <button id="down">↓</button>
+    <button id="right">→</button>
+  </div>
+  <a href="./">← トップへ戻る</a>
+
+  <script>
+    const canvas = document.getElementById('c');
+    const ctx = canvas.getContext('2d');
+    const size = 20, cells = canvas.width / size;
+    const scoreEl = document.getElementById('score');
+    const bestEl = document.getElementById('best');
+    const msgEl = document.getElementById('msg');
+
+    let best = 0;
+    try { best = Number(localStorage.getItem('snakeBest')) || 0; } catch (e) {}
+    bestEl.textContent = best;
+
+    let snake, dir, nextDir, food, score, timer, running;
+
+    function reset() {
+      snake = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
+      dir = { x: 1, y: 0 };
+      nextDir = dir;
+      score = 0;
+      scoreEl.textContent = 0;
+      placeFood();
+      draw();
+    }
+
+    function placeFood() {
+      do {
+        food = { x: Math.floor(Math.random() * cells), y: Math.floor(Math.random() * cells) };
+      } while (snake.some(s => s.x === food.x && s.y === food.y));
+    }
+
+    function start() {
+      if (running) return;
+      reset();
+      running = true;
+      msgEl.textContent = '';
+      timer = setInterval(step, 120);
+    }
+
+    function gameOver() {
+      clearInterval(timer);
+      running = false;
+      if (score > best) {
+        best = score;
+        bestEl.textContent = best;
+        try { localStorage.setItem('snakeBest', best); } catch (e) {}
+      }
+      msgEl.textContent = 'ゲームオーバー! キーを押すともう一度';
+    }
+
+    function step() {
+      dir = nextDir;
+      const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+      if (head.x < 0 || head.y < 0 || head.x >= cells || head.y >= cells ||
+          snake.some(s => s.x === head.x && s.y === head.y)) {
+        gameOver();
+        return;
+      }
+      snake.unshift(head);
+      if (head.x === food.x && head.y === food.y) {
+        score++;
+        scoreEl.textContent = score;
+        placeFood();
+      } else {
+        snake.pop();
+      }
+      draw();
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#ff6b6b';
+      ctx.beginPath();
+      ctx.arc(food.x * size + size / 2, food.y * size + size / 2, size / 2 - 2, 0, Math.PI * 2);
+      ctx.fill();
+      snake.forEach((s, i) => {
+        ctx.fillStyle = i === 0 ? '#7CFC98' : '#4ecca3';
+        ctx.fillRect(s.x * size + 1, s.y * size + 1, size - 2, size - 2);
+      });
+    }
+
+    function turn(x, y) {
+      if (!running) start();
+      // 逆方向への即時反転は不可
+      if (x === -dir.x && y === -dir.y) return;
+      nextDir = { x, y };
+    }
+
+    const keyMap = {
+      ArrowUp: [0, -1], w: [0, -1], ArrowDown: [0, 1], s: [0, 1],
+      ArrowLeft: [-1, 0], a: [-1, 0], ArrowRight: [1, 0], d: [1, 0]
+    };
+    document.addEventListener('keydown', e => {
+      const m = keyMap[e.key];
+      if (m) { e.preventDefault(); turn(m[0], m[1]); }
+    });
+    document.getElementById('up').onclick = () => turn(0, -1);
+    document.getElementById('down').onclick = () => turn(0, 1);
+    document.getElementById('left').onclick = () => turn(-1, 0);
+    document.getElementById('right').onclick = () => turn(1, 0);
+
+    reset();
+  </script>
+</body>
+</html>
