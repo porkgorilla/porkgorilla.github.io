@@ -4,19 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>文字数カウンター</title>
+  <link rel="stylesheet" href="theme.css">
   <style>
     body {
-      margin: 0;
       padding: 24px 16px;
-      min-height: 100vh;
-      box-sizing: border-box;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 16px;
-      font-family: system-ui, "Hiragino Sans", "Yu Gothic", sans-serif;
-      background: #f4f5fb;
-      color: #222;
     }
     h1 { margin: 0; font-size: 1.6rem; }
     textarea {
@@ -25,12 +20,13 @@
       height: 220px;
       padding: 12px;
       font-size: 1rem;
-      border: 2px solid #667eea;
-      border-radius: 10px;
-      box-sizing: border-box;
+      background: var(--cyber-bg-panel);
+      border: 1px solid var(--cyber-green-dim);
+      color: var(--cyber-text);
       resize: vertical;
-      font-family: inherit;
+      font-family: var(--cyber-font);
     }
+    textarea:focus { outline: none; border-color: var(--cyber-green); }
     .stats {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
@@ -39,43 +35,39 @@
       max-width: 640px;
     }
     .stat {
-      background: #fff;
-      border-radius: 10px;
       padding: 12px;
       text-align: center;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, .1);
     }
-    .stat b { display: block; font-size: 1.8rem; color: #764ba2; }
-    .stat span { font-size: .85rem; color: #666; }
+    .stat b { display: block; font-size: 1.8rem; color: var(--cyber-green); text-shadow: 0 0 6px var(--cyber-green); }
+    .stat span { font-size: .85rem; color: var(--cyber-green-dim); }
     .actions { display: flex; gap: 10px; }
     button {
       padding: .6rem 1.4rem;
-      border: none;
-      border-radius: 999px;
-      background: #667eea;
-      color: #fff;
+      border: 1px solid var(--cyber-green-dim);
+      background: var(--cyber-green-faint);
+      color: var(--cyber-green);
       font-size: 1rem;
+      font-family: var(--cyber-font);
       cursor: pointer;
     }
-    button:hover { background: #764ba2; }
-    a { color: #667eea; }
+    button:hover { background: var(--cyber-green); color: #000; }
   </style>
 </head>
 <body>
   <h1>📝 文字数カウンター</h1>
   <textarea id="t" placeholder="ここに文章を入力または貼り付けてください" autofocus></textarea>
   <div class="stats">
-    <div class="stat"><b id="chars">0</b><span>文字数</span></div>
-    <div class="stat"><b id="nospace">0</b><span>空白・改行を除く</span></div>
-    <div class="stat"><b id="lines">0</b><span>行数</span></div>
-    <div class="stat"><b id="words">0</b><span>英単語数</span></div>
-    <div class="stat"><b id="bytes">0</b><span>バイト数(UTF-8)</span></div>
+    <div class="stat panel"><b id="chars">0</b><span>文字数</span></div>
+    <div class="stat panel"><b id="nospace">0</b><span>空白・改行を除く</span></div>
+    <div class="stat panel"><b id="lines">0</b><span>行数</span></div>
+    <div class="stat panel"><b id="words">0</b><span>英単語数</span></div>
+    <div class="stat panel"><b id="bytes">0</b><span>バイト数(UTF-8)</span></div>
   </div>
   <div class="actions">
     <button id="copy">コピー</button>
     <button id="clear">クリア</button>
   </div>
-  <a href="./">← トップへ戻る</a>
+  <a class="back-link" href="./">&lt; トップへ戻る</a>
 
   <script>
     const t = document.getElementById('t');

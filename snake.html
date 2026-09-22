@@ -4,26 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Snake Game</title>
+  <link rel="stylesheet" href="theme.css">
   <style>
     body {
-      margin: 0;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 12px;
-      font-family: system-ui, "Hiragino Sans", "Yu Gothic", sans-serif;
-      background: #1a1a2e;
-      color: #fff;
+      padding: 24px 16px;
       user-select: none;
+      text-align: center;
     }
     h1 { margin: 0; font-size: 1.6rem; }
     #info { font-size: 1.1rem; }
     canvas {
-      background: #16213e;
-      border: 3px solid #667eea;
-      border-radius: 8px;
+      background: var(--cyber-bg);
+      border: 2px solid var(--cyber-green);
+      box-shadow: 0 0 12px rgba(57, 255, 106, 0.25);
       max-width: 92vw;
       height: auto;
     }
@@ -35,18 +34,16 @@
     }
     #pad button {
       font-size: 1.5rem;
-      border: none;
-      border-radius: 10px;
-      background: #667eea;
-      color: #fff;
+      border: 1px solid var(--cyber-green-dim);
+      background: var(--cyber-green-faint);
+      color: var(--cyber-green);
       cursor: pointer;
     }
-    #pad button:active { background: #764ba2; }
+    #pad button:active { background: var(--cyber-green); color: #000; }
     #up { grid-column: 2; grid-row: 1; }
     #left { grid-column: 1; grid-row: 2; }
     #down { grid-column: 2; grid-row: 2; }
     #right { grid-column: 3; grid-row: 2; }
-    a { color: #9fb0ff; }
   </style>
 </head>
 <body>
@@ -60,7 +57,7 @@
     <button id="down">↓</button>
     <button id="right">→</button>
   </div>
-  <a href="./">← トップへ戻る</a>
+  <a class="back-link" href="./">&lt; トップへ戻る</a>
 
   <script>
     const canvas = document.getElementById('c');
@@ -132,12 +129,12 @@
 
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = '#ff6b6b';
+      ctx.fillStyle = '#ff4d6d';
       ctx.beginPath();
       ctx.arc(food.x * size + size / 2, food.y * size + size / 2, size / 2 - 2, 0, Math.PI * 2);
       ctx.fill();
       snake.forEach((s, i) => {
-        ctx.fillStyle = i === 0 ? '#7CFC98' : '#4ecca3';
+        ctx.fillStyle = i === 0 ? '#ffffff' : '#39ff6a';
         ctx.fillRect(s.x * size + 1, s.y * size + 1, size - 2, size - 2);
       });
     }

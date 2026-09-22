@@ -4,33 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>英単語クイズ</title>
+  <link rel="stylesheet" href="theme.css">
   <style>
     body {
-      margin: 0;
       padding: 24px 16px;
-      min-height: 100vh;
-      box-sizing: border-box;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 16px;
-      font-family: system-ui, "Hiragino Sans", "Yu Gothic", sans-serif;
-      background: #f4f5fb;
-      color: #222;
     }
     h1 { margin: 0; font-size: 1.6rem; }
     #card {
       width: 100%;
       max-width: 480px;
-      background: #fff;
-      border-radius: 14px;
       padding: 24px 20px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, .12);
       text-align: center;
-      box-sizing: border-box;
     }
-    #progress { color: #666; font-size: .9rem; }
-    #word { font-size: 2.4rem; font-weight: bold; margin: 12px 0 4px; color: #764ba2; }
+    #progress { color: var(--cyber-green-dim); font-size: .9rem; }
+    #word { font-size: 2.4rem; font-weight: bold; margin: 12px 0 4px; color: var(--cyber-green); text-shadow: 0 0 8px var(--cyber-green); }
     #speak {
       border: none; background: none; font-size: 1.4rem; cursor: pointer;
     }
@@ -38,36 +29,35 @@
     .choice {
       padding: 14px;
       font-size: 1.1rem;
-      border: 2px solid #667eea;
-      border-radius: 10px;
-      background: #fff;
-      color: #222;
+      border: 1px solid var(--cyber-green-dim);
+      background: var(--cyber-bg-panel);
+      color: var(--cyber-text);
+      font-family: var(--cyber-font);
       cursor: pointer;
     }
-    .choice:hover:not(:disabled) { background: #eef0ff; }
-    .choice.correct { background: #4ecca3; border-color: #4ecca3; color: #fff; }
-    .choice.wrong { background: #ff6b6b; border-color: #ff6b6b; color: #fff; }
+    .choice:hover:not(:disabled) { background: var(--cyber-green-faint); }
+    .choice.correct { background: var(--cyber-green); border-color: var(--cyber-green); color: #000; }
+    .choice.wrong { background: #ff4d6d; border-color: #ff4d6d; color: #000; }
     #next, #restart {
       margin-top: 16px;
       padding: .7rem 1.8rem;
-      border: none;
-      border-radius: 999px;
-      background: #667eea;
-      color: #fff;
+      border: 1px solid var(--cyber-green-dim);
+      background: var(--cyber-green-faint);
+      color: var(--cyber-green);
       font-size: 1rem;
+      font-family: var(--cyber-font);
       cursor: pointer;
     }
-    #next:hover, #restart:hover { background: #764ba2; }
+    #next:hover, #restart:hover { background: var(--cyber-green); color: #000; }
     #result { font-size: 1.3rem; }
-    #result b { font-size: 2.4rem; color: #764ba2; display: block; margin: 8px 0; }
+    #result b { font-size: 2.4rem; color: var(--cyber-green); text-shadow: 0 0 8px var(--cyber-green); display: block; margin: 8px 0; }
     .hidden { display: none; }
-    a { color: #667eea; }
   </style>
 </head>
 <body>
   <h1>🔤 英単語クイズ</h1>
 
-  <div id="card">
+  <div id="card" class="panel">
     <div id="quiz">
       <div id="progress"></div>
       <div id="word"></div>
@@ -83,7 +73,7 @@
     </div>
   </div>
 
-  <a href="./">← トップへ戻る</a>
+  <a class="back-link" href="./">&lt; トップへ戻る</a>
 
   <script>
     const WORDS = [

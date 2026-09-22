@@ -1,0 +1,100 @@
+/* ==========================================================
+   CYBER WIREFRAME THEME - Black x Green
+   porkgorilla.github.io 共通テーマ
+   ========================================================== */
+
+:root {
+  --cyber-bg: #050805;
+  --cyber-bg-panel: #0a0f0a;
+  --cyber-green: #39ff6a;
+  --cyber-green-dim: #1e8f3e;
+  --cyber-green-faint: rgba(57, 255, 106, 0.15);
+  --cyber-text: #c9ffd6;
+  --cyber-font: "Courier New", "Consolas", "Roboto Mono", monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--cyber-bg);
+  background-image:
+    linear-gradient(var(--cyber-green-faint) 1px, transparent 1px),
+    linear-gradient(90deg, var(--cyber-green-faint) 1px, transparent 1px);
+  background-size: 32px 32px;
+  color: var(--cyber-text);
+  font-family: var(--cyber-font);
+}
+
+a {
+  color: var(--cyber-green);
+  text-decoration: none;
+  border-bottom: 1px dashed var(--cyber-green-dim);
+}
+a:hover {
+  color: #fff;
+  text-shadow: 0 0 6px var(--cyber-green);
+  border-bottom-style: solid;
+}
+
+/* 見出し */
+h1, h2, h3 {
+  font-family: var(--cyber-font);
+  letter-spacing: 0.06em;
+  color: var(--cyber-green);
+  text-shadow: 0 0 8px var(--cyber-green);
+}
+
+/* パネル(カード)共通 */
+.panel {
+  background-color: var(--cyber-bg-panel);
+  border: 1px solid var(--cyber-green-dim);
+  box-shadow: 0 0 12px rgba(57, 255, 106, 0.08);
+  position: relative;
+}
+.panel::before {
+  content: "//";
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  background: var(--cyber-bg);
+  color: var(--cyber-green);
+  font-size: 11px;
+  padding: 2px 6px;
+}
+
+/* ボタン風リンク */
+.btn {
+  display: inline-block;
+  padding: .7rem 1.6rem;
+  border: 1px solid var(--cyber-green-dim);
+  background: var(--cyber-green-faint);
+  color: var(--cyber-green);
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.btn:hover {
+  background: var(--cyber-green);
+  color: #000;
+  text-shadow: none;
+  border-color: var(--cyber-green);
+}
+
+/* フッター的な小さいリンク行 */
+.back-link {
+  color: var(--cyber-green-dim);
+  font-size: 12px;
+}
+
+/* スクロールバー (Webkit) */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: var(--cyber-bg); }
+::-webkit-scrollbar-thumb {
+  background: var(--cyber-green-dim);
+  border: 1px solid var(--cyber-green);
+}
+
+/* 選択テキスト */
+::selection { background: var(--cyber-green); color: #000; }
