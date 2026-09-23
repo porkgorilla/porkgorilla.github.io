@@ -173,19 +173,28 @@ function loadBest() { try { return parseInt(localStorage.getItem('kamogawa-best'
 function saveBest(v) { try { localStorage.setItem('kamogawa-best', String(v)); } catch (e) {} }
 
 // ---- audio ----
-let AC = null, master = null, muted = false;
+let AC = null, master = null, bgmGain = null, muted = false;
 function initAudio() {
   if (AC) { if (AC.state === 'suspended') AC.resume(); return; }
   try {
     AC = new (window.AudioContext || window.webkitAudioContext)();
     master = AC.createGain(); master.gain.value = muted ? 0 : 0.55; master.connect(AC.destination);
+    bgmGain = AC.createGain(); bgmGain.gain.value = 1; bgmGain.connect(master);
     const len = AC.sampleRate * 2, buf = AC.createBuffer(1, len, AC.sampleRate), d = buf.getChannelData(0);
     let last = 0; for (let i = 0; i < len; i++) { last = (last + 0.02 * (Math.random() * 2 - 1)) / 1.02; d[i] = last * 3.2; }
     const src = AC.createBufferSource(); src.buffer = buf; src.loop = true;
     const lp = AC.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 650;
     const g = AC.createGain(); g.gain.value = 0.22;
-    src.connect(lp); lp.connect(g); g.connect(master); src.start();
+    src.connect(lp); lp.connect(g); g.connect(bgmGain); src.start();
   } catch (e) { AC = null; }
+}
+// リザルト画面では川音を止め、再スタート時にまた鳴らす
+function setBgm(on) {
+  if (!AC || !bgmGain) return;
+  const t = AC.currentTime;
+  bgmGain.gain.cancelScheduledValues(t);
+  bgmGain.gain.setValueAtTime(bgmGain.gain.value, t);
+  bgmGain.gain.linearRampToValueAtTime(on ? 1 : 0, t + 0.6);
 }
 function tone(f, dur, type, vol, when, f2) {
   if (!AC) return;
@@ -404,6 +413,7 @@ function rankOf(score) {
 
 function showOver() {
   S.mode = 'over';
+  setBgm(false);
   const cleared = S.lives > 0;
   if (S.score > S.best) { S.best = S.score; saveBest(S.best); }
   $('overHead').textContent = cleared ? '河原じまい' : '河原の空気';
@@ -435,15 +445,17 @@ function xLength(t) {
   }
   return n;
 }
+const GAME_URL = 'https://porkgorilla.github.io/works/kamogawa.html';
+const URL_LEN = 23; // Xはリンクを短縮URL(t.co, 23文字)として数える
 function updateShare() {
-  const t = $('shareText').value, n = xLength(t), over = n > 280;
-  $('shareCount').textContent = n + ' / 280';
+  const t = $('shareText').value, n = xLength(t), over = n + URL_LEN > 280;
+  $('shareCount').textContent = (n + URL_LEN) + ' / 280';
   $('shareCount').classList.toggle('over', over);
-  $('shareBtn').href = 'https://x.com/intent/post?text=' + encodeURIComponent(t);
+  $('shareBtn').href = 'https://x.com/intent/post?text=' + encodeURIComponent(t) + '&url=' + encodeURIComponent(GAME_URL);
   $('shareBtn').setAttribute('aria-disabled', over || !t.trim() ? 'true' : 'false');
 }
 function start() {
-  initAudio(); resetGame(); sfx.start();
+  initAudio(); setBgm(true); resetGame(); sfx.start();
   $('titleOv').hidden = true; $('overOv').hidden = true;
 }
 
