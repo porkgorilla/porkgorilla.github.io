@@ -467,12 +467,16 @@ function xLength(t) {
   return n;
 }
 const GAME_URL = 'https://porkgorilla.github.io/works/kamogawa.html';
+// Xはリンクごとにカード情報(og:image等)をキャッシュするため、タグや画像を
+// 更新したときはこの番号を上げて別URL扱いにし、再クロールさせる。
+const OG_CACHE_VERSION = 2;
+const SHARE_URL = GAME_URL + '?ogv=' + OG_CACHE_VERSION;
 const URL_LEN = 23; // Xはリンクを短縮URL(t.co, 23文字)として数える
 function updateShare() {
   const t = $('shareText').value, n = xLength(t), over = n + URL_LEN > 280;
   $('shareCount').textContent = (n + URL_LEN) + ' / 280';
   $('shareCount').classList.toggle('over', over);
-  $('shareBtn').href = 'https://x.com/intent/post?text=' + encodeURIComponent(t) + '&url=' + encodeURIComponent(GAME_URL);
+  $('shareBtn').href = 'https://x.com/intent/post?text=' + encodeURIComponent(t) + '&url=' + encodeURIComponent(SHARE_URL);
   $('shareBtn').setAttribute('aria-disabled', over || !t.trim() ? 'true' : 'false');
 }
 function start() {
