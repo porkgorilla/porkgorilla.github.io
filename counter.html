@@ -3,10 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>文字数カウンター</title>
+  <title>CHAR_COUNTER | porkgorilla://</title>
+  <meta name="description" content="文字数・行数・英単語数・バイト数をリアルタイムに数えるツール。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="theme.css">
   <style>
-    body {
+    main {
       padding: 24px 16px;
       display: flex;
       flex-direction: column;
@@ -54,6 +56,7 @@
   </style>
 </head>
 <body>
+  <main>
   <h1>📝 文字数カウンター</h1>
   <textarea id="t" placeholder="ここに文章を入力または貼り付けてください" autofocus></textarea>
   <div class="stats">
@@ -67,8 +70,9 @@
     <button id="copy">コピー</button>
     <button id="clear">クリア</button>
   </div>
-  <a class="back-link" href="./">&lt; トップへ戻る</a>
+  </main>
 
+  <script src="site.js"></script>
   <script>
     const t = document.getElementById('t');
     const $ = id => document.getElementById(id);

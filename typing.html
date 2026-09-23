@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TYPE_ATTACK | porkgorilla://</title>
+  <meta name="description" content="60秒で英単語を何語打てるか挑戦するタイピングゲーム。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="theme.css">
+  <style>
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      padding: 24px 16px;
+      text-align: center;
+    }
+    h1 { margin: 0; font-size: 1.6rem; }
+    .hud {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 6px 22px;
+      color: var(--cyber-green-dim);
+      font-size: .85rem;
+      letter-spacing: .06em;
+    }
+    .hud b { color: var(--cyber-green); font-size: 1.3rem; margin-left: 6px; }
+    #time.low { color: var(--cyber-red); text-shadow: 0 0 6px var(--cyber-red); }
+    .stage {
+      width: 100%;
+      max-width: 560px;
+      padding: 30px 16px 26px;
+    }
+    #meaning { color: var(--cyber-green-dim); min-height: 1.4em; }
+    #word {
+      margin-top: 8px;
+      font-size: clamp(1.8rem, 8vw, 3rem);
+      font-weight: bold;
+      letter-spacing: .08em;
+      word-break: break-all;
+    }
+    #word .done { color: var(--cyber-green); text-shadow: 0 0 10px var(--cyber-green); }
+    #word .rest { color: var(--cyber-text); opacity: .55; }
+    .stage.miss { animation: shake .2s; border-color: var(--cyber-red); }
+    @keyframes shake {
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+    #input {
+      width: 100%;
+      max-width: 560px;
+      padding: 12px;
+      background: var(--cyber-bg-panel);
+      border: 1px solid var(--cyber-green-dim);
+      color: var(--cyber-green);
+      font-family: var(--cyber-font);
+      font-size: 1.3rem;
+      text-align: center;
+    }
+    #input:focus { outline: none; border-color: var(--cyber-green); box-shadow: 0 0 10px rgba(57, 255, 106, .25); }
+    #msg { min-height: 1.5em; line-height: 1.7; }
+    .result { color: var(--cyber-green); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>⌨️ TYPE_ATTACK</h1>
+    <div class="hud">
+      <span>TIME<b id="time">60</b></span>
+      <span>WORDS<b id="score">0</b></span>
+      <span>MISS<b id="miss">0</b></span>
+      <span>BEST<b id="best">0</b></span>
+    </div>
+
+    <div class="stage panel" id="stage">
+      <div id="meaning">60秒で何単語打てるか挑戦!</div>
+      <div id="word"><span class="done"></span><span class="rest">READY?</span></div>
+    </div>
+
+    <input id="input" type="text" autocomplete="off" autocapitalize="off" autocorrect="off"
+           spellcheck="false" lang="en" placeholder="半角英字で入力" aria-label="タイピング入力" disabled>
+    <button class="btn" id="start">START (Enter)</button>
+    <div id="msg">表示された英単語を入力しよう。日本語訳もいっしょに覚えられます。</div>
+  </main>
+
+  <script src="site.js"></script>
+  <script>
+    const WORDS = [
+      ['apple', 'りんご'], ['book', '本'], ['water', '水'], ['friend', '友達'],
+      ['school', '学校'], ['happy', '幸せな'], ['music', '音楽'], ['garden', '庭'],
+      ['beautiful', '美しい'], ['library', '図書館'], ['tomorrow', '明日'], ['weather', '天気'],
+      ['important', '重要な'], ['difficult', '難しい'], ['remember', '覚えている'],
+      ['travel', '旅行する'], ['knowledge', '知識'], ['delicious', 'おいしい'],
+      ['together', '一緒に'], ['question', '質問'], ['mountain', '山'], ['river', '川'],
+      ['window', '窓'], ['dream', '夢'], ['borrow', '借りる'], ['ocean', '海'],
+      ['kitchen', '台所'], ['station', '駅'], ['answer', '答え'], ['morning', '朝'],
+      ['computer', 'コンピューター'], ['keyboard', 'キーボード'], ['network', 'ネットワーク'],
+      ['future', '未来'], ['energy', 'エネルギー'], ['journey', '旅'], ['courage', '勇気'],
+      ['silence', '静けさ'], ['promise', '約束'], ['adventure', '冒険']
+    ];
+    const LIMIT = 60;
+
+    const $ = id => document.getElementById(id);
+    const input = $('input');
+    let best = 0;
+    try { best = Number(localStorage.getItem('typeAttackBest')) || 0; } catch (e) {}
+    $('best').textContent = best;
+
+    let queue, current, words, miss, correctKeys, endAt, timer, running = false, prev = '';
+
+    function shuffle(a) {
+      a = a.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function nextWord() {
+      if (!queue.length) queue = shuffle(WORDS);
+      current = queue.pop();
+      $('meaning').textContent = current[1];
+      input.value = prev = '';
+      paint();
+    }
+
+    function paint() {
+      const typed = input.value.length;
+      document.querySelector('#word .done').textContent = current[0].slice(0, typed);
+      document.querySelector('#word .rest').textContent = current[0].slice(typed);
+    }
+
+    function start() {
+      if (running) return;
+      running = true;
+      queue = shuffle(WORDS);
+      words = miss = correctKeys = 0;
+      $('score').textContent = $('miss').textContent = 0;
+      $('msg').textContent = '';
+      $('start').disabled = true;
+      input.disabled = false;
+      input.focus();
+      nextWord();
+      endAt = Date.now() + LIMIT * 1000;
+      tick();
+      timer = setInterval(tick, 100);
+    }
+
+    function tick() {
+      const left = Math.max(0, Math.ceil((endAt - Date.now()) / 1000));
+      $('time').textContent = left;
+      $('time').classList.toggle('low', left <= 10);
+      if (left === 0) finish();
+    }
+
+    function finish() {
+      clearInterval(timer);
+      running = false;
+      input.disabled = true;
+      $('start').disabled = false;
+      $('start').textContent = 'RETRY (Enter)';
+      const total = correctKeys + miss;
+      const acc = total ? Math.round(correctKeys / total * 100) : 0;
+      let text = `<span class="result">${words} 語 / 正確率 ${acc}% / ${correctKeys} 打鍵</span>`;
+      if (words > best) {
+        best = words;
+        $('best').textContent = best;
+        try { localStorage.setItem('typeAttackBest', best); } catch (e) {}
+        text += '<br>NEW RECORD!';
+      }
+      $('msg').innerHTML = text;
+      $('meaning').textContent = 'TIME UP';
+      document.querySelector('#word .done').textContent = '';
+      document.querySelector('#word .rest').textContent = 'FINISH';
+    }
+
+    input.addEventListener('input', e => {
+      if (!running || e.isComposing) return;
+      const val = input.value.toLowerCase();
+      if (val.length > prev.length) {
+        if (current[0].startsWith(val)) {
+          correctKeys += val.length - prev.length;
+        } else {
+          // 打ち間違い: 入力を取り消して揺らす
+          miss++;
+          $('miss').textContent = miss;
+          input.value = prev;
+          const stage = $('stage');
+          stage.classList.remove('miss');
+          void stage.offsetWidth;
+          stage.classList.add('miss');
+          return;
+        }
+      }
+      input.value = prev = val;
+      paint();
+      if (val === current[0]) {
+        words++;
+        $('score').textContent = words;
+        nextWord();
+      }
+    });
+
+    $('stage').addEventListener('animationend', () => $('stage').classList.remove('miss'));
+    $('start').onclick = start;
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !running) { e.preventDefault(); start(); }
+    });
+  </script>
+</body>
+</html>

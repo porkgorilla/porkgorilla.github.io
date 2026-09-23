@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>POMODORO | porkgorilla://</title>
+  <meta name="description" content="25分集中＋5分休憩のポモドーロタイマー。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="theme.css">
+  <style>
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      padding: 24px 16px;
+      text-align: center;
+    }
+    h1 { margin: 0; font-size: 1.6rem; }
+    .modes { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+    .modes button {
+      padding: 6px 14px;
+      border: 1px solid var(--cyber-green-dim);
+      background: transparent;
+      color: var(--cyber-green-dim);
+      font-family: var(--cyber-font);
+      font-size: .9rem;
+      cursor: pointer;
+    }
+    .modes button.active { background: var(--cyber-green); border-color: var(--cyber-green); color: #000; }
+    .clock {
+      width: 100%;
+      max-width: 420px;
+      padding: 28px 20px 24px;
+    }
+    #label { color: var(--cyber-green-dim); letter-spacing: .2em; }
+    #time {
+      margin: 6px 0 18px;
+      font-size: clamp(3.4rem, 16vw, 5.5rem);
+      font-weight: bold;
+      color: var(--cyber-green);
+      text-shadow: 0 0 14px var(--cyber-green);
+      font-variant-numeric: tabular-nums;
+    }
+    .clock.break #time { color: #7fd8ff; text-shadow: 0 0 14px #7fd8ff; }
+    .bar { height: 6px; border: 1px solid var(--cyber-green-dim); }
+    #progress { height: 100%; width: 0; background: var(--cyber-green); transition: width .25s linear; }
+    .clock.break #progress { background: #7fd8ff; }
+    .actions { display: flex; gap: 10px; }
+    #sessions { color: var(--cyber-green-dim); }
+    #sessions b { color: var(--cyber-green); font-size: 1.2rem; }
+    .dots { letter-spacing: .3em; color: var(--cyber-green); }
+    .note { max-width: 420px; margin: 0; font-size: .85rem; line-height: 1.8; color: var(--cyber-green-dim); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>⏱ POMODORO</h1>
+    <div class="modes" role="group" aria-label="モード">
+      <button data-mode="focus" class="active">FOCUS 25</button>
+      <button data-mode="short">BREAK 5</button>
+      <button data-mode="long">LONG 15</button>
+    </div>
+
+    <div class="clock panel" id="clock">
+      <div id="label">FOCUS</div>
+      <div id="time" role="timer" aria-live="off">25:00</div>
+      <div class="bar"><div id="progress"></div></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn" id="toggle">START</button>
+      <button class="btn" id="reset">RESET</button>
+    </div>
+
+    <div id="sessions">今日の FOCUS 完了: <b id="count">0</b> <span class="dots" id="dots"></span></div>
+    <p class="note">25分集中して5分休憩、を4回くり返したら15分の長い休憩。時間になるとビープ音が鳴り、次のモードに切り替わります(自動では始まりません)。</p>
+  </main>
+
+  <script src="site.js"></script>
+  <script>
+    const MODES = {
+      focus: { label: 'FOCUS', min: 25 },
+      short: { label: 'BREAK', min: 5 },
+      long: { label: 'LONG BREAK', min: 15 }
+    };
+    const $ = id => document.getElementById(id);
+    const todayKey = 'pomodoro-' + new Date().toISOString().slice(0, 10);
+
+    let mode = 'focus', total, remaining, endAt = null, timer = null;
+    let count = 0;
+    try { count = Number(localStorage.getItem(todayKey)) || 0; } catch (e) {}
+
+    function fmt(ms) {
+      const s = Math.ceil(ms / 1000);
+      return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+    }
+
+    function render() {
+      $('time').textContent = fmt(remaining);
+      $('progress').style.width = ((total - remaining) / total * 100) + '%';
+      $('count').textContent = count;
+      $('dots').textContent = '■'.repeat(count % 4) + '□'.repeat(4 - count % 4);
+      document.title = (endAt ? fmt(remaining) + ' ' + MODES[mode].label + ' | ' : '') + 'POMODORO | porkgorilla://';
+    }
+
+    function setMode(m) {
+      pause();
+      mode = m;
+      total = remaining = MODES[m].min * 60 * 1000;
+      $('label').textContent = MODES[m].label;
+      $('clock').classList.toggle('break', m !== 'focus');
+      document.querySelectorAll('.modes button').forEach(b => b.classList.toggle('active', b.dataset.mode === m));
+      render();
+    }
+
+    function startTimer() {
+      endAt = Date.now() + remaining;
+      $('toggle').textContent = 'PAUSE';
+      timer = setInterval(tick, 250);
+      tick();
+    }
+
+    function pause() {
+      if (timer) clearInterval(timer);
+      if (endAt) remaining = Math.max(0, endAt - Date.now());
+      timer = endAt = null;
+      $('toggle').textContent = 'START';
+    }
+
+    function tick() {
+      remaining = Math.max(0, endAt - Date.now());
+      render();
+      if (remaining === 0) complete();
+    }
+
+    function complete() {
+      pause();
+      beep();
+      if (mode === 'focus') {
+        count++;
+        try { localStorage.setItem(todayKey, count); } catch (e) {}
+        setMode(count % 4 === 0 ? 'long' : 'short');
+      } else {
+        setMode('focus');
+      }
+    }
+
+    function beep() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        [0, 0.35, 0.7].forEach(t => {
+          const o = ctx.createOscillator();
+          const g = ctx.createGain();
+          o.type = 'square';
+          o.frequency.value = 880;
+          g.gain.setValueAtTime(0.15, ctx.currentTime + t);
+          g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.25);
+          o.connect(g).connect(ctx.destination);
+          o.start(ctx.currentTime + t);
+          o.stop(ctx.currentTime + t + 0.25);
+        });
+      } catch (e) {}
+    }
+
+    $('toggle').onclick = () => (timer ? pause() : startTimer());
+    $('reset').onclick = () => setMode(mode);
+    document.querySelectorAll('.modes button').forEach(b => b.onclick = () => setMode(b.dataset.mode));
+
+    setMode('focus');
+  </script>
+</body>
+</html>

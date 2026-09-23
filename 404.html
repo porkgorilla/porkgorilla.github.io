@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 | porkgorilla://</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <!-- 404 はどの階層でも表示されるので、パスはすべて絶対パスにする -->
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    main {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 16px;
+    }
+    .box {
+      width: 100%;
+      max-width: 520px;
+      padding: 32px 24px;
+      text-align: center;
+    }
+    .code {
+      margin: 0;
+      font-size: clamp(3.5rem, 18vw, 6rem);
+      color: var(--cyber-green);
+      text-shadow: 0 0 14px var(--cyber-green);
+      animation: glitch 3s infinite;
+    }
+    @keyframes glitch {
+      0%, 92%, 100% { transform: none; text-shadow: 0 0 14px var(--cyber-green); }
+      93% { transform: translate(-3px, 1px); text-shadow: 3px 0 var(--cyber-red), -3px 0 #7fd8ff; }
+      95% { transform: translate(3px, -1px); text-shadow: -3px 0 var(--cyber-red), 3px 0 #7fd8ff; }
+      97% { transform: translate(-1px, 0); }
+    }
+    .sub { margin: 0 0 20px; letter-spacing: .2em; color: var(--cyber-green-dim); }
+    .box p { line-height: 1.8; }
+    .box p::before { content: "> "; color: var(--cyber-green-dim); }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="box panel">
+      <h1 class="code">404</h1>
+      <div class="sub">FILE_NOT_FOUND</div>
+      <p>指定されたページは存在しないか、移動した可能性があります。</p>
+      <a class="btn" href="/">HOME へ戻る</a>
+    </div>
+  </main>
+  <script src="/site.js"></script>
+</body>
+</html>
