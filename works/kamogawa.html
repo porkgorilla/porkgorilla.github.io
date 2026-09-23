@@ -185,8 +185,15 @@ function saveBest(v) { try { localStorage.setItem('kamogawa-best', String(v)); }
 
 // ---- audio ----
 let AC = null, master = null, bgmGain = null, muted = false;
-function initAudio() {
-  if (AC) {
+// force=true で、既存のAudioContextを状態に関わらず作り直す。
+// iOS Safari等ではバックグラウンド復帰後に state が "running" のまま実際には
+// 音が出なくなることがあり、state を信用した復帰だけでは直らないため、
+// プレイ開始・再開の操作(確実なユーザー操作)のタイミングでは毎回作り直す。
+function initAudio(force) {
+  if (AC && force) {
+    try { AC.close().catch(() => {}); } catch (e) {}
+    AC = null; master = null; bgmGain = null;
+  } else if (AC) {
     if (AC.state === 'closed') { AC = null; master = null; bgmGain = null; }
     else { if (AC.state === 'suspended') AC.resume(); return; }
   }
@@ -469,7 +476,7 @@ function updateShare() {
   $('shareBtn').setAttribute('aria-disabled', over || !t.trim() ? 'true' : 'false');
 }
 function start() {
-  initAudio(); setBgm(true); resetGame(); sfx.start();
+  initAudio(true); setBgm(true); resetGame(); sfx.start();
   $('titleOv').hidden = true; $('overOv').hidden = true;
 }
 
@@ -812,27 +819,13 @@ $('mute').addEventListener('click', () => {
 });
 if (S.best) $('bestTitle').textContent = '自己ベスト ' + S.best.toLocaleString('ja-JP');
 
-// スマホでは https://x.com/intent/post は(アプリの有無に関わらずWebで確実に
-// 開けるよう)ユニバーサルリンクの対象外にされていることが多く、target属性を
-// 外すだけではXアプリに連携しない。そこでXアプリ専用のURLスキームを試し、
-// 一定時間たっても画面が切り替わらなければWeb版にフォールバックする。
+// Xアプリを直接開かせるURLスキームは、ブラウザ間で挙動が揃わず
+// (Safariは確認ダイアログの裏でフォールバックが同時に走って二重に開き、
+// Chromeはスキーム自体を無視する)、確実な体験にならないため使わない。
+// スマホでは新しいタブより同じタブで開く方が自然なので、そこだけ変える。
 if (matchMedia('(pointer: coarse)').matches) {
-  $('shareBtn').addEventListener('click', e => {
-    if ($('shareBtn').getAttribute('aria-disabled') === 'true') { e.preventDefault(); return; }
-    e.preventDefault();
-    const text = $('shareText').value;
-    const message = text + (text.trim() ? '\n' : '') + GAME_URL;
-    const webUrl = $('shareBtn').href;
-    const appUrl = 'twitter://post?message=' + encodeURIComponent(message);
-    let handed = false;
-    const onHide = () => { handed = true; };
-    document.addEventListener('visibilitychange', onHide, { once: true });
-    setTimeout(() => {
-      document.removeEventListener('visibilitychange', onHide);
-      if (!handed && !document.hidden) location.href = webUrl;
-    }, 900);
-    location.href = appUrl;
-  });
+  $('shareBtn').removeAttribute('target');
+  $('shareBtn').removeAttribute('rel');
 }
 
 // ---- loop ----
