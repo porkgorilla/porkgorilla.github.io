@@ -743,7 +743,7 @@ function resize() {
   const st = stage.getBoundingClientRect();
   if (st.width < 10 || st.height < 10) return;
   const oldL = L, oldR = R;
-  LW = Math.round(clamp(LH * (st.width / st.height), 480, 1100));
+  LW = Math.round(clamp(LH * (st.width / st.height), 480, 800));
   const margin = LW < 640 ? 52 : 72;
   L = margin; R = LW - margin;
   PERSONAL = LW < 640 ? 32 : 40;
