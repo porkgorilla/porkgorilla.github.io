@@ -3,21 +3,24 @@
 // 作品を追加するときは WORKS に1行足せば、トップページの一覧にも反映される。
 
 window.SITE_WORKS = [
-  { id: 'snake', href: '/snake.html', icon: '🐍', title: 'SNAKE',
+  { id: 'snake', href: '/works/snake.html', icon: '🐍', title: 'SNAKE',
     desc: '定番のへびゲーム。エサを食べて伸びていく。キーボードとスマホのボタンに対応。',
     tags: ['GAME'] },
-  { id: 'type_attack', href: '/typing.html', icon: '⌨️', title: 'TYPE_ATTACK', isNew: true,
+  { id: 'type_attack', href: '/works/typing.html', icon: '⌨️', title: 'TYPE_ATTACK', isNew: true,
     desc: '60秒で英単語を何語打てるか挑戦するタイピングゲーム。日本語訳も一緒に覚えられる。',
     tags: ['GAME', 'LANGUAGE'] },
-  { id: 'vocab', href: '/vocab.html', icon: '🔤', title: 'VOCAB_QUIZ',
+  { id: 'vocab', href: '/works/vocab.html', icon: '🔤', title: 'VOCAB_QUIZ',
     desc: '英単語の意味を4択で答えるクイズ。全10問、発音の読み上げつき。',
     tags: ['LANGUAGE'] },
-  { id: 'counter', href: '/counter.html', icon: '📝', title: 'CHAR_COUNTER',
+  { id: 'counter', href: '/works/counter.html', icon: '📝', title: 'CHAR_COUNTER',
     desc: '文字数・行数・英単語数・バイト数をリアルタイムに数えるツール。',
     tags: ['TOOL'] },
-  { id: 'pomodoro', href: '/timer.html', icon: '⏱', title: 'POMODORO', isNew: true,
+  { id: 'pomodoro', href: '/works/timer.html', icon: '⏱', title: 'POMODORO', isNew: true,
     desc: '25分集中＋5分休憩のポモドーロタイマー。終了時にビープ音でお知らせ。',
-    tags: ['TOOL'] }
+    tags: ['TOOL'] },
+  { id: 'kamogawa', href: '/works/kamogawa.html', icon: '🏮', title: 'KAMOGAWA', isNew: true,
+    desc: '夕暮れの鴨川。やって来たカップルを、河原のいちばん空いている場所に座らせよう。',
+    tags: ['GAME'] }
 ];
 
 (function () {
