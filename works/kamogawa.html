@@ -186,7 +186,10 @@ function saveBest(v) { try { localStorage.setItem('kamogawa-best', String(v)); }
 // ---- audio ----
 let AC = null, master = null, bgmGain = null, muted = false;
 function initAudio() {
-  if (AC) { if (AC.state === 'suspended') AC.resume(); return; }
+  if (AC) {
+    if (AC.state === 'closed') { AC = null; master = null; bgmGain = null; }
+    else { if (AC.state === 'suspended') AC.resume(); return; }
+  }
   try {
     AC = new (window.AudioContext || window.webkitAudioContext)();
     master = AC.createGain(); master.gain.value = muted ? 0 : 0.55; master.connect(AC.destination);
@@ -808,6 +811,13 @@ $('mute').addEventListener('click', () => {
   if (master) master.gain.value = muted ? 0 : 0.55;
 });
 if (S.best) $('bestTitle').textContent = '自己ベスト ' + S.best.toLocaleString('ja-JP');
+
+// スマホ等のタッチ端末では別タブで開くとXアプリへの連携が働きにくいため、
+// 同じタブで遷移させてOS側のアプリ連携(ユニバーサルリンク)に任せる
+if (matchMedia('(pointer: coarse)').matches) {
+  $('shareBtn').removeAttribute('target');
+  $('shareBtn').removeAttribute('rel');
+}
 
 // ---- loop ----
 let last = performance.now(), paused = false;
