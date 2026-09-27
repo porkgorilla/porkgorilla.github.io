@@ -80,10 +80,14 @@ canvas{display:block;border-radius:6px}
 .body p.lead{font-family:var(--mincho);font-size:17px;font-weight:700}
 .body .keys{color:#cfc4ad;font-size:13px}
 .go{margin-top:6px;font-family:var(--mincho);font-weight:800;font-size:19px;letter-spacing:.1em;
-  background:#f2a33a;color:#1a1326;border:0;border-radius:999px;padding:12px 30px;cursor:pointer;
-  box-shadow:0 0 0 4px rgba(242,163,58,.18),0 6px 20px rgba(242,163,58,.35)}
+  background:#f2a33a;color:#1a1326;border:0;border-radius:999px;padding:12px 30px;cursor:pointer}
 .go:hover{background:#ffb858}
+.actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:6px}
+.actions .go{margin-top:0;box-shadow:0 0 0 4px rgba(242,163,58,.18),0 6px 20px rgba(242,163,58,.35)}
+.go.ghost{background:transparent;color:#f2a33a;box-shadow:none;border:2px solid rgba(242,163,58,.55)}
+.go.ghost:hover{background:rgba(242,163,58,.12)}
 .best{font-size:13px;color:#cfc4ad;margin-top:12px}
+.credit{font-size:11px;color:#8f8878;margin-top:18px;letter-spacing:.05em}
 .stats{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;margin:0 0 14px;font-size:15px}
 .stats dt{color:#cfc4ad}.stats dd{margin:0;font-weight:700;font-variant-numeric:tabular-nums}
 .share{margin:0 0 16px;padding:12px;border:1px solid rgba(241,232,212,.18);border-radius:10px;background:rgba(255,255,255,.04)}
@@ -125,6 +129,7 @@ canvas{display:block;border-radius:6px}
         <p class="keys">操作：画面をタップ／クリック、またはスペースキー</p>
         <button class="go" id="startBtn">河原へ行く</button>
         <div class="best" id="bestTitle"></div>
+        <div class="credit">porkgorilla — 2026</div>
       </div>
     </div>
   </div>
@@ -149,7 +154,10 @@ canvas{display:block;border-radius:6px}
             <a class="xbtn" id="shareBtn" href="#" target="_blank" rel="noopener noreferrer">𝕏 で投稿する</a>
           </div>
         </div>
-        <button class="go" id="againBtn">もう一度</button>
+        <div class="actions">
+          <button class="go" id="againBtn">もう一度</button>
+          <button class="go ghost" id="titleBtn">タイトルへ</button>
+        </div>
       </div>
     </div>
   </div>
@@ -492,6 +500,15 @@ function start() {
   $('titleOv').hidden = true; $('overOv').hidden = true;
 }
 
+function backToTitle() {
+  S.mode = 'title';
+  setBgm(false);
+  $('overOv').hidden = true;
+  $('titleOv').hidden = false;
+  $('bestTitle').textContent = S.best ? '自己ベスト ' + S.best.toLocaleString('ja-JP') : '';
+  $('startBtn').focus();
+}
+
 // ---- update ----
 function update(dt) {
   S.t += dt;
@@ -822,6 +839,7 @@ window.addEventListener('keydown', e => {
 });
 $('startBtn').addEventListener('click', start);
 $('againBtn').addEventListener('click', start);
+$('titleBtn').addEventListener('click', backToTitle);
 $('shareText').addEventListener('input', updateShare);
 $('mute').addEventListener('click', () => {
   muted = !muted;
