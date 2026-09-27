@@ -191,3 +191,60 @@ function initAudio(force) {
 `AudioContext.close()` は非同期でrejectすることがあるため、`try/catch` だけでは拾えない。`.catch(() => {})` を必ず付ける。
 
 `visibilitychange` で「タブに戻ってきた瞬間」にソフトな復帰(`initAudio()` を force無しで呼ぶ)を試みるのはやってよいが、それだけでは直らないことがある。上記の「ユーザー操作時に強制再作成」が本命の対策。
+
+---
+
+## 6. クレジット表示と画面遷移(タイトルへ戻る)の覚書
+
+鴨川等間隔(KAMOGAWA)への追加要望をきっかけに固めたルール。**新しくゲームを作る/持ち込むときは、最初からこの形にしておく。**
+
+### クレジット表示
+- タイトル画面のどこか(操作説明やスタートボタンの下など)に、控えめな一言を入れる。
+
+```html
+<div class="credit">porkgorilla — 2026</div>
+```
+```css
+.credit{font-size:11px;color:#8f8878;margin-top:18px;letter-spacing:.05em}
+```
+- 色はゲーム自体の配色から拾った、目立たない中間色(薄いグレーやくすんだ色)にする。強調色(アクセントカラー)は使わない。
+- 年はゲームを作った年でよい。サイト共通フッターのように `new Date().getFullYear()` で自動化してもよいが、タイトル画面は静的な演出の一部なので固定値のままでも問題ない。
+
+### 「タイトルへ戻る」ボタン
+- **リザルト画面(ゲームオーバー/クリア画面)には、「もう一度」だけでなく「タイトルへ」ボタンも必ず置く。**
+- 2つのボタンは横並び(スマホでは縦積みに折り返す)にし、「もう一度」を主役(塗りつぶし)、「タイトルへ」を控えめ(輪郭線だけの ghost ボタン)にして優先度を視覚的に分ける。
+
+```html
+<div class="actions">
+  <button class="go" id="againBtn">もう一度</button>
+  <button class="go ghost" id="titleBtn">タイトルへ</button>
+</div>
+```
+```css
+.actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+.go.ghost{background:transparent;color:#f2a33a;box-shadow:none;border:2px solid rgba(242,163,58,.55)}
+.go.ghost:hover{background:rgba(242,163,58,.12)}
+```
+```js
+function backToTitle() {
+  S.mode = 'title';
+  setBgm(false);           // BGMがあるゲームは、タイトルに戻すときも止める/切り替える
+  overOv.hidden = true;
+  titleOv.hidden = false;
+  // 自己ベストの再表示など、タイトル画面の状態を更新
+}
+$('titleBtn').addEventListener('click', backToTitle);
+```
+
+### 中断(ポーズ)画面の場合は確認ダイアログを挟む
+プレイ中に開ける「ポーズ画面」に「タイトルへ戻る」を置く場合は、**リザルト画面と同列に扱わない**こと。リザルト画面は既にゲームが終わっているので即座に戻ってよいが、ポーズ画面から戻るのはプレイ中のスコア・進行を失う操作なので、誤タップ・誤クリックで即終了させないよう、必ず一段確認を挟む。
+
+```js
+function requestBackToTitle() {
+  if (confirm('タイトルに戻りますか？ここまでの記録は失われます')) {
+    backToTitle();
+  }
+}
+```
+シンプルな `confirm()` で十分。ゲームの世界観に合わせた自作の確認モーダルにしてもよいが、その場合も「はい/いいえ」の2択で、デフォルトフォーカスは「いいえ(キャンセル)」側に置く(誤って続けてタップ/Enterしても終了しないように)。
+
