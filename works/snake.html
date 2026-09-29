@@ -49,6 +49,14 @@
       cursor: pointer;
     }
     #pad button:active { background: var(--cyber-green); color: #000; }
+    #mute {
+      font-size: 0.9rem;
+      padding: 6px 12px;
+      border: 1px solid var(--cyber-green-dim);
+      background: var(--cyber-green-faint);
+      color: var(--cyber-green);
+      cursor: pointer;
+    }
     #up { grid-column: 2; grid-row: 1; }
     #left { grid-column: 1; grid-row: 2; }
     #down { grid-column: 2; grid-row: 2; }
@@ -67,6 +75,7 @@
     <button id="down">↓</button>
     <button id="right">→</button>
   </div>
+  <button id="mute" type="button"></button>
   </main>
 
   <script src="/site.js"></script>
@@ -81,6 +90,50 @@
     let best = 0;
     try { best = Number(localStorage.getItem('snakeBest')) || 0; } catch (e) {}
     bestEl.textContent = best;
+
+    // ---- サウンド (Web Audio で合成) ----
+    let audio = null;
+    let muted = false;
+    try { muted = localStorage.getItem('snakeMuted') === '1'; } catch (e) {}
+    const muteBtn = document.getElementById('mute');
+    function updateMuteBtn() { muteBtn.textContent = muted ? '🔇 SOUND OFF' : '🔊 SOUND ON'; }
+    updateMuteBtn();
+
+    // iOSでバックグラウンド後に音が死ぬことがあるため、ユーザー操作での開始時に作り直す
+    function initAudio() {
+      if (audio) audio.close().catch(() => {});
+      const AC = window.AudioContext || window.webkitAudioContext;
+      audio = AC ? new AC() : null;
+    }
+
+    function tone(freq, start, dur, type, vol, endFreq) {
+      if (!audio || muted) return;
+      const t = audio.currentTime + start;
+      const osc = audio.createOscillator();
+      const g = audio.createGain();
+      osc.type = type || 'square';
+      osc.frequency.setValueAtTime(freq, t);
+      if (endFreq) osc.frequency.exponentialRampToValueAtTime(endFreq, t + dur);
+      g.gain.setValueAtTime(vol || 0.08, t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      osc.connect(g).connect(audio.destination);
+      osc.start(t);
+      osc.stop(t + dur + 0.02);
+    }
+
+    const sfx = {
+      start()  { tone(440, 0, 0.08); tone(660, 0.08, 0.08); tone(880, 0.16, 0.12); },
+      eat()    { tone(660, 0, 0.07); tone(990, 0.06, 0.1); },
+      turn()   { tone(220, 0, 0.03, 'square', 0.03); },
+      over()   { tone(400, 0, 0.5, 'sawtooth', 0.1, 60); }
+    };
+
+    muteBtn.onclick = () => {
+      muted = !muted;
+      try { localStorage.setItem('snakeMuted', muted ? '1' : '0'); } catch (e) {}
+      updateMuteBtn();
+      if (!muted) { if (!audio) initAudio(); sfx.eat(); }
+    };
 
     let snake, dir, nextDir, food, score, timer, running;
 
@@ -103,6 +156,8 @@
     function start() {
       if (running) return;
       reset();
+      initAudio();
+      sfx.start();
       running = true;
       msgEl.textContent = '';
       timer = setInterval(step, 120);
@@ -111,6 +166,7 @@
     function gameOver() {
       clearInterval(timer);
       running = false;
+      sfx.over();
       if (score > best) {
         best = score;
         bestEl.textContent = best;
@@ -131,6 +187,7 @@
       if (head.x === food.x && head.y === food.y) {
         score++;
         scoreEl.textContent = score;
+        sfx.eat();
         placeFood();
       } else {
         snake.pop();
@@ -154,6 +211,7 @@
       if (!running) start();
       // 逆方向への即時反転は不可
       if (x === -dir.x && y === -dir.y) return;
+      if (nextDir.x !== x || nextDir.y !== y) sfx.turn();
       nextDir = { x, y };
     }
 
