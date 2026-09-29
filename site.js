@@ -20,6 +20,18 @@ window.SITE_WORKS = [
     tags: ['TOOL'] },
   { id: 'kamogawa', href: '/works/kamogawa.html', icon: '🏮', title: 'KAMOGAWA', isNew: true,
     desc: '夕暮れの鴨川。やって来たカップルを、河原のいちばん空いている場所に座らせよう。',
+    tags: ['GAME'] },
+  { id: '2048', href: '/works/2048.html', icon: '🔢', title: '2048', isNew: true,
+    desc: '同じ数字を合体させて2048を目指す定番パズル。矢印キー・スワイプ対応。',
+    tags: ['GAME'] },
+  { id: 'minesweeper', href: '/works/minesweeper.html', icon: '💣', title: 'MINESWEEPER', isNew: true,
+    desc: '定番のマインスイーパー。9x9・地雷10個。スマホは旗モードで操作。',
+    tags: ['GAME'] },
+  { id: 'breakout', href: '/works/breakout.html', icon: '🧱', title: 'BREAKOUT', isNew: true,
+    desc: '定番のブロック崩し。マウス・タッチ・キーボードでパドルを操作。',
+    tags: ['GAME'] },
+  { id: 'othello', href: '/works/othello.html', icon: '⚫', title: 'OTHELLO', isNew: true,
+    desc: '定番のオセロ。あなたが黒、CPUが白。置ける場所をヒント表示。',
     tags: ['GAME'] }
 ];
 

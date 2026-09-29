@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>BREAKOUT | porkgorilla://</title>
+  <meta name="description" content="定番のブロック崩し。マウス・タッチ・キーボードでパドルを動かす。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBT4300J0L');
+  </script>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 24px 16px;
+      user-select: none;
+      -webkit-user-select: none;
+      text-align: center;
+    }
+    h1 { margin: 0; font-size: 1.6rem; }
+    #info { font-size: 1.1rem; }
+    canvas {
+      background: var(--cyber-bg);
+      border: 2px solid var(--cyber-green);
+      box-shadow: 0 0 12px rgba(57, 255, 106, 0.25);
+      width: min(92vw, 400px);
+      height: auto;
+      touch-action: none;
+    }
+    #msg { min-height: 1.5em; color: var(--cyber-green); }
+    .credit { font-size: 11px; color: var(--cyber-green-dim); margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>🧱 BREAKOUT</h1>
+    <div id="info">スコア: <span id="score">0</span> / ライフ: <span id="lives">3</span> / ハイスコア: <span id="best">0</span></div>
+    <canvas id="c" width="400" height="500"></canvas>
+    <div id="msg">クリック / タップ / スペースでスタート。マウス・スワイプ・←→でパドル操作</div>
+    <div class="credit">porkgorilla — 2026</div>
+  </main>
+
+  <script src="/site.js"></script>
+  <script>
+    const canvas = document.getElementById('c');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    const scoreEl = document.getElementById('score');
+    const livesEl = document.getElementById('lives');
+    const bestEl = document.getElementById('best');
+    const msgEl = document.getElementById('msg');
+
+    const COLS = 8, ROWS = 6, BW = W / COLS, BH = 22, TOP = 50;
+    const PH = 12, PY = H - 40, R = 7;
+    const ROW_COLORS = ['#ff4d6d', '#ffb84d', '#f5f56b', '#39ff6a', '#5ad7ff', '#c78bff'];
+
+    let best = 0;
+    try { best = Number(localStorage.getItem('breakoutBest')) || 0; } catch (e) {}
+    bestEl.textContent = best;
+
+    let bricks, px, pw, ball, score, lives, state, keyDir = 0, level;
+    // state: 'ready' | 'play' | 'over' | 'clear'
+
+    function newGame() {
+      score = 0; lives = 3; level = 1;
+      scoreEl.textContent = 0; livesEl.textContent = 3;
+      buildLevel();
+    }
+
+    function buildLevel() {
+      bricks = [];
+      for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) bricks.push({ r, c, alive: true });
+      pw = 80; px = W / 2;
+      resetBall();
+    }
+
+    function resetBall() {
+      const sp = 4.2 + (level - 1) * 0.5;
+      const a = (Math.random() * 0.8 - 0.4) - Math.PI / 2;
+      ball = { x: px, y: PY - R - 1, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, sp };
+      state = 'ready';
+      msgEl.textContent = 'クリック / タップ / スペースでスタート';
+    }
+
+    function launch() {
+      if (state === 'ready') { state = 'play'; msgEl.textContent = ''; }
+      else if (state === 'over' || state === 'clear') {
+        if (state === 'clear') { level++; buildLevel(); }
+        else newGame();
+      }
+    }
+
+    function loseLife() {
+      lives--;
+      livesEl.textContent = lives;
+      if (lives <= 0) {
+        state = 'over';
+        msgEl.textContent = 'ゲームオーバー! タップでもう一度';
+      } else resetBall();
+    }
+
+    function update() {
+      px += keyDir * 6;
+      px = Math.max(pw / 2, Math.min(W - pw / 2, px));
+      if (state === 'ready') { ball.x = px; ball.y = PY - R - 1; return; }
+      if (state !== 'play') return;
+
+      ball.x += ball.vx; ball.y += ball.vy;
+      if (ball.x < R) { ball.x = R; ball.vx *= -1; }
+      if (ball.x > W - R) { ball.x = W - R; ball.vx *= -1; }
+      if (ball.y < R) { ball.y = R; ball.vy *= -1; }
+
+      // パドル: 当たった位置で反射角を変える
+      if (ball.vy > 0 && ball.y + R >= PY && ball.y + R <= PY + PH + 6 &&
+          ball.x >= px - pw / 2 - R && ball.x <= px + pw / 2 + R) {
+        const t = (ball.x - px) / (pw / 2); // -1..1
+        const a = t * 1.05 - Math.PI / 2;
+        ball.vx = Math.cos(a) * ball.sp;
+        ball.vy = Math.sin(a) * ball.sp;
+        ball.y = PY - R;
+      }
+      if (ball.y > H + R) return loseLife();
+
+      // ブロック
+      for (const b of bricks) {
+        if (!b.alive) continue;
+        const bx = b.c * BW, by = TOP + b.r * BH;
+        if (ball.x + R > bx && ball.x - R < bx + BW && ball.y + R > by && ball.y - R < by + BH) {
+          b.alive = false;
+          score += 10 * (ROWS - b.r);
+          scoreEl.textContent = score;
+          if (score > best) {
+            best = score; bestEl.textContent = best;
+            try { localStorage.setItem('breakoutBest', best); } catch (e) {}
+          }
+          const ox = Math.min(ball.x + R - bx, bx + BW - (ball.x - R));
+          const oy = Math.min(ball.y + R - by, by + BH - (ball.y - R));
+          if (ox < oy) ball.vx *= -1; else ball.vy *= -1;
+          break;
+        }
+      }
+      if (bricks.every(b => !b.alive)) {
+        state = 'clear';
+        msgEl.textContent = 'STAGE ' + level + ' クリア! タップで次のステージ';
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      for (const b of bricks) {
+        if (!b.alive) continue;
+        ctx.fillStyle = ROW_COLORS[b.r];
+        ctx.fillRect(b.c * BW + 1, TOP + b.r * BH + 1, BW - 2, BH - 2);
+      }
+      ctx.fillStyle = '#39ff6a';
+      ctx.shadowColor = '#39ff6a'; ctx.shadowBlur = 8;
+      ctx.fillRect(px - pw / 2, PY, pw, PH);
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.arc(ball.x, ball.y, R, 0, Math.PI * 2); ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = '#c9ffd6';
+      ctx.font = '14px "Courier New", monospace';
+      ctx.fillText('STAGE ' + level, 8, 22);
+    }
+
+    function loop() { update(); draw(); requestAnimationFrame(loop); }
+
+    // 入力
+    function setPx(clientX) {
+      const rect = canvas.getBoundingClientRect();
+      px = (clientX - rect.left) * (W / rect.width);
+    }
+    canvas.addEventListener('mousemove', e => setPx(e.clientX));
+    canvas.addEventListener('touchmove', e => { setPx(e.touches[0].clientX); }, { passive: true });
+    canvas.addEventListener('touchstart', e => { setPx(e.touches[0].clientX); }, { passive: true });
+    canvas.addEventListener('click', launch);
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowLeft' || e.key === 'a') { keyDir = -1; e.preventDefault(); }
+      else if (e.key === 'ArrowRight' || e.key === 'd') { keyDir = 1; e.preventDefault(); }
+      else if (e.key === ' ') { e.preventDefault(); launch(); }
+    });
+    document.addEventListener('keyup', e => {
+      if (['ArrowLeft', 'a', 'ArrowRight', 'd'].includes(e.key)) keyDir = 0;
+    });
+
+    newGame();
+    loop();
+  </script>
+</body>
+</html>

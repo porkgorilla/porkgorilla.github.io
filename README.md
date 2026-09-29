@@ -9,6 +9,10 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 | 作品 | 種類 | 内容 |
 | --- | --- | --- |
 | [SNAKE](https://porkgorilla.github.io/works/snake.html) | GAME | 定番のへびゲーム |
+| [2048](https://porkgorilla.github.io/works/2048.html) | GAME | 数字を合体させる定番パズル |
+| [MINESWEEPER](https://porkgorilla.github.io/works/minesweeper.html) | GAME | マインスイーパー |
+| [BREAKOUT](https://porkgorilla.github.io/works/breakout.html) | GAME | ブロック崩し |
+| [OTHELLO](https://porkgorilla.github.io/works/othello.html) | GAME | オセロ (対CPU) |
 | [TYPE_ATTACK](https://porkgorilla.github.io/works/typing.html) | GAME / LANGUAGE | 60秒英単語タイピング |
 | [VOCAB_QUIZ](https://porkgorilla.github.io/works/vocab.html) | LANGUAGE | 英単語4択クイズ |
 | [CHAR_COUNTER](https://porkgorilla.github.io/works/counter.html) | TOOL | 文字数カウンター |
@@ -26,6 +30,10 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 ├── 404.html        … GitHub Pages が存在しない URL で表示するページ
 └── works/          … 各作品のページ
     ├── snake.html
+    ├── 2048.html
+    ├── minesweeper.html
+    ├── breakout.html
+    ├── othello.html
     ├── typing.html
     ├── vocab.html
     ├── counter.html

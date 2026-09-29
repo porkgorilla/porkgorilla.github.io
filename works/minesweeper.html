@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>MINESWEEPER | porkgorilla://</title>
+  <meta name="description" content="定番のマインスイーパー。9x9・地雷10個。スマホは旗モードで操作。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBT4300J0L');
+  </script>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 24px 16px;
+      user-select: none;
+      -webkit-user-select: none;
+      text-align: center;
+    }
+    h1 { margin: 0; font-size: 1.6rem; }
+    #info { font-size: 1.1rem; }
+    #board {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      gap: 2px;
+      padding: 4px;
+      width: min(92vw, 396px);
+      background: var(--cyber-bg);
+      border: 2px solid var(--cyber-green);
+      box-shadow: 0 0 12px rgba(57, 255, 106, 0.25);
+    }
+    .c {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--cyber-font);
+      font-weight: bold;
+      font-size: clamp(.9rem, 4.5vw, 1.4rem);
+      padding: 0;
+      border: 1px solid var(--cyber-green-dim);
+      background: var(--cyber-green-faint);
+      color: var(--cyber-green);
+      cursor: pointer;
+    }
+    .c:hover:not(.open) { background: rgba(57,255,106,.3); }
+    .c.open { background: var(--cyber-bg-panel); border-color: rgba(30,143,62,.35); cursor: default; }
+    .c.mine { background: var(--cyber-red); color: #000; }
+    .n1 { color: #5ad7ff; } .n2 { color: #39ff6a; } .n3 { color: #ff4d6d; }
+    .n4 { color: #c78bff; } .n5 { color: #ffb84d; } .n6, .n7, .n8 { color: #fff; }
+    #ctrl { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+    .btn.on { background: var(--cyber-green); color: #000; }
+    #msg { min-height: 1.5em; color: var(--cyber-green); }
+    .credit { font-size: 11px; color: var(--cyber-green-dim); margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>💣 MINESWEEPER</h1>
+    <div id="info">残り地雷: <span id="left">10</span> / タイム: <span id="time">0</span>s</div>
+    <div id="board"></div>
+    <div id="msg">タップで開く / 右クリック・旗モードで旗を立てる</div>
+    <div id="ctrl">
+      <button class="btn" id="flagMode" type="button">🚩 旗モード: OFF</button>
+      <button class="btn" id="restart" type="button">NEW GAME</button>
+    </div>
+    <div class="credit">porkgorilla — 2026</div>
+  </main>
+
+  <script src="/site.js"></script>
+  <script>
+    const W = 9, H = 9, MINES = 10;
+    const boardEl = document.getElementById('board');
+    const leftEl = document.getElementById('left');
+    const timeEl = document.getElementById('time');
+    const msgEl = document.getElementById('msg');
+    const flagBtn = document.getElementById('flagMode');
+
+    let cells, started, over, flagMode = false, timer, sec;
+
+    function init() {
+      clearInterval(timer);
+      cells = Array.from({ length: W * H }, () => ({ mine: false, open: false, flag: false, n: 0 }));
+      started = false; over = false; sec = 0;
+      timeEl.textContent = 0;
+      msgEl.textContent = 'タップで開く / 右クリック・旗モードで旗を立てる';
+      boardEl.innerHTML = '';
+      cells.forEach((_, i) => {
+        const b = document.createElement('button');
+        b.className = 'c';
+        b.type = 'button';
+        b.onclick = () => flagMode ? toggleFlag(i) : openCell(i);
+        b.oncontextmenu = e => { e.preventDefault(); toggleFlag(i); };
+        boardEl.appendChild(b);
+      });
+      render();
+    }
+
+    function neighbors(i) {
+      const x = i % W, y = Math.floor(i / W), out = [];
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+        if (!dx && !dy) continue;
+        const nx = x + dx, ny = y + dy;
+        if (nx >= 0 && ny >= 0 && nx < W && ny < H) out.push(ny * W + nx);
+      }
+      return out;
+    }
+
+    // 最初にクリックしたマスとその周囲は地雷にしない
+    function placeMines(safe) {
+      const banned = new Set([safe, ...neighbors(safe)]);
+      let placed = 0;
+      while (placed < MINES) {
+        const i = Math.floor(Math.random() * W * H);
+        if (banned.has(i) || cells[i].mine) continue;
+        cells[i].mine = true; placed++;
+      }
+      cells.forEach((c, i) => { c.n = neighbors(i).filter(j => cells[j].mine).length; });
+    }
+
+    function openCell(i) {
+      if (over || cells[i].flag || cells[i].open) return;
+      if (!started) {
+        started = true;
+        placeMines(i);
+        timer = setInterval(() => { sec++; timeEl.textContent = sec; }, 1000);
+      }
+      if (cells[i].mine) return lose(i);
+      const stack = [i];
+      while (stack.length) {
+        const j = stack.pop();
+        const c = cells[j];
+        if (c.open || c.flag) continue;
+        c.open = true;
+        if (c.n === 0) stack.push(...neighbors(j));
+      }
+      if (cells.every(c => c.mine || c.open)) win();
+      render();
+    }
+
+    function toggleFlag(i) {
+      if (over || cells[i].open) return;
+      cells[i].flag = !cells[i].flag;
+      render();
+    }
+
+    function lose(hit) {
+      over = true; clearInterval(timer);
+      cells.forEach(c => { if (c.mine) c.open = true; });
+      msgEl.textContent = '💥 ゲームオーバー! NEW GAME でもう一度';
+      render(hit);
+    }
+
+    function win() {
+      over = true; clearInterval(timer);
+      cells.forEach(c => { if (c.mine) c.flag = true; });
+      msgEl.textContent = '🎉 クリア! タイム ' + sec + ' 秒';
+    }
+
+    function render(hit) {
+      leftEl.textContent = MINES - cells.filter(c => c.flag).length;
+      [...boardEl.children].forEach((b, i) => {
+        const c = cells[i];
+        b.className = 'c' + (c.open ? ' open' : '') + (c.open && c.mine ? ' mine' : '');
+        if (c.open && c.mine) b.textContent = '💣';
+        else if (c.open && c.n) { b.textContent = c.n; b.classList.add('n' + c.n); }
+        else b.textContent = c.flag ? '🚩' : '';
+      });
+    }
+
+    flagBtn.onclick = () => {
+      flagMode = !flagMode;
+      flagBtn.textContent = '🚩 旗モード: ' + (flagMode ? 'ON' : 'OFF');
+      flagBtn.classList.toggle('on', flagMode);
+    };
+    document.getElementById('restart').onclick = init;
+    init();
+  </script>
+</body>
+</html>
