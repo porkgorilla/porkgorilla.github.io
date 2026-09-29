@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>MEMORY | porkgorilla://</title>
+  <meta name="description" content="定番の神経衰弱。カードをめくって同じ絵柄のペアを探そう。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBT4300J0L');
+  </script>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 24px 16px;
+      user-select: none;
+      -webkit-user-select: none;
+      text-align: center;
+    }
+    h1 { margin: 0; font-size: 1.6rem; }
+    #info { font-size: 1.1rem; }
+    #board {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      padding: 8px;
+      width: min(92vw, 380px);
+      background: var(--cyber-bg);
+      border: 2px solid var(--cyber-green);
+      box-shadow: 0 0 12px rgba(57, 255, 106, 0.25);
+    }
+    .card {
+      aspect-ratio: 1;
+      padding: 0;
+      perspective: 500px;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    .inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform .3s;
+      transform-style: preserve-3d;
+    }
+    .card.flip .inner, .card.done .inner { transform: rotateY(180deg); }
+    .face {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      font-size: clamp(1.6rem, 9vw, 2.4rem);
+      border: 1px solid var(--cyber-green-dim);
+    }
+    .back { background: var(--cyber-green-faint); color: var(--cyber-green); font-family: var(--cyber-font); }
+    .card:hover .back { background: rgba(57,255,106,.3); }
+    .front { background: var(--cyber-bg-panel); transform: rotateY(180deg); }
+    .card.done .front { border-color: var(--cyber-green); box-shadow: 0 0 8px rgba(57,255,106,.5); }
+    #msg { min-height: 1.5em; color: var(--cyber-green); }
+    .credit { font-size: 11px; color: var(--cyber-green-dim); margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>🃏 MEMORY</h1>
+    <div id="info">手数: <span id="moves">0</span> / タイム: <span id="time">0</span>s / ベスト手数: <span id="best">-</span></div>
+    <div id="board"></div>
+    <div id="msg">カードをタップして同じ絵柄のペアを探そう</div>
+    <button class="btn" id="restart" type="button">NEW GAME</button>
+    <button class="btn" id="mute" type="button"></button>
+    <div class="credit">porkgorilla — 2026</div>
+  </main>
+
+  <script src="/site.js"></script>
+  <script>
+    // ---- サウンド (Web Audio で合成) ----
+    let audio = null;
+    let muted = false;
+    try { muted = localStorage.getItem('muted_memory') === '1'; } catch (e) {}
+    const muteBtn = document.getElementById('mute');
+    function updateMuteBtn() { muteBtn.textContent = muted ? '🔇 SOUND OFF' : '🔊 SOUND ON'; }
+    updateMuteBtn();
+
+    // iOSでバックグラウンド後に音が死ぬことがあるため、リスタート等のユーザー操作で作り直す
+    function initAudio() {
+      if (audio) audio.close().catch(() => {});
+      const AC = window.AudioContext || window.webkitAudioContext;
+      audio = AC ? new AC() : null;
+    }
+    function ensureAudio() {
+      if (!audio) initAudio();
+      else if (audio.state === 'suspended') audio.resume().catch(() => {});
+    }
+
+    function tone(freq, start, dur, type, vol, endFreq) {
+      if (!audio || muted) return;
+      const t = audio.currentTime + start;
+      const osc = audio.createOscillator();
+      const g = audio.createGain();
+      osc.type = type || 'square';
+      osc.frequency.setValueAtTime(freq, t);
+      if (endFreq) osc.frequency.exponentialRampToValueAtTime(endFreq, t + dur);
+      g.gain.setValueAtTime(vol || 0.08, t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      osc.connect(g).connect(audio.destination);
+      osc.start(t);
+      osc.stop(t + dur + 0.02);
+    }
+
+    muteBtn.onclick = () => {
+      muted = !muted;
+      try { localStorage.setItem('muted_memory', muted ? '1' : '0'); } catch (e) {}
+      updateMuteBtn();
+      if (!muted) { ensureAudio(); tone(660, 0, 0.08); tone(990, 0.07, 0.1); }
+    };
+
+    const sfx = {
+      flip()  { tone(600, 0, 0.05, 'triangle', 0.08); },
+      match() { tone(660, 0, 0.09); tone(990, 0.08, 0.14); },
+      miss()  { tone(220, 0, 0.18, 'sawtooth', 0.05, 150); },
+      win()   { tone(523, 0, 0.12); tone(659, 0.12, 0.12); tone(784, 0.24, 0.12); tone(1047, 0.36, 0.3); }
+    };
+
+    const ICONS = ['🍎', '🍌', '🍇', '🍓', '🍒', '🍑', '🥝', '🍋', '🍉', '🍍'];
+    const boardEl = document.getElementById('board');
+    const movesEl = document.getElementById('moves');
+    const timeEl = document.getElementById('time');
+    const bestEl = document.getElementById('best');
+    const msgEl = document.getElementById('msg');
+
+    let best = 0;
+    try { best = Number(localStorage.getItem('memoryBest')) || 0; } catch (e) {}
+    if (best) bestEl.textContent = best;
+
+    let deck, opened, moves, matched, lock, timer, sec, started;
+
+    function init() {
+      clearInterval(timer);
+      const pool = ICONS.slice(0, 10);
+      deck = [...pool, ...pool];
+      for (let i = deck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+      }
+      opened = []; moves = 0; matched = 0; lock = false; sec = 0; started = false;
+      movesEl.textContent = 0; timeEl.textContent = 0;
+      msgEl.textContent = 'カードをタップして同じ絵柄のペアを探そう';
+      boardEl.innerHTML = '';
+      deck.forEach((icon, i) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'card';
+        b.innerHTML = '<div class="inner"><div class="face back">?</div><div class="face front"></div></div>';
+        b.querySelector('.front').textContent = icon;
+        b.onclick = () => pick(i, b);
+        boardEl.appendChild(b);
+      });
+    }
+
+    function pick(i, el) {
+      if (lock || el.classList.contains('flip') || el.classList.contains('done')) return;
+      ensureAudio();
+      if (!started) {
+        started = true;
+        timer = setInterval(() => { sec++; timeEl.textContent = sec; }, 1000);
+      }
+      el.classList.add('flip');
+      sfx.flip();
+      opened.push({ i, el });
+      if (opened.length < 2) return;
+      moves++;
+      movesEl.textContent = moves;
+      const [a, b] = opened;
+      opened = [];
+      if (deck[a.i] === deck[b.i]) {
+        a.el.classList.add('done'); b.el.classList.add('done');
+        setTimeout(sfx.match, 250);
+        matched++;
+        if (matched === deck.length / 2) finish();
+      } else {
+        lock = true;
+        setTimeout(sfx.miss, 250);
+        setTimeout(() => {
+          a.el.classList.remove('flip'); b.el.classList.remove('flip');
+          lock = false;
+        }, 900);
+      }
+    }
+
+    function finish() {
+      clearInterval(timer);
+      let extra = '';
+      if (!best || moves < best) {
+        best = moves; bestEl.textContent = best; extra = ' (ベスト更新!)';
+        try { localStorage.setItem('memoryBest', best); } catch (e) {}
+      }
+      msgEl.textContent = '🎉 クリア! ' + moves + '手 / ' + sec + '秒' + extra;
+      setTimeout(sfx.win, 500);
+    }
+
+    document.getElementById('restart').onclick = () => { initAudio(); init(); };
+    init();
+  </script>
+</body>
+</html>

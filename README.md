@@ -13,6 +13,10 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 | [MINESWEEPER](https://porkgorilla.github.io/works/minesweeper.html) | GAME | マインスイーパー |
 | [BREAKOUT](https://porkgorilla.github.io/works/breakout.html) | GAME | ブロック崩し |
 | [OTHELLO](https://porkgorilla.github.io/works/othello.html) | GAME | オセロ (対CPU) |
+| [TETRIS](https://porkgorilla.github.io/works/tetris.html) | GAME | 落ち物パズル |
+| [MEMORY](https://porkgorilla.github.io/works/memory.html) | GAME | 神経衰弱 |
+| [CONNECT4](https://porkgorilla.github.io/works/connect4.html) | GAME | 四目並べ (対CPU) |
+| [15_PUZZLE](https://porkgorilla.github.io/works/puzzle15.html) | GAME | スライドパズル |
 | [TYPE_ATTACK](https://porkgorilla.github.io/works/typing.html) | GAME / LANGUAGE | 60秒英単語タイピング |
 | [VOCAB_QUIZ](https://porkgorilla.github.io/works/vocab.html) | LANGUAGE | 英単語4択クイズ |
 | [CHAR_COUNTER](https://porkgorilla.github.io/works/counter.html) | TOOL | 文字数カウンター |
@@ -35,6 +39,10 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
     ├── minesweeper.html
     ├── breakout.html
     ├── othello.html
+    ├── tetris.html
+    ├── memory.html
+    ├── connect4.html
+    ├── puzzle15.html
     ├── typing.html
     ├── vocab.html
     ├── counter.html

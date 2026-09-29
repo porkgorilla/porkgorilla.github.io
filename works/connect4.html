@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>CONNECT4 | porkgorilla://</title>
+  <meta name="description" content="定番の四目並べ。縦・横・斜めに4つ揃えたら勝ち。CPU対戦。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBT4300J0L');
+  </script>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 24px 16px;
+      user-select: none;
+      -webkit-user-select: none;
+      text-align: center;
+    }
+    h1 { margin: 0; font-size: 1.6rem; }
+    #info { font-size: 1.1rem; }
+    #board {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 4px;
+      padding: 6px;
+      width: min(94vw, 420px);
+      background: var(--cyber-green-dim);
+      border: 2px solid var(--cyber-green);
+      box-shadow: 0 0 12px rgba(57, 255, 106, 0.25);
+    }
+    .col { display: flex; flex-direction: column; gap: 4px; padding: 0; border: none; background: none; cursor: pointer; }
+    .col:hover .slot.empty { background: #0c150c; }
+    .slot {
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: var(--cyber-bg);
+      position: relative;
+    }
+    .slot.p { background: var(--cyber-red); box-shadow: 0 0 8px var(--cyber-red); }
+    .slot.c { background: #f5f56b; box-shadow: 0 0 8px #f5f56b; }
+    .slot.drop { animation: drop .28s ease-in; }
+    @keyframes drop { from { transform: translateY(-260%); } to { transform: translateY(0); } }
+    .slot.win { outline: 3px solid #fff; }
+    #msg { min-height: 1.5em; color: var(--cyber-green); }
+    #legend { font-size: .85rem; color: var(--cyber-green-dim); }
+    .credit { font-size: 11px; color: var(--cyber-green-dim); margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>🔴 CONNECT4</h1>
+    <div id="info">勝ち: <span id="wins">0</span> / 負け: <span id="loses">0</span> / 引分: <span id="draws">0</span></div>
+    <div id="board"></div>
+    <div id="msg"></div>
+    <div id="legend">あなた=🔴(先手) / CPU=🟡 — 列をタップして落とす</div>
+    <button class="btn" id="restart" type="button">NEW GAME</button>
+    <button class="btn" id="mute" type="button"></button>
+    <div class="credit">porkgorilla — 2026</div>
+  </main>
+
+  <script src="/site.js"></script>
+  <script>
+    // ---- サウンド (Web Audio で合成) ----
+    let audio = null;
+    let muted = false;
+    try { muted = localStorage.getItem('muted_connect4') === '1'; } catch (e) {}
+    const muteBtn = document.getElementById('mute');
+    function updateMuteBtn() { muteBtn.textContent = muted ? '🔇 SOUND OFF' : '🔊 SOUND ON'; }
+    updateMuteBtn();
+
+    // iOSでバックグラウンド後に音が死ぬことがあるため、リスタート等のユーザー操作で作り直す
+    function initAudio() {
+      if (audio) audio.close().catch(() => {});
+      const AC = window.AudioContext || window.webkitAudioContext;
+      audio = AC ? new AC() : null;
+    }
+    function ensureAudio() {
+      if (!audio) initAudio();
+      else if (audio.state === 'suspended') audio.resume().catch(() => {});
+    }
+
+    function tone(freq, start, dur, type, vol, endFreq) {
+      if (!audio || muted) return;
+      const t = audio.currentTime + start;
+      const osc = audio.createOscillator();
+      const g = audio.createGain();
+      osc.type = type || 'square';
+      osc.frequency.setValueAtTime(freq, t);
+      if (endFreq) osc.frequency.exponentialRampToValueAtTime(endFreq, t + dur);
+      g.gain.setValueAtTime(vol || 0.08, t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      osc.connect(g).connect(audio.destination);
+      osc.start(t);
+      osc.stop(t + dur + 0.02);
+    }
+
+    muteBtn.onclick = () => {
+      muted = !muted;
+      try { localStorage.setItem('muted_connect4', muted ? '1' : '0'); } catch (e) {}
+      updateMuteBtn();
+      if (!muted) { ensureAudio(); tone(660, 0, 0.08); tone(990, 0.07, 0.1); }
+    };
+
+    const sfx = {
+      drop(cpu) { tone(cpu ? 260 : 340, 0, 0.09, 'triangle', 0.1, cpu ? 180 : 240); },
+      win()     { tone(523, 0, 0.12); tone(659, 0.12, 0.12); tone(784, 0.24, 0.12); tone(1047, 0.36, 0.3); },
+      lose()    { tone(400, 0, 0.5, 'sawtooth', 0.1, 80); },
+      draw()    { tone(440, 0, 0.15); tone(440, 0.18, 0.15); }
+    };
+
+    const COLS = 7, ROWS = 6, EMPTY = 0, P = 1, C = 2;
+    const boardEl = document.getElementById('board');
+    const msgEl = document.getElementById('msg');
+    const stat = { wins: 0, loses: 0, draws: 0 };
+    try { Object.assign(stat, JSON.parse(localStorage.getItem('connect4Stat') || '{}')); } catch (e) {}
+
+    let g, busy, over, last, winCells;
+
+    function saveStat() {
+      ['wins', 'loses', 'draws'].forEach(k => { document.getElementById(k).textContent = stat[k]; });
+      try { localStorage.setItem('connect4Stat', JSON.stringify(stat)); } catch (e) {}
+    }
+
+    function init() {
+      g = Array.from({ length: ROWS }, () => Array(COLS).fill(EMPTY));
+      busy = false; over = false; last = null; winCells = [];
+      msgEl.textContent = 'あなたの番です';
+      boardEl.innerHTML = '';
+      for (let c = 0; c < COLS; c++) {
+        const col = document.createElement('button');
+        col.type = 'button';
+        col.className = 'col';
+        for (let r = 0; r < ROWS; r++) {
+          const s = document.createElement('div');
+          s.className = 'slot empty';
+          col.appendChild(s);
+        }
+        col.onclick = () => humanMove(c);
+        boardEl.appendChild(col);
+      }
+      saveStat();
+    }
+
+    function render() {
+      [...boardEl.children].forEach((col, c) => {
+        [...col.children].forEach((s, r) => {
+          const v = g[r][c];
+          const isLast = last && last[0] === r && last[1] === c;
+          s.className = 'slot' + (v === P ? ' p' : v === C ? ' c' : ' empty') + (isLast ? ' drop' : '') +
+            (winCells.some(w => w[0] === r && w[1] === c) ? ' win' : '');
+        });
+      });
+    }
+
+    function dropRow(b, c) {
+      for (let r = ROWS - 1; r >= 0; r--) if (b[r][c] === EMPTY) return r;
+      return -1;
+    }
+
+    function findWin(b, who) {
+      const dirs = [[0, 1], [1, 0], [1, 1], [1, -1]];
+      for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+        if (b[r][c] !== who) continue;
+        for (const [dr, dc] of dirs) {
+          const cells = [];
+          for (let k = 0; k < 4; k++) {
+            const y = r + dr * k, x = c + dc * k;
+            if (y < 0 || y >= ROWS || x < 0 || x >= COLS || b[y][x] !== who) break;
+            cells.push([y, x]);
+          }
+          if (cells.length === 4) return cells;
+        }
+      }
+      return null;
+    }
+
+    function place(c, who) {
+      const r = dropRow(g, c);
+      g[r][c] = who;
+      last = [r, c];
+      sfx.drop(who === C);
+      const w = findWin(g, who);
+      if (w) { winCells = w; end(who); }
+      else if (g[0].every(v => v !== EMPTY)) end(0);
+      render();
+    }
+
+    function end(who) {
+      over = true;
+      if (who === P) { stat.wins++; msgEl.textContent = '🎉 あなたの勝ち!'; setTimeout(sfx.win, 400); }
+      else if (who === C) { stat.loses++; msgEl.textContent = 'CPUの勝ち...'; setTimeout(sfx.lose, 400); }
+      else { stat.draws++; msgEl.textContent = '引き分け'; setTimeout(sfx.draw, 400); }
+      saveStat();
+    }
+
+    function humanMove(c) {
+      if (busy || over || dropRow(g, c) < 0) return;
+      ensureAudio();
+      place(c, P);
+      if (over) return;
+      busy = true;
+      msgEl.textContent = 'CPUが考え中...';
+      setTimeout(() => {
+        place(cpuChoose(), C);
+        busy = false;
+        if (!over) msgEl.textContent = 'あなたの番です';
+      }, 550);
+    }
+
+    // ---- CPU: αβ探索 (深さ5) + 中央寄り評価 ----
+    const ORDER = [3, 2, 4, 1, 5, 0, 6];
+    function scoreWindow(w, who) {
+      const opp = who === P ? C : P;
+      const a = w.filter(v => v === who).length, o = w.filter(v => v === opp).length, e = w.filter(v => v === EMPTY).length;
+      if (a === 4) return 100;
+      if (a === 3 && e === 1) return 5;
+      if (a === 2 && e === 2) return 2;
+      if (o === 3 && e === 1) return -4;
+      return 0;
+    }
+    function evaluate(b) {
+      let s = 0;
+      for (let r = 0; r < ROWS; r++) if (b[r][3] === C) s += 3; else if (b[r][3] === P) s -= 3;
+      for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+        for (const [dr, dc] of [[0, 1], [1, 0], [1, 1], [1, -1]]) {
+          const w = [];
+          for (let k = 0; k < 4; k++) {
+            const y = r + dr * k, x = c + dc * k;
+            if (y < 0 || y >= ROWS || x < 0 || x >= COLS) break;
+            w.push(b[y][x]);
+          }
+          if (w.length === 4) s += scoreWindow(w, C);
+        }
+      }
+      return s;
+    }
+    function search(b, depth, alpha, beta, maxi) {
+      if (findWin(b, C)) return 100000 + depth;
+      if (findWin(b, P)) return -100000 - depth;
+      const moves = ORDER.filter(c => b[0][c] === EMPTY);
+      if (!moves.length) return 0;
+      if (depth === 0) return evaluate(b);
+      let val = maxi ? -Infinity : Infinity;
+      for (const c of moves) {
+        const r = dropRow(b, c);
+        b[r][c] = maxi ? C : P;
+        const v = search(b, depth - 1, alpha, beta, !maxi);
+        b[r][c] = EMPTY;
+        if (maxi) { val = Math.max(val, v); alpha = Math.max(alpha, val); }
+        else { val = Math.min(val, v); beta = Math.min(beta, val); }
+        if (alpha >= beta) break;
+      }
+      return val;
+    }
+    function cpuChoose() {
+      let bestV = -Infinity, pick = [];
+      for (const c of ORDER) {
+        if (g[0][c] !== EMPTY) continue;
+        const r = dropRow(g, c);
+        g[r][c] = C;
+        const v = search(g, 4, -Infinity, Infinity, false);
+        g[r][c] = EMPTY;
+        if (v > bestV) { bestV = v; pick = [c]; } else if (v === bestV) pick.push(c);
+      }
+      return pick[Math.floor(Math.random() * pick.length)];
+    }
+
+    document.getElementById('restart').onclick = () => { initAudio(); init(); };
+    init();
+  </script>
+</body>
+</html>

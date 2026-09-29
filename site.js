@@ -32,6 +32,18 @@ window.SITE_WORKS = [
     tags: ['GAME', 'CLASSIC'] },
   { id: 'othello', href: '/works/othello.html', icon: '⚫', title: 'OTHELLO', isNew: true,
     desc: '定番のオセロ。あなたが黒、CPUが白。置ける場所をヒント表示。',
+    tags: ['GAME', 'CLASSIC'] },
+  { id: 'tetris', href: '/works/tetris.html', icon: '🧱', title: 'TETRIS', isNew: true,
+    desc: '定番の落ち物パズル。ラインを揃えて消そう。キーボードとスマホのボタンに対応。',
+    tags: ['GAME', 'CLASSIC'] },
+  { id: 'memory', href: '/works/memory.html', icon: '🃏', title: 'MEMORY', isNew: true,
+    desc: '定番の神経衰弱。同じ絵柄のペアを少ない手数で探そう。',
+    tags: ['GAME', 'CLASSIC'] },
+  { id: 'connect4', href: '/works/connect4.html', icon: '🔴', title: 'CONNECT4', isNew: true,
+    desc: '定番の四目並べ。縦・横・斜めに4つ揃えたら勝ち。CPU対戦。',
+    tags: ['GAME', 'CLASSIC'] },
+  { id: 'puzzle15', href: '/works/puzzle15.html', icon: '🔲', title: '15_PUZZLE', isNew: true,
+    desc: '定番のスライドパズル。数字を1から15の順に並べよう。',
     tags: ['GAME', 'CLASSIC'] }
 ];
 
