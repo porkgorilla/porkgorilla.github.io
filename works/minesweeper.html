@@ -73,11 +73,61 @@
       <button class="btn" id="flagMode" type="button">🚩 旗モード: OFF</button>
       <button class="btn" id="restart" type="button">NEW GAME</button>
     </div>
+    <button class="btn" id="mute" type="button"></button>
     <div class="credit">porkgorilla — 2026</div>
   </main>
 
   <script src="/site.js"></script>
   <script>
+    // ---- サウンド (Web Audio で合成) ----
+    let audio = null;
+    let muted = false;
+    try { muted = localStorage.getItem('muted_minesweeper') === '1'; } catch (e) {}
+    const muteBtn = document.getElementById('mute');
+    function updateMuteBtn() { muteBtn.textContent = muted ? '🔇 SOUND OFF' : '🔊 SOUND ON'; }
+    updateMuteBtn();
+
+    // iOSでバックグラウンド後に音が死ぬことがあるため、リスタート等のユーザー操作で作り直す
+    function initAudio() {
+      if (audio) audio.close().catch(() => {});
+      const AC = window.AudioContext || window.webkitAudioContext;
+      audio = AC ? new AC() : null;
+    }
+    function ensureAudio() {
+      if (!audio) initAudio();
+      else if (audio.state === 'suspended') audio.resume().catch(() => {});
+    }
+
+    function tone(freq, start, dur, type, vol, endFreq) {
+      if (!audio || muted) return;
+      const t = audio.currentTime + start;
+      const osc = audio.createOscillator();
+      const g = audio.createGain();
+      osc.type = type || 'square';
+      osc.frequency.setValueAtTime(freq, t);
+      if (endFreq) osc.frequency.exponentialRampToValueAtTime(endFreq, t + dur);
+      g.gain.setValueAtTime(vol || 0.08, t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      osc.connect(g).connect(audio.destination);
+      osc.start(t);
+      osc.stop(t + dur + 0.02);
+    }
+
+    const sfx = {
+      open()    { tone(520, 0, 0.05, 'square', 0.05); },
+      cascade() { tone(400, 0, 0.06); tone(520, 0.05, 0.06); tone(680, 0.1, 0.08); },
+      flag()    { tone(880, 0, 0.05, 'triangle', 0.08); },
+      boom()    { tone(180, 0, 0.7, 'sawtooth', 0.12, 30); tone(90, 0, 0.7, 'square', 0.1, 25); },
+      win()     { tone(523, 0, 0.12); tone(659, 0.12, 0.12); tone(784, 0.24, 0.12); tone(1047, 0.36, 0.3); }
+    };
+
+    muteBtn.onclick = () => {
+      muted = !muted;
+      try { localStorage.setItem('muted_minesweeper', muted ? '1' : '0'); } catch (e) {}
+      updateMuteBtn();
+      if (!muted) { ensureAudio(); tone(660, 0, 0.08); tone(990, 0.07, 0.1); }
+    };
+
     const W = 9, H = 9, MINES = 10;
     const boardEl = document.getElementById('board');
     const leftEl = document.getElementById('left');
@@ -129,6 +179,7 @@
 
     function openCell(i) {
       if (over || cells[i].flag || cells[i].open) return;
+      ensureAudio();
       if (!started) {
         started = true;
         placeMines(i);
@@ -136,19 +187,25 @@
       }
       if (cells[i].mine) return lose(i);
       const stack = [i];
+      let opened = 0;
       while (stack.length) {
         const j = stack.pop();
         const c = cells[j];
         if (c.open || c.flag) continue;
         c.open = true;
+        opened++;
         if (c.n === 0) stack.push(...neighbors(j));
       }
       if (cells.every(c => c.mine || c.open)) win();
+      else if (opened > 1) sfx.cascade();
+      else sfx.open();
       render();
     }
 
     function toggleFlag(i) {
       if (over || cells[i].open) return;
+      ensureAudio();
+      sfx.flag();
       cells[i].flag = !cells[i].flag;
       render();
     }
@@ -157,6 +214,7 @@
       over = true; clearInterval(timer);
       cells.forEach(c => { if (c.mine) c.open = true; });
       msgEl.textContent = '💥 ゲームオーバー! NEW GAME でもう一度';
+      sfx.boom();
       render(hit);
     }
 
@@ -164,6 +222,7 @@
       over = true; clearInterval(timer);
       cells.forEach(c => { if (c.mine) c.flag = true; });
       msgEl.textContent = '🎉 クリア! タイム ' + sec + ' 秒';
+      sfx.win();
     }
 
     function render(hit) {
@@ -182,7 +241,7 @@
       flagBtn.textContent = '🚩 旗モード: ' + (flagMode ? 'ON' : 'OFF');
       flagBtn.classList.toggle('on', flagMode);
     };
-    document.getElementById('restart').onclick = init;
+    document.getElementById('restart').onclick = () => { initAudio(); init(); };
     init();
   </script>
 </body>

@@ -64,11 +64,62 @@
     <div id="board"></div>
     <div id="msg"></div>
     <button class="btn" id="restart" type="button">NEW GAME</button>
+    <button class="btn" id="mute" type="button"></button>
     <div class="credit">porkgorilla — 2026</div>
   </main>
 
   <script src="/site.js"></script>
   <script>
+    // ---- サウンド (Web Audio で合成) ----
+    let audio = null;
+    let muted = false;
+    try { muted = localStorage.getItem('muted_othello') === '1'; } catch (e) {}
+    const muteBtn = document.getElementById('mute');
+    function updateMuteBtn() { muteBtn.textContent = muted ? '🔇 SOUND OFF' : '🔊 SOUND ON'; }
+    updateMuteBtn();
+
+    // iOSでバックグラウンド後に音が死ぬことがあるため、リスタート等のユーザー操作で作り直す
+    function initAudio() {
+      if (audio) audio.close().catch(() => {});
+      const AC = window.AudioContext || window.webkitAudioContext;
+      audio = AC ? new AC() : null;
+    }
+    function ensureAudio() {
+      if (!audio) initAudio();
+      else if (audio.state === 'suspended') audio.resume().catch(() => {});
+    }
+
+    function tone(freq, start, dur, type, vol, endFreq) {
+      if (!audio || muted) return;
+      const t = audio.currentTime + start;
+      const osc = audio.createOscillator();
+      const g = audio.createGain();
+      osc.type = type || 'square';
+      osc.frequency.setValueAtTime(freq, t);
+      if (endFreq) osc.frequency.exponentialRampToValueAtTime(endFreq, t + dur);
+      g.gain.setValueAtTime(vol || 0.08, t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      osc.connect(g).connect(audio.destination);
+      osc.start(t);
+      osc.stop(t + dur + 0.02);
+    }
+
+    const sfx = {
+      place(cpu) { tone(cpu ? 300 : 420, 0, 0.06, 'square', 0.08); },
+      flip(n)    { for (let i = 0; i < Math.min(n, 6); i++) tone(500 + i * 70, 0.06 + i * 0.05, 0.05, 'triangle', 0.06); },
+      pass()     { tone(300, 0, 0.12, 'triangle', 0.08); tone(220, 0.1, 0.15, 'triangle', 0.08); },
+      win()      { tone(523, 0, 0.12); tone(659, 0.12, 0.12); tone(784, 0.24, 0.12); tone(1047, 0.36, 0.3); },
+      lose()     { tone(400, 0, 0.5, 'sawtooth', 0.1, 80); },
+      draw()     { tone(440, 0, 0.15); tone(440, 0.18, 0.15); }
+    };
+
+    muteBtn.onclick = () => {
+      muted = !muted;
+      try { localStorage.setItem('muted_othello', muted ? '1' : '0'); } catch (e) {}
+      updateMuteBtn();
+      if (!muted) { ensureAudio(); tone(660, 0, 0.08); tone(990, 0.07, 0.1); }
+    };
+
     const N = 8, EMPTY = 0, BLACK = 1, WHITE = 2;
     const DIRS = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
     // CPU用の位置評価(角が強く、角の隣は弱い)
@@ -123,6 +174,7 @@
 
     function place(r, c, me) {
       const f = flips(b, r, c, me);
+      sfx.place(me === WHITE); sfx.flip(f.length);
       b[r][c] = me;
       f.forEach(([y, x]) => { b[y][x] = me; });
       last = [r, c];
@@ -144,6 +196,7 @@
 
     function onCell(r, c) {
       if (busy || turn !== BLACK || !flips(b, r, c, BLACK).length) return;
+      ensureAudio();
       place(r, c, BLACK);
       msgEl.textContent = '';
       next(WHITE);
@@ -156,6 +209,7 @@
       if (!mine.length && !other.length) return finish();
       if (!mine.length) {
         msgEl.textContent = (who === BLACK ? 'あなた' : 'CPU') + 'は置ける場所がないのでパス';
+        sfx.pass();
         return next(who === BLACK ? WHITE : BLACK);
       }
       busy = who === WHITE;
@@ -182,11 +236,12 @@
     function finish() {
       busy = true; render();
       const nb = count(BLACK), nw = count(WHITE);
+      (nb > nw ? sfx.win : nb < nw ? sfx.lose : sfx.draw)();
       msgEl.textContent = nb > nw ? '🎉 あなたの勝ち! ' + nb + ' - ' + nw
         : nb < nw ? 'CPUの勝ち... ' + nb + ' - ' + nw : '引き分け ' + nb + ' - ' + nw;
     }
 
-    document.getElementById('restart').onclick = () => { init(); msgEl.textContent = 'あなたは黒。緑の点に置けます'; };
+    document.getElementById('restart').onclick = () => { initAudio(); init(); msgEl.textContent = 'あなたは黒。緑の点に置けます'; };
     init();
     msgEl.textContent = 'あなたは黒。緑の点に置けます';
   </script>

@@ -46,11 +46,63 @@
     <div id="info">スコア: <span id="score">0</span> / ライフ: <span id="lives">3</span> / ハイスコア: <span id="best">0</span></div>
     <canvas id="c" width="400" height="500"></canvas>
     <div id="msg">クリック / タップ / スペースでスタート。マウス・スワイプ・←→でパドル操作</div>
+    <button class="btn" id="mute" type="button"></button>
     <div class="credit">porkgorilla — 2026</div>
   </main>
 
   <script src="/site.js"></script>
   <script>
+    // ---- サウンド (Web Audio で合成) ----
+    let audio = null;
+    let muted = false;
+    try { muted = localStorage.getItem('muted_breakout') === '1'; } catch (e) {}
+    const muteBtn = document.getElementById('mute');
+    function updateMuteBtn() { muteBtn.textContent = muted ? '🔇 SOUND OFF' : '🔊 SOUND ON'; }
+    updateMuteBtn();
+
+    // iOSでバックグラウンド後に音が死ぬことがあるため、リスタート等のユーザー操作で作り直す
+    function initAudio() {
+      if (audio) audio.close().catch(() => {});
+      const AC = window.AudioContext || window.webkitAudioContext;
+      audio = AC ? new AC() : null;
+    }
+    function ensureAudio() {
+      if (!audio) initAudio();
+      else if (audio.state === 'suspended') audio.resume().catch(() => {});
+    }
+
+    function tone(freq, start, dur, type, vol, endFreq) {
+      if (!audio || muted) return;
+      const t = audio.currentTime + start;
+      const osc = audio.createOscillator();
+      const g = audio.createGain();
+      osc.type = type || 'square';
+      osc.frequency.setValueAtTime(freq, t);
+      if (endFreq) osc.frequency.exponentialRampToValueAtTime(endFreq, t + dur);
+      g.gain.setValueAtTime(vol || 0.08, t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      osc.connect(g).connect(audio.destination);
+      osc.start(t);
+      osc.stop(t + dur + 0.02);
+    }
+
+    const sfx = {
+      start()  { tone(440, 0, 0.08); tone(660, 0.08, 0.08); tone(880, 0.16, 0.12); },
+      wall()   { tone(180, 0, 0.04, 'square', 0.04); },
+      paddle() { tone(300, 0, 0.06, 'square', 0.07); },
+      brick(r) { tone(1000 - r * 110, 0, 0.07, 'square', 0.07); },
+      life()   { tone(500, 0, 0.35, 'sawtooth', 0.09, 120); },
+      clear()  { tone(523, 0, 0.12); tone(659, 0.12, 0.12); tone(784, 0.24, 0.12); tone(1047, 0.36, 0.3); },
+      over()   { tone(400, 0, 0.6, 'sawtooth', 0.1, 60); }
+    };
+
+    muteBtn.onclick = () => {
+      muted = !muted;
+      try { localStorage.setItem('muted_breakout', muted ? '1' : '0'); } catch (e) {}
+      updateMuteBtn();
+      if (!muted) { ensureAudio(); tone(660, 0, 0.08); tone(990, 0.07, 0.1); }
+    };
+
     const canvas = document.getElementById('c');
     const ctx = canvas.getContext('2d');
     const W = canvas.width, H = canvas.height;
@@ -92,8 +144,9 @@
     }
 
     function launch() {
-      if (state === 'ready') { state = 'play'; msgEl.textContent = ''; }
+      if (state === 'ready') { ensureAudio(); sfx.start(); state = 'play'; msgEl.textContent = ''; }
       else if (state === 'over' || state === 'clear') {
+        initAudio();
         if (state === 'clear') { level++; buildLevel(); }
         else newGame();
       }
@@ -104,8 +157,9 @@
       livesEl.textContent = lives;
       if (lives <= 0) {
         state = 'over';
+        sfx.over();
         msgEl.textContent = 'ゲームオーバー! タップでもう一度';
-      } else resetBall();
+      } else { sfx.life(); resetBall(); }
     }
 
     function update() {
@@ -115,9 +169,9 @@
       if (state !== 'play') return;
 
       ball.x += ball.vx; ball.y += ball.vy;
-      if (ball.x < R) { ball.x = R; ball.vx *= -1; }
-      if (ball.x > W - R) { ball.x = W - R; ball.vx *= -1; }
-      if (ball.y < R) { ball.y = R; ball.vy *= -1; }
+      if (ball.x < R) { ball.x = R; ball.vx *= -1; sfx.wall(); }
+      if (ball.x > W - R) { ball.x = W - R; ball.vx *= -1; sfx.wall(); }
+      if (ball.y < R) { ball.y = R; ball.vy *= -1; sfx.wall(); }
 
       // パドル: 当たった位置で反射角を変える
       if (ball.vy > 0 && ball.y + R >= PY && ball.y + R <= PY + PH + 6 &&
@@ -127,6 +181,7 @@
         ball.vx = Math.cos(a) * ball.sp;
         ball.vy = Math.sin(a) * ball.sp;
         ball.y = PY - R;
+        sfx.paddle();
       }
       if (ball.y > H + R) return loseLife();
 
@@ -136,6 +191,7 @@
         const bx = b.c * BW, by = TOP + b.r * BH;
         if (ball.x + R > bx && ball.x - R < bx + BW && ball.y + R > by && ball.y - R < by + BH) {
           b.alive = false;
+          sfx.brick(b.r);
           score += 10 * (ROWS - b.r);
           scoreEl.textContent = score;
           if (score > best) {
@@ -150,6 +206,7 @@
       }
       if (bricks.every(b => !b.alive)) {
         state = 'clear';
+        sfx.clear();
         msgEl.textContent = 'STAGE ' + level + ' クリア! タップで次のステージ';
       }
     }
