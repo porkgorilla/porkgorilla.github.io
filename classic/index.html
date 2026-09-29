@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CLASSIC GAMES | porkgorilla://</title>
+  <meta name="description" content="SNAKE・2048・マインスイーパー・ブロック崩し・オセロ。ブラウザで遊べる定番ゲーム集。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBT4300J0L');
+  </script>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    .section {
+      width: 100%;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+    .section h1 {
+      margin: 48px 0 12px;
+      font-size: 1.6rem;
+      border-left: 4px solid var(--cyber-green);
+      padding-left: 10px;
+      background: linear-gradient(90deg, var(--cyber-green-faint), transparent);
+    }
+    .lead { margin: 0 0 24px; line-height: 1.8; }
+    .back { display: inline-block; margin-top: 8px; font-size: .85rem; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 18px;
+    }
+    .card {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 22px 18px 16px;
+      border-bottom: 1px solid var(--cyber-green-dim);
+      color: var(--cyber-text);
+      transition: transform .15s, border-color .15s, box-shadow .15s;
+    }
+    .card:hover {
+      color: var(--cyber-text);
+      text-shadow: none;
+      border-color: var(--cyber-green);
+      border-bottom-style: solid;
+      box-shadow: 0 0 18px rgba(57, 255, 106, 0.25);
+      transform: translateY(-3px);
+    }
+    .card-head { display: flex; align-items: center; gap: 10px; }
+    .card-icon { font-size: 1.8rem; }
+    .card h3 { margin: 0; font-size: 1.05rem; }
+    .card p { margin: 0; flex: 1; font-size: .88rem; line-height: 1.7; }
+    .card .tags { display: flex; gap: 6px; flex-wrap: wrap; }
+    .card .open { color: var(--cyber-green-dim); font-size: .8rem; text-align: right; }
+    .card:hover .open { color: var(--cyber-green); }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="section">
+      <h1>CLASSIC GAMES</h1>
+      <p class="lead">ブラウザで遊べる定番ゲーム集。キーボードでもスマホでも動きます。</p>
+      <div class="grid" id="grid"></div>
+      <a class="back" href="/#works">&lt; 作品一覧へ戻る</a>
+    </section>
+  </main>
+
+  <script src="/site.js"></script>
+  <script>
+    const grid = document.getElementById('grid');
+    window.SITE_WORKS.filter(w => w.tags.includes('CLASSIC')).forEach(w => {
+      const a = document.createElement('a');
+      a.className = 'card panel';
+      a.href = w.href;
+      a.innerHTML =
+        '<div class="card-head"><span class="card-icon"></span><h3></h3></div>' +
+        '<p></p><div class="tags"></div><div class="open">&gt; OPEN</div>';
+      a.querySelector('.card-icon').textContent = w.icon;
+      a.querySelector('h3').textContent = w.title;
+      a.querySelector('p').textContent = w.desc;
+      if (w.isNew) a.querySelector('.tags').insertAdjacentHTML('beforeend', '<span class="tag new">NEW</span>');
+      grid.appendChild(a);
+    });
+  </script>
+</body>
+</html>

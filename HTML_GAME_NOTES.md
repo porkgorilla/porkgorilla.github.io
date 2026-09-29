@@ -58,6 +58,8 @@ porkgorilla.github.io にHTMLゲーム/ツールを追加するときに参照�
   desc: '説明文', tags: ['GAME'] }
 ```
 
+**定番ゲームと自作ゲームの分け方:** 定番ゲーム(SNAKE・2048 など)は `tags` に `'CLASSIC'` を足す。トップの WORKS 一覧には出ず、`/classic/` ページに並ぶ(トップには「CLASSIC_GAMES」の入口カードが1枚出る)。自作ゲームやツールには付けない。
+
 あわせて `index.html` の LOG セクションと `README.md` の表にも1行追加する。
 
 ### 動作確認

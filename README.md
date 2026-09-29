@@ -27,6 +27,7 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 ├── theme.css       … 全ページ共通のテーマ (CYBER WIREFRAME / Black × Green)
 ├── site.js         … 共通ヘッダー・フッターの挿入と、作品一覧のデータ (SITE_WORKS)
 ├── favicon.svg
+├── classic/index.html … 定番ゲームの一覧ページ (/classic/)
 ├── 404.html        … GitHub Pages が存在しない URL で表示するページ
 └── works/          … 各作品のページ
     ├── snake.html
@@ -52,7 +53,8 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
    ```
    `</body>` の直前に `<script src="/site.js"></script>` を入れる。
 2. `site.js` の `SITE_WORKS` に1行追加する(`href` は `/works/新しい作品.html`)。トップページの一覧に自動で並ぶ。
-3. `index.html` の LOG に更新内容を書く。
+3. 定番ゲーム(SNAKE・2048 など)なら `tags` に `'CLASSIC'` を足す。トップの一覧ではなく `/classic/` に並ぶ。自作ゲーム・ツールは足さない。
+4. `index.html` の LOG に更新内容を書く。
 
 ## ローカルで確認する
 
