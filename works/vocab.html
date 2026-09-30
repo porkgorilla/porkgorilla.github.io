@@ -48,7 +48,7 @@
     .choice:hover:not(:disabled) { background: var(--cyber-green-faint); }
     .choice.correct { background: var(--cyber-green); border-color: var(--cyber-green); color: #000; }
     .choice.wrong { background: #ff4d6d; border-color: #ff4d6d; color: #000; }
-    #next, #restart {
+    #begin, #next, #restart {
       margin-top: 16px;
       padding: .7rem 1.8rem;
       border: 1px solid var(--cyber-green-dim);
@@ -58,7 +58,7 @@
       font-family: var(--cyber-font);
       cursor: pointer;
     }
-    #next:hover, #restart:hover { background: var(--cyber-green); color: #000; }
+    #begin:hover, #next:hover, #restart:hover { background: var(--cyber-green); color: #000; }
     #result { font-size: 1.3rem; }
     #result b { font-size: 2.4rem; color: var(--cyber-green); text-shadow: 0 0 8px var(--cyber-green); display: block; margin: 8px 0; }
     .hidden { display: none; }
@@ -69,7 +69,11 @@
   <h1>🔤 英単語クイズ</h1>
 
   <div id="card" class="panel">
-    <div id="quiz">
+    <div id="start">
+      <p>英単語の意味を4択で答えよう。<br>問題が出るたびに発音が流れます 🔊</p>
+      <button id="begin">スタート</button>
+    </div>
+    <div id="quiz" class="hidden">
       <div id="progress"></div>
       <div id="word"></div>
       <button id="speak" title="発音を聞く" aria-label="発音を聞く">🔊</button>
@@ -115,6 +119,7 @@
       questions = shuffle(WORDS).slice(0, ROUNDS);
       index = 0;
       score = 0;
+      $('start').classList.add('hidden');
       $('quiz').classList.remove('hidden');
       $('result').classList.add('hidden');
       showQuestion();
@@ -125,6 +130,7 @@
       const [word, meaning] = questions[index];
       $('progress').textContent = `${index + 1} / ${ROUNDS}問  ·  正解 ${score}`;
       $('word').textContent = word;
+      speakWord();
       $('next').classList.add('hidden');
       const wrongs = shuffle(WORDS.filter(w => w[0] !== word)).slice(0, 3).map(w => w[1]);
       const box = $('choices');
@@ -169,15 +175,16 @@
 
     $('next').onclick = next;
     $('restart').onclick = startQuiz;
-    $('speak').onclick = () => {
+    function speakWord() {
       if (!('speechSynthesis' in window)) return;
       const u = new SpeechSynthesisUtterance(questions[index][0]);
       u.lang = 'en-US';
       speechSynthesis.cancel();
       speechSynthesis.speak(u);
-    };
+    }
+    $('speak').onclick = speakWord;
 
-    startQuiz();
+    $('begin').onclick = startQuiz; // ユーザー操作から始めるので1問目も自動再生できる
   </script>
 </body>
 </html>
