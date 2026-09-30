@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STOPWATCH | porkgorilla://</title>
+  <meta name="description" content="ラップタイム対応のシンプルなストップウォッチ。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBT4300J0L');
+  </script>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    main { padding: 24px 16px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+    h1 { margin: 0; font-size: 1.6rem; }
+    .box { width: 100%; max-width: 480px; padding: 16px; box-sizing: border-box; }
+    #t { font-size: clamp(2.2rem, 12vw, 3rem); text-align: center; padding: 20px 8px; color: var(--cyber-green);
+      text-shadow: 0 0 8px var(--cyber-green); font-variant-numeric: tabular-nums; }
+    .btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    #laps { list-style: none; margin: 10px 0 0; padding: 0; max-height: 240px; overflow-y: auto; }
+    #laps li { display: flex; justify-content: space-between; gap: 8px; padding: 6px 4px; border-bottom: 1px solid var(--cyber-green-faint);
+      font-variant-numeric: tabular-nums; }
+    #laps li span:first-child { color: var(--cyber-green-dim); }
+    .credit { font-size: 11px; color: var(--cyber-green-dim); margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>⏲ STOPWATCH</h1>
+    <div class="box panel">
+      <div id="t">00:00.00</div>
+      <div class="btns">
+        <button class="btn" id="go" type="button">START</button>
+        <button class="btn" id="lap" type="button" disabled>LAP</button>
+        <button class="btn" id="reset" type="button">RESET</button>
+      </div>
+      <ul id="laps"></ul>
+    </div>
+    <div class="credit">porkgorilla — 2026 // Space: START/STOP　L: LAP</div>
+  </main>
+
+  <script src="/site.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    let base = 0, startAt = 0, running = false, raf = 0, lastLap = 0, n = 0;
+    const fmt = ms => {
+      const c = Math.floor(ms / 10) % 100, s = Math.floor(ms / 1000) % 60, m = Math.floor(ms / 60000);
+      return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0') + '.' + String(c).padStart(2, '0');
+    };
+    const elapsed = () => base + (running ? performance.now() - startAt : 0);
+    function tick() { $('t').textContent = fmt(elapsed()); if (running) raf = requestAnimationFrame(tick); }
+    $('go').onclick = () => {
+      if (running) {
+        base = elapsed(); running = false; cancelAnimationFrame(raf);
+        $('go').textContent = 'START'; $('lap').disabled = true; tick();
+      } else {
+        startAt = performance.now(); running = true;
+        $('go').textContent = 'STOP'; $('lap').disabled = false; tick();
+      }
+    };
+    $('lap').onclick = () => {
+      const now = elapsed(); n++;
+      const li = document.createElement('li');
+      li.innerHTML = '<span>LAP ' + n + '</span><span>+' + fmt(now - lastLap) + '</span><span>' + fmt(now) + '</span>';
+      $('laps').prepend(li); lastLap = now;
+    };
+    $('reset').onclick = () => {
+      running = false; cancelAnimationFrame(raf); base = 0; lastLap = 0; n = 0;
+      $('go').textContent = 'START'; $('lap').disabled = true; $('laps').innerHTML = ''; tick();
+    };
+    document.addEventListener('keydown', e => {
+      if (e.target.tagName === 'BUTTON') return;
+      if (e.code === 'Space') { e.preventDefault(); $('go').click(); }
+      else if (e.key === 'l' && running) $('lap').click();
+    });
+  </script>
+</body>
+</html>

@@ -44,7 +44,25 @@ window.SITE_WORKS = [
     tags: ['GAME', 'CLASSIC'] },
   { id: 'puzzle15', href: '/works/puzzle15.html', icon: '🔲', title: '15_PUZZLE', isNew: true,
     desc: '定番のスライドパズル。数字を1から15の順に並べよう。',
-    tags: ['GAME', 'CLASSIC'] }
+    tags: ['GAME', 'CLASSIC'] },
+  { id: 'calculator', href: '/works/calculator.html', icon: '🧮', title: 'CALCULATOR', isNew: true,
+    desc: 'シンプルな電卓。四則演算・パーセント・キーボード入力に対応。',
+    tags: ['TOOL'] },
+  { id: 'stopwatch', href: '/works/stopwatch.html', icon: '⏲', title: 'STOPWATCH', isNew: true,
+    desc: 'ラップタイム対応のストップウォッチ。スペースキーで開始・停止。',
+    tags: ['TOOL'] },
+  { id: 'password', href: '/works/password.html', icon: '🔑', title: 'PASSWORD_GEN', isNew: true,
+    desc: '長さと文字種を選べるパスワード生成。ブラウザ内で生成し送信しない。',
+    tags: ['TOOL'] },
+  { id: 'unit', href: '/works/unit.html', icon: '📏', title: 'UNIT_CONVERTER', isNew: true,
+    desc: '長さ・重さ・面積・容量・速度・データ量・温度の単位変換。',
+    tags: ['TOOL'] },
+  { id: 'color', href: '/works/color.html', icon: '🎨', title: 'COLOR_CONVERTER', isNew: true,
+    desc: 'カラーピッカーと HEX / RGB / HSL の相互変換。',
+    tags: ['TOOL'] },
+  { id: 'jsonfmt', href: '/works/jsonfmt.html', icon: '🧾', title: 'JSON_FORMATTER', isNew: true,
+    desc: 'JSON の整形・圧縮・構文チェック。',
+    tags: ['TOOL'] }
 ];
 
 (function () {

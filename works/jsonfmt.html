@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON_FORMATTER | porkgorilla://</title>
+  <meta name="description" content="JSON の整形・圧縮・構文チェックをブラウザ内で行うツール。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBT4300J0L');
+  </script>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    main { padding: 24px 16px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+    h1 { margin: 0; font-size: 1.6rem; }
+    .wide { width: 100%; max-width: 720px; box-sizing: border-box; }
+    textarea, select { font-family: var(--cyber-font); font-size: 1rem; padding: 10px;
+      background: var(--cyber-bg-panel); color: var(--cyber-text); border: 1px solid var(--cyber-green-dim); }
+    textarea { height: 300px; resize: vertical; tab-size: 2; }
+    textarea:focus, select:focus { outline: none; border-color: var(--cyber-green); }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    #status { min-height: 1.4em; font-size: .9rem; color: var(--cyber-green); word-break: break-all; }
+    #status.err { color: var(--cyber-red); }
+    .credit { font-size: 11px; color: var(--cyber-green-dim); margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>{ } JSON_FORMATTER</h1>
+    <textarea id="t" class="wide" placeholder='{"name":"porkgorilla","tags":["a","b"]}' spellcheck="false" autofocus></textarea>
+    <div class="actions wide">
+      <button class="btn" id="fmt" type="button">整形</button>
+      <button class="btn" id="min" type="button">圧縮</button>
+      <button class="btn" id="copy" type="button">コピー</button>
+      <button class="btn" id="clear" type="button">クリア</button>
+      <select id="ind" aria-label="インデント">
+        <option value="2">2スペース</option><option value="4">4スペース</option><option value="tab">タブ</option>
+      </select>
+    </div>
+    <div id="status" class="wide"></div>
+    <div class="credit">porkgorilla — 2026 // ブラウザ内で処理。どこにも送信しません</div>
+  </main>
+
+  <script src="/site.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    function ok(msg) { $('status').className = 'wide'; $('status').textContent = msg; }
+    function ng(msg) { $('status').className = 'wide err'; $('status').textContent = msg; }
+    function run(pretty) {
+      const s = $('t').value;
+      if (!s.trim()) return ok('');
+      try {
+        const o = JSON.parse(s);
+        const ind = $('ind').value === 'tab' ? '\t' : +$('ind').value;
+        $('t').value = pretty ? JSON.stringify(o, null, ind) : JSON.stringify(o);
+        ok('✔ 正しい JSON です (' + new TextEncoder().encode($('t').value).length + ' bytes)');
+      } catch (e) { ng('✖ ' + e.message); }
+    }
+    $('fmt').onclick = () => run(true);
+    $('min').onclick = () => run(false);
+    $('clear').onclick = () => { $('t').value = ''; ok(''); $('t').focus(); };
+    $('copy').onclick = async () => {
+      try { await navigator.clipboard.writeText($('t').value); }
+      catch (e) { $('t').select(); document.execCommand('copy'); }
+      $('copy').textContent = 'コピーしました!'; setTimeout(() => $('copy').textContent = 'コピー', 1500);
+    };
+    $('t').addEventListener('input', () => {
+      const s = $('t').value;
+      if (!s.trim()) return ok('');
+      try { JSON.parse(s); ok('✔ 正しい JSON です'); } catch (e) { ng('✖ ' + e.message); }
+    });
+  </script>
+</body>
+</html>

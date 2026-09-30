@@ -21,6 +21,12 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 | [VOCAB_QUIZ](https://porkgorilla.github.io/works/vocab.html) | LANGUAGE | 英単語4択クイズ |
 | [CHAR_COUNTER](https://porkgorilla.github.io/works/counter.html) | TOOL | 文字数カウンター |
 | [POMODORO](https://porkgorilla.github.io/works/timer.html) | TOOL | ポモドーロタイマー |
+| [CALCULATOR](https://porkgorilla.github.io/works/calculator.html) | TOOL | 電卓 |
+| [STOPWATCH](https://porkgorilla.github.io/works/stopwatch.html) | TOOL | ストップウォッチ |
+| [PASSWORD_GEN](https://porkgorilla.github.io/works/password.html) | TOOL | パスワード生成 |
+| [UNIT_CONVERTER](https://porkgorilla.github.io/works/unit.html) | TOOL | 単位変換 |
+| [COLOR_CONVERTER](https://porkgorilla.github.io/works/color.html) | TOOL | HEX/RGB/HSL 変換 |
+| [JSON_FORMATTER](https://porkgorilla.github.io/works/jsonfmt.html) | TOOL | JSON 整形 |
 | [KAMOGAWA](https://porkgorilla.github.io/works/kamogawa.html) | GAME | 鴨川等間隔。河原のいちばん空いている場所にカップルを座らせるゲーム |
 
 ## 構成
@@ -43,6 +49,12 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
     ├── memory.html
     ├── connect4.html
     ├── puzzle15.html
+    ├── calculator.html
+    ├── stopwatch.html
+    ├── password.html
+    ├── unit.html
+    ├── color.html
+    ├── jsonfmt.html
     ├── typing.html
     ├── vocab.html
     ├── counter.html

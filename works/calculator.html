@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CALCULATOR | porkgorilla://</title>
+  <meta name="description" content="シンプルな電卓。四則演算・パーセント・キーボード入力に対応。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBT4300J0L');
+  </script>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    main { padding: 24px 16px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+    h1 { margin: 0; font-size: 1.6rem; }
+    .box { width: 100%; max-width: 360px; padding: 16px; box-sizing: border-box; }
+    #disp { text-align: right; font-size: 2rem; padding: 8px 4px; min-height: 1.4em; overflow-x: auto; white-space: nowrap;
+      color: var(--cyber-green); text-shadow: 0 0 6px var(--cyber-green); }
+    #expr { text-align: right; min-height: 1.2em; color: var(--cyber-green-dim); font-size: .9rem; }
+    .keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
+    .keys button { padding: 14px 0; font-size: 1.2rem; font-family: var(--cyber-font); cursor: pointer;
+      border: 1px solid var(--cyber-green-dim); background: var(--cyber-green-faint); color: var(--cyber-green); }
+    .keys button:hover, .keys button:active { background: var(--cyber-green); color: #000; }
+    .keys .op { border-color: var(--cyber-green); }
+    .keys .wide { grid-column: span 2; }
+    .credit { font-size: 11px; color: var(--cyber-green-dim); margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>🧮 CALCULATOR</h1>
+    <div class="box panel">
+      <div id="expr"></div>
+      <div id="disp">0</div>
+      <div class="keys" id="keys"></div>
+    </div>
+    <div class="credit">porkgorilla — 2026</div>
+  </main>
+
+  <script src="/site.js"></script>
+  <script>
+    const disp = document.getElementById('disp'), exprEl = document.getElementById('expr');
+    let cur = '0', acc = null, op = null, fresh = true;
+    const SYM = { '+': '+', '-': '−', '*': '×', '/': '÷' };
+    const layout = [
+      ['C','clr'],['±','neg'],['%','pct'],['÷','/','op'],
+      ['7'],['8'],['9'],['×','*','op'],
+      ['4'],['5'],['6'],['−','-','op'],
+      ['1'],['2'],['3'],['+','+','op'],
+      ['0','0','wide'],['.'],['=','=','op']
+    ];
+    const keys = document.getElementById('keys');
+    layout.forEach(([label, val, cls]) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.textContent = label; if (cls) b.className = cls;
+      b.onclick = () => press(val || label);
+      keys.appendChild(b);
+    });
+    function calc(a, o, b) {
+      a = parseFloat(a); b = parseFloat(b);
+      const r = o === '+' ? a + b : o === '-' ? a - b : o === '*' ? a * b : (b === 0 ? NaN : a / b);
+      return isFinite(r) ? String(parseFloat(r.toPrecision(12))) : 'エラー';
+    }
+    function show() {
+      disp.textContent = cur;
+      exprEl.textContent = acc !== null && op ? acc + ' ' + SYM[op] : '';
+    }
+    function press(k) {
+      if (cur === 'エラー' && k !== 'clr') return;
+      if (/^[0-9]$/.test(k)) {
+        cur = (fresh || cur === '0') ? k : cur + k; fresh = false;
+      } else if (k === '.') {
+        if (fresh) { cur = '0.'; fresh = false; } else if (!cur.includes('.')) cur += '.';
+      } else if (k === 'clr') { cur = '0'; acc = null; op = null; fresh = true; }
+      else if (k === 'neg') { if (cur !== '0') cur = cur.startsWith('-') ? cur.slice(1) : '-' + cur; }
+      else if (k === 'pct') { cur = String(parseFloat((parseFloat(cur) / 100).toPrecision(12))); fresh = true; }
+      else if (k === 'back') { if (!fresh) { cur = cur.length > 1 ? cur.slice(0, -1) : '0'; if (cur === '-') cur = '0'; } }
+      else if (k === '=') {
+        if (op && acc !== null) { cur = calc(acc, op, cur); acc = null; op = null; fresh = true; }
+      } else { // 演算子
+        if (op && acc !== null && !fresh) cur = calc(acc, op, cur);
+        acc = cur; op = k; fresh = true;
+        if (cur === 'エラー') { acc = null; op = null; }
+      }
+      show();
+    }
+    document.addEventListener('keydown', e => {
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      const k = e.key;
+      if (/^[0-9.]$/.test(k) || '+-*/'.includes(k)) press(k);
+      else if (k === 'Enter' || k === '=') { e.preventDefault(); press('='); }
+      else if (k === 'Backspace') press('back');
+      else if (k === 'Escape' || k === 'Delete') press('clr');
+      else if (k === '%') press('pct');
+    });
+    show();
+  </script>
+</body>
+</html>
