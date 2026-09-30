@@ -73,7 +73,7 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
    ```
    `</body>` の直前に `<script src="/site.js"></script>` を入れる。
 2. `site.js` の `SITE_WORKS` に1行追加する(`href` は `/works/新しい作品.html`)。トップページの一覧に自動で並ぶ。
-3. `tags` で載せるまとめページが決まる。`'CLASSIC'` → `/classic/`、`'TOOL'` → `/tools/`、`'LANGUAGE'` → `/language/`、`'ORIGINAL'`(オリジナル作品) → `/apps/`(アプリ百景)。トップには各ページへの入口カードだけが並ぶ。オリジナル作品には `og: '/assets/og-xxx.jpg'` を付けると OGP 画像つきのカードになる。
+3. `tags` で載せるまとめページが決まる。`'CLASSIC'` → `/classic/`、`'TOOL'` → `/tools/`、`'LANGUAGE'` → `/language/`、`'APP'`(定番以外のゲーム・アプリ) → `/apps/`(アプリ百景)。トップには各ページへの入口カードだけが並ぶ。定番以外の作品には `og: '/assets/og-xxx.jpg'` を付けると OGP 画像つきのカードになる。
 4. `index.html` の LOG に更新内容を書く。
 
 ## ローカルで確認する

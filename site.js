@@ -21,7 +21,7 @@ window.SITE_WORKS = [
   { id: 'kamogawa', href: '/works/kamogawa.html', icon: '🏮', title: 'KAMOGAWA', isNew: true,
     desc: '夕暮れの鴨川。やって来たカップルを、河原のいちばん空いている場所に座らせよう。',
     og: '/assets/og-kamogawa.jpg',
-    tags: ['GAME', 'ORIGINAL'] },
+    tags: ['GAME', 'APP'] },
   { id: '2048', href: '/works/2048.html', icon: '🔢', title: '2048', isNew: true,
     desc: '同じ数字を合体させて2048を目指す定番パズル。矢印キー・スワイプ対応。',
     tags: ['GAME', 'CLASSIC'] },
@@ -71,7 +71,7 @@ window.SITE_SECTIONS = [
   { tag: 'CLASSIC',  href: '/classic/',  icon: '🕹', title: 'CLASSIC_GAMES', label: '定番ゲーム' },
   { tag: 'TOOL',     href: '/tools/',    icon: '🛠', title: 'CLASSIC_TOOLS', label: '定番ツール' },
   { tag: 'LANGUAGE', href: '/language/', icon: '🔤', title: 'LANGUAGE_APPS', label: '語学アプリ' },
-  { tag: 'ORIGINAL', href: '/apps/',     icon: '🏮', title: 'アプリ百景',     label: 'オリジナルのゲーム・アプリ' }
+  { tag: 'APP'     , href: '/apps/',     icon: '🏮', title: 'アプリ百景',     label: '定番以外のゲーム・アプリ' }
 ];
 
 // 作品カードを container に描画する。work.og があれば OGP 画像つきのカードになる。

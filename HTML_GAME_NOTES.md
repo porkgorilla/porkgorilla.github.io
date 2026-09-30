@@ -58,7 +58,7 @@ porkgorilla.github.io にHTMLゲーム/ツールを追加するときに参照�
   desc: '説明文', tags: ['GAME'] }
 ```
 
-**まとめページの分け方:** `tags` で載る場所が決まる。`'CLASSIC'` → `/classic/`、`'TOOL'` → `/tools/`、`'LANGUAGE'` → `/language/`、`'ORIGINAL'`(オリジナル) → `/apps/`(アプリ百景)。トップには入口カードだけが出る。オリジナル作品は `og: '/assets/og-xxx.jpg'` を足すと OGP 画像つきのカードになる。
+**まとめページの分け方:** `tags` で載る場所が決まる。`'CLASSIC'` → `/classic/`、`'TOOL'` → `/tools/`、`'LANGUAGE'` → `/language/`、`'APP'`(定番以外) → `/apps/`(アプリ百景)。トップには入口カードだけが出る。定番以外の作品は `og: '/assets/og-xxx.jpg'` を足すと OGP 画像つきのカードになる。
 
 あわせて `index.html` の LOG セクションと `README.md` の表にも1行追加する。
 
