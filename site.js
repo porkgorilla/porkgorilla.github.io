@@ -20,7 +20,8 @@ window.SITE_WORKS = [
     tags: ['TOOL'] },
   { id: 'kamogawa', href: '/works/kamogawa.html', icon: '🏮', title: 'KAMOGAWA', isNew: true,
     desc: '夕暮れの鴨川。やって来たカップルを、河原のいちばん空いている場所に座らせよう。',
-    tags: ['GAME'] },
+    og: '/assets/og-kamogawa.jpg',
+    tags: ['GAME', 'ORIGINAL'] },
   { id: '2048', href: '/works/2048.html', icon: '🔢', title: '2048', isNew: true,
     desc: '同じ数字を合体させて2048を目指す定番パズル。矢印キー・スワイプ対応。',
     tags: ['GAME', 'CLASSIC'] },
@@ -65,6 +66,40 @@ window.SITE_WORKS = [
     tags: ['TOOL'] }
 ];
 
+// トップページに並べる「まとめページ」。tag を持つ作品は、トップではなくそのページに並ぶ。
+window.SITE_SECTIONS = [
+  { tag: 'CLASSIC',  href: '/classic/',  icon: '🕹', title: 'CLASSIC_GAMES', label: '定番ゲーム' },
+  { tag: 'TOOL',     href: '/tools/',    icon: '🛠', title: 'CLASSIC_TOOLS', label: '定番ツール' },
+  { tag: 'LANGUAGE', href: '/language/', icon: '🔤', title: 'LANGUAGE_APPS', label: '語学アプリ' },
+  { tag: 'ORIGINAL', href: '/apps/',     icon: '🏮', title: 'アプリ百景',     label: 'オリジナルのゲーム・アプリ' }
+];
+
+// 作品カードを container に描画する。work.og があれば OGP 画像つきのカードになる。
+window.renderWorkCards = function (container, works) {
+  works.forEach(w => {
+    const a = document.createElement('a');
+    a.className = 'card panel' + (w.og ? ' has-og' : '');
+    a.href = w.href;
+    a.innerHTML =
+      (w.og ? '<img class="card-og" alt="" loading="lazy" width="1200" height="630">' : '') +
+      '<div class="card-head"><span class="card-icon"></span><h3></h3></div>' +
+      '<p></p><div class="tags"></div><div class="open">&gt; OPEN</div>';
+    if (w.og) a.querySelector('.card-og').src = w.og;
+    a.querySelector('.card-icon').textContent = w.icon;
+    a.querySelector('h3').textContent = w.title;
+    a.querySelector('p').textContent = w.desc;
+    const tags = a.querySelector('.tags');
+    if (w.isNew) tags.insertAdjacentHTML('beforeend', '<span class="tag new">NEW</span>');
+    (w.tags || []).forEach(t => {
+      const s = document.createElement('span');
+      s.className = 'tag';
+      s.textContent = t;
+      tags.appendChild(s);
+    });
+    container.appendChild(a);
+  });
+};
+
 (function () {
   const header = document.createElement('header');
   header.className = 'site-header';
@@ -73,6 +108,9 @@ window.SITE_WORKS = [
     '<nav>' +
       '<a href="/#works">WORKS</a>' +
       '<a href="/classic/">CLASSIC</a>' +
+      '<a href="/tools/">TOOLS</a>' +
+      '<a href="/language/">LANGUAGE</a>' +
+      '<a href="/apps/">APPS</a>' +
       '<a href="/#about">ABOUT</a>' +
       '<a href="/#log">LOG</a>' +
       '<a href="https://github.com/porkgorilla" target="_blank" rel="noopener">GITHUB</a>' +

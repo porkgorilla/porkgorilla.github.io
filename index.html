@@ -66,20 +66,6 @@
     @keyframes blink { 50% { opacity: 0; } }
 
     /* ---------- WORKS ---------- */
-    .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
-    .filters button {
-      padding: 4px 12px;
-      border: 1px solid var(--cyber-green-dim);
-      background: transparent;
-      color: var(--cyber-green-dim);
-      font-family: var(--cyber-font);
-      font-size: .85rem;
-      letter-spacing: .06em;
-      cursor: pointer;
-    }
-    .filters button:hover { color: var(--cyber-green); border-color: var(--cyber-green); }
-    .filters button.active { background: var(--cyber-green); border-color: var(--cyber-green); color: #000; }
-
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -109,6 +95,7 @@
     .card .tags { display: flex; gap: 6px; flex-wrap: wrap; }
     .card .open { color: var(--cyber-green-dim); font-size: .8rem; text-align: right; }
     .card:hover .open { color: var(--cyber-green); }
+    .card-og { width: 100%; height: auto; aspect-ratio: 1200 / 630; object-fit: cover; display: block; margin: -6px 0 4px; border: 1px solid var(--cyber-green-dim); }
 
     /* ---------- ABOUT ---------- */
     .about { padding: 22px 20px; line-height: 1.9; }
@@ -149,12 +136,6 @@
 
     <section id="works" class="section">
       <h2>WORKS</h2>
-      <div class="filters" role="group" aria-label="カテゴリで絞り込み">
-        <button class="active" data-filter="ALL">ALL</button>
-        <button data-filter="GAME">GAME</button>
-        <button data-filter="TOOL">TOOL</button>
-        <button data-filter="LANGUAGE">LANGUAGE</button>
-      </div>
       <div class="grid" id="grid"></div>
     </section>
 
@@ -173,6 +154,7 @@
     <section id="log" class="section">
       <h2>LOG</h2>
       <ul class="log">
+        <li><time>2026-09-30</time>作品を種類別のページに整理: <code>/classic/</code>・<code>/tools/</code>・<code>/language/</code>・<code>/apps/</code>(アプリ百景)。オリジナル作品はOGP画像つきのリンクで表示。</li>
         <li><time>2026-09-30</time>定番ツールを追加: CALCULATOR・STOPWATCH・PASSWORD_GEN・UNIT_CONVERTER・COLOR_CONVERTER・JSON_FORMATTER。</li>
         <li><time>2026-09-30</time>定番ゲームに TETRIS・MEMORY・CONNECT4・15_PUZZLE を追加。</li>
         <li><time>2026-09-30</time>SNAKE に効果音を追加。<br>2048・MINESWEEPER・BREAKOUT・OTHELLO を公開。<br>定番ゲームを <code>/classic/</code> ページにまとめて分離。</li>
@@ -190,46 +172,18 @@
 
     // ---------- 作品一覧 ----------
     const grid = document.getElementById('grid');
-    // 定番ゲームは /classic/ にまとめ、ここには入口カードを1枚だけ置く
-    const CLASSIC = WORKS.filter(w => w.tags.includes('CLASSIC'));
-    const CLASSIC_GATE = {
-      href: '/classic/', icon: '🕹', title: 'CLASSIC_GAMES',
-      desc: '定番ゲームの詰め合わせ。' + CLASSIC.map(w => w.title).join(' / ') + '。',
-      tags: ['GAME'], isNew: CLASSIC.some(w => w.isNew)
-    };
-    function renderWorks(filter) {
-      grid.innerHTML = '';
-      const list = WORKS.filter(w => !w.tags.includes('CLASSIC') && (filter === 'ALL' || w.tags.includes(filter)));
-      if (filter === 'ALL' || filter === 'GAME') list.unshift(CLASSIC_GATE);
-      list.forEach(w => {
-        const a = document.createElement('a');
-        a.className = 'card panel';
-        a.href = w.href;
-        a.innerHTML =
-          '<div class="card-head"><span class="card-icon"></span><h3></h3></div>' +
-          '<p></p><div class="tags"></div><div class="open">&gt; OPEN</div>';
-        a.querySelector('.card-icon').textContent = w.icon;
-        a.querySelector('h3').textContent = w.title;
-        a.querySelector('p').textContent = w.desc;
-        const tags = a.querySelector('.tags');
-        if (w.isNew) tags.insertAdjacentHTML('beforeend', '<span class="tag new">NEW</span>');
-        w.tags.forEach(t => {
-          const s = document.createElement('span');
-          s.className = 'tag';
-          s.textContent = t;
-          tags.appendChild(s);
-        });
-        grid.appendChild(a);
-      });
-    }
-    document.querySelectorAll('.filters button').forEach(b => {
-      b.onclick = () => {
-        document.querySelectorAll('.filters button').forEach(x => x.classList.remove('active'));
-        b.classList.add('active');
-        renderWorks(b.dataset.filter);
+    // 作品は種類ごとのまとめページに並ぶ。ここには入口カードだけを置く
+    const gates = window.SITE_SECTIONS.map(sec => {
+      const list = WORKS.filter(w => w.tags.includes(sec.tag));
+      const first = list.find(w => w.og);
+      return {
+        href: sec.href, icon: sec.icon, title: sec.title,
+        desc: sec.label + ' (' + list.length + '本)。' + list.map(w => w.title).join(' / ') + '。',
+        og: sec.tag === 'ORIGINAL' && first ? first.og : null,
+        isNew: list.some(w => w.isNew), tags: []
       };
     });
-    renderWorks('ALL');
+    window.renderWorkCards(grid, gates);
 
     // ---------- ターミナル演出 ----------
     const term = document.getElementById('term');
