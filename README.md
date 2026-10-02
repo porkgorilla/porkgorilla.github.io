@@ -2,32 +2,32 @@
 
 porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを公開しています。
 
-**https://porkgorilla.github.io/**
+**https://porkgorilla.com/**
 
 ## Works
 
 | 作品 | 種類 | 内容 |
 | --- | --- | --- |
-| [SNAKE](https://porkgorilla.github.io/works/snake.html) | GAME | 定番のへびゲーム |
-| [2048](https://porkgorilla.github.io/works/2048.html) | GAME | 数字を合体させる定番パズル |
-| [MINESWEEPER](https://porkgorilla.github.io/works/minesweeper.html) | GAME | マインスイーパー |
-| [BREAKOUT](https://porkgorilla.github.io/works/breakout.html) | GAME | ブロック崩し |
-| [OTHELLO](https://porkgorilla.github.io/works/othello.html) | GAME | オセロ (対CPU) |
-| [TETRIS](https://porkgorilla.github.io/works/tetris.html) | GAME | 落ち物パズル |
-| [MEMORY](https://porkgorilla.github.io/works/memory.html) | GAME | 神経衰弱 |
-| [CONNECT4](https://porkgorilla.github.io/works/connect4.html) | GAME | 四目並べ (対CPU) |
-| [15_PUZZLE](https://porkgorilla.github.io/works/puzzle15.html) | GAME | スライドパズル |
-| [TYPE_ATTACK](https://porkgorilla.github.io/works/typing.html) | GAME / LANGUAGE | 60秒英単語タイピング |
-| [VOCAB_QUIZ](https://porkgorilla.github.io/works/vocab.html) | LANGUAGE | 英単語4択クイズ |
-| [CHAR_COUNTER](https://porkgorilla.github.io/works/counter.html) | TOOL | 文字数カウンター |
-| [POMODORO](https://porkgorilla.github.io/works/timer.html) | TOOL | ポモドーロタイマー |
-| [CALCULATOR](https://porkgorilla.github.io/works/calculator.html) | TOOL | 電卓 |
-| [STOPWATCH](https://porkgorilla.github.io/works/stopwatch.html) | TOOL | ストップウォッチ |
-| [PASSWORD_GEN](https://porkgorilla.github.io/works/password.html) | TOOL | パスワード生成 |
-| [UNIT_CONVERTER](https://porkgorilla.github.io/works/unit.html) | TOOL | 単位変換 |
-| [COLOR_CONVERTER](https://porkgorilla.github.io/works/color.html) | TOOL | HEX/RGB/HSL 変換 |
-| [JSON_FORMATTER](https://porkgorilla.github.io/works/jsonfmt.html) | TOOL | JSON 整形 |
-| [KAMOGAWA](https://porkgorilla.github.io/works/kamogawa.html) | GAME | 鴨川等間隔。河原のいちばん空いている場所にカップルを座らせるゲーム |
+| [SNAKE](https://porkgorilla.com/works/snake.html) | GAME | 定番のへびゲーム |
+| [2048](https://porkgorilla.com/works/2048.html) | GAME | 数字を合体させる定番パズル |
+| [MINESWEEPER](https://porkgorilla.com/works/minesweeper.html) | GAME | マインスイーパー |
+| [BREAKOUT](https://porkgorilla.com/works/breakout.html) | GAME | ブロック崩し |
+| [OTHELLO](https://porkgorilla.com/works/othello.html) | GAME | オセロ (対CPU) |
+| [TETRIS](https://porkgorilla.com/works/tetris.html) | GAME | 落ち物パズル |
+| [MEMORY](https://porkgorilla.com/works/memory.html) | GAME | 神経衰弱 |
+| [CONNECT4](https://porkgorilla.com/works/connect4.html) | GAME | 四目並べ (対CPU) |
+| [15_PUZZLE](https://porkgorilla.com/works/puzzle15.html) | GAME | スライドパズル |
+| [TYPE_ATTACK](https://porkgorilla.com/works/typing.html) | GAME / LANGUAGE | 60秒英単語タイピング |
+| [VOCAB_QUIZ](https://porkgorilla.com/works/vocab.html) | LANGUAGE | 英単語4択クイズ |
+| [CHAR_COUNTER](https://porkgorilla.com/works/counter.html) | TOOL | 文字数カウンター |
+| [POMODORO](https://porkgorilla.com/works/timer.html) | TOOL | ポモドーロタイマー |
+| [CALCULATOR](https://porkgorilla.com/works/calculator.html) | TOOL | 電卓 |
+| [STOPWATCH](https://porkgorilla.com/works/stopwatch.html) | TOOL | ストップウォッチ |
+| [PASSWORD_GEN](https://porkgorilla.com/works/password.html) | TOOL | パスワード生成 |
+| [UNIT_CONVERTER](https://porkgorilla.com/works/unit.html) | TOOL | 単位変換 |
+| [COLOR_CONVERTER](https://porkgorilla.com/works/color.html) | TOOL | HEX/RGB/HSL 変換 |
+| [JSON_FORMATTER](https://porkgorilla.com/works/jsonfmt.html) | TOOL | JSON 整形 |
+| [KAMOGAWA](https://porkgorilla.com/works/kamogawa.html) | GAME | 鴨川等間隔。河原のいちばん空いている場所にカップルを座らせるゲーム |
 
 ## 構成
 

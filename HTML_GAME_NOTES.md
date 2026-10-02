@@ -1,9 +1,10 @@
 # HTMLゲーム制作 覚書
 
-porkgorilla.github.io にHTMLゲーム/ツールを追加するときに参照する覚書。
+porkgorilla.com(GitHub Pages)にHTMLゲーム/ツールを追加するときに参照する覚書。
+2026-10-02 に独自ドメイン `porkgorilla.com` へ移行済み。**公開URL・OGPのURL・シェア用URLは、`porkgorilla.github.io` ではなく `https://porkgorilla.com/...` を使うこと。**(リポジトリ名は従来どおり `porkgorilla.github.io`)
 新しいチャットでゲームを作るときは、この内容を渡しておくこと。
 
-サイト本体: https://porkgorilla.github.io/
+サイト本体: https://porkgorilla.com/
 リポジトリ: https://github.com/porkgorilla/porkgorilla.github.io
 
 ---
@@ -78,7 +79,7 @@ git commit -m "Add <name> game"
 git push
 ```
 - ブランチは `main` に直接push(このリポジトリはPRフローを使っていない)。
-- GitHub Pagesへの反映には数十秒〜1分ほどかかる。push直後にローカルのキャッシュだけで「動いた」と判断せず、実際に `https://porkgorilla.github.io/works/<name>.html` を開いて確認する。
+- GitHub Pagesへの反映には数十秒〜1分ほどかかる。push直後にローカルのキャッシュだけで「動いた」と判断せず、実際に `https://porkgorilla.com/works/<name>.html` を開いて確認する。
 
 ---
 
@@ -86,7 +87,7 @@ git push
 
 ### 基本形
 ```js
-const GAME_URL = 'https://porkgorilla.github.io/works/<name>.html';
+const GAME_URL = 'https://porkgorilla.com/works/<name>.html';
 const shareUrl = 'https://x.com/intent/post?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(GAME_URL);
 ```
 `text` と `url` は別パラメータで渡す。連結して1本のテキストに埋め込まない。
@@ -120,14 +121,14 @@ if (matchMedia('(pointer: coarse)').matches) {
 <meta property="og:type" content="website">
 <meta property="og:title" content="ゲーム名">
 <meta property="og:description" content="説明文">
-<meta property="og:url" content="https://porkgorilla.github.io/works/<name>.html">
-<meta property="og:image" content="https://porkgorilla.github.io/assets/<name>.jpg">
+<meta property="og:url" content="https://porkgorilla.com/works/<name>.html">
+<meta property="og:image" content="https://porkgorilla.com/assets/<name>.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="ゲーム名">
 <meta name="twitter:description" content="説明文">
-<meta name="twitter:image" content="https://porkgorilla.github.io/assets/<name>.jpg">
+<meta name="twitter:image" content="https://porkgorilla.com/assets/<name>.jpg">
 ```
 
 - `t.co` は投稿中の全リンクを自動短縮する機能で、カード表示とは無関係。カードが出るかどうかは上記タグの有無で決まる。
@@ -148,8 +149,8 @@ const SHARE_URL = GAME_URL + '?ogv=' + OG_CACHE_VERSION;
 
 反映しない場合は、まず以下を確認してからXの問題と判断する。
 ```bash
-curl -s https://porkgorilla.github.io/works/<name>.html | grep -Ei 'og:|twitter:'
-curl -I https://porkgorilla.github.io/assets/<name>.jpg   # 200が返るか
+curl -s https://porkgorilla.com/works/<name>.html | grep -Ei 'og:|twitter:'
+curl -I https://porkgorilla.com/assets/<name>.jpg   # 200が返るか
 ```
 
 ---
