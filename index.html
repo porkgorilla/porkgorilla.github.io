@@ -46,7 +46,7 @@
     #term {
       margin: 0;
       padding: 16px 18px 20px;
-      min-height: 13.5em;
+      min-height: 10.9em;
       font-family: var(--cyber-font);
       font-size: .95rem;
       line-height: 1.7;
@@ -99,15 +99,7 @@
 
     /* ---------- ABOUT ---------- */
     .about { padding: 22px 20px; line-height: 1.9; }
-    .about p { margin: 0 0 14px; }
-    .about dl {
-      display: grid;
-      grid-template-columns: max-content 1fr;
-      gap: 6px 18px;
-      margin: 0;
-    }
-    .about dt { color: var(--cyber-green); }
-    .about dd { margin: 0; }
+    .about p { margin: 0; }
 
     /* ---------- LOG ---------- */
     .log { list-style: none; margin: 0; padding: 0; border-left: 1px solid var(--cyber-green-dim); }
@@ -142,26 +134,14 @@
     <section id="about" class="section">
       <h2>ABOUT</h2>
       <div class="about panel">
-        <p>porkgorilla の実験場です。ゲーム・ツール・語学アプリなど、ブラウザだけで動く小さな Web アプリを作って公開しています。</p>
-        <dl>
-          <dt>STACK</dt><dd>HTML / CSS / JavaScript</dd>
-          <dt>HOSTING</dt><dd>GitHub Pages</dd>
-          <dt>SOURCE</dt><dd><a href="https://github.com/porkgorilla/porkgorilla.github.io" target="_blank" rel="noopener">porkgorilla/porkgorilla.github.io</a></dd>
-        </dl>
+        <p>porkgorilla's playground. I build small web apps that run right in the browser (games, tools, language apps and more) and publish them here.</p>
       </div>
     </section>
 
     <section id="log" class="section">
       <h2>LOG</h2>
       <ul class="log">
-        <li><time>2026-09-30</time>作品を種類別のページに整理: <code>/classic/</code>・<code>/tools/</code>・<code>/language/</code>・<code>/apps/</code>(アプリ百景)。定番以外の作品はOGP画像つきのリンクで表示。</li>
-        <li><time>2026-09-30</time>定番ツールを追加: CALCULATOR・STOPWATCH・PASSWORD_GEN・UNIT_CONVERTER・COLOR_CONVERTER・JSON_FORMATTER。</li>
-        <li><time>2026-09-30</time>定番ゲームに TETRIS・MEMORY・CONNECT4・15_PUZZLE を追加。</li>
-        <li><time>2026-09-30</time>SNAKE に効果音を追加。<br>2048・MINESWEEPER・BREAKOUT・OTHELLO を公開。<br>定番ゲームを <code>/classic/</code> ページにまとめて分離。</li>
-        <li><time>2026-09-24</time>作品を <code>works/</code> フォルダにまとめて整理。<br>KAMOGAWA(鴨川等間隔)を公開。</li>
-        <li><time>2026-09-23</time>サイトをリニューアル。共通ヘッダー・作品一覧・404ページを追加。<br>TYPE_ATTACK と POMODORO を公開。</li>
-        <li><time>2026-09-22</time>サイト全体に CYBER WIREFRAME テーマを適用。</li>
-        <li><time>2026-09-21</time>サイト公開。SNAKE・CHAR_COUNTER・VOCAB_QUIZ を公開。</li>
+        <li><time>2026-09-21</time>サイト公開。</li>
       </ul>
     </section>
   </main>
@@ -191,9 +171,7 @@
       ['cmd', 'whoami'],
       ['out', 'porkgorilla'],
       ['cmd', 'cat mission.txt'],
-      ['out', '小さな Web アプリを作って、ここで公開していく実験場。'],
-      ['cmd', 'ls works/'],
-      ['out', WORKS.map(w => w.id).join('  ')]
+      ['out', 'A playground for small web apps, built and published here.']
     ];
     const cursor = document.createElement('span');
     cursor.className = 'cursor';
