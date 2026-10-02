@@ -113,14 +113,11 @@ window.renderWorkCards = function (container, works) {
       '<a href="/apps/">APPS</a>' +
       '<a href="/#about">ABOUT</a>' +
       '<a href="/#log">LOG</a>' +
-      '<a href="https://github.com/porkgorilla" target="_blank" rel="noopener">GITHUB</a>' +
     '</nav>';
   document.body.prepend(header);
 
   const footer = document.createElement('footer');
   footer.className = 'site-footer';
-  footer.innerHTML =
-    '&copy; ' + new Date().getFullYear() + ' porkgorilla<br>' +
-    'built with HTML + CSS + JavaScript // hosted on GitHub Pages';
+  footer.innerHTML = '&copy; ' + new Date().getFullYear() + ' porkgorilla';
   document.body.append(footer);
 })();
