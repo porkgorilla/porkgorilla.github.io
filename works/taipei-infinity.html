@@ -455,7 +455,7 @@ function gameOver(why, finished){
     $('overNum').textContent = score;
     const m = 508 + (score-101)*M_PER_FLOOR;
     $('overSub').textContent = '高さ ' + m.toLocaleString(undefined,{maximumFractionDigits:1}) + ' m' + (score >= best && score > 101 ? '　自己ベスト更新' : '');
-    const text = `台北∞観景台で「台北${score}」まで建てた！\n高さ ${m.toLocaleString(undefined,{maximumFractionDigits:1})} m`;
+    const text = `台北∞観景台で「台北${score}」まで建てた！\n高さ ${m.toLocaleString(undefined,{maximumFractionDigits:1})} m\n#台北無限観景台`;
     $('shareBtn').href = 'https://x.com/intent/post?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(SHARE_URL);
     if(state === 'over' && !viewing){ $('overOv').hidden = false; $('retryBtn').focus(); }
   }, finished ? 900 : 1300);
