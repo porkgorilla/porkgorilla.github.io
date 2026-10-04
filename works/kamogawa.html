@@ -171,7 +171,7 @@ const FONT = '"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",sans-serif';
 const MINCHO = '"Shippori Mincho B1","Hiragino Mincho ProN","Yu Mincho",serif';
 
 // ---- world constants (logical units) ----
-const LH = 540, BLD_Y = 262, WALK_TOP = 290, SEAT_Y = 318, WALK_Y = 312, WATER_Y = 352, FS = 1.22;
+const LH = 540, BLD_Y = 262, WALK_TOP = 290, SEAT_Y = 318, WALK_Y = 300, WATER_Y = 352, FS = 1.22;
 const COUPLE_HALF = 14.8 * FS, POST_HALF = 11; // 見た目上の外側の端（カップル＝髪の外側、灯ろう＝笠の端）
 let PERSONAL = 40, LHv = 540, topPad = 0, botPad = 0;
 const TURN_MIN = 10, END_MIN = 300, GUIDE_MIN = 60;
@@ -691,7 +691,8 @@ function drawCouple(c, night) {
   const bob = c.pose < 0.5 ? Math.abs(Math.sin(c.legPh)) * 1.6 : 0;
   const hipY = lerp(WALK_Y - 12 * FS, SEAT_Y, c.pose) - bob;
   const lean = c.pose * 1.9;
-  ctx.save(); ctx.translate(c.x, hipY); ctx.scale(FS, FS);
+  const fs = FS * lerp(0.94, 1, c.pose); // 奥を歩く人はわずかに小さく
+  ctx.save(); ctx.translate(c.x, hipY); ctx.scale(fs, fs);
   ctx.strokeStyle = mix('#f0c8a3', '#2a2438', night * 0.45); ctx.lineWidth = 2.2; ctx.lineCap = 'round';
   ctx.beginPath(); ctx.moveTo(-3, -8); ctx.lineTo(3, -8); ctx.stroke();
   drawPerson(-8, 0, c.p[0], c.pose, c.legPh, lean, night);
@@ -700,9 +701,11 @@ function drawCouple(c, night) {
 }
 
 function drawPeople(night) {
-  for (const c of S.couples) drawCouple(c, night);
-  for (const c of S.leaving) drawCouple(c, night);
-  if (S.walker) drawCouple(S.walker, night);
+  // 奥（歩いている人）から手前（座っている人）の順に描く
+  const all = S.couples.concat(S.leaving);
+  if (S.walker) all.push(S.walker);
+  all.sort((a, b) => a.pose - b.pose);
+  for (const c of all) drawCouple(c, night);
 }
 
 function drawGuides(night) {
