@@ -863,6 +863,7 @@ function drawGuide(){
 function step(now){
   requestAnimationFrame(step);
   const dt = Math.min(.033, (now - lastT)/1000 || 0); lastT = now; t += dt;
+  if(!W || !H) return;   // 画面サイズが0(裏タブでの読み込みなど)のあいだは止める。カメラ計算が 0/0 で壊れるため
 
   if(state === 'play'){
     if(mover){
@@ -902,6 +903,7 @@ function step(now){
   }
   else targetCam = Math.max(-40, topY() - (H/camS)*.36);
   camY = lerp(camY, targetCam, 1 - Math.pow(.05, dt));
+  if(!isFinite(camS) || !isFinite(camY)) snapCam = true;   // 万一壊れても次のフレームで立て直す
   if(snapCam){ camS = targetS; camY = targetCam; snapCam = false; shake = 0; }
   shake *= Math.pow(.02, dt);
 
