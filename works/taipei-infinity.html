@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>台北∞観景台 | porkgorilla://</title>
+<meta name="description" content="台北101の逆さ台形フロアを積み上げて、台北102、103…と数字を増やしていく積み上げゲーム">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:title" content="台北∞観景台">
+<meta property="og:description" content="台北101の逆さ台形フロアを積み上げて、台北102、103…と数字を増やしていく積み上げゲーム">
+<meta property="og:url" content="https://porkgorilla.com/works/taipei-infinity.html">
+<meta property="og:image" content="https://porkgorilla.com/assets/og-taipei-infinity.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="台北∞観景台">
+<meta name="twitter:description" content="台北101の逆さ台形フロアを積み上げて、台北102、103…と数字を増やしていく積み上げゲーム">
+<meta name="twitter:image" content="https://porkgorilla.com/assets/og-taipei-infinity.jpg">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-MBT4300J0L');
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@700;900&family=Zen+Kaku+Gothic+New:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --night:#101a33; --night2:#1d2c52; --jade:#4fa39a; --jade-hi:#a6e0d0;
+  --gold:#e0b95b; --red:#d8453b; --ink:#f4efe2; --ink-dim:#b9c2d6;
+  --panel:rgba(12,20,42,.82);
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+:root[data-theme="light"]{ --panel:rgba(12,20,42,.82); }
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--night);overflow:hidden;
+  font-family:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",sans-serif;color:var(--ink);
+  -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+#wrap{position:relative;height:100%;width:100%}
+canvas{display:block;width:100%;height:100%}
+.serif{font-family:"Zen Old Mincho","Hiragino Mincho ProN","Yu Mincho",serif}
+
+#hud{position:absolute;top:0;left:50%;transform:translateX(-50%);width:min(100%,680px);display:flex;justify-content:space-between;align-items:flex-start;
+  padding:14px 16px 0;pointer-events:none}
+#sign{display:flex;flex-direction:column;align-items:flex-start}
+.home{pointer-events:auto;color:var(--ink-dim);text-decoration:none;font-size:12px;letter-spacing:.04em;
+  white-space:nowrap;display:inline-flex;align-items:center;min-height:32px;padding:0 10px 0 0;margin:-8px 0 0}
+.home:hover{color:var(--ink)}
+.home:focus-visible{outline:3px solid var(--jade-hi);outline-offset:2px}
+#signName{display:flex;align-items:baseline;gap:.25em;line-height:1}
+#signName .t{font-size:clamp(22px,6vw,30px);font-weight:900;color:var(--gold);letter-spacing:.06em}
+#num{font-size:clamp(46px,14vw,74px);font-weight:900;color:var(--ink);font-variant-numeric:tabular-nums;
+  text-shadow:0 0 18px rgba(224,185,91,.45);display:inline-block;transform-origin:left bottom}
+#num.bump{animation:bump .32s ease-out}
+@keyframes bump{0%{transform:scale(1.28);color:var(--gold)}100%{transform:scale(1)}}
+#alt{font-size:14px;color:var(--ink-dim);margin-top:4px;font-variant-numeric:tabular-nums}
+#hudR{display:flex;align-items:flex-start;gap:10px}
+#best{text-align:right;font-size:13px;color:var(--ink-dim);line-height:1.5}
+#pauseBtn{pointer-events:auto;width:44px;height:44px;padding:0;border-radius:50%;background:rgba(255,255,255,.1);
+  color:var(--ink);border:1px solid rgba(244,239,226,.25);font-size:15px;letter-spacing:-2px}
+#pauseBtn{display:inline-flex;align-items:center;justify-content:center;gap:5px;letter-spacing:0}
+#pauseBtn i{display:block;width:4px;height:15px;border-radius:1px;background:currentColor}
+#pauseBtn[hidden]{display:none}
+#best b{font-size:18px;color:var(--ink)}
+
+#meterWrap{position:absolute;left:50%;transform:translateX(-50%);width:min(calc(100% - 32px),640px);bottom:calc(16px + env(safe-area-inset-bottom,0px));
+  display:flex;align-items:center;gap:10px;pointer-events:none;font-size:12px;color:var(--ink-dim)}
+#meter{flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.12);overflow:hidden}
+#meterFill{height:100%;width:0;background:var(--jade);transition:width .25s,background .25s}
+
+#toast{position:absolute;left:50%;top:32%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;
+  opacity:0;transition:opacity .3s}
+#toast.show{opacity:1}
+#toast .a{font-size:15px;color:var(--gold)}
+#toast .b{font-size:clamp(20px,5.5vw,28px);font-weight:900;margin-top:2px}
+
+.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;
+  background:linear-gradient(to bottom,rgba(10,16,34,.25),rgba(10,16,34,.78))}
+.overlay[hidden]{display:none}
+.card{max-width:420px;width:100%;text-align:center;background:var(--panel);border:1px solid rgba(224,185,91,.35);
+  border-radius:4px 4px 18px 18px;padding:26px 22px 22px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.card h1{font-size:clamp(34px,10vw,46px);font-weight:900;letter-spacing:.04em;line-height:1.1}
+.card h1 .inf{color:var(--gold)}
+.card p{font-size:15px;line-height:1.75;color:var(--ink-dim);margin-top:12px}
+.card .big{font-size:clamp(40px,12vw,58px);font-weight:900;color:var(--ink);line-height:1.1;margin-top:6px}
+.card .head{font-size:22px;font-weight:900;color:var(--gold);letter-spacing:.2em;margin-bottom:-2px}
+.card .head[hidden]{display:none}
+.card .big small{font-size:.45em;color:var(--gold);margin-right:.2em}
+.btns{display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap}
+button{font-family:inherit;font-size:16px;font-weight:700;border:none;cursor:pointer;border-radius:999px;padding:12px 24px;
+  background:var(--gold);color:#1a1406}
+button.ghost{background:transparent;color:var(--gold);border:2px solid rgba(224,185,91,.55)}
+button.ghost:hover{background:rgba(224,185,91,.12)}
+button.danger{background:var(--red);color:#fff;border-color:var(--red)}
+.xbtn{display:inline-flex;align-items:center;gap:.4em;font-size:15px;font-weight:700;text-decoration:none;border-radius:999px;
+  padding:11px 20px;background:#000;color:#fff;border:1px solid rgba(255,255,255,.35)}
+.xbtn:focus-visible{outline:3px solid var(--jade-hi);outline-offset:3px}
+.btns.second{margin-top:10px}
+.credit{font-size:11px;color:#7d86a0;margin-top:18px;letter-spacing:.05em}
+.kbd{font-size:12px;color:var(--ink-dim);margin-top:10px;display:none}
+@media (pointer:fine){ .kbd{display:block} }
+.card h2{font-size:26px;font-weight:900}
+@media (max-width:380px){ .card p{font-size:14px} }
+button.sub{background:transparent;color:var(--ink);border:1px solid rgba(244,239,226,.4)}
+button:focus-visible{outline:3px solid var(--jade-hi);outline-offset:3px}
+#viewPanel{position:absolute;left:0;right:0;bottom:0;padding:12px 12px calc(14px + env(safe-area-inset-bottom,0px));
+  background:linear-gradient(to top,rgba(8,12,28,.92),rgba(8,12,28,.7) 70%,rgba(8,12,28,0));}
+#viewPanel[hidden]{display:none}
+.vrow{max-width:760px;margin-left:auto;margin-right:auto;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:8px}
+.vlabel{width:100%;text-align:center;font-size:11px;color:var(--ink-dim);letter-spacing:.1em;margin-bottom:-2px}
+.chip{font-size:13px;font-weight:700;padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.08);
+  color:var(--ink-dim);border:1px solid rgba(244,239,226,.18)}
+.chip{min-height:36px}
+@media (pointer:coarse){ .chip{min-height:44px} }
+.chip[aria-pressed="true"]{background:var(--jade);color:#06201c;border-color:var(--jade-hi)}
+.vrow.main{margin:4px 0 0}
+.vrow.main button{padding:10px 20px;font-size:15px}
+body.viewing #muteBtn{display:none}
+body.clean #hud,body.clean #meterWrap,body.clean #muteBtn,body.clean #viewPanel{display:none}
+#muteBtn{position:absolute;right:16px;bottom:calc(40px + env(safe-area-inset-bottom,0px));padding:0 14px;min-height:44px;min-width:44px;font-size:13px;
+  background:rgba(255,255,255,.1);color:var(--ink);pointer-events:auto}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="c"></canvas>
+
+  <div id="hud">
+    <div id="sign">
+      <a class="home" href="/">&lt; porkgorilla</a>
+      <div id="signName" class="serif"><span class="t">台北</span><span id="num">101</span></div>
+      <div id="alt">高さ 508.0 m</div>
+    </div>
+    <div id="hudR">
+      <div id="best">最高記録<br><b class="serif" id="bestNum">台北101</b></div>
+      <button id="pauseBtn" aria-label="一時停止" hidden><i></i><i></i></button>
+    </div>
+  </div>
+
+  <div id="toast"><div class="a" id="toastA"></div><div class="b serif" id="toastB"></div></div>
+
+  <div id="meterWrap"><span>幅</span><div id="meter"><div id="meterFill"></div></div></div>
+  <div id="viewPanel" hidden>
+    <div class="vrow" id="lightRow">
+      <div class="vlabel">ライトアップ</div>
+      <button class="chip" data-mode="-1" aria-pressed="true">なし</button>
+      <button class="chip" data-mode="0" aria-pressed="false">金</button>
+      <button class="chip" data-mode="3" aria-pressed="false">移ろい</button>
+      <button class="chip" data-mode="1" aria-pressed="false">虹のマッピング</button>
+      <button class="chip" data-mode="2" aria-pressed="false">昇る光のマッピング</button>
+    </div>
+    <div class="vrow" id="fxRow">
+      <div class="vlabel">夜空</div>
+      <button class="chip" data-fx="stars" aria-pressed="false">星空</button>
+      <button class="chip" data-fx="search" aria-pressed="false">サーチライト</button>
+      <button class="chip" data-fx="fireworks" aria-pressed="false">花火</button>
+      <button class="chip" data-fx="clouds" aria-pressed="false">雲</button>
+      <button class="chip" data-fx="plane" aria-pressed="false">飛行機</button>
+      <button class="chip" data-fx="comet" aria-pressed="false">彗星</button>
+      <button class="chip" data-fx="ufo" aria-pressed="false">UFO</button>
+    </div>
+    <div class="vrow main">
+      <button class="sub" id="hideUiBtn">UIを隠す</button>
+      <button class="sub" id="shotBtn">画像を保存</button>
+      <button id="backBtn">結果に戻る</button>
+    </div>
+  </div>
+  <button id="muteBtn" aria-label="音のオンオフ">音 ON</button>
+
+  <div class="overlay" id="startOv">
+    <div class="card">
+      <h1 class="serif">台北<span class="inf">∞</span>観景台</h1>
+      <p>揺れるフロアをタップして落とし、<br>台北101の上に積み上げよう。<br>1段ごとに台北102、103…と増えていく。<br>はみ出た部分は削れて細くなり、<br>ぴったり続きで少し太く戻る。</p>
+      <div class="btns"><button id="startBtn">建て始める</button></div>
+      <div class="kbd">スペース / Enter で落とす　Esc で一時停止</div>
+      <div class="credit">porkgorilla — 2026</div>
+    </div>
+  </div>
+
+  <div class="overlay" id="overOv" hidden>
+    <div class="card">
+      <div class="head serif" id="overHead" hidden>竣工！</div>
+      <div class="big serif"><small>台北</small><span id="overNum">101</span></div>
+      <p id="overSub"></p>
+      <div class="btns">
+        <button id="retryBtn">もう一度</button>
+        <button class="ghost" id="titleBtn">タイトルへ</button>
+      </div>
+      <div class="btns second">
+        <a class="xbtn" id="shareBtn" href="#" target="_blank" rel="noopener"><span aria-hidden="true">𝕏</span>で投稿</a>
+        <button class="sub" id="viewBtn">ビルを眺める</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="pauseOv" hidden>
+    <div class="card">
+      <h2 class="serif">一時停止中</h2>
+      <p>いま台北<span id="pauseNum">101</span>まで建っています<br><small style="font-size:12px">完成にすると、ここまでの高さが記録になります</small></p>
+      <div class="btns">
+        <button id="resumeBtn">再開</button>
+        <button class="ghost" id="pauseEndBtn">ここで完成にする</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+'use strict';
+const cv = document.getElementById('c');
+const ctx = cv.getContext('2d');
+const $ = id => document.getElementById(id);
+const GAME_URL = 'https://porkgorilla.com/works/taipei-infinity.html';
+const OG_CACHE_VERSION = 1; // OGPタグや画像を変えたら上げる
+const SHARE_URL = GAME_URL + '?ogv=' + OG_CACHE_VERSION;
+
+// ---------- 定数 ----------
+const BH = 34, TOPW = 150, BOTW = 112;        // 逆台形フロア
+const PODIUM_H = 40, PODIUM_W = 230;
+const TRUNK_H = 70, TRUNK_BW = 150, TRUNK_TW = 118;
+const INIT_SECS = 8;
+const BASE_TOP = PODIUM_H + TRUNK_H;
+const INIT_TOP = BASE_TOP + INIT_SECS * BH;
+const M_PER_FLOOR = 4.4;
+const SPIRE_H = 120;
+
+const MILESTONES = [
+  [634, '東京スカイツリー超え'],
+  [828, 'ブルジュ・ハリファ超え'],
+  [1000, '高さ1000m、雲の近くへ'],
+  [1500, '高尾山の約2.5倍'],
+  [2000, '雲の上に出た'],
+  [3776, '富士山の頂を越えた'],
+  [5000, '空気がうすい'],
+  [8849, 'エベレスト超え'],
+  [10000, '旅客機の巡航高度'],
+  [20000, '成層圏'],
+  [100000, 'カーマン・ライン。ここから宇宙'],
+];
+
+// ---------- 状態 ----------
+let W = 0, H = 0, DPR = 1, S = 1;      // S: 世界→画面スケール
+let secs, falling, mover, debris, camY, camS, targetS, state, perfectCombo, t, lastT;
+let spireOn, msIndex, best = 101, muted = false, particles, shake, cityRng;
+let dropCount;
+
+try { best = parseInt(localStorage.getItem('taipeiInfStackBest') || '101', 10) || 101; } catch(e) {}
+try { muted = localStorage.getItem('taipeiInfMute') === '1'; } catch(e) {}
+$('bestNum').textContent = '台北' + best;
+$('muteBtn').textContent = muted ? '音 OFF' : '音 ON';
+
+// ---------- サウンド ----------
+let ac = null;
+function initAudio(force){
+  if(ac && force){
+    try { ac.close().catch(() => {}); } catch(e) {}
+    ac = null;
+  } else if(ac){
+    if(ac.state === 'closed') ac = null;
+    else { if(ac.state === 'suspended') ac.resume().catch(() => {}); return ac; }
+  }
+  try { ac = new (window.AudioContext||window.webkitAudioContext)(); } catch(e) { ac = null; }
+  return ac;
+}
+function audio(){ return initAudio(false); }
+function tone(freq, dur, type='sine', vol=.2, slide=0){
+  if(muted) return; const a = audio(); if(!a) return;
+  const o = a.createOscillator(), g = a.createGain();
+  o.type = type; o.frequency.setValueAtTime(freq, a.currentTime);
+  if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(30,freq*slide), a.currentTime+dur);
+  g.gain.setValueAtTime(vol, a.currentTime); g.gain.exponentialRampToValueAtTime(.001, a.currentTime+dur);
+  o.connect(g).connect(a.destination); o.start(); o.stop(a.currentTime+dur);
+}
+function noise(dur, vol=.3){
+  if(muted) return; const a = audio(); if(!a) return;
+  const len = a.sampleRate*dur, b = a.createBuffer(1,len,a.sampleRate), d = b.getChannelData(0);
+  for(let i=0;i<len;i++) d[i] = (Math.random()*2-1)*Math.pow(1-i/len,2);
+  const s = a.createBufferSource(), g = a.createGain(), f = a.createBiquadFilter();
+  f.type='lowpass'; f.frequency.value=900; s.buffer=b; g.gain.value=vol;
+  s.connect(f).connect(g).connect(a.destination); s.start();
+}
+const PENTA = [0,2,4,7,9];
+function sndLand(){ tone(140,.18,'triangle',.28,.5); noise(.08,.12); }
+function sndPerfect(c){ const n = PENTA[c%5] + 12*Math.floor(c/5); tone(660*Math.pow(2,n/12),.35,'sine',.18); tone(990*Math.pow(2,n/12),.25,'sine',.08); }
+function sndCrash(){ noise(1.2,.45); tone(90,.9,'sawtooth',.15,.4); }
+function sndMilestone(){ [0,4,7,12].forEach((n,i)=>setTimeout(()=>tone(523*Math.pow(2,n/12),.3,'triangle',.14),i*90)); }
+
+// ---------- レイアウト ----------
+function resize(){
+  DPR = Math.min(window.devicePixelRatio||1, 2);
+  W = cv.clientWidth; H = cv.clientHeight;
+  cv.width = W*DPR; cv.height = H*DPR;
+  S = Math.min(W/420, H/720, 1.8);
+  if(state !== 'over') { camS = targetS = S; }
+}
+window.addEventListener('resize', resize);
+
+// ---------- 初期化 ----------
+function reset(){
+  secs = [];
+  for(let i=0;i<INIT_SECS;i++) secs.push({x:0, y:BASE_TOP + i*BH, w:TOPW, lit: Math.random()});
+  falling = null; debris = []; particles = [];
+  perfectCombo = 0; spireOn = true; msIndex = 0; shake = 0; dropCount = 0;
+  camY = -40; camS = targetS = S;
+  spawnMover();
+  updateHUD(false);
+}
+function topY(){ return secs[secs.length-1].y + BH; }
+function topX(){ return secs[secs.length-1].x; }
+function topW(){ return secs[secs.length-1].w; }
+function floorNum(){ return 101 + (secs.length - INIT_SECS); }
+function meters(){ return 508 + (secs.length - INIT_SECS) * M_PER_FLOOR; }
+
+function spawnMover(){
+  const n = secs.length - INIT_SECS;
+  const speed = Math.min(1.5 + n*0.03, 4.2);
+  const mode = n < 15 ? 'sin' : (Math.random() < .5 ? 'sin' : 'tri');
+  const amp = Math.min(110 + n*1.2, 150);
+  mover = { phase: Math.random()*Math.PI*2, speed, mode, amp, x:0, y: topY() + 190, wind: n>40 ? (Math.random()-.5)*Math.min(40,(n-40)) : 0 };
+}
+
+// ---------- 入力 ----------
+function drop(){
+  if(state !== 'play' || falling || !mover) return;
+  audio();
+  falling = { x: mover.x, y: mover.y, w: topW(), vy: 0 };
+  mover = null;
+}
+cv.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  if(viewing){
+    if(document.body.classList.contains('clean')){ document.body.classList.remove('clean'); return; }
+    if(vfx.on.fireworks){ const r = cv.getBoundingClientRect(); audio(); launchFirework(e.clientX - r.left, e.clientY - r.top); }
+    return;
+  }
+  drop();
+});
+window.addEventListener('keydown', e => {
+  if(e.code === 'Escape' || e.code === 'KeyP'){
+    if(state === 'play'){ e.preventDefault(); pauseGame(); }
+    else if(state === 'pause' && e.code === 'Escape'){ e.preventDefault(); resumeGame(); }
+    return;
+  }
+  if(e.code === 'Space' || e.code === 'Enter'){
+    if(state === 'play'){ e.preventDefault(); drop(); }
+  }
+});
+document.addEventListener('visibilitychange', () => {
+  if(document.hidden){ if(state === 'play') pauseGame(); }
+  else audio();
+});
+
+// ---------- 物理的な判定 ----------
+const RATIO = BOTW/TOPW;
+// 逆台形の上辺 [a,b] を持つ切れ端（中心 c のフロアの一部）を局所座標の多角形にする
+function sliverPts(c, a, b){
+  const px = (a+b)/2;
+  return [[c+(a-c)*RATIO-px,0],[c+(b-c)*RATIO-px,0],[b-px,BH],[a-px,BH]];
+}
+function land(){
+  const lx = topX(), lw = topW(), fx = falling.x, fw = falling.w;
+  const dx = fx - lx;
+  const L = Math.max(fx-fw/2, lx-lw/2), R = Math.min(fx+fw/2, lx+lw/2);
+  if(R - L < 3){
+    vanish(fx, falling.y, sliverPts(fx, fx-fw/2, fx+fw/2));
+    falling = null;
+    gameOver('フロアが外れて落ちていきました');
+    return;
+  }
+  let x, w, perfect = false;
+  if(Math.abs(dx) < 5){
+    perfect = true; x = lx; w = lw;
+  } else {
+    x = (L+R)/2; w = R-L;
+    // はみ出した部分を切り落とす
+    const cutA = dx > 0 ? R : fx-fw/2, cutB = dx > 0 ? fx+fw/2 : L;
+    const p = (cutA+cutB)/2;
+    vanish(p, topY(), sliverPts(fx, cutA, cutB));
+  }
+  if(perfect){
+    perfectCombo++;
+    if(perfectCombo >= 3) w = Math.min(TOPW, w + 8);
+  } else perfectCombo = 0;
+  secs.push({x, y: topY(), w, lit: Math.random()});
+  falling = null; dropCount++;
+  shake = perfect ? 2 : 4;
+
+  if(perfect){ sndPerfect(perfectCombo-1); burst(x, topY(), perfectCombo); }
+  else { sndLand(); tone(1400,.5,'sine',.04,.5); }
+  updateHUD(true);
+  const ratio = w/TOPW;
+  $('meterFill').style.width = (ratio*100) + '%';
+  $('meterFill').style.background = ratio < .25 ? 'var(--red)' : ratio < .5 ? 'var(--gold)' : 'var(--jade)';
+
+  const m = meters();
+  while(msIndex < MILESTONES.length && m >= MILESTONES[msIndex][0]){
+    showToast(MILESTONES[msIndex][0].toLocaleString() + ' m', MILESTONES[msIndex][1]);
+    sndMilestone(); msIndex++;
+  }
+  if(perfect && perfectCombo >= 3 && !toastTimer) showToast('ぴったり ' + perfectCombo + '連続', 'フロアが少し太くなった');
+  spawnMover();
+}
+let lastRisk = 0;
+
+// 削れた部分：その場で淡く光りながら霧のように消える
+function vanish(x, y, pts){
+  debris.push({x, y, vx:0, vy:14, rot:0, vr:0, kind:'poly', pts, life:.9, max:.9});
+  const xs = pts.map(p=>p[0]), minX = Math.min(...xs), maxX = Math.max(...xs);
+  const n = Math.min(40, 8 + Math.round((maxX-minX)/3));
+  for(let i=0;i<n;i++){
+    particles.push({x: x + minX + Math.random()*(maxX-minX), y: y + Math.random()*BH,
+      vx:(Math.random()-.5)*30, vy: 15+Math.random()*40, life:.6+Math.random()*.7, max:1.3, mist:true, r:2+Math.random()*4});
+  }
+}
+function burst(x, y, c){
+  for(let i=0;i<10+c*2;i++){
+    const a = Math.random()*Math.PI*2, sp = 60+Math.random()*120;
+    particles.push({x, y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp+60, life:.8+Math.random()*.4, max:1.2});
+  }
+}
+
+// ---------- HUD ----------
+function updateHUD(bump){
+  const n = floorNum();
+  $('num').textContent = n;
+  $('alt').textContent = '高さ ' + meters().toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1}) + ' m';
+  if(bump){ const el = $('num'); el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+}
+let toastTimer = null;
+function showToast(a, b){
+  $('toastA').textContent = a; $('toastB').textContent = b;
+  $('toast').classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>{ $('toast').classList.remove('show'); toastTimer = null; }, 1600);
+}
+
+let lastScore = 101;
+function gameOver(why, finished){
+  state = 'over'; $('pauseBtn').hidden = true;
+  if(finished) sndMilestone();
+  else { noise(.5,.25); tone(220,.6,'triangle',.15,.4); shake = 6; }
+  const score = 101 + dropCount;
+  lastScore = score;
+  $('overHead').hidden = !finished;
+  if(score > best){ best = score; try{ localStorage.setItem('taipeiInfStackBest', String(best)); }catch(e){} }
+  $('bestNum').textContent = '台北' + best;
+  setTimeout(() => {
+    $('overNum').textContent = score;
+    const m = 508 + (score-101)*M_PER_FLOOR;
+    $('overSub').textContent = '高さ ' + m.toLocaleString(undefined,{maximumFractionDigits:1}) + ' m' + (score >= best && score > 101 ? '　自己ベスト更新' : '');
+    const text = `台北∞観景台で「台北${score}」まで建てた！\n高さ ${m.toLocaleString(undefined,{maximumFractionDigits:1})} m`;
+    $('shareBtn').href = 'https://x.com/intent/post?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(SHARE_URL);
+    if(state === 'over' && !viewing){ $('overOv').hidden = false; $('retryBtn').focus(); }
+  }, finished ? 900 : 1300);
+  const total = topY() + SPIRE_H + 60;
+  targetS = Math.min(S, (H*0.78)/total);
+}
+
+// ---------- 描画ヘルパ ----------
+function sx(x){ return W/2 + x*camS; }
+function sy(y){ return H - (y - camY)*camS; }
+
+function lerp(a,b,t){ return a+(b-a)*t; }
+function hexArr(h){ return Array.isArray(h) ? h : [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)]; }
+function mixA(c1,c2,t){ const a=hexArr(c1), b=hexArr(c2); return a.map((v,i)=>Math.round(lerp(v,b[i],t))); }
+function rgb(a){ return `rgb(${a.join(',')})`; }
+function yToMeters(y){
+  if(y <= INIT_TOP) return y/INIT_TOP*508;
+  return 508 + (y-INIT_TOP)/BH*M_PER_FLOOR;
+}
+function metersToY(m){
+  if(m <= 508) return m/508*INIT_TOP;
+  return INIT_TOP + (m-508)/M_PER_FLOOR*BH;
+}
+
+// 背景の街並み（固定の乱数）
+function makeCity(){
+  let seed = 7; const r = () => (seed = (seed*16807)%2147483647)/2147483647;
+  const b = [];
+  let x = -900;
+  while(x < 900){
+    const w = 20 + r()*40, h = 30 + r()*110 * (1 - Math.min(1, Math.abs(x)/1100)*.4);
+    b.push({x, w, h, win: Array.from({length: 12}, () => r())});
+    x += w + 2 + r()*6;
+  }
+  return b;
+}
+const city = makeCity();
+const stars = Array.from({length:140}, () => ({x:Math.random(), y:Math.random(), s:Math.random()*1.4+.3, tw:Math.random()*6}));
+const clouds = Array.from({length:18}, (_,i) => ({m: 1600 + i*420 + Math.random()*300, x:(Math.random()-.5)*700, w:180+Math.random()*260}));
+
+function drawSky(){
+  const mid = yToMeters(camY + (H/camS)/2);
+  const hi = Math.min(1, Math.max(0, (mid-600)/6000));
+  const space = Math.min(1, Math.max(0, (mid-12000)/30000));
+  const g = ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0, rgb(mixA(mixA('#16244a','#070b1c',hi),'#000004',space)));
+  g.addColorStop(1, rgb(mixA(mixA('#3a3d6b','#1c2a55',hi),'#05061a',space)));
+  ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+  // 星
+  const sa = .25 + hi*.75;
+  ctx.fillStyle = '#fff';
+  stars.forEach(s => {
+    ctx.globalAlpha = sa * (.5+.5*Math.sin(t*1.5+s.tw));
+    ctx.fillRect(s.x*W, ((s.y*H + camY*camS*.05) % H + H) % H, s.s, s.s);
+  });
+  ctx.globalAlpha = 1;
+}
+
+function drawClouds(){
+  clouds.forEach(c => {
+    const y = sy(metersToY(c.m));
+    if(y < -80 || y > H+80) return;
+    const x = sx(c.x + Math.sin(t*.05 + c.m)*40);
+    ctx.fillStyle = 'rgba(210,220,240,.16)';
+    for(let i=0;i<5;i++){
+      ctx.beginPath();
+      ctx.ellipse(x + (i-2)*c.w*.18*camS, y + Math.sin(i*1.7)*6, c.w*.22*camS, 16*camS+6, 0, 0, Math.PI*2);
+      ctx.fill();
+    }
+  });
+}
+
+function drawCity(){
+  const gy = sy(0);
+  if(gy < -10) return;
+  // 奥の山
+  ctx.fillStyle = '#1b2446';
+  ctx.beginPath(); ctx.moveTo(0, gy);
+  for(let i=0;i<=20;i++){ const x = i/20*W; ctx.lineTo(x, gy - (60 + Math.sin(i*1.3)*25 + Math.sin(i*.4)*30)*camS); }
+  ctx.lineTo(W, gy); ctx.fill();
+  // ビル
+  city.forEach(b => {
+    if(Math.abs(b.x) < 130) return;
+    const x = sx(b.x), w = b.w*camS, h = b.h*camS;
+    ctx.fillStyle = '#0d1430';
+    ctx.fillRect(x, gy-h, w, h);
+    const cols = Math.max(1, Math.floor(b.w/9)), rows = Math.max(1, Math.floor(b.h/12));
+    for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
+      const v = b.win[(r*cols+c)%12];
+      if(v > .55){
+        ctx.fillStyle = v > .85 ? 'rgba(255,214,140,.8)' : 'rgba(255,230,180,.35)';
+        ctx.fillRect(x + (c*9+3)*camS, gy - h + (r*12+4)*camS, 3*camS, 4*camS);
+      }
+    }
+  });
+  ctx.fillStyle = '#080d22';
+  ctx.fillRect(0, gy, W, H-gy);
+}
+
+// 逆台形フロア
+function drawSection(x, y, rot=0, lit=.5, alpha=1, w=TOPW, idx=-1){
+  const cx = sx(x), cy = sy(y);
+  ctx.save();
+  ctx.translate(cx, cy);
+  if(rot) ctx.rotate(rot);
+  ctx.globalAlpha = alpha;
+  const tw = w*camS/2, bw = w*RATIO*camS/2, h = BH*camS;
+  const nm = Math.max(2, Math.round(10*w/TOPW));
+  // 本体（ガラス）
+  const g = ctx.createLinearGradient(-tw,0,tw,0);
+  g.addColorStop(0,'#2f6f6c'); g.addColorStop(.45,'#5fb3a6'); g.addColorStop(.6,'#8fd3c3'); g.addColorStop(1,'#2a5f60');
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.moveTo(-bw,0); ctx.lineTo(bw,0); ctx.lineTo(tw,-h); ctx.lineTo(-tw,-h); ctx.closePath(); ctx.fill();
+  if(viewing && idx >= 0){ const tc = tintColor(idx); if(tc){ ctx.fillStyle = tc; ctx.fill(); } }
+  // 窓の縦桟
+  ctx.strokeStyle = 'rgba(16,40,44,.55)'; ctx.lineWidth = Math.max(.6, camS*.8);
+  for(let i=1;i<nm;i++){
+    const f = i/nm*2-1;
+    ctx.beginPath(); ctx.moveTo(f*bw,0); ctx.lineTo(f*tw,-h); ctx.stroke();
+  }
+  // 横の階線
+  ctx.strokeStyle = 'rgba(16,40,44,.35)';
+  for(let j=1;j<4;j++){
+    const k = j/4, ww = lerp(bw,tw,k);
+    ctx.beginPath(); ctx.moveTo(-ww,-h*k); ctx.lineTo(ww,-h*k); ctx.stroke();
+  }
+  // 点灯窓
+  ctx.fillStyle = 'rgba(255,236,190,.55)';
+  for(let i=0;i<nm-1;i++){
+    if(((i*7 + Math.floor(lit*97)) % 5) === 0){
+      const f0 = i/nm*2-1+.05, f1 = f0+1.4/nm;
+      const k0 = .3, ww0 = lerp(bw,tw,k0);
+      ctx.fillRect(f0*ww0, -h*.62, (f1-f0)*ww0, h*.22);
+    }
+  }
+  // 上縁の金帯
+  ctx.fillStyle = '#e0b95b';
+  ctx.fillRect(-tw-1*camS, -h-1.5*camS, tw*2+2*camS, 3*camS);
+  // 角の飾り（小さな如意）
+  ctx.fillStyle = '#d8453b';
+  [-1,1].forEach(s => { ctx.beginPath(); ctx.arc(s*(tw-3*camS), -h+5*camS, 2.4*camS, 0, Math.PI*2); ctx.fill(); });
+  ctx.restore();
+}
+
+function drawBase(){
+  // 基壇
+  const gy = sy(0);
+  ctx.fillStyle = '#2b4b55';
+  ctx.fillRect(sx(-PODIUM_W/2), sy(PODIUM_H), PODIUM_W*camS, PODIUM_H*camS);
+  ctx.fillStyle = 'rgba(255,220,160,.25)';
+  for(let i=0;i<14;i++) ctx.fillRect(sx(-PODIUM_W/2 + 8 + i*16), sy(PODIUM_H-10), 9*camS, 14*camS);
+  // 下層の幹（通常の台形）
+  const bw = TRUNK_BW/2, tw = TRUNK_TW/2;
+  const g = ctx.createLinearGradient(sx(-bw),0,sx(bw),0);
+  g.addColorStop(0,'#2a6363'); g.addColorStop(.55,'#6cbcad'); g.addColorStop(1,'#265759');
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.moveTo(sx(-bw), sy(PODIUM_H)); ctx.lineTo(sx(bw), sy(PODIUM_H));
+  ctx.lineTo(sx(tw), sy(BASE_TOP)); ctx.lineTo(sx(-tw), sy(BASE_TOP)); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = 'rgba(16,40,44,.5)'; ctx.lineWidth = Math.max(.6, camS*.8);
+  for(let i=1;i<8;i++){ const f=i/8*2-1; ctx.beginPath(); ctx.moveTo(sx(f*bw),sy(PODIUM_H)); ctx.lineTo(sx(f*tw),sy(BASE_TOP)); ctx.stroke(); }
+  // 如意（大きな飾り）
+  ctx.strokeStyle = '#e0b95b'; ctx.lineWidth = 2.2*camS;
+  const ry = sy(PODIUM_H + TRUNK_H*.55);
+  ctx.beginPath(); ctx.arc(sx(0), ry, 11*camS, 0, Math.PI*2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(sx(-9), ry+5*camS, 6*camS, Math.PI*.2, Math.PI*1.3); ctx.stroke();
+  ctx.beginPath(); ctx.arc(sx(9), ry+5*camS, 6*camS, -Math.PI*.3, Math.PI*.8); ctx.stroke();
+  void gy;
+}
+
+function drawPoly(d){
+  ctx.save();
+  ctx.translate(sx(d.x), sy(d.y)); ctx.rotate(d.rot);
+  if(d.life !== undefined){ const k = Math.max(0, d.life/d.max); ctx.globalAlpha = k*k; ctx.filter = `blur(${(1-k)*4}px)`; }
+  ctx.fillStyle = d.life !== undefined ? '#9fe0d0' : '#5aa99d';
+  ctx.beginPath();
+  d.pts.forEach((p,i) => { const X = p[0]*camS, Y = -p[1]*camS; i ? ctx.lineTo(X,Y) : ctx.moveTo(X,Y); });
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#e0b95b';
+  const a = d.pts[3], b = d.pts[2];
+  ctx.fillRect(a[0]*camS, -BH*camS-1.5*camS, (b[0]-a[0])*camS, 3*camS);
+  ctx.restore();
+}
+function drawSpire(x, y, rot=0, k=1){
+  ctx.save();
+  ctx.translate(sx(x), sy(y));
+  if(rot) ctx.rotate(rot);
+  const c = camS;
+  ctx.scale(k,1);
+  // 塔頂の小さな段
+  ctx.fillStyle = '#4c9489';
+  ctx.fillRect(-26*c, -18*c, 52*c, 18*c);
+  ctx.fillStyle = '#3f7f78';
+  ctx.fillRect(-16*c, -32*c, 32*c, 14*c);
+  // 尖塔
+  ctx.fillStyle = '#c9d3dc';
+  ctx.beginPath(); ctx.moveTo(-4*c,-32*c); ctx.lineTo(4*c,-32*c); ctx.lineTo(1.2*c,-SPIRE_H*c); ctx.lineTo(-1.2*c,-SPIRE_H*c); ctx.closePath(); ctx.fill();
+  // 航空障害灯
+  const blink = (Math.sin(t*4)+1)/2;
+  ctx.fillStyle = `rgba(255,70,60,${.4+.6*blink})`;
+  ctx.beginPath(); ctx.arc(0, -SPIRE_H*c, 3*c+1, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = `rgba(255,70,60,${.15*blink})`;
+  ctx.beginPath(); ctx.arc(0, -SPIRE_H*c, 12*c+2, 0, Math.PI*2); ctx.fill();
+  // 観景台のサーチライト
+  ctx.restore();
+}
+
+
+// ---------- ビルを眺めるモードの演出 ----------
+let viewing = false, vfx = null;
+const MODES = ['ライトアップ', 'プロジェクションマッピング「虹」', 'プロジェクションマッピング「昇る光」', 'ライトアップ「移ろい」'];
+const vstars = Array.from({length:260}, () => ({x:Math.random(), y:Math.random()*.75, s:Math.random()*1.6+.3, tw:Math.random()*6, c: Math.random()<.15 ? '#ffd9a8' : Math.random()<.2 ? '#bcd6ff' : '#ffffff'}));
+function startView(){
+  viewing = true; document.body.classList.add('viewing');
+  vfx = { t:0, mode:-1, rockets:[], sparks:[], plane:null, comet:null, ufo:null,
+    on:{stars:false, search:false, fireworks:false, clouds:false, plane:false, comet:false, ufo:false},
+    nextFw:.2, nextPlane:.2, nextComet:.2, nextUfo:.2,
+    clouds: Array.from({length:5}, (_,i) => ({x:Math.random()*W, y:H*(.12+Math.random()*.5), w:120+Math.random()*220,
+      v:(6+Math.random()*14)*(Math.random()<.5?1:-1), a:.05+Math.random()*.07, front:i%3===0, seed:Math.random()*10})) };
+}
+function stopView(){
+  pendingShot = null; if($('shotBtn')) $('shotBtn').textContent = useShare ? '画像を共有' : '画像を保存';
+  viewing = false; vfx = null; document.body.classList.remove('viewing');
+  if(state === 'over'){ const total = topY() + SPIRE_H + 60; targetS = Math.min(S, (H*0.78)/total); }
+}
+
+function launchFirework(x, y){
+  const hue = Math.floor(Math.random()*360);
+  vfx.rockets.push({x, y:H+10, ty:y, vy:-Math.max(380, (H-y)*1.7), hue});
+  tone(300,.35,'sine',.04,2.2);
+}
+function explode(r){
+  const n = 60 + Math.floor(Math.random()*40), type = Math.random();
+  for(let i=0;i<n;i++){
+    const a = i/n*Math.PI*2 + Math.random()*.1;
+    const sp = type < .3 ? 150 : 60 + Math.random()*140;
+    const hue = type > .75 ? (r.hue + (i%2)*150)%360 : r.hue + Math.random()*30;
+    vfx.sparks.push({x:r.x, y:r.y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp, life:1.2+Math.random()*.8, max:2, hue});
+  }
+  vfx.sparks.push({x:r.x, y:r.y, vx:0, vy:0, life:.25, max:.25, flash:true, hue:r.hue});
+  noise(.35,.14); tone(70,.4,'sine',.18,.5);
+}
+
+function updateView(dt){
+  const v = vfx, on = v.on; v.t += dt;
+  // 花火
+  v.nextFw -= dt;
+  if(on.fireworks && v.nextFw <= 0){ v.nextFw = .7 + Math.random()*1.4; launchFirework(W*(.12+Math.random()*.76), H*(.14+Math.random()*.34)); }
+  v.rockets.forEach(r => { r.y += r.vy*dt; r.vy += 260*dt; if(r.y <= r.ty || r.vy >= 0){ r.done = true; explode(r); } });
+  v.rockets = v.rockets.filter(r => !r.done);
+  v.sparks.forEach(p => { p.vx *= Math.pow(.35,dt); p.vy = p.vy*Math.pow(.35,dt) + 70*dt; p.x += p.vx*dt; p.y += p.vy*dt; p.life -= dt; });
+  v.sparks = v.sparks.filter(p => p.life > 0);
+  // 飛行機
+  v.nextPlane -= dt;
+  if(on.plane && !v.plane && v.nextPlane <= 0){ const d = Math.random()<.5?1:-1; v.plane = {x: d>0 ? -40 : W+40, y:H*(.1+Math.random()*.3), d, v:40+Math.random()*30}; }
+  if(v.plane){ v.plane.x += v.plane.d*v.plane.v*dt; v.plane.y -= 3*dt;
+    if(v.plane.x < -60 || v.plane.x > W+60){ v.plane = null; v.nextPlane = 1.5 + Math.random()*3; } }
+  // 彗星
+  v.nextComet -= dt;
+  if(on.comet && !v.comet && v.nextComet <= 0){ const d = Math.random()<.5?1:-1;
+    v.comet = {x: d>0 ? W*(Math.random()*.4) : W*(.6+Math.random()*.4), y:-20, vx:d*(180+Math.random()*120), vy:110+Math.random()*60, life:2.6}; }
+  if(v.comet){ const c = v.comet; c.x += c.vx*dt; c.y += c.vy*dt; c.life -= dt;
+    if(c.life <= 0){ v.comet = null; v.nextComet = 1.5 + Math.random()*3; } }
+  // UFO
+  v.nextUfo -= dt;
+  if(on.ufo && !v.ufo && v.nextUfo <= 0){ const d = Math.random()<.5?1:-1; v.ufo = {x: d>0 ? -60 : W+60, y:H*.15, ph:'in', t:0, d}; tone(600,1.2,'sine',.04,1.8); }
+  if(v.ufo){
+    const u = v.ufo; u.t += dt;
+    const hx = sx(topX()) + u.d*-1*Math.min(90, W*.18), hy = Math.max(60, sy(topY()) - SPIRE_H*camS - 50);
+    if(u.ph === 'in'){ u.x = lerp(u.x, hx, 1-Math.pow(.05,dt)); u.y = lerp(u.y, hy, 1-Math.pow(.05,dt)); if(u.t > 2.2){ u.ph='hover'; u.t=0; } }
+    else if(u.ph === 'hover'){ u.x = hx + Math.sin(u.t*1.6)*12; u.y = hy + Math.sin(u.t*2.3)*6; if(u.t > 4.5 || !on.ufo){ u.ph='out'; u.t=0; tone(400,.6,'sine',.05,3); } }
+    else { u.y -= (200 + u.t*900)*dt; u.x += u.d*120*dt; if(u.y < -80){ v.ufo = null; v.nextUfo = 2 + Math.random()*3; } }
+  }
+  // 雲
+  v.clouds.forEach(c => { c.x += c.v*dt; if(c.x > W + c.w) c.x = -c.w; if(c.x < -c.w) c.x = W + c.w; });
+}
+
+function tintColor(i){
+  const n = secs.length, m = vfx.mode, tt = vfx.t;
+  if(m < 0) return null;
+  if(m === 0) return `rgba(255,190,90,${.3 + .08*Math.sin(tt*2 + i*.35)})`;
+  if(m === 1) return `hsla(${((i*22 - tt*110)%360+360)%360},95%,60%,.5)`;
+  if(m === 2){ const pos = ((tt*.5) % 1.4) * n; const a = Math.max(0, 1 - Math.abs(i-pos)/3.5); return `rgba(170,235,255,${.1 + a*.7})`; }
+  return `hsla(${(tt*28)%360},80%,62%,.4)`;
+}
+
+function cloudBlob(c){
+  ctx.fillStyle = `rgba(200,210,235,${c.a})`;
+  for(let i=0;i<6;i++){
+    ctx.beginPath();
+    ctx.ellipse(c.x + (i-2.5)*c.w*.16, c.y + Math.sin(i*1.9+c.seed)*8, c.w*.2, 18 + (i%3)*6, 0, 0, Math.PI*2);
+    ctx.fill();
+  }
+}
+
+function drawViewBack(){
+  const v = vfx;
+  // 満天の星
+  if(v.on.stars) vstars.forEach(s => {
+    ctx.globalAlpha = .45 + .55*(.5+.5*Math.sin(v.t*2 + s.tw));
+    ctx.fillStyle = s.c; ctx.fillRect(s.x*W, s.y*H, s.s, s.s);
+  });
+  // 天の川っぽい帯
+  if(v.on.stars){
+  ctx.globalAlpha = .08;
+  const g = ctx.createLinearGradient(0, H*.05, W, H*.45);
+  g.addColorStop(0,'rgba(180,190,255,0)'); g.addColorStop(.5,'rgba(200,210,255,1)'); g.addColorStop(1,'rgba(180,190,255,0)');
+  ctx.fillStyle = g; ctx.save(); ctx.translate(W/2, H*.25); ctx.rotate(-.35); ctx.fillRect(-W, -40, W*2, 80); ctx.restore();
+  ctx.globalAlpha = 1;
+  }
+  // 彗星
+  if(v.comet){
+    const c = v.comet, sp = Math.hypot(c.vx, c.vy), ux = c.vx/sp, uy = c.vy/sp, L = 170;
+    const a = Math.min(1, c.life/.6, (2.6-c.life)/.4);
+    const tg = ctx.createLinearGradient(c.x, c.y, c.x - ux*L, c.y - uy*L);
+    tg.addColorStop(0, `rgba(220,245,255,${.9*a})`); tg.addColorStop(1, 'rgba(160,210,255,0)');
+    ctx.strokeStyle = tg; ctx.lineWidth = 3; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(c.x, c.y); ctx.lineTo(c.x - ux*L, c.y - uy*L); ctx.stroke();
+    ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(c.x, c.y); ctx.lineTo(c.x - ux*L*1.5 + uy*12, c.y - uy*L*1.5 - ux*12); ctx.stroke();
+    ctx.fillStyle = `rgba(255,255,255,${a})`; ctx.beginPath(); ctx.arc(c.x, c.y, 2.6, 0, Math.PI*2); ctx.fill();
+  }
+  // 奥の雲
+  if(v.on.clouds) v.clouds.forEach(c => { if(!c.front) cloudBlob(c); });
+}
+
+function drawSearch(){
+  const gy = sy(0), tt = vfx.t;
+  ctx.save(); ctx.globalCompositeOperation = 'lighter';
+  [[-1.25,0],[1.25,1.7],[-.55,3.1],[.55,4.4]].forEach(([ox,ph]) => {
+    const x0 = sx(ox*PODIUM_W*.5) , y0 = gy;
+    const ang = Math.sin(tt*.45 + ph)*.55 + (ox<0 ? .12 : -.12);
+    const L = H*1.4, spread = .07;
+    const x1 = x0 + Math.sin(ang-spread)*L, y1 = y0 - Math.cos(ang-spread)*L;
+    const x2 = x0 + Math.sin(ang+spread)*L, y2 = y0 - Math.cos(ang+spread)*L;
+    const g = ctx.createLinearGradient(x0, y0, (x1+x2)/2, (y1+y2)/2);
+    g.addColorStop(0,'rgba(220,235,255,.22)'); g.addColorStop(1,'rgba(220,235,255,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.moveTo(x0-2, y0); ctx.lineTo(x1, y1); ctx.lineTo(x2, y2); ctx.lineTo(x0+2, y0); ctx.fill();
+  });
+  ctx.restore();
+}
+
+function drawPlane(p){
+  ctx.save(); ctx.translate(p.x, p.y); ctx.scale(p.d, 1);
+  ctx.fillStyle = 'rgba(30,36,60,.95)';
+  ctx.fillRect(-11, -1.5, 22, 3);
+  ctx.beginPath(); ctx.moveTo(-2,0); ctx.lineTo(-7,7); ctx.lineTo(-4,7); ctx.lineTo(4,0); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(-9,-1); ctx.lineTo(-12,-6); ctx.lineTo(-10,-6); ctx.lineTo(-6,-1); ctx.fill();
+  const blink = Math.sin(vfx.t*6) > .6;
+  ctx.fillStyle = '#ff4a3a'; ctx.fillRect(-5,6,2,2);
+  ctx.fillStyle = '#4aff7a'; ctx.fillRect(-3,-3,2,2);
+  if(blink){ ctx.fillStyle = 'rgba(255,255,255,.95)'; ctx.beginPath(); ctx.arc(-12,-6,2.2,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.2)'; ctx.beginPath(); ctx.arc(-12,-6,7,0,Math.PI*2); ctx.fill(); }
+  ctx.restore();
+}
+
+function drawUfo(u){
+  const tt = vfx.t;
+  ctx.save(); ctx.translate(u.x, u.y);
+  if(u.ph === 'hover'){
+    // 塔頂へ降りる光
+    const g = ctx.createLinearGradient(0, 0, 0, 120);
+    g.addColorStop(0,'rgba(160,255,200,.35)'); g.addColorStop(1,'rgba(160,255,200,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(-8,4); ctx.lineTo(8,4); ctx.lineTo(34,120); ctx.lineTo(-34,120); ctx.fill();
+  }
+  ctx.fillStyle = 'rgba(190,230,255,.55)';
+  ctx.beginPath(); ctx.ellipse(0,-6,10,9,0,Math.PI,0); ctx.fill();
+  const g2 = ctx.createLinearGradient(0,-4,0,6); g2.addColorStop(0,'#c9cfdb'); g2.addColorStop(1,'#5d6576');
+  ctx.fillStyle = g2; ctx.beginPath(); ctx.ellipse(0,0,26,6.5,0,0,Math.PI*2); ctx.fill();
+  for(let i=0;i<6;i++){
+    const on = (Math.floor(tt*8)+i)%3 === 0;
+    ctx.fillStyle = on ? ['#ff5b5b','#ffd35b','#5bffb0'][i%3] : 'rgba(255,255,255,.25)';
+    ctx.beginPath(); ctx.arc(-18 + i*7.2, 1.5, 1.8, 0, Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawViewFront(){
+  const v = vfx;
+  if(v.plane) drawPlane(v.plane);
+  if(v.ufo) drawUfo(v.ufo);
+  if(v.on.clouds) v.clouds.forEach(c => { if(c.front) cloudBlob(c); });
+  // 花火
+  ctx.save(); ctx.globalCompositeOperation = 'lighter';
+  v.rockets.forEach(r => { ctx.fillStyle = `hsla(${r.hue},90%,75%,.9)`; ctx.fillRect(r.x-1, r.y, 2, 8); });
+  v.sparks.forEach(p => {
+    const k = Math.max(0, p.life/p.max);
+    if(p.flash){ ctx.fillStyle = `hsla(${p.hue},100%,85%,${k*.5})`; ctx.beginPath(); ctx.arc(p.x,p.y,60*(1-k)+10,0,Math.PI*2); ctx.fill(); return; }
+    ctx.fillStyle = `hsla(${p.hue},95%,${55+k*25}%,${Math.min(1,k*1.4)})`;
+    ctx.beginPath(); ctx.arc(p.x, p.y, 1.4 + k*1.8, 0, Math.PI*2); ctx.fill();
+  });
+  ctx.restore();
+}
+
+function drawGuide(){
+  if(!mover || state !== 'play') return;
+  // 落下予定ライン
+  ctx.strokeStyle = 'rgba(166,224,208,.25)';
+  ctx.setLineDash([4,6]); ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(sx(mover.x), sy(mover.y)); ctx.lineTo(sx(mover.x), sy(topY())); ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+// ---------- メインループ ----------
+function step(now){
+  requestAnimationFrame(step);
+  const dt = Math.min(.033, (now - lastT)/1000 || 0); lastT = now; t += dt;
+
+  if(state === 'play'){
+    if(mover){
+      mover.phase += mover.speed*dt;
+      const p = mover.phase;
+      const base = mover.mode === 'sin' ? Math.sin(p) : (2/Math.PI)*Math.asin(Math.sin(p));
+      mover.x = base*mover.amp + mover.wind*Math.sin(p*.37);
+      mover.y = topY() + 190;
+    }
+    if(falling){
+      falling.vy += 1400*dt;
+      falling.y -= falling.vy*dt;
+      if(falling.y <= topY()){ falling.y = topY(); land(); }
+    }
+  }
+  // 破片
+  debris.forEach(d => {
+    if(d.life !== undefined){ d.y += d.vy*dt; d.life -= dt; if(d.life <= 0) d.dead = true; return; }
+    d.vy -= 700*dt; d.x += d.vx*dt; d.y += d.vy*dt; d.rot += d.vr*dt;
+    if(d.y < -200){ d.dead = true; }
+  });
+  debris = debris.filter(d => !d.dead);
+  particles.forEach(p => { if(!p.mist) p.vy -= 300*dt; else { p.vx *= .97; } p.x += p.vx*dt; p.y += p.vy*dt; p.life -= dt; });
+  particles = particles.filter(p => p.life > 0);
+
+  // カメラ
+  camS = lerp(camS, targetS, 1 - Math.pow(.02, dt));
+  let targetCam;
+  if(state === 'over'){
+    targetCam = -40;
+    if(viewing){
+      const ph = capturing ? Math.min(W, H)*0.3 : document.body.classList.contains('clean') ? 0 : $('viewPanel').offsetHeight;
+      const total = topY() + SPIRE_H + 60;
+      targetS = Math.min(S, ((H - ph)*0.88)/total);
+      targetCam = -40 - ph/camS;
+    }
+  }
+  else targetCam = Math.max(-40, topY() - (H/camS)*.36);
+  camY = lerp(camY, targetCam, 1 - Math.pow(.05, dt));
+  if(snapCam){ camS = targetS; camY = targetCam; snapCam = false; shake = 0; }
+  shake *= Math.pow(.02, dt);
+
+  if(viewing) updateView(dt);
+  try { render(); } catch(err) { console.error(err); }
+}
+
+function render(){
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  drawSky();
+  if(viewing) drawViewBack();
+  ctx.save();
+  if(shake > .2) ctx.translate((Math.random()-.5)*shake, (Math.random()-.5)*shake);
+  drawClouds();
+  drawCity();
+  if(viewing && vfx.on.search) drawSearch();
+
+  // 塔（傾きに応じてゆらゆら）
+  const sway = 0;
+  ctx.save();
+  ctx.translate(sx(0), sy(0)); ctx.rotate(sway); ctx.translate(-sx(0), -sy(0));
+  drawBase();
+  const vMin = camY - 60, vMax = camY + H/camS + 60;
+  secs.forEach((s,i) => { if(s.y + BH > vMin && s.y < vMax) drawSection(s.x, s.y, 0, s.lit, 1, s.w, i); });
+  if(spireOn && secs.length) drawSpire(topX(), topY(), 0, Math.max(.25, topW()/TOPW));
+  ctx.restore();
+
+  drawGuide();
+  if(mover && state === 'play') drawSection(mover.x, mover.y, 0, .3, .95, topW());
+  if(falling) drawSection(falling.x, falling.y, 0, .3, 1, falling.w);
+  debris.forEach(d => drawPoly(d));
+
+  // ぴったり時の光
+  particles.forEach(p => {
+    const k = Math.max(0, p.life/p.max);
+    if(p.mist){
+      ctx.globalAlpha = k*.5; ctx.fillStyle = '#cdeee6';
+      ctx.beginPath(); ctx.arc(sx(p.x), sy(p.y), p.r*(1.8-k)*Math.max(.6,camS), 0, Math.PI*2); ctx.fill();
+    } else {
+      ctx.globalAlpha = k; ctx.fillStyle = '#ffe3a0';
+      ctx.fillRect(sx(p.x)-1.5, sy(p.y)-1.5, 3, 3);
+    }
+  });
+  ctx.globalAlpha = 1;
+  if(viewing) drawViewFront();
+  ctx.restore();
+}
+
+// ---------- ボタン ----------
+function start(){
+  initAudio(true);   // 他アプリから戻った後の無音対策：ユーザー操作時に作り直す
+  $('pauseOv').hidden = true; $('pauseBtn').hidden = false; disarm();
+  $('startOv').hidden = true; $('overOv').hidden = true; $('viewPanel').hidden = true; document.body.classList.remove('clean'); stopView();
+  $('hud').style.opacity = ''; $('meterWrap').style.visibility = '';
+  lastRisk = 0;
+  $('meterFill').style.width = '100%'; $('meterFill').style.background = 'var(--jade)';
+  state = 'play';
+  reset();
+}
+$('startBtn').addEventListener('click', start);
+document.querySelectorAll('#lightRow .chip').forEach(b => b.addEventListener('click', () => {
+  if(!vfx) return;
+  vfx.mode = parseInt(b.dataset.mode, 10); vfx.t = vfx.t;
+  document.querySelectorAll('#lightRow .chip').forEach(o => o.setAttribute('aria-pressed', o === b ? 'true' : 'false'));
+}));
+document.querySelectorAll('#fxRow .chip').forEach(b => b.addEventListener('click', () => {
+  if(!vfx) return;
+  const k = b.dataset.fx, on = !vfx.on[k]; vfx.on[k] = on;
+  b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  if(on){ audio(); const key = {fireworks:'nextFw', plane:'nextPlane', comet:'nextComet', ufo:'nextUfo'}[k]; if(key) vfx[key] = .1; }
+}));
+$('hideUiBtn').addEventListener('click', () => { document.body.classList.add('clean'); });
+
+// ---- 景観を画像に ----
+let snapCam = false, pendingShot = null, capturing = false;
+const useShare = matchMedia('(pointer: coarse)').matches && (() => {
+  try { return !!(navigator.canShare && navigator.canShare({files:[new File([''], 't.jpg', {type:'image/jpeg'})]})); }
+  catch(e){ return false; }
+})();
+$('shotBtn').textContent = useShare ? '画像を共有' : '画像を保存';
+function shotMeters(){ return (508 + (lastScore-101)*M_PER_FLOOR).toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1}); }
+function drawCaption(o, w, h){
+  const u = Math.min(w, h) / 390;
+  const g = o.createLinearGradient(0, h - 140*u, 0, h);
+  g.addColorStop(0, 'rgba(4,7,20,0)'); g.addColorStop(1, 'rgba(4,7,20,.88)');
+  o.fillStyle = g; o.fillRect(0, h - 140*u, w, 140*u);
+  const x = 18*u;
+  o.textAlign = 'left'; o.textBaseline = 'alphabetic';
+  o.fillStyle = '#e0b95b'; o.font = `900 ${26*u}px "Zen Old Mincho","Hiragino Mincho ProN","Yu Mincho",serif`;
+  o.fillText('台北∞観景台', x, h - 56*u);
+  o.fillStyle = '#f4efe2'; o.font = `700 ${13*u}px "Zen Kaku Gothic New","Hiragino Sans",sans-serif`;
+  o.fillText(`台北${lastScore}　高さ ${shotMeters()} m`, x, h - 34*u);
+  o.fillStyle = '#9aa4bd'; o.font = `500 ${9.5*u}px "Zen Kaku Gothic New","Hiragino Sans",sans-serif`;
+  o.fillText('porkgorilla.com/works/taipei-infinity.html', x, h - 16*u);
+}
+async function captureView(){
+  document.body.classList.add('clean'); snapCam = true; capturing = true;  // UIなし・下に文字の余白をとった構図で撮る
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+  const out = document.createElement('canvas'); out.width = cv.width; out.height = cv.height;
+  const o = out.getContext('2d');
+  o.drawImage(cv, 0, 0); drawCaption(o, out.width, out.height);
+  document.body.classList.remove('clean'); capturing = false;
+  return new Promise(r => out.toBlob(r, 'image/jpeg', .92));
+}
+function downloadBlob(blob, name){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+async function shareFile(file){
+  const text = `台北∞観景台で「台北${lastScore}」まで建てた！\n高さ ${shotMeters()} m\n${SHARE_URL}`;
+  await navigator.share({files:[file], text});
+}
+$('shotBtn').addEventListener('click', async () => {
+  const btn = $('shotBtn'), label = useShare ? '画像を共有' : '画像を保存';
+  // 前回、共有の許可が切れて失敗した画像があれば、このタップで即共有
+  if(pendingShot){
+    const f = pendingShot; pendingShot = null; btn.textContent = label;
+    try { await shareFile(f); } catch(e){ if(e.name !== 'AbortError') downloadBlob(f, f.name); }
+    return;
+  }
+  btn.disabled = true;
+  try {
+    const blob = await captureView();
+    if(!blob) throw new Error('capture failed');
+    const name = `taipei-infinity-${lastScore}.jpg`;
+    if(useShare){
+      const file = new File([blob], name, {type:'image/jpeg'});
+      try { await shareFile(file); }
+      catch(e){
+        if(e.name === 'NotAllowedError'){ pendingShot = file; btn.textContent = 'もう一度タップで共有'; }
+        else if(e.name !== 'AbortError') downloadBlob(blob, name);
+      }
+    } else downloadBlob(blob, name);
+  } catch(e){
+    btn.textContent = '保存できませんでした';
+    setTimeout(() => btn.textContent = label, 1800);
+  } finally { btn.disabled = false; }
+});
+$('viewBtn').addEventListener('click', () => {
+  $('overOv').hidden = true; $('viewPanel').hidden = false; startView();
+  $('hud').style.opacity = '.35'; $('meterWrap').style.visibility = 'hidden';
+  document.querySelectorAll('#viewPanel .chip').forEach(b => b.setAttribute('aria-pressed', b.dataset.mode === '-1' ? 'true' : 'false'));
+  $('backBtn').focus();
+});
+$('backBtn').addEventListener('click', () => {
+  $('viewPanel').hidden = true; $('overOv').hidden = false; stopView();
+  $('hud').style.opacity = ''; $('meterWrap').style.visibility = '';
+  $('retryBtn').focus();
+});
+$('retryBtn').addEventListener('click', start);
+
+// ---- 一時停止 ----
+function pauseGame(){
+  if(state !== 'play') return;
+  state = 'pause';
+  $('pauseNum').textContent = floorNum();
+  $('pauseOv').hidden = false; $('pauseBtn').hidden = true;
+  $('resumeBtn').focus();
+}
+function resumeGame(){
+  if(state !== 'pause') return;
+  initAudio(true);
+  disarm();
+  $('pauseOv').hidden = true; $('pauseBtn').hidden = false;
+  lastT = performance.now();
+  state = 'play';
+}
+$('pauseBtn').addEventListener('click', e => { e.stopPropagation(); pauseGame(); });
+$('resumeBtn').addEventListener('click', resumeGame);
+
+// ---- タイトルへ ----
+function backToTitle(){
+  state = 'title';
+  stopView(); disarm();
+  ['overOv','pauseOv','viewPanel'].forEach(id => $(id).hidden = true);
+  $('pauseBtn').hidden = true;
+  document.body.classList.remove('clean');
+  $('hud').style.opacity = ''; $('meterWrap').style.visibility = '';
+  $('meterFill').style.width = '100%'; $('meterFill').style.background = 'var(--jade)';
+  reset(); mover = null;
+  camS = targetS = S;
+  $('bestNum').textContent = '台北' + best;
+  $('startOv').hidden = false;
+  $('startBtn').focus();
+}
+$('titleBtn').addEventListener('click', backToTitle);   // リザルトからは即座に戻る
+
+// 中断中の「ここで完成にする」は2回押し（claude.aiではconfirm()が使えないため）
+let armed = false, armTimer = null;
+function disarm(){
+  armed = false; clearTimeout(armTimer);
+  const b = $('pauseEndBtn'); b.textContent = 'ここで完成にする'; b.classList.remove('danger');
+}
+function finishGame(){
+  if(state !== 'pause') return;
+  initAudio(true);
+  disarm();
+  $('pauseOv').hidden = true;
+  falling = null; mover = null;   // 落下途中のフロアは数えない
+  gameOver('', true);
+}
+$('pauseEndBtn').addEventListener('click', () => {
+  const b = $('pauseEndBtn');
+  if(!armed){
+    armed = true;
+    b.textContent = '本当に？（もう一度タップ）'; b.classList.add('danger');
+    clearTimeout(armTimer); armTimer = setTimeout(disarm, 3000);
+    return;
+  }
+  finishGame();
+});
+if(matchMedia('(pointer: coarse)').matches){
+  $('shareBtn').removeAttribute('target');
+  $('shareBtn').removeAttribute('rel');
+}
+$('muteBtn').addEventListener('click', e => {
+  e.stopPropagation();
+  muted = !muted; $('muteBtn').textContent = muted ? '音 OFF' : '音 ON';
+  try{ localStorage.setItem('taipeiInfMute', muted?'1':'0'); }catch(err){}
+});
+
+// 起動
+state = 'title'; t = 0; lastT = performance.now();
+resize(); reset(); mover = null;
+requestAnimationFrame(step);
+})();
+</script>
+</body>
+</html>
