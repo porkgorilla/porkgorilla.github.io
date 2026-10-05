@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>フラッピーばーちゃん | porkgorilla://</title>
+<meta name="description" content="焼き芋を食べたら屁で加速。竹林をくぐって飛ぶ、ばーちゃんのフラッピーゲーム。">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="フラッピーばーちゃん">
+<meta property="og:description" content="焼き芋を食べたら屁で加速。竹林をくぐって飛ぶ、ばーちゃんのフラッピーゲーム。">
+<meta property="og:url" content="https://porkgorilla.com/works/flappy-baachan.html">
+<meta property="og:image" content="https://porkgorilla.com/assets/og-flappy-baachan.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="フラッピーばーちゃん">
+<meta name="twitter:description" content="焼き芋を食べたら屁で加速。竹林をくぐって飛ぶ、ばーちゃんのフラッピーゲーム。">
+<meta name="twitter:image" content="https://porkgorilla.com/assets/og-flappy-baachan.jpg">
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-MBT4300J0L');
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#2b2547;
+  --card:#283466;
+  --ink:#fff4dc;
+  --sub:#c9cbe6;
+  --muted:#8c90b8;
+  --kaki:#f08a24;
+  --kaki-dark:#b25e10;
+  --beni:#e8503a;
+  --line:#5d6aa8;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){ --bg:#1f1a36; --card:#1c2448; --line:#46528c; }
+}
+:root[data-theme="dark"]{ --bg:#1f1a36; --card:#1c2448; --line:#46528c; }
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0;height:100%;overflow:hidden;background:var(--bg);
+  font-family:"M PLUS Rounded 1c","Hiragino Maru Gothic ProN","Yu Gothic",sans-serif;
+  -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;touch-action:none;
+}
+#wrap{position:relative;width:100%;height:100%;overflow:hidden}
+canvas{display:block;width:100%;height:100%;cursor:pointer}
+
+/* 上部HUD: ポップアップより前面。HUD自体はpointer-events:none、ボタンとリンクだけ押せる */
+.hud{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;
+  padding:8px 10px;z-index:20;pointer-events:none}
+.home{pointer-events:auto;color:var(--ink);opacity:.75;text-decoration:none;font-size:12px;letter-spacing:.04em;
+  white-space:nowrap;padding:12px 6px;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+.home:hover{opacity:1}
+.hud-r{display:flex;gap:8px}
+.icon-btn{pointer-events:auto;min-width:44px;min-height:44px;width:44px;height:44px;border-radius:50%;border:none;
+  background:rgba(40,52,102,.78);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+.icon-btn svg{width:22px;height:22px;display:block}
+.icon-btn[hidden]{display:none}
+.pause-ico{display:flex;gap:5px}
+.pause-ico i{display:block;width:5px;height:18px;background:#fff;border-radius:2px}
+
+.overlay{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;overflow-y:auto;
+  padding:64px 16px 16px;box-sizing:border-box;touch-action:pan-y;background:rgba(30,24,50,.25)}
+.overlay.clear{background:none}
+.overlay[hidden]{display:none}
+.card{
+  margin:auto;background:var(--card);color:var(--ink);
+  border:3px dashed var(--line);outline:6px solid var(--card);
+  border-radius:18px;padding:20px 18px 16px;max-width:340px;width:100%;box-sizing:border-box;
+  text-align:center;box-shadow:0 14px 0 rgba(0,0,0,.18);
+}
+.overlay.bottom .card{margin:auto auto 6vh}
+.title{
+  font-family:"Mochiy Pop One","Hiragino Maru Gothic ProN",sans-serif;
+  font-size:clamp(30px,9vw,40px);line-height:1.05;margin:0 0 10px;
+  color:var(--kaki);text-shadow:3px 3px 0 var(--beni);letter-spacing:.02em;
+}
+.title small{display:block;font-size:.5em;color:var(--ink);text-shadow:none;margin-bottom:4px}
+.howto{font-size:14px;line-height:1.7;color:var(--sub);margin:0 0 14px;text-align:left;display:inline-block}
+.howto b{color:var(--ink)}
+.go{
+  font-family:"Mochiy Pop One",sans-serif;font-size:19px;
+  padding:11px 26px;border:none;border-radius:999px;cursor:pointer;
+  background:var(--kaki);color:#fff;box-shadow:0 5px 0 var(--kaki-dark);
+}
+.go:active{transform:translateY(4px);box-shadow:0 1px 0 var(--kaki-dark)}
+.go.ghost{background:transparent;color:var(--kaki);box-shadow:none;border:2px solid rgba(240,138,36,.6);font-size:16px;padding:10px 20px}
+.go.ghost:hover{background:rgba(240,138,36,.12)}
+.go.ghost:active{transform:none}
+.go.danger{background:var(--beni);color:#fff;border-color:var(--beni)}
+.actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px}
+.share{display:inline-flex;align-items:center;gap:8px;margin-top:14px;color:var(--ink);text-decoration:none;
+  background:#000;border-radius:999px;padding:10px 18px;font-size:14px;font-weight:800;min-height:44px;box-sizing:border-box}
+.share svg{width:16px;height:16px}
+button:focus-visible,a:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.best{font-size:13px;color:var(--sub);margin-top:12px}
+.credit{font-size:11px;color:var(--muted);margin-top:14px;letter-spacing:.05em}
+.msg{font-family:"Mochiy Pop One",sans-serif;font-size:20px;margin:0 0 12px;color:var(--kaki)}
+.res{display:grid;grid-template-columns:1fr auto;gap:4px 16px;text-align:left;font-size:15px;margin:0 auto 14px;max-width:230px}
+.res .v{font-weight:800;text-align:right}
+.res .big{font-family:"Mochiy Pop One",sans-serif;font-size:30px;color:var(--ink)}
+.new{color:var(--beni);font-weight:800;font-size:14px;min-height:1.2em;margin:-6px 0 10px}
+.pause-sub{font-size:13px;color:var(--sub);margin:10px 0 0}
+.overlay.conf{z-index:15;background:rgba(30,24,50,.72)}
+.slider{display:block;text-align:left;margin:10px 0 4px}
+.sl-head{display:flex;justify-content:space-between;font-size:14px;color:var(--sub)}
+.sl-head span:last-child{color:var(--ink);font-weight:800}
+.slider input{width:100%;height:44px;accent-color:var(--kaki);margin:0;cursor:pointer;touch-action:pan-x}
+@media (max-height:520px){
+  .overlay{padding-top:52px;padding-bottom:8px}
+  .overlay.bottom .card{margin:auto}
+  .card{padding:12px 14px 10px;max-width:420px}
+  .title{font-size:26px;margin-bottom:6px}
+  .title br{display:none}
+  .howto{font-size:12px;line-height:1.5;margin-bottom:8px}
+  .msg{font-size:17px;margin-bottom:6px}
+  .res{font-size:13px;gap:1px 16px;margin-bottom:8px;grid-template-columns:auto auto auto auto;max-width:none}
+  .res .big{font-size:20px}
+  .new{margin:-2px 0 6px}
+  .go{font-size:16px;padding:9px 20px}
+  .go.ghost{font-size:14px;padding:8px 16px}
+  .share{margin-top:8px;min-height:44px;padding:8px 16px}
+  .credit{margin-top:8px}
+  .best{margin-top:6px}
+}
+@media (prefers-reduced-motion:reduce){ .go:active{transform:none} }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="cv" aria-label="ゲーム画面"></canvas>
+
+  <div class="hud">
+    <a class="home" href="/">&lt; porkgorilla</a>
+    <div class="hud-r">
+      <button class="icon-btn" id="pauseBtn" aria-label="一時停止" hidden><span class="pause-ico"><i></i><i></i></span></button>
+      <button class="icon-btn" id="muteBtn" aria-label="音のオンオフ"></button>
+      <button class="icon-btn" id="confBtn" aria-label="設定"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2.2" fill="#fff"/><circle cx="10" cy="17" r="2.2" fill="#fff"/></svg></button>
+    </div>
+  </div>
+
+  <div id="titleOv" class="overlay bottom clear">
+    <div class="card">
+      <h1 class="title"><small>芋で飛ぶ</small>フラッピー<br>ばーちゃん</h1>
+      <p class="howto">
+        <b>タップ / スペース</b>で羽ばたく<br>
+        竹にぶつかったらおしまい<br>
+        <b>焼き芋</b>を食べると屁で加速、竹もへし折る<br>
+        屁が出ている間に次の芋で<b>屁コンボ</b>
+      </p>
+      <div><button class="go" id="startBtn">はじめる</button></div>
+      <div class="best" id="bestTitle"></div>
+      <div class="credit">porkgorilla — 2026</div>
+    </div>
+  </div>
+
+  <div id="pauseOv" class="overlay" hidden>
+    <div class="card">
+      <p class="msg">ひと休み中</p>
+      <div class="actions">
+        <button class="go" id="resumeBtn">つづける</button>
+        <button class="go ghost" id="quitBtn">ここで終える</button>
+      </div>
+      <p class="pause-sub">終えると、ここまでの記録で結果が出ます</p>
+    </div>
+  </div>
+
+  <div id="confOv" class="overlay conf" hidden>
+    <div class="card">
+      <p class="msg">設定</p>
+      <label class="slider">
+        <span class="sl-head"><span>屁の音</span><span id="fartVal">60%</span></span>
+        <input type="range" id="fartRange" min="0" max="100" step="5" value="60">
+      </label>
+      <label class="slider">
+        <span class="sl-head"><span>その他の効果音</span><span id="sfxVal">100%</span></span>
+        <input type="range" id="sfxRange" min="0" max="100" step="5" value="100">
+      </label>
+      <div class="actions" style="margin-top:14px">
+        <button class="go ghost" id="testFart">屁を試し聞き</button>
+        <button class="go" id="confClose">とじる</button>
+      </div>
+      <p class="pause-sub">設定はこのブラウザに保存されます</p>
+    </div>
+  </div>
+
+  <div id="overOv" class="overlay" hidden>
+    <div class="card">
+      <p class="msg" id="overMsg">ばーちゃん、休憩。</p>
+      <div class="res">
+        <span>くぐった竹</span><span class="v big" id="rScore">0</span>
+        <span>食べた芋</span><span class="v" id="rImo">0本</span>
+        <span>最大屁コンボ</span><span class="v" id="rCombo">×0</span>
+        <span>飛んだ距離</span><span class="v" id="rDist">0m</span>
+        <span>最高記録</span><span class="v" id="rBest">0</span>
+      </div>
+      <div class="new" id="rNew"></div>
+      <div class="actions">
+        <button class="go" id="againBtn">もう一度</button>
+        <button class="go ghost" id="titleBtn">タイトルへ</button>
+      </div>
+      <a class="share" id="shareBtn" href="#" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.9 2H22l-6.8 7.8L23 22h-6.2l-4.9-6.4L6.3 22H3.2l7.3-8.3L1 2h6.3l4.4 5.9L18.9 2zm-1.1 18h1.7L6.3 3.9H4.5L17.8 20z"/></svg>
+        結果をポスト
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+'use strict';
+const GAME_URL = 'https://porkgorilla.com/works/flappy-baachan.html';
+const OG_CACHE_VERSION = 1; // OGPのタグや画像を変えたら上げる
+const SHARE_URL = GAME_URL + '?ogv=' + OG_CACHE_VERSION;
+const HASHTAG = '#フラッピーばーちゃん';
+const KEY_BEST = 'flappy-baachan-best';
+const KEY_MUTE = 'flappy-baachan-mute';
+const KEY_CONF = 'flappy-baachan-config';
+
+const $ = id => document.getElementById(id);
+const cv = $('cv');
+const ctx = cv.getContext('2d');
+const VH = 640, GROUND = 86, MAX_VW = 820;
+let W = 0, H = 0, DPR = 1, S = 1, VW = 360, OX = 0;
+const FONT = '"Mochiy Pop One","Hiragino Maru Gothic ProN","Yu Gothic",sans-serif';
+
+function resize(){
+  const r = cv.getBoundingClientRect();
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  W = r.width; H = r.height;
+  cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+  if (!W || !H) return;   // 画面サイズ0(裏タブでの読み込みなど)では計算しない。0/0 で VW が NaN になり、描画ループごと止まるため
+  S = H / VH;
+  VW = Math.min(W / S, MAX_VW);   // 横長のPCで間延びしないよう論理幅に上限
+  OX = (W - VW * S) / 2;
+}
+window.addEventListener('resize', resize);
+resize();
+
+// ---------- 保存 ----------
+let best = 0, muted = false;
+try { best = parseInt(localStorage.getItem(KEY_BEST) || '0', 10) || 0; } catch(e){}
+try { muted = localStorage.getItem(KEY_MUTE) === '1'; } catch(e){}
+function loadConf(){
+  try {
+    const c = JSON.parse(localStorage.getItem(KEY_CONF) || '{}');
+    if (typeof c.fart === 'number') fartVol = clamp(c.fart, 0, 1);
+    if (typeof c.sfx === 'number') sfxVol = clamp(c.sfx, 0, 1);
+  } catch(e){}
+}
+function saveConf(){ try { localStorage.setItem(KEY_CONF, JSON.stringify({ fart: fartVol, sfx: sfxVol })); } catch(e){} }
+function saveBest(){ try { localStorage.setItem(KEY_BEST, String(best)); } catch(e){} }
+
+// ---------- 音 ----------
+let AC = null, master = null, fartBus = null, sfxBus = null, noiseBuf = null;
+let fartVol = 0.6, sfxVol = 1;   // 屁の初期値はv2より下げて60%
+function initAudio(force){
+  if (AC && force){
+    try { AC.close().catch(() => {}); } catch(e){}
+    AC = null; noiseBuf = null;
+  } else if (AC){
+    if (AC.state === 'closed'){ AC = null; noiseBuf = null; }
+    else { if (AC.state === 'suspended') AC.resume(); return; }
+  }
+  try {
+    AC = new (window.AudioContext || window.webkitAudioContext)();
+    master = AC.createGain(); master.gain.value = muted ? 0 : 0.6; master.connect(AC.destination);
+    fartBus = AC.createGain(); fartBus.gain.value = fartVol; fartBus.connect(master);
+    sfxBus = AC.createGain(); sfxBus.gain.value = sfxVol; sfxBus.connect(master);
+  } catch(e){ AC = null; }
+}
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden){ if (state === 'play' || state === 'ready') pauseGame(); }
+  else if (AC) initAudio();
+});
+function noiseSrc(){
+  if (!noiseBuf){
+    const len = AC.sampleRate;
+    noiseBuf = AC.createBuffer(1, len, AC.sampleRate);
+    const d = noiseBuf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+  }
+  const s = AC.createBufferSource(); s.buffer = noiseBuf; return s;
+}
+function tone(f0, f1, dur, type, vol, delay, out){
+  if (!AC) return;
+  const t = AC.currentTime + (delay || 0);
+  const o = AC.createOscillator(); o.type = type || 'sine';
+  o.frequency.setValueAtTime(f0, t);
+  o.frequency.exponentialRampToValueAtTime(Math.max(20, f1), t + dur);
+  const g = AC.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol, t + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g); g.connect(out || sfxBus); o.start(t); o.stop(t + dur + 0.02);
+}
+function noiseHit(freq, q, dur, vol, type, delay, out){
+  if (!AC) return;
+  const t = AC.currentTime + (delay || 0);
+  const n = noiseSrc(); const f = AC.createBiquadFilter();
+  f.type = type || 'bandpass'; f.frequency.value = freq; f.Q.value = q;
+  const g = AC.createGain();
+  g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  n.connect(f); f.connect(g); g.connect(out || sfxBus); n.start(t); n.stop(t + dur);
+}
+// 屁: コンボ段階(lv)で、低く・長く・太くなる
+function fartVoice(base, dur, vol, t){
+  const o = AC.createOscillator(); o.type = 'sawtooth';
+  o.frequency.setValueAtTime(base * 1.35, t);
+  o.frequency.exponentialRampToValueAtTime(base * 0.65, t + dur);
+  const lfo = AC.createOscillator(); lfo.frequency.value = 16 + Math.random() * 18;
+  const lg = AC.createGain(); lg.gain.value = base * 0.55;
+  lfo.connect(lg); lg.connect(o.frequency);
+  const f = AC.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 480 + Math.random() * 200; f.Q.value = 5;
+  const am = AC.createGain(); am.gain.value = 0.9;
+  const lfo2 = AC.createOscillator(); lfo2.frequency.value = 8 + Math.random() * 8;
+  const l2g = AC.createGain(); l2g.gain.value = 0.4;
+  lfo2.connect(l2g); l2g.connect(am.gain);
+  const g = AC.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol, t + 0.025);
+  g.gain.setValueAtTime(vol * 0.8, t + dur * 0.6);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(f); f.connect(am); am.connect(g); g.connect(fartBus);
+  [o, lfo, lfo2].forEach(x => { x.start(t); x.stop(t + dur + 0.05); });
+}
+const sfx = {
+  flap(){ noiseHit(900, 1.2, 0.09, 0.18); },
+  pass(){ tone(880, 1320, 0.08, 'triangle', 0.12); },
+  eat(){ tone(420, 620, 0.06, 'square', 0.08); tone(520, 760, 0.06, 'square', 0.08, 0.08); },
+  fart(lv){
+    if (!AC) return;
+    const t = AC.currentTime;
+    const L = Math.min(lv, 4);
+    const dur = (0.45 + Math.random() * 0.35) * (1 + 0.32 * (L - 1));
+    const base = (62 + Math.random() * 45) * (1 - 0.1 * (L - 1));
+    fartVoice(base, dur, 0.6 + 0.08 * L, t);
+    if (L >= 3) fartVoice(base * 0.5, dur * 0.95, 0.45, t + 0.02);
+    noiseHit(260, 0.8, dur * 0.7, 0.2 + 0.05 * L, 'bandpass', 0, fartBus);
+    if (L >= 4){ tone(140, 60, 0.12, 'sawtooth', 0.25, dur + 0.05, fartBus); noiseHit(1800, 1, 0.12, 0.15, 'bandpass', dur + 0.05, fartBus); }
+  },
+  combo(lv){ const f = 520 * Math.pow(1.19, Math.min(lv, 6)); tone(f, f * 1.5, 0.12, 'triangle', 0.14); tone(f * 1.5, f * 2, 0.12, 'triangle', 0.1, 0.09); },
+  crack(){ noiseHit(2400, 0.7, 0.18, 0.4, 'highpass'); tone(1400, 500, 0.12, 'square', 0.08); },
+  hit(){ tone(150, 40, 0.3, 'sine', 0.6); noiseHit(500, 0.7, 0.2, 0.3); },
+  over(){ [523, 440, 349, 262].forEach((f, i) => tone(f, f * 0.98, 0.22, 'triangle', 0.15, 0.35 + i * 0.2)); }
+};
+
+// ---------- 乱数 ----------
+const rand = (a, b) => a + Math.random() * (b - a);
+const hash = n => { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+loadConf();
+
+// ---------- 状態 ----------
+let state = 'title'; // title / ready / play / pause / dead / over
+let prevState = 'play';
+let g, pipes, imos, parts, pops;
+let dist, score, imoCount, speed, boost, boostMul, grace, shake, time = 0, bgX = 0, deadT, deathCause, overShownAt = 0;
+let combo = 0, maxCombo = 0, tint = 0;
+let lastCy = VH * 0.45;
+const BOOST_MAX = 6;
+
+function gx(){ return Math.min(VW * 0.3, 220); }
+
+function reset(){
+  g = { x: gx(), y: VH * 0.42, vy: 0, rot: 0, flapT: 0, eatT: 0, fartPending: -1, dead: false };
+  pipes = []; imos = []; parts = []; pops = [];
+  dist = 0; score = 0; imoCount = 0; speed = 170; boost = 0; boostMul = 1; grace = 0; shake = 0;
+  combo = 0; maxCombo = 0; tint = 0;
+  lastCy = VH * 0.45;
+}
+reset();
+
+const PIPE_W = 72, SPACING = 255;
+
+function spawnPipe(x){
+  const gap = Math.max(150, 205 - score * 1.6);
+  const minY = 70 + gap / 2, maxY = VH - GROUND - 60 - gap / 2;
+  let cy = rand(minY, maxY);
+  cy = clamp(cy, lastCy - 210, lastCy + 210);
+  lastCy = cy;
+  pipes.push({ x, w: PIPE_W, cy, gap, passed: false, broken: false, leafSeed: Math.random() * 100 });
+  // ブースト中は芋を少し出やすくして、コンボを狙える余地を作る
+  const chance = boost > 0 ? 0.55 : 0.42;
+  if (score >= 1 && Math.random() < chance){
+    if (Math.random() < 0.5) imos.push({ x: x + PIPE_W / 2, y: cy, got: false, ph: Math.random() * 6 });
+    else imos.push({ x: x + PIPE_W + (SPACING - PIPE_W) / 2, y: rand(140, VH - GROUND - 110), got: false, ph: Math.random() * 6 });
+  }
+}
+
+function pop(x, y, text, color, size, life){
+  pops.push({ x, y, text, color: color || '#fff', size: size || 26, life: 0, max: life || 0.9 });
+}
+
+function buttPos(){
+  const c = Math.cos(g.rot), s = Math.sin(g.rot);
+  return { x: g.x + c * -20 - s * 12, y: g.y + s * -20 + c * 12 };
+}
+
+const GAS = ['#cdb86a', '#b3a159', '#ddd08f', '#a89155', '#c6c27a'];
+function gasColor(){
+  if (combo >= 4) return `hsl(${(time * 300 + Math.random() * 120) % 360},85%,70%)`;
+  if (combo === 3) return ['#f2c14e', '#e8a33a', '#f6d77a'][(Math.random() * 3) | 0];
+  return GAS[(Math.random() * GAS.length) | 0];
+}
+function gasPuff(n, power){
+  const b = buttPos();
+  for (let i = 0; i < n; i++){
+    const a = Math.PI + rand(-0.7, 0.7) + g.rot;
+    const sp = rand(60, 220) * power;
+    parts.push({ t: 'gas', x: b.x, y: b.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 0, max: rand(0.6, 1.2), size: rand(8, 16) * power, color: gasColor() });
+  }
+}
+
+const FART_TEXT = [
+  null,
+  ['ぷぅ〜！', 'ブッ！', 'プスゥ…', 'ばふっ', 'ぷっぷくぷー'],
+  ['ブブッ！', 'ぶりりっ！', 'ブボボッ！'],
+  ['ブォォォン！！', 'ドゥルルルッ！！', 'ボフォォッ！！'],
+  ['屁の極み', 'ばーちゃんジェット', '昇天屁']
+];
+const COMBO_COLOR = [null, '#ffe27a', '#ffc04d', '#ff8a3d', '#ff5fa2'];
+function boostTarget(){ return combo > 0 ? 2.2 + 0.2 * (Math.min(combo, 4) - 1) : 1; }
+
+function doFart(){
+  combo = boost > 0 ? combo + 1 : 1;
+  maxCombo = Math.max(maxCombo, combo);
+  const L = Math.min(combo, 4);
+  boost = Math.min(boost + 2.6, BOOST_MAX);
+  g.vy = Math.min(g.vy, -160 - 20 * L);
+  gasPuff(22 + 8 * L, 1.2 + 0.2 * L);
+  const b = buttPos();
+  const list = FART_TEXT[L];
+  pop(b.x - 20, b.y - 10, list[(Math.random() * list.length) | 0], COMBO_COLOR[L], 26 + 6 * L, 0.9 + 0.15 * L);
+  if (combo >= 2){
+    pop(g.x + 10, g.y - 58, `屁コンボ ×${combo}`, COMBO_COLOR[L], 20 + 2 * L, 1.1);
+    sfx.combo(combo);
+  }
+  if (L >= 3) tint = 1;
+  shake = Math.max(shake, 6 + 2 * L);
+  sfx.fart(combo);
+}
+
+function eatImo(i){
+  i.got = true; imoCount++;
+  g.eatT = 0.35; g.fartPending = 0.22;
+  for (let k = 0; k < 8; k++) parts.push({ t: 'crumb', x: i.x, y: i.y, vx: rand(-120, 60), vy: rand(-160, 40), life: 0, max: 0.6, size: rand(2, 4), color: Math.random() < 0.5 ? '#f6c445' : '#9b3b5a' });
+  pop(g.x + 16, g.y - 40, 'もぐっ', '#fff', 20);
+  sfx.eat();
+}
+
+function breakPipe(p){
+  p.broken = true;
+  const top = p.cy - p.gap / 2, bot = p.cy + p.gap / 2;
+  for (let k = 0; k < 22; k++){
+    const onTop = Math.random() < 0.5;
+    const y = onTop ? rand(Math.max(0, top - 200), top) : rand(bot, Math.min(VH - GROUND, bot + 200));
+    parts.push({ t: 'splinter', x: p.x + rand(0, p.w), y, vx: rand(80, 420), vy: rand(-320, 120), life: 0, max: rand(0.7, 1.2), w: rand(10, 26), h: rand(6, 12), rot: rand(0, 6), vr: rand(-12, 12), color: Math.random() < 0.5 ? '#6fae45' : '#8ccb58' });
+  }
+  pop(p.x + p.w / 2, g.y - 30, 'バキッ！', '#fff', 28);
+  shake = Math.max(shake, 9);
+  sfx.crack();
+}
+
+function die(cause){
+  if (state !== 'play') return;
+  state = 'dead'; deathCause = cause; deadT = 0; g.dead = true;
+  g.vy = cause === 'ground' ? -260 : -380;
+  shake = 14;
+  pop(g.x, g.y - 40, 'あいたたた…', '#fff', 22);
+  sfx.hit();
+  syncHud();
+}
+
+// ---------- 入力 ----------
+function flap(){
+  g.vy = -420; g.flapT = 1;
+  sfx.flap();
+  for (let k = 0; k < 3; k++) parts.push({ t: 'dust', x: g.x - 6, y: g.y + 12, vx: rand(-90, -30), vy: rand(20, 80), life: 0, max: 0.4, size: rand(3, 6), color: 'rgba(255,255,255,0.8)' });
+}
+function onTap(){
+  initAudio();
+  if (state === 'ready'){ state = 'play'; flap(); }
+  else if (state === 'play') flap();
+}
+cv.addEventListener('pointerdown', e => { e.preventDefault(); onTap(); });
+window.addEventListener('keydown', e => {
+  if (!confOv.hidden){ if (e.code === 'Escape'){ e.preventDefault(); closeConf(); } return; }
+  if (e.code === 'Escape' || e.code === 'KeyP'){
+    if (state === 'play' || state === 'ready'){ e.preventDefault(); pauseGame(); }
+    else if (state === 'pause'){ e.preventDefault(); resumeGame(); }
+    return;
+  }
+  if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW'){
+    if (e.target && (e.target.tagName === 'BUTTON' || e.target.tagName === 'A') && state !== 'play' && state !== 'ready') return;
+    e.preventDefault();
+    if (state === 'title') startGame();
+    else if (state === 'over'){ if (performance.now() - overShownAt > 450) startGame(); }
+    else if (state === 'pause') resumeGame();
+    else onTap();
+  }
+});
+
+// ---------- 画面遷移 ----------
+const titleOv = $('titleOv'), overOv = $('overOv'), pauseOv = $('pauseOv');
+const pauseBtn = $('pauseBtn'), muteBtn = $('muteBtn'), quitBtn = $('quitBtn'), shareBtn = $('shareBtn');
+if (matchMedia('(pointer: coarse)').matches){ shareBtn.removeAttribute('target'); shareBtn.removeAttribute('rel'); }
+
+function updBestTitle(){ $('bestTitle').textContent = best > 0 ? `最高記録 ${best}本` : ''; }
+updBestTitle();
+function syncHud(){ pauseBtn.hidden = !(state === 'play' || state === 'ready'); }
+
+function startGame(){
+  initAudio(true);   // ユーザー操作のたびに作り直す(iOSで他アプリから戻ると無音になる対策)
+  reset();
+  titleOv.hidden = true; overOv.hidden = true; pauseOv.hidden = true;
+  state = 'ready';
+  disarmQuit();
+  syncHud();
+}
+function backToTitle(){
+  reset(); state = 'title';
+  overOv.hidden = true; pauseOv.hidden = true; titleOv.hidden = false;
+  updBestTitle(); syncHud();
+}
+function pauseGame(){
+  if (state !== 'play' && state !== 'ready') return;
+  prevState = state; state = 'pause';
+  pauseOv.hidden = false; disarmQuit(); syncHud();
+}
+function resumeGame(){
+  if (state !== 'pause') return;
+  initAudio();
+  state = prevState; pauseOv.hidden = true; confOv.hidden = true; disarmQuit(); syncHud();
+}
+
+const MSG_PIPE = ['ばーちゃん、ちょっと休憩。', '腰がいたいわぁ…', 'あらまぁ、竹にごっつん', '芋、もっと食べたかったねぇ'];
+const MSG_GROUND = ['畑に不時着…', 'ばーちゃん、畝にめり込む', '大根と間違えられそう'];
+function showOver(){
+  state = 'over'; overShownAt = performance.now();
+  pauseOv.hidden = true;
+  const isNew = score > best;
+  if (isNew){ best = score; saveBest(); }
+  let msg;
+  if (deathCause === 'quit') msg = 'ばーちゃん、自主休憩。';
+  else { const pool = deathCause === 'ground' ? MSG_GROUND : MSG_PIPE; msg = pool[(Math.random() * pool.length) | 0]; }
+  $('overMsg').textContent = msg;
+  $('rScore').textContent = score;
+  $('rImo').textContent = imoCount + '本';
+  $('rCombo').textContent = '×' + maxCombo;
+  $('rDist').textContent = Math.floor(dist / 40) + 'm';
+  $('rBest').textContent = best;
+  $('rNew').textContent = isNew && score > 0 ? '最高記録を更新！' : '';
+  let text = `フラッピーばーちゃんで竹を${score}本くぐった！ 焼き芋${imoCount}本`;
+  if (maxCombo >= 2) text += `、最大屁コンボ×${maxCombo}`;
+  text += `\n${HASHTAG}`;
+  shareBtn.href = 'https://x.com/intent/post?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(SHARE_URL);
+  overOv.hidden = false;
+  syncHud();
+  if (deathCause !== 'quit') sfx.over();
+}
+
+// 「ここで終える」は2回押しで確認(confirm()はclaude.ai公開ページでブロックされるため使わない)
+let armed = false, armTimer = null;
+function disarmQuit(){ armed = false; clearTimeout(armTimer); quitBtn.textContent = 'ここで終える'; quitBtn.classList.remove('danger'); }
+quitBtn.addEventListener('click', () => {
+  if (!armed){
+    armed = true; quitBtn.textContent = '本当に？(もう一度タップ)'; quitBtn.classList.add('danger');
+    clearTimeout(armTimer); armTimer = setTimeout(disarmQuit, 3000);
+    return;
+  }
+  disarmQuit();
+  deathCause = 'quit';
+  showOver();
+});
+
+$('startBtn').addEventListener('click', startGame);
+$('againBtn').addEventListener('click', startGame);
+$('titleBtn').addEventListener('click', backToTitle);
+$('resumeBtn').addEventListener('click', resumeGame);
+pauseBtn.addEventListener('click', pauseGame);
+
+// ---------- 設定 ----------
+const confOv = $('confOv'), fartRange = $('fartRange'), sfxRange = $('sfxRange');
+function applyVol(){
+  $('fartVal').textContent = Math.round(fartVol * 100) + '%';
+  $('sfxVal').textContent = Math.round(sfxVol * 100) + '%';
+  if (fartBus) fartBus.gain.value = fartVol;
+  if (sfxBus) sfxBus.gain.value = sfxVol;
+}
+fartRange.value = Math.round(fartVol * 100); sfxRange.value = Math.round(sfxVol * 100); applyVol();
+function openConf(){
+  initAudio();
+  if (state === 'play' || state === 'ready') pauseGame();   // プレイ中に開いたら一時停止
+  confOv.hidden = false;
+}
+function closeConf(){ confOv.hidden = true; saveConf(); }
+$('confBtn').addEventListener('click', () => { confOv.hidden ? openConf() : closeConf(); });
+$('confClose').addEventListener('click', closeConf);
+fartRange.addEventListener('input', () => { fartVol = fartRange.value / 100; applyVol(); });
+sfxRange.addEventListener('input', () => { sfxVol = sfxRange.value / 100; applyVol(); });
+fartRange.addEventListener('change', () => { saveConf(); sfx.fart(1); });
+sfxRange.addEventListener('change', () => { saveConf(); sfx.pass(); });
+$('testFart').addEventListener('click', () => {
+  initAudio();
+  if (muted) pop(gx(), VH * 0.3, '音がオフです', '#fff', 18);
+  sfx.fart(1 + ((Math.random() * 4) | 0));
+});
+
+const ICON_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="#fff"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg>';
+const ICON_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="#fff"/><path d="M16.5 9.5l5 5M21.5 9.5l-5 5"/></svg>';
+function updMute(){
+  muteBtn.innerHTML = muted ? ICON_OFF : ICON_ON;
+  muteBtn.setAttribute('aria-label', muted ? '音をオンにする' : '音をオフにする');
+  if (master) master.gain.value = muted ? 0 : 0.6;
+}
+muteBtn.addEventListener('click', () => {
+  muted = !muted; initAudio(); updMute();
+  try { localStorage.setItem(KEY_MUTE, muted ? '1' : '0'); } catch(e){}
+});
+updMute();
+
+// ---------- 更新 ----------
+function update(dt){
+  if (state === 'pause') return;
+  time += dt;
+  g.flapT = Math.max(0, g.flapT - dt * 4);
+  g.eatT = Math.max(0, g.eatT - dt);
+  shake = Math.max(0, shake - dt * 40);
+  tint = Math.max(0, tint - dt * 0.6);
+
+  if (state === 'title' || state === 'ready'){
+    g.x = gx();
+    const baseY = state === 'title' ? VH * 0.27 : VH * 0.42;
+    g.y = baseY + Math.sin(time * 3) * 12;
+    g.rot = Math.sin(time * 3) * 0.08;
+    if (Math.sin(time * 6) > 0.95) g.flapT = Math.max(g.flapT, 0.6);
+    bgX += 50 * dt;
+  }
+
+  if (state === 'play'){
+    if (g.fartPending > 0){ g.fartPending -= dt; if (g.fartPending <= 0){ g.fartPending = -1; doFart(); } }
+    const wasBoost = boost > 0;
+    boost = Math.max(0, boost - dt);
+    if (wasBoost && boost === 0){
+      grace = 0.5;
+      if (combo >= 2) pop(g.x, g.y - 46, '屁、切れた', '#e6e0ff', 18);
+      combo = 0;
+    }
+    grace = Math.max(0, grace - dt);
+    const target = boostTarget();
+    boostMul += (target - boostMul) * Math.min(1, dt * 5);
+    if (combo >= 3) tint = Math.max(tint, 0.6);
+    const sp = speed * boostMul;
+    dist += sp * dt; bgX += sp * dt;
+
+    g.vy += (boost > 0 ? 1000 : 1450) * dt;
+    g.vy = Math.min(g.vy, 720);
+    g.y += g.vy * dt;
+    if (g.y < 22){ g.y = 22; g.vy = Math.max(0, g.vy); }
+    const rt = boost > 0 ? -0.22 : clamp(g.vy / 650, -0.45, 1.1);
+    g.rot += (rt - g.rot) * Math.min(1, dt * 10);
+
+    for (const p of pipes) p.x -= sp * dt;
+    for (const i of imos) i.x -= sp * dt;
+    pipes = pipes.filter(p => p.x + p.w > -40);
+    imos = imos.filter(i => i.x > -40 && !i.got);
+    const last = pipes[pipes.length - 1];
+    if (!last) spawnPipe(VW + 60);
+    else if (last.x < VW + 60 - SPACING) spawnPipe(last.x + SPACING);
+
+    for (const p of pipes){
+      if (!p.passed && p.x + p.w < g.x - 18){
+        p.passed = true; score++; speed = Math.min(275, speed + 2.5);
+        if (!p.broken) sfx.pass();
+      }
+      if (p.broken) continue;
+      const top = p.cy - p.gap / 2, bot = p.cy + p.gap / 2;
+      if (circRect(g.x, g.y, 18, p.x, -100, p.w, top + 100) || circRect(g.x, g.y, 18, p.x, bot, p.w, VH - GROUND - bot)){
+        if (boost > 0 || grace > 0) breakPipe(p);
+        else { die('pipe'); break; }
+      }
+    }
+    if (state === 'play'){
+      for (const i of imos){
+        if (!i.got && Math.hypot(i.x - g.x, i.y - g.y) < 36) eatImo(i);
+      }
+      if (boost > 0 && Math.random() < dt * (30 + 10 * combo)) gasPuff(1, 0.9 + 0.1 * Math.min(combo, 4));
+      if (g.y + 22 > VH - GROUND){ g.y = VH - GROUND - 22; die('ground'); }
+    }
+  } else if (state === 'dead' || state === 'over'){
+    deadT = (deadT || 0) + dt;
+    if (g.dead && g.y < VH - GROUND - 20){
+      g.vy += 1500 * dt; g.y += g.vy * dt; g.rot += dt * 9;
+      if (g.y >= VH - GROUND - 20){ g.y = VH - GROUND - 20; g.vy = 0; }
+    }
+    if (state === 'dead' && deadT > 1.05) showOver();
+  }
+
+  for (const p of parts){
+    p.life += dt;
+    p.x += p.vx * dt; p.y += p.vy * dt;
+    if (p.t === 'gas'){ p.vx *= (1 - dt * 2.5); p.vy *= (1 - dt * 2.5); p.vy -= 20 * dt; p.size += dt * 26; if (state === 'play') p.x -= speed * boostMul * dt * 0.5; }
+    else if (p.t === 'splinter'){ p.vy += 900 * dt; p.rot += p.vr * dt; }
+    else if (p.t === 'crumb'){ p.vy += 700 * dt; }
+  }
+  parts = parts.filter(p => p.life < p.max);
+  if (parts.length > 450) parts.splice(0, parts.length - 450);
+  for (const q of pops){ q.life += dt; q.y -= 40 * dt; }
+  pops = pops.filter(q => q.life < q.max);
+}
+
+function circRect(cx, cy, r, rx, ry, rw, rh){
+  const nx = clamp(cx, rx, rx + rw), ny = clamp(cy, ry, ry + rh);
+  return (cx - nx) ** 2 + (cy - ny) ** 2 < r * r;
+}
+
+// ---------- 背景 ----------
+const clouds = Array.from({ length: 7 }, (_, i) => ({ x: hash(i) * 900, y: 40 + hash(i + 9) * 200, s: 0.6 + hash(i + 20) * 0.8 }));
+
+function drawSky(){
+  const grd = ctx.createLinearGradient(0, 0, 0, VH - GROUND);
+  grd.addColorStop(0, '#6f78b8');
+  grd.addColorStop(0.45, '#e9a08a');
+  grd.addColorStop(0.8, '#ffd59a');
+  grd.addColorStop(1, '#ffe8bd');
+  ctx.fillStyle = grd; ctx.fillRect(0, 0, VW, VH);
+  const sx = VW * 0.72, sy = VH * 0.5;
+  const sg = ctx.createRadialGradient(sx, sy, 10, sx, sy, 120);
+  sg.addColorStop(0, 'rgba(255,240,190,0.95)'); sg.addColorStop(0.35, 'rgba(255,190,120,0.5)'); sg.addColorStop(1, 'rgba(255,190,120,0)');
+  ctx.fillStyle = sg; ctx.fillRect(sx - 130, sy - 130, 260, 260);
+  ctx.fillStyle = '#fff1c4'; ctx.beginPath(); ctx.arc(sx, sy, 34, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = 'rgba(255,236,220,0.75)';
+  for (const c of clouds){
+    const span = VW + 300;
+    const x = ((c.x - bgX * 0.08 * c.s) % span + span) % span - 150;
+    cloud(x, c.y, c.s);
+  }
+}
+function cloud(x, y, s){
+  ctx.beginPath();
+  ctx.ellipse(x, y, 46 * s, 14 * s, 0, 0, Math.PI * 2);
+  ctx.ellipse(x - 22 * s, y - 8 * s, 22 * s, 14 * s, 0, 0, Math.PI * 2);
+  ctx.ellipse(x + 14 * s, y - 12 * s, 26 * s, 16 * s, 0, 0, Math.PI * 2);
+  ctx.fill();
+}
+function ridge(off, base, amp, freq, color, seed){
+  ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(0, VH);
+  for (let x = 0; x <= VW + 10; x += 10){
+    const u = (x + off) * freq;
+    const h = Math.sin(u + seed) * 0.5 + Math.sin(u * 2.3 + seed * 2) * 0.3 + Math.sin(u * 5.1 + seed) * 0.12;
+    ctx.lineTo(x, base - h * amp);
+  }
+  ctx.lineTo(VW, VH); ctx.closePath(); ctx.fill();
+}
+function drawVillage(){
+  const off = bgX * 0.4, tile = 170, base = VH - GROUND;
+  const i0 = Math.floor(off / tile) - 1, i1 = i0 + Math.ceil(VW / tile) + 2;
+  for (let i = i0; i <= i1; i++){
+    const x = i * tile - off;
+    const r = hash(i);
+    if (r < 0.62){
+      const w = 80 + hash(i + 3) * 50, h = 38 + hash(i + 5) * 22, hx = x + hash(i + 7) * 40;
+      ctx.fillStyle = '#e8d2ad'; ctx.fillRect(hx, base - h, w, h);
+      ctx.fillStyle = '#a07a58'; ctx.fillRect(hx + w * 0.2, base - h * 0.62, w * 0.22, h * 0.62);
+      ctx.fillStyle = 'rgba(255,220,140,0.85)'; ctx.fillRect(hx + w * 0.58, base - h * 0.7, w * 0.22, h * 0.32);
+      ctx.fillStyle = r < 0.3 ? '#5b6a86' : '#7a5a4c';
+      ctx.beginPath();
+      ctx.moveTo(hx - 12, base - h); ctx.lineTo(hx + w * 0.18, base - h - 30);
+      ctx.lineTo(hx + w * 0.82, base - h - 30); ctx.lineTo(hx + w + 12, base - h); ctx.closePath(); ctx.fill();
+    } else {
+      const tx = x + 60;
+      ctx.fillStyle = '#6b4a34'; ctx.fillRect(tx - 4, base - 50, 8, 50);
+      ctx.fillStyle = '#5f8a4a'; ctx.beginPath(); ctx.arc(tx, base - 62, 30, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#f08a24';
+      for (let k = 0; k < 6; k++){ ctx.beginPath(); ctx.arc(tx + (hash(i * 7 + k) - 0.5) * 44, base - 62 + (hash(i * 3 + k) - 0.5) * 36, 4, 0, Math.PI * 2); ctx.fill(); }
+    }
+  }
+  ctx.fillStyle = 'rgba(255,214,160,0.22)'; ctx.fillRect(0, base - 120, VW, 120);
+}
+function drawGround(){
+  const base = VH - GROUND;
+  ctx.fillStyle = '#7cb24c'; ctx.fillRect(0, base, VW, 12);
+  ctx.fillStyle = '#c08a52'; ctx.fillRect(0, base + 12, VW, GROUND);
+  const off = bgX % 34;
+  ctx.fillStyle = '#a8743f';
+  for (let x = -off; x < VW + 34; x += 34){ ctx.fillRect(x, base + 24, 18, 5); ctx.fillRect(x + 12, base + 44, 18, 5); ctx.fillRect(x + 4, base + 64, 18, 5); }
+  const off2 = bgX % 68;
+  ctx.strokeStyle = '#5e9a36'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+  for (let x = -off2; x < VW + 68; x += 68){
+    ctx.beginPath(); ctx.moveTo(x + 30, base + 2); ctx.lineTo(x + 25, base - 8); ctx.moveTo(x + 30, base + 2); ctx.lineTo(x + 36, base - 7); ctx.stroke();
+  }
+  ctx.fillStyle = '#5f9b3a'; ctx.fillRect(0, base, VW, 3);
+}
+
+// ---------- 竹 ----------
+function bamboo(x, y, w, h, capAtBottom){
+  if (h <= 0) return;
+  const grd = ctx.createLinearGradient(x, 0, x + w, 0);
+  grd.addColorStop(0, '#4c862c'); grd.addColorStop(0.35, '#9fd064'); grd.addColorStop(0.6, '#77b246'); grd.addColorStop(1, '#3f7524');
+  ctx.fillStyle = grd; ctx.fillRect(x, y, w, h);
+  const step = 58;
+  const node = yy => { ctx.fillStyle = 'rgba(40,80,20,0.55)'; ctx.fillRect(x, yy, w, 4); ctx.fillStyle = 'rgba(220,255,170,0.4)'; ctx.fillRect(x, yy + 4, w, 2); };
+  if (capAtBottom){ for (let yy = y + h - step; yy > y; yy -= step) node(yy); }
+  else { for (let yy = y + step; yy < y + h; yy += step) node(yy); }
+  const cy = capAtBottom ? y + h - 16 : y;
+  ctx.fillStyle = '#3f7524'; ctx.fillRect(x - 5, cy, w + 10, 16);
+  ctx.fillStyle = '#8cc657'; ctx.fillRect(x - 5, cy + 3, w + 10, 5);
+}
+function drawPipe(p){
+  if (p.broken) return;
+  const top = p.cy - p.gap / 2, bot = p.cy + p.gap / 2;
+  bamboo(p.x, -20, p.w, top + 20, true);
+  bamboo(p.x, bot, p.w, VH - GROUND - bot, false);
+  ctx.fillStyle = '#5f9b3a';
+  const ly = top - 70 - (p.leafSeed % 40);
+  if (ly > 10) leaf(p.x + p.w, ly, 0.3);
+  const ly2 = bot + 90 + (p.leafSeed % 30);
+  if (ly2 < VH - GROUND - 20) leaf(p.x, ly2, Math.PI - 0.3);
+}
+function leaf(x, y, a){
+  ctx.save(); ctx.translate(x, y); ctx.rotate(a);
+  ctx.beginPath(); ctx.moveTo(0, 0); ctx.quadraticCurveTo(18, -9, 38, 0); ctx.quadraticCurveTo(18, 7, 0, 0); ctx.fill();
+  ctx.rotate(0.45);
+  ctx.beginPath(); ctx.moveTo(0, 0); ctx.quadraticCurveTo(14, -7, 28, 0); ctx.quadraticCurveTo(14, 5, 0, 0); ctx.fill();
+  ctx.restore();
+}
+
+// ---------- 焼き芋 ----------
+function imoShape(){
+  ctx.fillStyle = '#8e2f50';
+  ctx.beginPath(); ctx.ellipse(0, 0, 23, 11, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#b34b6c';
+  ctx.beginPath(); ctx.ellipse(-3, -4, 14, 3.5, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#f6c445';
+  ctx.beginPath(); ctx.ellipse(18, 0, 6, 9.5, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#ffde7a';
+  ctx.beginPath(); ctx.ellipse(18, -1, 3, 5, 0, 0, Math.PI * 2); ctx.fill();
+}
+function drawImo(i){
+  const y = i.y + Math.sin(time * 3 + i.ph) * 5;
+  ctx.save(); ctx.translate(i.x, y);
+  ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
+  for (let k = 0; k < 2; k++){
+    ctx.beginPath();
+    const bx = -6 + k * 12;
+    for (let s = 0; s <= 10; s++){
+      const yy = -16 - s * 2.4, xx = bx + Math.sin(time * 5 + s * 0.6 + k * 2) * 3;
+      s === 0 ? ctx.moveTo(xx, yy) : ctx.lineTo(xx, yy);
+    }
+    ctx.stroke();
+  }
+  // ブースト中の芋は「コンボ芋」として光を強める
+  const hot = boost > 0 && state === 'play';
+  const rr = hot ? 44 + Math.sin(time * 10) * 4 : 34;
+  const glow = ctx.createRadialGradient(0, 0, 4, 0, 0, rr);
+  glow.addColorStop(0, hot ? 'rgba(255,200,90,0.75)' : 'rgba(255,230,140,0.55)'); glow.addColorStop(1, 'rgba(255,230,140,0)');
+  ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(0, 0, rr, 0, Math.PI * 2); ctx.fill();
+  ctx.rotate(-0.35);
+  imoShape();
+  ctx.restore();
+}
+
+// ---------- ばーちゃん ----------
+function drawBaachan(){
+  const dead = g.dead;
+  const boosting = boost > 0 && state === 'play';
+  ctx.save();
+  ctx.translate(g.x, g.y); ctx.rotate(g.rot);
+  if (grace > 0 && Math.floor(time * 20) % 2 === 0) ctx.globalAlpha = 0.5;
+
+  const sw = Math.sin(time * (boosting ? 22 : 8)) * 0.35;
+  ctx.lineCap = 'round';
+  for (const [lx, ph] of [[-7, 0], [3, 1]]){
+    const a = 0.25 + sw * (ph ? -1 : 1);
+    const fx = lx + Math.sin(a) * -14, fy = 16 + Math.cos(a) * 14;
+    ctx.strokeStyle = '#8a6a55'; ctx.lineWidth = 5;
+    ctx.beginPath(); ctx.moveTo(lx, 16); ctx.lineTo(fx, fy); ctx.stroke();
+    ctx.fillStyle = '#c0392b'; ctx.beginPath(); ctx.ellipse(fx + 3, fy + 2, 6, 3.5, 0, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.fillStyle = '#5a4f7a';
+  ctx.beginPath(); ctx.ellipse(-2, 12, 19, 9, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#b48ad6';
+  ctx.beginPath(); ctx.ellipse(0, 2, 19, 15, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#f4ead8';
+  ctx.beginPath(); ctx.ellipse(9, 2, 8, 12, 0.2, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#7d5a9e';
+  for (let k = 0; k < 3; k++){ ctx.beginPath(); ctx.arc(4, -6 + k * 7, 1.6, 0, Math.PI * 2); ctx.fill(); }
+  const hx = 13, hy = -17;
+  ctx.fillStyle = '#f5d3b3';
+  ctx.beginPath(); ctx.arc(hx, hy, 13.5, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#dcdce4';
+  ctx.beginPath(); ctx.arc(hx - 1, hy - 1, 14, Math.PI * 0.82, Math.PI * 1.85); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.arc(hx - 9, hy - 2, 8, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(hx - 6, hy - 16, 7.5, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = '#a8a8b8'; ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.arc(hx - 6, hy - 16, 4, 0.5, 3.5); ctx.stroke();
+  ctx.fillStyle = '#c0392b'; ctx.fillRect(hx - 13, hy - 19, 8, 2.5);
+  ctx.fillStyle = '#eab894';
+  ctx.beginPath(); ctx.arc(hx + 13, hy + 1, 3, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = '#4a3428'; ctx.lineWidth = 1.8;
+  if (dead){
+    for (const ex of [hx + 4, hx + 11]){ ctx.beginPath(); ctx.moveTo(ex - 2.5, hy - 5); ctx.lineTo(ex + 2.5, hy); ctx.moveTo(ex + 2.5, hy - 5); ctx.lineTo(ex - 2.5, hy); ctx.stroke(); }
+  } else if (boosting){
+    for (const ex of [hx + 4, hx + 11]){ ctx.beginPath(); ctx.moveTo(ex - 2.5, hy - 5); ctx.lineTo(ex + 2, hy - 2.5); ctx.lineTo(ex - 2.5, hy); ctx.stroke(); }
+  } else {
+    for (const ex of [hx + 4, hx + 11]){ ctx.beginPath(); ctx.arc(ex, hy - 2, 2.6, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke(); }
+  }
+  ctx.strokeStyle = '#7a5530'; ctx.lineWidth = 1.6;
+  ctx.beginPath(); ctx.arc(hx + 4, hy - 2.5, 4.6, 0, Math.PI * 2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(hx + 11.5, hy - 2.5, 4.6, 0, Math.PI * 2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(hx - 0.6, hy - 3); ctx.lineTo(hx - 9, hy - 5); ctx.stroke();
+  ctx.fillStyle = combo >= 3 && boosting ? 'rgba(240,90,90,0.7)' : 'rgba(240,120,120,0.45)';
+  ctx.beginPath(); ctx.arc(hx + 5, hy + 5, 3.5, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#6b2b2b'; ctx.strokeStyle = '#6b2b2b'; ctx.lineWidth = 1.6;
+  if (g.eatT > 0){ const m = 2 + Math.abs(Math.sin(g.eatT * 30)) * 3; ctx.beginPath(); ctx.ellipse(hx + 10, hy + 7, 3, m, 0, 0, Math.PI * 2); ctx.fill(); }
+  else if (boosting || dead){ ctx.beginPath(); ctx.ellipse(hx + 10, hy + 7, 3.5, 3, 0, 0, Math.PI * 2); ctx.fill(); }
+  else { ctx.beginPath(); ctx.arc(hx + 9, hy + 5, 3, 0.3, Math.PI - 0.3); ctx.stroke(); }
+  const flapA = g.flapT > 0 ? -1.3 * Math.sin(g.flapT * Math.PI) : 0;
+  const armA = 0.55 + flapA + (dead ? Math.sin(time * 14) * 0.5 : 0);
+  ctx.save(); ctx.translate(-2, -4); ctx.rotate(armA);
+  ctx.fillStyle = '#9f72c4';
+  ctx.beginPath(); ctx.ellipse(-12, 4, 15, 7, 0.2, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#f5d3b3';
+  ctx.beginPath(); ctx.arc(-26, 7, 4.5, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+
+  ctx.restore();
+}
+
+// ---------- エフェクト ----------
+function drawParts(){
+  for (const p of parts){
+    const k = p.life / p.max;
+    if (p.t === 'gas'){
+      ctx.globalAlpha = (1 - k) * 0.7; ctx.fillStyle = p.color;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
+    } else if (p.t === 'splinter'){
+      ctx.globalAlpha = 1 - k * k; ctx.fillStyle = p.color;
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); ctx.restore();
+    } else {
+      ctx.globalAlpha = 1 - k; ctx.fillStyle = p.color;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  ctx.globalAlpha = 1;
+}
+function drawSpeedLines(){
+  if (boostMul < 1.15) return;
+  const a = clamp((boostMul - 1) / 1.5, 0, 1) * 0.55;
+  const n = 12 + Math.min(combo, 4) * 3;
+  ctx.strokeStyle = `rgba(255,255,255,${a})`; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
+  for (let k = 0; k < n; k++){
+    const len = 60 + hash(k + 3) * 110;
+    const span = VW + 300, travel = time * 1100 + hash(k) * span;
+    const x = VW - (travel % span) + 100;
+    const y = 20 + hash(k * 13 + Math.floor(travel / span)) * (VH - GROUND - 40);
+    ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + len, y); ctx.stroke();
+  }
+}
+function drawTint(){
+  if (tint <= 0) return;
+  const c = combo >= 4 ? `hsla(${(time * 120) % 360},90%,65%,${0.1 * tint})` : `rgba(255,200,80,${0.1 * tint})`;
+  ctx.fillStyle = c; ctx.fillRect(0, 0, VW, VH);
+}
+function outlinedText(text, x, y, size, fill, align){
+  ctx.font = `${size}px ${FONT}`; ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+  ctx.lineJoin = 'round'; ctx.lineWidth = Math.max(4, size * 0.22); ctx.strokeStyle = '#3a2a4a';
+  ctx.strokeText(text, x, y); ctx.fillStyle = fill; ctx.fillText(text, x, y);
+}
+function drawPops(){
+  for (const q of pops){
+    const k = q.life / q.max;
+    ctx.globalAlpha = k > 0.7 ? (1 - k) / 0.3 : 1;
+    const sc = k < 0.15 ? 0.6 + k / 0.15 * 0.5 : 1.1 - Math.min(0.1, (k - 0.15));
+    let size = q.size * sc;
+    ctx.font = `${size}px ${FONT}`;
+    const tw = ctx.measureText(q.text).width;
+    if (tw > VW - 24) size *= (VW - 24) / tw;           // 狭い画面では文字を縮める
+    const half = Math.min(tw, VW - 24) / 2;
+    const x = clamp(q.x, half + 12, VW - half - 12);
+    const y = Math.max(q.y, 152 + size * 0.5);                        // スコアとブーストゲージに重ねない
+    outlinedText(q.text, x, y, size, q.color);
+  }
+  ctx.globalAlpha = 1;
+}
+function drawHUD(){
+  if (state === 'title') return;
+  if (state === 'ready' || (state === 'pause' && prevState === 'ready')){
+    const a = 0.6 + Math.sin(time * 5) * 0.4;
+    ctx.globalAlpha = a;
+    outlinedText('タップで ふわっ', VW / 2, VH * 0.62, 26, '#fff');
+    ctx.globalAlpha = 1;
+    outlinedText('焼き芋で 屁ブースト', VW / 2, VH * 0.62 + 36, 16, '#ffe27a');
+    return;
+  }
+  outlinedText(String(score), VW / 2, 74, 50, '#fff');
+  ctx.save(); ctx.translate(26, VH - GROUND + 40); ctx.scale(0.6, 0.6); ctx.rotate(-0.35); imoShape(); ctx.restore();
+  outlinedText('×' + imoCount, 46, VH - GROUND + 41, 20, '#fff', 'left');
+  outlinedText(Math.floor(dist / 40) + 'm', VW - 16, VH - GROUND + 41, 20, '#fff', 'right');
+  if (boost > 0 && (state === 'play' || state === 'pause')){
+    const L = Math.max(1, Math.min(combo, 4));
+    const bw = Math.min(200, VW * 0.5), bx = VW / 2 - bw / 2, by = 112;
+    ctx.fillStyle = 'rgba(58,42,74,0.7)'; roundRect(bx - 3, by - 3, bw + 6, 16, 8); ctx.fill();
+    ctx.fillStyle = L >= 4 ? `hsl(${(time * 200) % 360},85%,65%)` : COMBO_COLOR[L];
+    roundRect(bx, by, Math.max(4, bw * (boost / BOOST_MAX)), 10, 5); ctx.fill();
+    outlinedText(combo >= 2 ? `屁ブースト ×${combo}` : '屁ブースト', VW / 2, by + 27, 14 + Math.min(combo, 4), COMBO_COLOR[L]);
+  }
+}
+function roundRect(x, y, w, h, r){
+  r = Math.min(r, w / 2, h / 2);
+  ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+
+// ---------- 描画 ----------
+function drawSides(){
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.fillStyle = '#2b2547'; ctx.fillRect(0, 0, W, H);
+  // 両脇の竹林シルエット
+  ctx.fillStyle = 'rgba(80,110,90,0.25)';
+  for (let k = 0; k < 14; k++){
+    const side = k % 2 === 0 ? 0 : 1;
+    const x = side === 0 ? hash(k) * (OX - 20) : OX + VW * S + 10 + hash(k) * (OX - 20);
+    ctx.fillRect(x, 0, 10 + hash(k + 5) * 12, H);
+  }
+}
+function render(){
+  const sx = shake > 0 ? rand(-shake, shake) : 0, sy = shake > 0 ? rand(-shake, shake) : 0;
+  if (OX > 0.5) drawSides();
+  ctx.save();
+  ctx.setTransform(DPR * S, 0, 0, DPR * S, (OX + sx * S) * DPR, sy * S * DPR);
+  ctx.beginPath(); ctx.rect(-sx, -sy, VW, VH); ctx.clip();
+  drawSky();
+  ridge(bgX * 0.12, VH * 0.66, 70, 0.006, '#9a8fb8', 1.3);
+  ridge(bgX * 0.22, VH * 0.75, 50, 0.009, '#7f9a86', 4.1);
+  drawVillage();
+  for (const p of pipes) drawPipe(p);
+  for (const i of imos) drawImo(i);
+  drawGround();
+  drawTint();
+  drawSpeedLines();
+  drawParts();
+  drawPops();
+  drawBaachan();   // 書き文字に隠れないよう、ばーちゃんは最前面
+  drawHUD();
+  ctx.restore();
+}
+
+let lastT = performance.now();
+function loop(t){
+  requestAnimationFrame(loop);   // 先に次のフレームを予約しておき、万一描画で例外が出てもループを止めない
+  const dt = Math.min(0.033, (t - lastT) / 1000); lastT = t;
+  update(dt); render();
+}
+const go = () => requestAnimationFrame(t => { lastT = t; loop(t); });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(go, go); else go();
+syncHud();
+})();
+</script>
+</body>
+</html>
