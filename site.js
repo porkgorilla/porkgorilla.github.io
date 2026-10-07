@@ -33,7 +33,7 @@ window.SITE_WORKS = [
   { id: 'sabanomaru', href: '/works/sabanomaru.html', icon: '🐟', title: 'SABANOMARU', isNew: true,
     desc: '開くとルーレットが回って、さばの○そ煮の「○」が決まるジョークアプリ。',
     og: '/assets/og-sabanomaru.jpg',
-    tags: ['APP'] },
+    tags: ['GAME', 'APP'] },
   { id: '2048', href: '/works/2048.html', icon: '🔢', title: '2048', isNew: true,
     desc: '同じ数字を合体させて2048を目指す定番パズル。矢印キー・スワイプ対応。',
     tags: ['GAME', 'CLASSIC'] },
