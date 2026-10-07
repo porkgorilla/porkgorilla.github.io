@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>さばの○そ煮 | porkgorilla://</title>
+<meta name="description" content="開くとルーレットが回って、さばの○そ煮の「○」が決まるジョークアプリ">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-MBT4300J0L');
+</script>
+<meta property="og:type" content="website">
+<meta property="og:title" content="さばの○そ煮">
+<meta property="og:description" content="開くとルーレットが回って、さばの○そ煮の「○」が決まるジョークアプリ">
+<meta property="og:url" content="https://porkgorilla.com/works/sabanomaru.html">
+<meta property="og:image" content="https://porkgorilla.com/assets/og-sabanomaru.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="さばの○そ煮">
+<meta name="twitter:description" content="開くとルーレットが回って、さばの○そ煮の「○」が決まるジョークアプリ">
+<meta name="twitter:image" content="https://porkgorilla.com/assets/og-sabanomaru.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Yuji+Syuku&display=swap" rel="stylesheet">
+<style>
+:root{
+  --noren:#1d3149; --noren2:#24405f; --wood:#e6cf9f; --wood2:#d4b57c; --grain:rgba(120,80,30,.13);
+  --ink:#1c1712; --sub:#8a96a6; --shu:#c0392b; --wire:#f3ead8;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--noren:#0f1a28;--noren2:#152335;--wood:#d9bf8c;--wood2:#c4a46a;--sub:#7d8899}
+}
+:root[data-theme="dark"]{--noren:#0f1a28;--noren2:#152335;--wood:#d9bf8c;--wood2:#c4a46a;--sub:#7d8899}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0;min-height:100%;display:flex;flex-direction:column;
+  background:
+    repeating-linear-gradient(90deg,transparent 0 46px,rgba(255,255,255,.025) 46px 48px),
+    linear-gradient(var(--noren2),var(--noren));
+  color:var(--wire);
+  font-family:"Yuji Syuku","Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;
+  -webkit-tap-highlight-color:transparent;
+}
+header{display:flex;justify-content:space-between;align-items:center;padding:6px 12px}
+.home{color:var(--sub);text-decoration:none;font-size:12px;letter-spacing:.04em;white-space:nowrap;font-family:system-ui,sans-serif}
+.home:hover{color:var(--wire)}
+.snd{min-width:44px;min-height:44px;padding:0 10px;background:transparent;border:1px solid rgba(243,234,216,.25);border-radius:6px;color:var(--sub);font:12px system-ui,sans-serif;cursor:pointer}
+.snd:hover{color:var(--wire)}
+
+main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;padding:8px 16px 20px}
+
+/* 木札 */
+.fuda{
+  position:relative;width:min(94vw,600px);padding:34px 18px 26px;container-type:inline-size;
+  background:
+    repeating-linear-gradient(178deg,transparent 0 9px,var(--grain) 9px 10px,transparent 10px 23px),
+    linear-gradient(180deg,var(--wood),var(--wood2));
+  color:var(--ink);border-radius:4px;
+  box-shadow:0 2px 0 rgba(0,0,0,.25),0 18px 40px rgba(0,0,0,.35),inset 0 0 0 1px rgba(90,60,20,.25);
+}
+.fuda::before{ /* 吊るし紐の穴 */
+  content:"";position:absolute;top:12px;left:50%;width:10px;height:10px;margin-left:-5px;
+  border-radius:50%;background:var(--noren);box-shadow:inset 0 1px 2px rgba(0,0,0,.6);
+}
+.dish{display:flex;justify-content:center;align-items:center;font-size:min(14.5cqi,96px);line-height:1;white-space:nowrap}
+.dish>*{flex:none}
+.reel{position:relative;flex:none;width:1.32em;height:1.32em;overflow:hidden;margin:0 .04em;border-radius:50%}
+.reel::after{content:"";position:absolute;inset:0;border:.06em solid var(--shu);border-radius:50%;pointer-events:none}
+.reel::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;border-radius:50%;
+  background:linear-gradient(180deg,rgba(212,181,124,.85),transparent 30%,transparent 70%,rgba(212,181,124,.85))}
+.strip{will-change:transform}
+.strip span{display:flex;align-items:center;justify-content:center;height:1.32em}
+
+.stamp{
+  position:absolute;right:14px;top:14px;width:62px;height:62px;border:3px solid var(--shu);border-radius:50%;
+  color:var(--shu);display:flex;align-items:center;justify-content:center;font-size:20px;
+  transform:rotate(-14deg) scale(1.6);opacity:0;transition:transform .25s cubic-bezier(.3,1.6,.5,1),opacity .2s;
+}
+.stamp.on{opacity:.9;transform:rotate(-14deg) scale(1)}
+
+/* 3段の表示 */
+.lines{margin:24px auto 0;max-width:30em;border-top:1px solid rgba(60,40,15,.3)}
+.line{display:grid;grid-template-columns:4.2em 1fr;align-items:baseline;gap:8px;padding:10px 4px;border-bottom:1px solid rgba(60,40,15,.3);
+  opacity:0;transform:translateY(4px);transition:opacity .3s,transform .3s}
+.line.show{opacity:1;transform:none}
+.line small{font-size:12px;color:#6d5a3d}
+.line span{font-size:clamp(18px,5vw,24px);overflow-wrap:anywhere}
+.line b{font-weight:normal;color:var(--shu)}
+
+.actions{display:flex;flex-wrap:wrap;justify-content:center;gap:12px}
+.go{
+  min-height:48px;padding:0 26px;border-radius:999px;font:inherit;font-size:19px;cursor:pointer;
+  background:var(--shu);color:#fff;border:2px solid var(--shu);text-decoration:none;display:inline-flex;align-items:center;
+}
+.go:disabled{opacity:.45;cursor:default}
+.go.ghost{background:transparent;color:var(--wire);border-color:rgba(243,234,216,.4)}
+.go.ghost:hover{background:rgba(243,234,216,.08)}
+.go.ghost[aria-disabled="true"]{opacity:.45;pointer-events:none}
+.go:focus-visible,.snd:focus-visible,.home:focus-visible{outline:2px solid var(--wire);outline-offset:3px}
+
+.dex{width:min(92vw,560px);text-align:center}
+.dex p{margin:0 0 8px;font-size:13px;color:var(--sub)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(24px,1fr));gap:3px}
+.grid i{font-style:normal;font-size:14px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:3px;color:rgba(243,234,216,.18)}
+.grid i.got{color:var(--ink);background:var(--wood)}
+.grid i.mi.got{background:var(--shu);color:#fff}
+.credit{font-size:11px;color:var(--sub);letter-spacing:.05em;text-align:center;padding:0 0 14px;font-family:system-ui,sans-serif}
+
+@media (prefers-reduced-motion:reduce){.line,.stamp{transition:none}}
+</style>
+</head>
+<body>
+<header>
+  <a class="home" href="/">&lt; porkgorilla</a>
+  <button class="snd" id="sndBtn" type="button">音 ON</button>
+</header>
+
+<main>
+  <div class="fuda">
+    <div class="dish" aria-live="polite" id="dish">
+      <span>さばの</span>
+      <div class="reel" id="reel"><div class="strip" id="strip"><span>？</span></div></div>
+      <span>そ煮</span>
+    </div>
+    <div class="stamp" id="stamp">正解</div>
+    <div class="lines">
+      <div class="line"><small>正式名称</small><span id="l1"></span></div>
+      <div class="line"><small>よみ</small><span id="l2"></span></div>
+      <div class="line"><small>通称</small><span id="l3"></span></div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="go" id="spinBtn" type="button" disabled>おかわり</button>
+    <a class="go ghost" id="shareBtn" href="#" target="_blank" rel="noopener" aria-disabled="true">Xで共有</a>
+  </div>
+
+  <div class="dex">
+    <p id="dexText">出た文字 0 / 71</p>
+    <div class="grid" id="grid"></div>
+  </div>
+</main>
+<div class="credit">porkgorilla — 2026</div>
+
+<script>
+const GAME_URL = 'https://porkgorilla.com/works/sabanomaru.html';
+const OG_CACHE_VERSION = 1;
+const SHARE_URL = GAME_URL + '?ogv=' + OG_CACHE_VERSION;
+const KANA = [...'あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをんがぎぐげござじずぜぞだぢづでどばびぶべぼぱぴぷぺぽ'];
+const DEX_KEY = 'sabanomaru-dex', SND_KEY = 'sabanomaru-sound';
+const $ = id => document.getElementById(id);
+
+function load(k, d){ try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch(e){ return d; } }
+function save(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
+
+let dex = new Set(load(DEX_KEY, []));
+let soundOn = load(SND_KEY, true);
+let spinning = false, current = '？';
+
+/* ---------- 音 ---------- */
+let AC = null;
+function initAudio(force){
+  if (AC && force){ try { AC.close().catch(()=>{}); } catch(e){} AC = null; }
+  else if (AC){
+    if (AC.state === 'closed') AC = null;
+    else { if (AC.state === 'suspended') AC.resume(); return; }
+  }
+  try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){ AC = null; }
+}
+function tone(freq, start, len, type, vol){
+  if (!soundOn || !AC) return;
+  const t = AC.currentTime + start;
+  const o = AC.createOscillator(), g = AC.createGain();
+  o.type = type; o.frequency.value = freq;
+  g.gain.setValueAtTime(vol, t);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + len);
+  o.connect(g).connect(AC.destination);
+  o.start(t); o.stop(t + len + 0.02);
+}
+const tick = () => tone(1500, 0, 0.03, 'square', 0.05);
+function chime(win){
+  if (win){ [523,659,784,1047].forEach((f,i)=>tone(f, i*0.11, 0.35, 'triangle', 0.16)); }
+  else    { tone(880, 0, 0.5, 'sine', 0.16); tone(660, 0.12, 0.6, 'sine', 0.12); }
+}
+function renderSnd(){ $('sndBtn').textContent = soundOn ? '音 ON' : '音 OFF'; }
+$('sndBtn').addEventListener('click', () => {
+  soundOn = !soundOn; save(SND_KEY, soundOn); renderSnd();
+  if (soundOn) initAudio(true);
+});
+document.addEventListener('visibilitychange', () => { if (!document.hidden && AC) initAudio(); });
+
+/* ---------- 図鑑 ---------- */
+function renderDex(){
+  $('grid').innerHTML = KANA.map(c =>
+    `<i class="${dex.has(c)?'got':''}${c==='み'?' mi':''}">${dex.has(c)?c:'・'}</i>`).join('');
+  $('dexText').textContent = `出た文字 ${dex.size} / ${KANA.length}`;
+}
+
+/* ---------- ルーレット ---------- */
+const pick = () => Math.random() < 1/24 ? 'み' : KANA[Math.floor(Math.random()*KANA.length)];
+const rand = () => KANA[Math.floor(Math.random()*KANA.length)];
+
+function spin(){
+  if (spinning) return;
+  spinning = true;
+  $('spinBtn').disabled = true;
+  $('shareBtn').setAttribute('aria-disabled','true');
+  $('stamp').classList.remove('on');
+  document.querySelectorAll('.line').forEach(el => el.classList.remove('show'));
+
+  const result = pick();
+  const cells = [current];
+  for (let i = 0; i < 38; i++) cells.push(rand());
+  cells.push(result);
+  const strip = $('strip');
+  strip.innerHTML = cells.map(c => `<span>${c}</span>`).join('');
+  strip.style.transform = 'translateY(0)';
+  const cellH = strip.firstChild.getBoundingClientRect().height;
+  const total = (cells.length - 1) * cellH;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const dur = reduce ? 600 : 2600;
+  const t0 = performance.now();
+  let last = 0;
+  function frame(t){
+    const p = Math.min(1, (t - t0) / dur);
+    const y = (1 - Math.pow(1 - p, 3.2)) * total;
+    strip.style.transform = `translateY(${-y}px)`;
+    const idx = Math.round(y / cellH);
+    if (idx !== last){ last = idx; tick(); }
+    if (p < 1) requestAnimationFrame(frame); else done(result);
+  }
+  requestAnimationFrame(frame);
+}
+
+function done(c){
+  current = c;
+  const strip = $('strip');
+  strip.innerHTML = `<span>${c}</span>`;
+  strip.style.transform = 'translateY(0)';
+
+  $('l1').innerHTML = `さばを<b>${c}</b>そで煮込んだもの`;
+  $('l2').innerHTML = `さばの<b>${c}</b>そに`;
+  $('l3').innerHTML = `さば<b>${c}</b>そ`;
+  document.querySelectorAll('.line').forEach((el, i) => setTimeout(() => el.classList.add('show'), 180 + i*260));
+
+  const win = c === 'み';
+  setTimeout(() => { if (win) $('stamp').classList.add('on'); chime(win); }, 180 + 2*260);
+
+  dex.add(c); save(DEX_KEY, [...dex]); renderDex();
+
+  const text = win
+    ? `今日の定食は「さばのみそ煮」でした。普通です。\n#さばのまるそ煮`
+    : `今日の定食は「さばの${c}そ煮」でした。\n通称「さば${c}そ」\n#さばのまるそ煮`;
+  const share = $('shareBtn');
+  share.href = 'https://x.com/intent/post?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(SHARE_URL);
+  share.removeAttribute('aria-disabled');
+
+  setTimeout(() => { spinning = false; $('spinBtn').disabled = false; }, 900);
+}
+
+$('spinBtn').addEventListener('click', () => { initAudio(true); spin(); });
+if (matchMedia('(pointer: coarse)').matches){
+  $('shareBtn').removeAttribute('target'); $('shareBtn').removeAttribute('rel');
+}
+
+renderSnd(); renderDex();
+setTimeout(spin, 500);   // 開いたら自動で回る(最初の1回は音なし)
+</script>
+</body>
+</html>

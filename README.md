@@ -30,6 +30,7 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 | [KAMOGAWA](https://porkgorilla.com/works/kamogawa.html) | GAME | 鴨川等間隔。河原のいちばん空いている場所にカップルを座らせるゲーム |
 | [台北∞観景台](https://porkgorilla.com/works/taipei-infinity.html) | GAME | 台北101の逆さ台形フロアを積み上げて、台北102、103…と数字を増やしていく積み上げゲーム |
 | [フラッピーばーちゃん](https://porkgorilla.com/works/flappy-baachan.html) | GAME | 焼き芋を食べたら屁で加速。竹林をくぐって飛ぶ、ばーちゃんのフラッピーゲーム |
+| [さばの○そ煮](https://porkgorilla.com/works/sabanomaru.html) | APP | 開くとルーレットが回って、さばの○そ煮の「○」が決まるジョークアプリ |
 
 ## 構成
 
@@ -63,7 +64,8 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
     ├── timer.html
     ├── kamogawa.html
     ├── taipei-infinity.html
-    └── flappy-baachan.html
+    ├── flappy-baachan.html
+    └── sabanomaru.html
 ```
 
 `theme.css` / `site.js` / `favicon.svg` はルート直下に置き、各作品ページからは絶対パス(`/theme.css` など)で読み込みます。404.html も GitHub Pages の仕様上ルート直下が必須です。
