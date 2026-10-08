@@ -31,6 +31,7 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 | [台北∞観景台](https://porkgorilla.com/works/taipei-infinity.html) | GAME | 台北101の逆さ台形フロアを積み上げて、台北102、103…と数字を増やしていく積み上げゲーム |
 | [フラッピーばーちゃん](https://porkgorilla.com/works/flappy-baachan.html) | GAME | 焼き芋を食べたら屁で加速。竹林をくぐって飛ぶ、ばーちゃんのフラッピーゲーム |
 | [さばの○そ煮](https://porkgorilla.com/works/sabanomaru.html) | GAME | 開くとルーレットが回って、さばの○そ煮の「○」が決まるジョークアプリ |
+| [かぼちゃ屋敷からの脱出](https://porkgorilla.com/works/kabocha-yashiki.html) | GAME | ハロウィンの夜、魔女の屋敷の謎を解いて抜け出す2D脱出ゲーム |
 
 ## 構成
 
@@ -65,7 +66,8 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
     ├── kamogawa.html
     ├── taipei-infinity.html
     ├── flappy-baachan.html
-    └── sabanomaru.html
+    ├── sabanomaru.html
+    └── kabocha-yashiki.html
 ```
 
 `theme.css` / `site.js` / `favicon.svg` はルート直下に置き、各作品ページからは絶対パス(`/theme.css` など)で読み込みます。404.html も GitHub Pages の仕様上ルート直下が必須です。

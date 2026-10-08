@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>かぼちゃ屋敷からの脱出 | porkgorilla://</title>
+<meta name="description" content="ハロウィンの夜、魔女の屋敷に閉じ込められた。黒猫、ランタン、大鍋の謎を解いて抜け出す2D脱出ゲーム。">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-MBT4300J0L');
+</script>
+<meta property="og:type" content="website">
+<meta property="og:title" content="かぼちゃ屋敷からの脱出">
+<meta property="og:description" content="ハロウィンの夜、魔女の屋敷に閉じ込められた。黒猫、ランタン、大鍋の謎を解いて抜け出す2D脱出ゲーム。">
+<meta property="og:url" content="https://porkgorilla.com/works/kabocha-yashiki.html">
+<meta property="og:image" content="https://porkgorilla.com/assets/og-kabocha-yashiki.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="かぼちゃ屋敷からの脱出">
+<meta name="twitter:description" content="ハロウィンの夜、魔女の屋敷に閉じ込められた。黒猫、ランタン、大鍋の謎を解いて抜け出す2D脱出ゲーム。">
+<meta name="twitter:image" content="https://porkgorilla.com/assets/og-kabocha-yashiki.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Creepster&family=Yusei+Magic&display=swap" rel="stylesheet">
+<style>
+:root{
+  --night:#1c1029; --deep:#120a1b; --pumpkin:#ff8a1f; --gold:#ffd36b;
+  --witch:#8fe36b; --bone:#efe6d2; --plum:#8b4fd8; --sub:#a493b4; --line:rgba(239,230,210,.14);
+  color-scheme:dark;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{height:100%;margin:0}
+body{
+  background:radial-gradient(ellipse 90% 60% at 50% 0%,#2e1846 0%,var(--deep) 70%) var(--deep);
+  color:var(--bone);
+  font-family:'Yusei Magic','Hiragino Maru Gothic ProN','Hiragino Sans','Noto Sans JP','Meiryo',sans-serif;
+  overflow:hidden;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;
+}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+/* ---- top bar ---- */
+#bar{position:relative;z-index:50;display:flex;align-items:center;gap:8px;height:54px;
+  max-width:1100px;margin:0 auto;padding:0 max(10px,env(safe-area-inset-left)) 0 max(10px,env(safe-area-inset-left))}
+.home{color:var(--sub);text-decoration:none;font-size:12px;letter-spacing:.04em;white-space:nowrap;
+  font-family:ui-monospace,Menlo,Consolas,monospace;padding:12px 4px}
+.home:hover{color:var(--bone)}
+#timer{font-size:17px;color:var(--gold);min-width:56px;text-align:center;letter-spacing:.06em}
+.sp{flex:1}
+.ib{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:12px;cursor:pointer;padding:0 10px}
+.ib:hover{background:rgba(255,255,255,.1)}
+.ib svg{width:22px;height:22px}
+.pz{display:block;width:14px;height:16px;border-left:5px solid var(--bone);border-right:5px solid var(--bone)}
+body:not(.playing) .playonly{visibility:hidden}
+
+/* ---- stage ---- */
+#main{display:flex;flex-direction:column;align-items:center;padding:0 10px 10px;max-width:1100px;margin:0 auto}
+#stage{position:relative;width:min(100%, calc((100vh - 230px) * 1.6));width:min(100%, calc((100dvh - 230px) * 1.6));
+  min-width:min(100%,320px);aspect-ratio:16/10;border-radius:16px;overflow:hidden;
+  box-shadow:0 0 0 1px rgba(255,138,31,.18),0 18px 50px rgba(0,0,0,.6)}
+#room{display:block;width:100%;height:100%}
+#room .hot{cursor:pointer}
+#room .hot:hover{filter:brightness(1.18)}
+.holding #room .hot{cursor:copy}
+.nav{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:72px;border:none;cursor:pointer;
+  background:rgba(10,5,16,.45);border-radius:12px;display:flex;align-items:center;justify-content:center}
+.nav:hover{background:rgba(10,5,16,.7)}
+.nav.l{left:8px}.nav.r{right:8px}
+.nav::before{content:"";width:14px;height:14px;border-left:3px solid var(--bone);border-bottom:3px solid var(--bone)}
+.nav.l::before{transform:translateX(3px) rotate(45deg)}
+.nav.r::before{transform:translateX(-3px) rotate(-135deg)}
+#wallName{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);font-size:13px;color:var(--bone);
+  background:rgba(10,5,16,.55);padding:4px 12px;border-radius:999px;pointer-events:none;white-space:nowrap}
+#msg{width:100%;max-width:min(100%, 880px);min-height:3.6em;margin-top:10px;padding:10px 14px;line-height:1.6;
+  font-size:15px;background:rgba(28,16,41,.85);border:1px solid var(--line);border-radius:12px}
+#msg .who{color:var(--gold)}
+#inv{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;justify-content:center}
+.slot{width:58px;height:58px;border-radius:12px;background:rgba(255,255,255,.04);border:1px dashed var(--line);
+  padding:5px;cursor:pointer;transition:transform .12s}
+.slot:not(:disabled){border-style:solid;background:rgba(139,79,216,.16)}
+.slot:disabled{cursor:default}
+.slot svg{width:100%;height:100%;display:block}
+.slot.sel{border:2px solid var(--gold);background:rgba(255,211,107,.18);transform:translateY(-3px)}
+.slot.new{animation:pop .5s}
+@keyframes pop{0%{transform:scale(.6)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+
+/* ---- overlays ---- */
+.ov{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;
+  padding:66px 14px max(16px,env(safe-area-inset-bottom));background:rgba(8,4,14,.8)}
+.ov[hidden]{display:none}
+#zoomOv{z-index:35;background:rgba(8,4,14,.86)}
+.card{background:linear-gradient(180deg,#26163a,#160c22);border:1px solid rgba(255,138,31,.22);border-radius:20px;
+  padding:22px 22px 18px;width:100%;max-width:540px;max-height:100%;overflow:auto;text-align:center;
+  box-shadow:0 24px 70px rgba(0,0,0,.65)}
+.zcard{max-width:760px;padding:14px}
+.zcard svg{display:block;width:100%;height:auto;border-radius:12px;background:#120a1b}
+#ztitle{font-size:16px;color:var(--gold);margin:2px 0 10px}
+#zmsg{min-height:3.2em;line-height:1.6;font-size:15px;margin:10px 4px 0;text-align:left}
+.go{font-size:18px;padding:11px 26px;min-height:48px;border-radius:999px;border:none;cursor:pointer;
+  background:var(--pumpkin);color:#2a1204;box-shadow:0 4px 0 #a34d05}
+.go:hover{filter:brightness(1.08)}
+.go:active{transform:translateY(2px);box-shadow:0 2px 0 #a34d05}
+.go.ghost{background:transparent;color:var(--pumpkin);box-shadow:none;border:2px solid rgba(255,138,31,.55)}
+.go.ghost:hover{background:rgba(255,138,31,.12)}
+.go.danger{background:#c0392b;color:#fff;box-shadow:0 4px 0 #6e1d14}
+.go.small{font-size:15px;padding:8px 20px;min-height:44px}
+.actions{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:12px;margin-top:16px}
+.credit{font-size:11px;color:#7d6b8c;margin-top:18px;letter-spacing:.05em}
+
+.wm{font-family:'Creepster',cursive;color:var(--witch);font-size:20px;letter-spacing:.12em;margin:0;
+  text-shadow:0 0 12px rgba(143,227,107,.4)}
+h1{font-size:clamp(28px,7vw,40px);margin:4px 0 6px;color:var(--pumpkin);font-weight:400;line-height:1.25;
+  text-shadow:0 0 18px rgba(255,138,31,.45),0 3px 0 #5a2405}
+.lead{font-size:15px;line-height:1.8;margin:8px auto 4px;max-width:30em}
+.how{text-align:left;font-size:14px;line-height:1.75;color:#d9cfe3;background:rgba(0,0,0,.22);border-radius:12px;
+  padding:10px 14px 10px 30px;margin:12px 0 0}
+.how li{margin:2px 0}
+.best{font-size:14px;color:var(--gold);margin-top:10px;min-height:1.4em}
+.hero{width:180px;height:auto;display:block;margin:0 auto}
+.stats{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:14px 0 4px}
+.stat{background:rgba(0,0,0,.25);border-radius:12px;padding:8px 14px;min-width:96px}
+.stat b{display:block;font-size:24px;color:var(--gold);font-weight:400}
+.stat span{font-size:12px;color:var(--sub)}
+.rank{font-size:20px;color:var(--witch);margin-top:8px}
+.share{display:inline-flex;align-items:center;gap:8px;text-decoration:none;margin-top:14px;font-size:15px;
+  color:var(--bone);border:1px solid var(--line);border-radius:999px;padding:10px 18px;min-height:44px}
+.share:hover{background:rgba(255,255,255,.08)}
+.share svg{width:16px;height:16px}
+#pauseOv .card{max-width:360px}
+
+/* ---- svg animation ---- */
+.flick{animation:flick .16s infinite alternate}
+@keyframes flick{from{opacity:.78}to{opacity:1}}
+.flame{transform-box:fill-box;transform-origin:50% 100%;animation:flame .45s ease-in-out infinite alternate}
+@keyframes flame{from{transform:scaleY(.82) skewX(-3deg)}to{transform:scaleY(1.08) skewX(3deg)}}
+.bub{transform-box:fill-box;animation:bub 1.4s ease-in infinite}
+@keyframes bub{0%{transform:translateY(0);opacity:1}100%{transform:translateY(-22px);opacity:0}}
+.zz{animation:zz 2.6s ease-in-out infinite}
+@keyframes zz{0%{opacity:0;transform:translate(0,0)}40%{opacity:1}100%{opacity:0;transform:translate(10px,-18px)}}
+.bob{animation:bob 3.2s ease-in-out infinite alternate}
+@keyframes bob{from{transform:translateY(-8px)}to{transform:translateY(10px)}}
+.float{animation:flt 2.2s ease-in-out infinite alternate}
+@keyframes flt{from{transform:translateY(-5px)}to{transform:translateY(5px)}}
+.fly{animation:fly 9s linear infinite}
+@keyframes fly{0%{transform:translate(-70px,20px)}50%{transform:translate(40px,-12px)}100%{transform:translate(160px,14px)}}
+@media (prefers-reduced-motion:reduce){
+  .flick,.flame,.bub,.zz,.bob,.float,.fly,.slot.new{animation:none}
+}
+@media (max-width:560px){
+  #msg{font-size:14px}
+  .slot{width:52px;height:52px}
+  .nav{width:44px;height:60px}
+  #wallName{font-size:12px;bottom:6px}
+}
+</style>
+</head>
+<body>
+
+<div id="bar">
+  <a class="home" href="/">&lt; porkgorilla</a>
+  <div id="timer" class="playonly">00:00</div>
+  <div class="sp"></div>
+  <button id="hintBtn" class="ib playonly" type="button">ヒント</button>
+  <button id="sndBtn" class="ib" type="button" aria-label="音のオン・オフ"></button>
+  <button id="pauseBtn" class="ib playonly" type="button" aria-label="一時停止"><span class="pz"></span></button>
+</div>
+
+<main id="main">
+  <div id="stage">
+    <svg id="room" viewBox="0 0 800 500" role="img" aria-label="部屋の様子"></svg>
+    <button class="nav l" id="navL" type="button" aria-label="左を向く"></button>
+    <button class="nav r" id="navR" type="button" aria-label="右を向く"></button>
+    <div id="wallName"></div>
+  </div>
+  <div id="msg"></div>
+  <div id="inv"></div>
+</main>
+
+<!-- zoom view -->
+<div class="ov" id="zoomOv" hidden>
+  <div class="card zcard">
+    <div id="ztitle"></div>
+    <svg id="zsvg" viewBox="0 0 600 400"></svg>
+    <div id="zmsg"></div>
+    <div class="actions">
+      <button class="go" id="zOpen" type="button">ひらく</button>
+      <button class="go ghost" id="zBack" type="button">もどる</button>
+    </div>
+  </div>
+</div>
+
+<!-- title -->
+<div class="ov" id="titleOv">
+  <div class="card">
+    <svg class="hero" id="heroSvg" viewBox="0 0 200 150" aria-hidden="true"></svg>
+    <p class="wm">Halloween Escape</p>
+    <h1>かぼちゃ屋敷からの脱出</h1>
+    <p class="lead">ハロウィンの夜。気がつくと、魔女の屋敷の一室に閉じ込められていた。真夜中の鐘が鳴る前に抜け出そう。</p>
+    <ul class="how">
+      <li>左右の矢印で、部屋の4つの壁を見回す</li>
+      <li>気になるところをタップして調べる</li>
+      <li>持ち物はタップで手に持ち、使いたい場所をタップ</li>
+      <li>困ったら右上の「ヒント」</li>
+    </ul>
+    <div class="best" id="bestLine"></div>
+    <div class="actions"><button class="go" id="startBtn" type="button">屋敷に入る</button></div>
+    <div class="credit">porkgorilla — 2026</div>
+  </div>
+</div>
+
+<!-- pause -->
+<div class="ov" id="pauseOv" hidden>
+  <div class="card">
+    <h1 style="font-size:28px">一時停止</h1>
+    <p class="lead" style="font-size:14px;color:var(--sub)">時計は止まっています</p>
+    <div class="actions" style="flex-direction:column">
+      <button class="go" id="resumeBtn" type="button">つづける</button>
+      <button class="go ghost" id="quitBtn" type="button">タイトルへ</button>
+    </div>
+  </div>
+</div>
+
+<!-- clear -->
+<div class="ov" id="clearOv" hidden>
+  <div class="card">
+    <svg class="hero" id="clearSvg" viewBox="0 0 200 150" aria-hidden="true"></svg>
+    <h1>脱出成功！</h1>
+    <p class="lead" style="margin-top:0">おばけは手を振って、夜の向こうへ消えていった。ハッピー・ハロウィン！</p>
+    <div class="stats">
+      <div class="stat"><b id="rTime">--:--</b><span>脱出タイム</span></div>
+      <div class="stat"><b id="rHint">0</b><span>ヒント</span></div>
+      <div class="stat"><b id="rBest">--:--</b><span>自己ベスト</span></div>
+    </div>
+    <div class="rank" id="rRank"></div>
+    <a class="share" id="shareBtn" href="#" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M18.2 2.3h3.4l-7.4 8.4 8.7 11.5h-6.8l-5.3-7-6.1 7H1.3l7.9-9L.9 2.3h7l4.8 6.4 5.5-6.4Zm-1.2 17.9h1.9L7.1 4.2H5.1l11.9 16Z"/></svg>
+      結果をポストする
+    </a>
+    <div class="actions">
+      <button class="go" id="againBtn" type="button">もう一度</button>
+      <button class="go ghost" id="titleBtn" type="button">タイトルへ</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+
+/* ============ constants ============ */
+const GAME_URL = 'https://porkgorilla.com/works/kabocha-yashiki.html';
+const OG_CACHE_VERSION = 1;
+const SHARE_URL = GAME_URL + '?ogv=' + OG_CACHE_VERSION;
+const KEY_BEST = 'kabocha-yashiki-best';
+const KEY_SND  = 'kabocha-yashiki-sound';
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
+};
+
+const WALLS = ['扉の壁','暖炉の壁','窓の壁','机の壁'];
+const ITEMS = {
+  broom:  { name:'ほうき',         desc:'魔女の古いほうき。穂先がふさふさしている。' },
+  candy:  { name:'目玉キャンディ', desc:'目玉の形のキャンディ。ちょっと見られている気がする。' },
+  match:  { name:'マッチ箱',       desc:'しけっていないマッチ。何度でも火をつけられそうだ。' },
+  recipe: { name:'魔女のレシピ',   desc:'古い羊皮紙のメモ。' },
+  key:    { name:'カボチャの鍵',   desc:'カボチャの形をした、ほんのり温かい鍵。' }
+};
+const JAR = { jarWing:'コウモリの羽', jarSilk:'クモの糸', jarEye:'カエルの目玉' };
+const RECIPE = ['jarWing','jarSilk','jarEye'];
+const DIAL_COL = ['#ff8a1f','#8b4fd8','#6fcf4f','#e9e2cf'];
+const DIAL_ANS = [1,2,0];          // purple, green, orange
+const CODE_ANS = [2,9,6,4];
+
+/* ============ state ============ */
+let S;
+function freshState(){
+  return { mode:'title', wall:0, inv:[], sel:null, f:{}, brew:[], elapsed:0,
+           hints:0, zoom:null, dial:[3,3,3], code:[0,0,0,0] };
+}
+S = freshState();
+
+/* ============ svg helpers ============ */
+const DEFS = `<defs>
+<linearGradient id="gWall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2d1943"/><stop offset="1" stop-color="#1b0f29"/></linearGradient>
+<linearGradient id="gFloor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a2418"/><stop offset="1" stop-color="#1a0f0a"/></linearGradient>
+<linearGradient id="gNight" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b1330"/><stop offset="1" stop-color="#2a1a4e"/></linearGradient>
+<radialGradient id="gVig" cx=".5" cy=".45" r=".75"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".7"/></radialGradient>
+<radialGradient id="gGlow"><stop offset="0" stop-color="#ffb347" stop-opacity=".55"/><stop offset="1" stop-color="#ff8a1f" stop-opacity="0"/></radialGradient>
+<radialGradient id="gPump" cx=".38" cy=".32" r=".8"><stop offset="0" stop-color="#ffab45"/><stop offset="1" stop-color="#c25208"/></radialGradient>
+<radialGradient id="gMoon" cx=".4" cy=".4"><stop offset="0" stop-color="#fffbe6"/><stop offset="1" stop-color="#efd57a"/></radialGradient>
+<radialGradient id="gOrb" cx=".35" cy=".35"><stop offset="0" stop-color="#e2c8ff"/><stop offset=".5" stop-color="#8b4fd8"/><stop offset="1" stop-color="#2f1250"/></radialGradient>
+<linearGradient id="gGold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e2c070"/><stop offset=".5" stop-color="#8a6a2a"/><stop offset="1" stop-color="#c9a14a"/></linearGradient>
+<clipPath id="cWin"><rect x="106" y="80" width="180" height="196"/></clipPath>
+<clipPath id="cDoor"><path d="M334 380V180Q400 108 466 180V380Z"/></clipPath>
+<filter id="fGlow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>`;
+
+let WP = '';
+for (let x = 25; x < 800; x += 50) {
+  WP += `<path d="M${x} 0V376" stroke-dasharray="2 9"/>`;
+  for (let y = 50; y < 370; y += 110) WP += `<path d="M${x} ${y}l7 11-7 11-7-11z"/>`;
+}
+const BASE = `<rect width="800" height="500" fill="url(#gWall)"/>
+<g opacity=".16" stroke="#c9a6ff" stroke-width="1.2" fill="none">${WP}</g>
+<rect y="380" width="800" height="120" fill="url(#gFloor)"/>
+<rect y="374" width="800" height="9" fill="#2a1a12"/>
+<g stroke="#000" stroke-opacity=".35" stroke-width="2"><path d="M0 418H800M0 458H800"/><path d="M120 383V418M380 383V418M640 383V418M240 418V458M520 418V458M60 458V500M330 458V500M700 458V500"/></g>`;
+const VIG = `<rect width="800" height="500" fill="url(#gVig)" pointer-events="none"/>`;
+
+function web(tx, sx){
+  return `<g transform="translate(${tx} 0) scale(${sx} 1)" stroke="#d8cfe6" stroke-opacity=".32" fill="none" stroke-width="1" pointer-events="none">
+  <path d="M0 0L90 0M0 0L82 30M0 0L62 62M0 0L30 82M0 0L0 90"/>
+  <path d="M28 0Q24 12 20 20Q12 25 0 28M52 0Q46 26 37 37Q26 46 0 52M76 0Q68 38 54 54Q38 68 0 76"/></g>`;
+}
+function buntingY(x){
+  if (x <= 400){ const t = x/400; return (1-t)*(1-t)*26 + 2*(1-t)*t*66 + t*t*30; }
+  const t = (x-400)/400; return (1-t)*(1-t)*30 + 2*(1-t)*t*66 + t*t*26;
+}
+function bunting(){
+  let s = '<g pointer-events="none"><path d="M0 26Q200 106 400 30Q600 106 800 26" stroke="#120a06" stroke-width="2" fill="none"/>';
+  const cols = ['#ff8a1f','#8b4fd8','#5fbf3f'];
+  for (let i = 0; i < 16; i++){
+    const x = 25 + i*50, y = buntingY(x) + 18;
+    s += `<path d="M${x-14} ${y-2}L${x+14} ${y-2}L${x} ${y+24}Z" fill="${cols[i%3]}" opacity=".8"/>`;
+  }
+  return s + '</g>';
+}
+function pumpkin(cx, cy, r, lit, face = true){
+  const P = (x,y) => `${(cx+x*r).toFixed(1)},${(cy+y*r).toFixed(1)}`;
+  const st = 'stroke="#8a3606" stroke-width="' + Math.max(1, r*.06).toFixed(1) + '"';
+  let s = `<g>`;
+  s += `<path d="M${P(-.08,-.78)}Q${P(-.05,-1.1)} ${P(.12,-1.15)}L${P(.14,-.98)}Q${P(.08,-.95)} ${P(.1,-.78)}Z" fill="#4a6b2a"/>`;
+  s += `<ellipse cx="${cx-r*.42}" cy="${cy}" rx="${r*.62}" ry="${r*.86}" fill="url(#gPump)" ${st}/>`;
+  s += `<ellipse cx="${cx+r*.42}" cy="${cy}" rx="${r*.62}" ry="${r*.86}" fill="url(#gPump)" ${st}/>`;
+  s += `<ellipse cx="${cx}" cy="${cy}" rx="${r*.55}" ry="${r*.9}" fill="url(#gPump)" ${st}/>`;
+  if (face){
+    const c = lit ? '#ffe27a' : '#2a1203';
+    const fl = lit ? ' class="flick" filter="url(#fGlow)"' : '';
+    s += `<g fill="${c}"${fl}>
+      <path d="M${P(-.5,-.08)}L${P(-.14,-.08)}L${P(-.32,-.42)}Z"/>
+      <path d="M${P(.5,-.08)}L${P(.14,-.08)}L${P(.32,-.42)}Z"/>
+      <path d="M${P(-.08,.1)}L${P(.08,.1)}L${P(0,-.04)}Z"/>
+      <path d="M${P(-.6,.2)}Q${P(0,.82)} ${P(.6,.2)}L${P(.42,.3)}L${P(.28,.2)}L${P(.12,.34)}L${P(-.04,.22)}L${P(-.2,.34)}L${P(-.36,.22)}L${P(-.48,.32)}Z"/></g>`;
+  }
+  return s + '</g>';
+}
+function bat(x, y, s, fill = '#07060c'){
+  return `<g transform="translate(${x} ${y}) scale(${s})" fill="${fill}">
+  <path d="M0 -4C-6 -11 -14 -13 -20 -6C-24 -13 -30 -13 -35 -4C-28 -2 -24 5 -18 4C-12 2 -6 6 0 10C6 6 12 2 18 4C24 5 28 -2 35 -4C30 -13 24 -13 20 -6C14 -13 6 -11 0 -4Z"/>
+  <path d="M-5 -5L-4 -12L-1 -7L1 -7L4 -12L5 -5Z"/></g>`;
+}
+function witch(x, y, s){
+  return `<g transform="translate(${x} ${y}) scale(${s})" fill="#07060c">
+  <path d="M-62 12L56 -6" stroke="#07060c" stroke-width="4" stroke-linecap="round"/>
+  <path d="M-58 11L-84 0L-90 12L-86 26Z"/>
+  <path d="M-10 6Q-6 -20 4 -28L16 -28Q24 -10 20 4Z"/>
+  <path d="M-6 -22Q-36 -16 -44 8Q-26 -2 -8 2Z"/>
+  <circle cx="12" cy="-34" r="7.5"/>
+  <path d="M-2 -37L30 -41L28 -36L0 -33Z"/>
+  <path d="M4 -38L24 -40L10 -64L2 -58Z"/>
+  <path d="M6 4L14 16L19 14L13 3Z"/>
+  <path d="M19 -36L26 -33" stroke="#07060c" stroke-width="2"/></g>`;
+}
+function ghost(x, y, s){
+  return `<g transform="translate(${x} ${y}) scale(${s})"><g class="float">
+  <path d="M-34 40V-10Q-34 -50 0 -50Q34 -50 34 -10V40L22 30L11 40L0 30L-11 40L-22 30Z" fill="#f6f2ff" stroke="#c9bfe6" stroke-width="2"/>
+  <ellipse cx="-11" cy="-14" rx="6" ry="8" fill="#1a1024"/><ellipse cx="11" cy="-14" rx="6" ry="8" fill="#1a1024"/>
+  <circle cx="-9" cy="-17" r="2" fill="#fff"/><circle cx="13" cy="-17" r="2" fill="#fff"/>
+  <ellipse cx="0" cy="4" rx="7" ry="6" fill="#1a1024"/>
+  <ellipse cx="-20" cy="-2" rx="5" ry="3" fill="#ffb3c7" opacity=".7"/><ellipse cx="20" cy="-2" rx="5" ry="3" fill="#ffb3c7" opacity=".7"/>
+  <path d="M30 4Q46 6 44 22Q42 36 28 34Q18 30 22 18Z" fill="#ff8a1f" stroke="#8a3606" stroke-width="1.5"/>
+  <path d="M26 18L30 22L34 18" stroke="#2a1203" stroke-width="2" fill="none"/></g></g>`;
+}
+function eyeball(x, y, r = 7){
+  return `<circle cx="${x}" cy="${y}" r="${r}" fill="#fbf7ee"/><circle cx="${x+r*.15}" cy="${y}" r="${r*.48}" fill="#5fbf3f"/><circle cx="${x+r*.2}" cy="${y}" r="${r*.22}" fill="#111"/>`;
+}
+function stars(list){ return list.map(([x,y,r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#fff8d6" opacity=".8"/>`).join(''); }
+
+/* ============ walls ============ */
+function wall0(){
+  const f = S.f;
+  let s = BASE + bunting() + web(0,1) + web(800,-1);
+  // grandfather clock
+  let ticks = '';
+  for (let i = 0; i < 12; i++){
+    const a = i * Math.PI / 6, x1 = 170 + Math.sin(a)*24, y1 = 160 - Math.cos(a)*24, x2 = 170 + Math.sin(a)*28, y2 = 160 - Math.cos(a)*28;
+    ticks += `<path d="M${x1.toFixed(1)} ${y1.toFixed(1)}L${x2.toFixed(1)} ${y2.toFixed(1)}"/>`;
+  }
+  s += `<g class="hot" data-hot="clock">
+    <path d="M124 118Q170 84 216 118Z" fill="#3a2418"/>
+    <rect x="134" y="116" width="72" height="264" fill="#2d1b12" stroke="#5a3a26" stroke-width="3"/>
+    <circle cx="170" cy="160" r="31" fill="#e9dfc6" stroke="url(#gGold)" stroke-width="5"/>
+    <g stroke="#3a2410" stroke-width="2">${ticks}</g>
+    <path d="M170 160L169.8 143" stroke="#1a0d05" stroke-width="4" stroke-linecap="round"/>
+    <path d="M170 160L167.4 136" stroke="#1a0d05" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="170" cy="160" r="3" fill="#1a0d05"/>
+    <rect x="150" y="212" width="40" height="140" rx="20" fill="#120a06" stroke="#5a3a26" stroke-width="2"/>
+    <path d="M170 216V306" stroke="#c9a14a" stroke-width="2"/><circle cx="170" cy="316" r="11" fill="#c9a14a"/></g>`;
+  // door
+  if (!f.doorOpen){
+    s += `<g class="hot" data-hot="door">
+      <path d="M320 382V176Q400 90 480 176V382Z" fill="#2e1c12"/>
+      <path d="M334 380V180Q400 108 466 180V380Z" fill="#5a3622"/>
+      <g clip-path="url(#cDoor)" stroke="#2e1c12" stroke-width="2"><path d="M356 100V380M378 100V380M400 100V380M422 100V380M444 100V380"/></g>
+      <rect x="334" y="206" width="132" height="9" fill="#26262c"/><rect x="334" y="318" width="132" height="9" fill="#26262c"/>
+      <circle cx="350" cy="210" r="3" fill="#55555f"/><circle cx="450" cy="210" r="3" fill="#55555f"/><circle cx="350" cy="322" r="3" fill="#55555f"/><circle cx="450" cy="322" r="3" fill="#55555f"/>
+      <circle cx="430" cy="282" r="10" fill="none" stroke="#26262c" stroke-width="4"/>
+      ${pumpkin(446, 256, 11, false, false)}
+      <path d="M446 251a3 3 0 1 1 0.1 0L448.5 263H443.5Z" fill="#1a0903"/></g>`;
+  } else {
+    s += `<path d="M320 382V176Q400 90 480 176V382Z" fill="#2e1c12"/>
+      <path d="M334 380V180Q400 108 466 180V380Z" fill="url(#gNight)"/>
+      <g clip-path="url(#cDoor)">${stars([[352,170,1.4],[380,140,1],[452,196,1.3],[360,230,1],[420,150,1.2]])}
+      <circle cx="432" cy="172" r="15" fill="url(#gMoon)"/>
+      <path d="M334 380V330Q380 314 420 326Q450 334 466 324V380Z" fill="#160c22"/>
+      ${f.ghost ? '' : ''}</g>
+      <path d="M334 180L296 158V404L334 380Z" fill="#5a3622" stroke="#2e1c12" stroke-width="2"/>`;
+    if (!f.ghost) s += `<g class="hot" data-hot="ghost">${ghost(400, 296, 1.25)}</g>`;
+  }
+  // broom
+  if (!f.broom){
+    s += `<g class="hot" data-hot="broom">
+      <rect x="560" y="110" width="100" height="280" fill="transparent"/>
+      <path d="M650 118L606 330" stroke="#6b4423" stroke-width="7" stroke-linecap="round"/>
+      <path d="M594 318L624 326L632 386L566 384Z" fill="#c8a256"/>
+      <path d="M598 334L582 382M606 336L598 384M614 338L612 385M621 340L625 385" stroke="#8a6a2a" stroke-width="2"/>
+      <path d="M592 320L626 329" stroke="#7b2f2f" stroke-width="7"/></g>`;
+  }
+  s += `<g class="hot" data-hot="mini">${pumpkin(262, 360, 20, false)}${pumpkin(228, 370, 12, false)}${pumpkin(540, 368, 13, false)}</g>`;
+  return s + VIG;
+}
+
+function flame(x, h, c){
+  return `<path class="flame" style="animation-delay:${(x%7)*.07}s" d="M${x-17} 364Q${x-22} ${364-h*.5} ${x} ${364-h}Q${x+22} ${364-h*.5} ${x+17} 364Z" fill="${c}"/>`;
+}
+function jarSvg(id, x, label, content){
+  return `<g class="hot" data-hot="${id}">
+    <rect x="${x-22}" y="98" width="44" height="62" rx="10" fill="rgba(180,220,255,.13)" stroke="rgba(220,235,255,.5)" stroke-width="2"/>
+    ${content}
+    <rect x="${x-15}" y="87" width="30" height="13" rx="3" fill="#8a5a34"/>
+    <rect x="${x-18}" y="128" width="36" height="18" rx="2" fill="#e9dfc6"/>
+    <text x="${x}" y="142" font-size="12" text-anchor="middle" fill="#3a2410">${label}</text></g>`;
+}
+function wall1(){
+  const f = S.f;
+  let s = BASE + web(0,1);
+  // chimney & stones
+  s += `<rect x="252" y="0" width="296" height="164" fill="#352c3e"/>
+    <g stroke="#1f1826" stroke-width="2" fill="none" pointer-events="none">
+      <path d="M252 40H548M252 82H548M252 124H548"/>
+      <path d="M300 0V40M380 0V40M460 0V40M340 40V82M420 40V82M500 40V82M300 82V124M380 82V124M460 82V124M340 124V164M420 124V164M500 124V164"/></g>
+    <rect x="226" y="176" width="348" height="206" fill="#463b50"/>
+    <g stroke="#2a2232" stroke-width="2" fill="none" pointer-events="none">
+      <path d="M226 220H574M226 262H574M226 304H574M226 346H574"/>
+      <path d="M270 176V220M350 176V220M450 176V220M530 176V220M250 220V262M550 220V262M262 262V304M538 262V304M250 304V346M550 304V346"/></g>`;
+  if (f.fire) s += `<ellipse cx="400" cy="330" rx="300" ry="190" fill="url(#gGlow)" class="flick" pointer-events="none"/>`;
+  s += `<g class="hot" data-hot="fireplace">
+    <path d="M282 382V270Q400 196 518 270V382Z" fill="#0b0608"/>
+    ${f.fire ? flame(318,52,'#ff8a1f') + flame(482,52,'#ff8a1f') + flame(340,34,'#ffd36b') + flame(460,34,'#ffd36b') : ''}
+    <rect x="316" y="362" width="168" height="14" rx="7" fill="#5a3622"/><rect x="338" y="351" width="124" height="12" rx="6" fill="#6b4423"/></g>`;
+  // cauldron
+  const liqCols = ['#6fcf4f','#3fb8a0','#8b4fd8'];
+  const liq = f.brewed ? '#2a2a30' : (f.fire ? liqCols[S.brew.length] : '#2c3a2a');
+  s += `<path d="M400 182V290" stroke="#2a2a2a" stroke-width="3" pointer-events="none"/>
+    <g class="hot" data-hot="cauldron">
+    <path d="M334 296Q328 354 362 368L438 368Q472 354 466 296Z" fill="#1d1d22" stroke="#3a3a44" stroke-width="2"/>
+    <ellipse cx="400" cy="296" rx="73" ry="13" fill="#2a2a30"/>
+    <ellipse cx="400" cy="296" rx="62" ry="9" fill="${liq}"/>
+    ${f.fire && !f.brewed ? `<g fill="${liq}"><circle class="bub" cx="378" cy="294" r="5"/><circle class="bub" style="animation-delay:.5s" cx="412" cy="292" r="4"/><circle class="bub" style="animation-delay:.9s" cx="396" cy="296" r="6"/></g>` : ''}
+    <path d="M330 300Q318 300 320 312M470 300Q482 300 480 312" stroke="#3a3a44" stroke-width="4" fill="none"/></g>`;
+  // mantle
+  s += `<rect x="206" y="160" width="388" height="20" rx="3" fill="#3b2418"/><rect x="214" y="178" width="372" height="6" fill="#24150e"/>`;
+  s += jarSvg('jarWing', 262, '羽', bat(262, 116, .5, '#4a2466'));
+  s += jarSvg('jarSilk', 330, '糸', `<g stroke="#f2f0f8" stroke-opacity=".8" fill="none" stroke-width="1.5"><circle cx="330" cy="114" r="8"/><circle cx="324" cy="120" r="6"/><circle cx="336" cy="121" r="5"/></g>`);
+  s += jarSvg('jarEye', 474, '目玉', `<rect x="453" y="108" width="42" height="50" rx="8" fill="#5fbf3f" opacity=".35"/>${eyeball(466,116,5)}${eyeball(481,122,5)}`);
+  s += `<g class="hot" data-hot="skull">
+    <path d="M384 160V146Q384 116 402 116Q420 116 420 146V160Z" fill="#e9dfc6"/>
+    <ellipse cx="395" cy="138" rx="5" ry="6" fill="#1a1024"/><ellipse cx="409" cy="138" rx="5" ry="6" fill="#1a1024"/>
+    <path d="M402 145L399 151H405Z" fill="#1a1024"/><path d="M392 156V160M397 156V160M402 156V160M407 156V160M412 156V160" stroke="#1a1024" stroke-width="1.5"/></g>`;
+  // spider
+  s += `<g class="hot" data-hot="spider"><g class="bob">
+    <rect x="650" y="112" width="64" height="80" fill="transparent"/>
+    <path d="M682 0V150" stroke="#d8cfe6" stroke-opacity=".5"/>
+    <g stroke="#07060c" stroke-width="2.5" fill="none"><path d="M674 156L658 146M674 160L656 162M674 164L660 178M690 156L706 146M690 160L708 162M690 164L704 178"/></g>
+    <ellipse cx="682" cy="162" rx="11" ry="13" fill="#07060c"/><circle cx="682" cy="148" r="6" fill="#07060c"/>
+    <circle cx="680" cy="147" r="1.4" fill="#ff4d4d"/><circle cx="684" cy="147" r="1.4" fill="#ff4d4d"/></g></g>`;
+  s += pumpkin(120, 356, 26, false) + pumpkin(680, 366, 16, false);
+  return s + VIG;
+}
+
+function catSitting(x, y){
+  return `<g fill="#07060a">
+    <path d="M${x-12} ${y}Q${x-16} ${y-34} ${x} ${y-44}Q${x+16} ${y-34} ${x+14} ${y}Z"/>
+    <circle cx="${x}" cy="${y-52}" r="11"/>
+    <path d="M${x-9} ${y-58}L${x-8} ${y-70}L${x-2} ${y-61}Z M${x+3} ${y-61}L${x+9} ${y-70}L${x+10} ${y-58}Z"/>
+    <path d="M${x+14} ${y-2}Q${x+36} ${y-4} ${x+32} ${y-22}" stroke="#07060a" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <circle cx="${x-4}" cy="${y-53}" r="1.8" fill="#ffd23f"/><circle cx="${x+4}" cy="${y-53}" r="1.8" fill="#ffd23f"/></g>`;
+}
+function wall2(){
+  const f = S.f;
+  let s = BASE + bunting() + web(800,-1);
+  // window
+  s += `<g class="hot" data-hot="window">
+    <rect x="96" y="70" width="200" height="214" fill="#3a2418"/>
+    <g clip-path="url(#cWin)"><rect x="106" y="80" width="180" height="196" fill="url(#gNight)"/>
+      ${stars([[124,100,1.2],[160,120,1],[268,210,1.3],[130,240,1],[214,96,1.1]])}
+      <circle cx="238" cy="130" r="34" fill="url(#gMoon)"/>
+      <path d="M106 276V246Q150 230 196 244Q240 256 286 238V276Z" fill="#100818"/>
+      <g class="fly">${bat(170,150,.55)}${bat(200,190,.38)}${bat(140,180,.3)}</g></g>
+    <path d="M196 80V276M106 178H286" stroke="#3a2418" stroke-width="8"/></g>
+    <path d="M74 58H318" stroke="#1a0e08" stroke-width="5" pointer-events="none"/>
+    <path d="M80 60Q102 170 84 302L108 302Q122 170 110 60Z" fill="#4a2466" pointer-events="none"/>
+    <path d="M312 60Q290 170 308 302L284 302Q270 170 282 60Z" fill="#4a2466" pointer-events="none"/>
+    <rect x="80" y="284" width="232" height="12" rx="2" fill="#4b2e1e"/>`;
+  if (f.catMoved) s += `<g class="hot" data-hot="cat2"><rect x="230" y="210" width="60" height="76" fill="transparent"/>${catSitting(254, 284)}</g>`;
+  // chest
+  const chestHot = f.catMoved ? 'class="hot" data-hot="chest"' : '';
+  s += `<g ${chestHot}>
+    <rect x="112" y="326" width="176" height="56" fill="#6b3b22" stroke="#2b160c" stroke-width="3"/>`;
+  if (f.chest){
+    s += `<path d="M114 316L132 280H268L286 316Z" fill="#4a2816" stroke="#2b160c" stroke-width="3"/><rect x="116" y="316" width="168" height="12" fill="#140a05"/>`;
+  } else {
+    s += `<path d="M112 328V314Q200 288 288 314V328Z" fill="#7a4428" stroke="#2b160c" stroke-width="3"/>
+      <rect x="186" y="316" width="28" height="26" rx="3" fill="#c9a14a" stroke="#7a5a1a"/>
+      <circle cx="193" cy="327" r="2.6" fill="#3a2a10"/><circle cx="200" cy="327" r="2.6" fill="#3a2a10"/><circle cx="207" cy="327" r="2.6" fill="#3a2a10"/>`;
+  }
+  s += `<rect x="138" y="318" width="10" height="64" fill="#3a3a40"/><rect x="252" y="318" width="10" height="64" fill="#3a3a40"/></g>`;
+  if (!f.catMoved){
+    s += `<g class="hot" data-hot="cat">
+      <ellipse cx="208" cy="302" rx="56" ry="19" fill="#0a0910"/>
+      <circle cx="160" cy="298" r="17" fill="#0a0910"/>
+      <path d="M147 288L149 272L159 284Z M166 284L177 274L175 291Z" fill="#0a0910"/>
+      <path d="M150 299q4 3 8 0M163 299q4 3 8 0" stroke="#ffd23f" stroke-width="1.6" fill="none"/>
+      <path d="M260 306Q284 300 272 282Q264 274 252 284" stroke="#0a0910" stroke-width="9" fill="none" stroke-linecap="round"/>
+      <text class="zz" x="134" y="262" font-size="18" fill="#cfc6dc">z</text>
+      <text class="zz" style="animation-delay:1.3s" x="120" y="250" font-size="13" fill="#cfc6dc">z</text></g>`;
+  }
+  // bookshelf
+  let books = '';
+  const dull = ['#4d2f4f','#34452f','#5c3324','#2b3550','#55482a','#3d2a3a','#2f3f40'];
+  let seed = 11; const rnd = () => (seed = seed * 16807 % 2147483647) / 2147483647;
+  [150,240,330].forEach(by => {
+    let x = 488;
+    while (x < 690){
+      const w = 8 + (rnd()*8|0), h = 46 + (rnd()*26|0);
+      if (x + w > 692) break;
+      books += `<rect x="${x}" y="${by-h}" width="${w}" height="${h}" fill="${dull[rnd()*dull.length|0]}"/>`;
+      x += w + 1;
+    }
+  });
+  books += `<rect x="560" y="122" width="10" height="28" fill="#ff8a1f"/><rect x="636" y="196" width="10" height="44" fill="#8b4fd8"/><rect x="520" y="290" width="10" height="40" fill="#6fcf4f"/>`;
+  s += `<g class="hot" data-hot="shelf">
+    <rect x="470" y="60" width="240" height="322" fill="#3b2418"/>
+    <rect x="482" y="72" width="216" height="300" fill="#1a0e08"/>
+    ${books}
+    <rect x="482" y="150" width="216" height="8" fill="#3b2418"/><rect x="482" y="240" width="216" height="8" fill="#3b2418"/><rect x="482" y="330" width="216" height="8" fill="#3b2418"/></g>`;
+  s += pumpkin(380, 360, 22, false);
+  return s + VIG;
+}
+
+function wall3(){
+  const f = S.f;
+  let s = BASE + bunting() + web(0,1) + web(800,-1);
+  if (f.lantern){
+    s += `<path d="M292 250L300 62L500 62L310 254Z" fill="#ffb347" opacity=".07" pointer-events="none"/>
+      <ellipse cx="292" cy="250" rx="150" ry="120" fill="url(#gGlow)" class="flick" pointer-events="none"/>`;
+  }
+  // portrait
+  s += `<g class="hot" data-hot="portrait">
+    <rect x="296" y="46" width="208" height="170" rx="4" fill="url(#gGold)" stroke="#5a4416" stroke-width="2"/>
+    <rect x="310" y="60" width="180" height="142" fill="url(#gNight)"/>
+    <circle cx="452" cy="94" r="20" fill="url(#gMoon)"/>
+    ${witch(402, 152, .85)}
+    ${bat(340,88,.35)}${bat(440,180,.45)}${bat(345,180,.55)}${bat(395,84,.7)}
+    ${f.lantern ? '<rect x="310" y="60" width="180" height="142" fill="#ff9a3a" opacity=".14"/>' : '<rect x="310" y="60" width="180" height="142" fill="#000" opacity=".35"/>'}</g>`;
+  // desk
+  s += `<rect x="196" y="282" width="408" height="16" rx="3" fill="#5a3622"/>
+    <rect x="214" y="298" width="372" height="84" fill="#3a2318"/>
+    <rect x="226" y="306" width="110" height="64" rx="3" fill="#33201a"/><rect x="464" y="306" width="110" height="64" rx="3" fill="#33201a"/>`;
+  s += `<g class="hot" data-hot="drawer">`;
+  if (f.drawer){
+    s += `<rect x="342" y="324" width="116" height="48" rx="3" fill="#4b2e1e" stroke="#2a160c" stroke-width="2"/><rect x="348" y="314" width="104" height="12" fill="#140a05"/><circle cx="400" cy="350" r="5" fill="#c9a14a"/>`;
+  } else {
+    s += `<rect x="350" y="312" width="100" height="46" rx="3" fill="#4b2e1e" stroke="#2a160c" stroke-width="2"/>
+      <rect x="374" y="318" width="52" height="12" rx="2" fill="#c9a14a"/>
+      <g fill="#3a2a10"><rect x="378" y="320" width="9" height="8"/><rect x="390" y="320" width="9" height="8"/><rect x="402" y="320" width="9" height="8"/><rect x="414" y="320" width="9" height="8"/></g>
+      <circle cx="400" cy="344" r="5" fill="#c9a14a"/>`;
+  }
+  s += `</g>`;
+  // lantern
+  s += `<g class="hot" data-hot="lantern">${pumpkin(292, 255, 29, !!f.lantern)}</g>`;
+  // crystal ball
+  s += `<g class="hot" data-hot="crystal">
+    <path d="M416 282L420 270H448L452 282Z" fill="#8a6a2a"/>
+    <circle cx="434" cy="252" r="20" fill="url(#gOrb)"/>
+    <ellipse cx="427" cy="244" rx="6" ry="4" fill="#fff" opacity=".5"/></g>`;
+  // candy jar
+  const eyes = [[498,268],[518,270],[508,252],[524,250],[496,248]];
+  if (f.candy) eyes.pop();
+  s += `<g class="hot" data-hot="candy">
+    <rect x="482" y="226" width="56" height="56" rx="14" fill="rgba(180,220,255,.13)" stroke="rgba(220,235,255,.5)" stroke-width="2"/>
+    ${eyes.map(([x,y]) => eyeball(x,y,7)).join('')}
+    <rect x="486" y="217" width="48" height="11" rx="4" fill="#8b4fd8"/></g>`;
+  s += pumpkin(660, 360, 20, false) + pumpkin(140, 366, 14, false);
+  return s + VIG;
+}
+
+/* ============ zoom views ============ */
+function shelfZ(){
+  let s = `<rect width="600" height="400" fill="#2a170f"/><rect x="20" y="10" width="560" height="380" fill="#160b06" stroke="#4b2e1e" stroke-width="8"/>`;
+  const rows = [128, 252, 376];
+  const dull = ['#4d2f4f','#34452f','#5c3324','#2b3550','#55482a','#3d2a3a','#2f3f40'];
+  const special = { '0-4':['#ff8a1f',3], '1-7':['#8b4fd8',1], '2-2':['#6fcf4f',2] };
+  let seed = 7; const rnd = () => (seed = seed * 16807 % 2147483647) / 2147483647;
+  rows.forEach((by, r) => {
+    let x = 34, i = 0;
+    while (true){
+      const sp = special[r + '-' + i];
+      const w = sp ? 42 : 18 + (rnd()*18|0);
+      const h = sp ? 104 : 66 + (rnd()*34|0);
+      if (x + w > 566) break;
+      const col = sp ? sp[0] : dull[rnd()*dull.length|0];
+      s += `<rect x="${x}" y="${by-h}" width="${w}" height="${h}" rx="2" fill="${col}" stroke="#000" stroke-opacity=".45"/>`;
+      s += `<path d="M${x+2} ${by-h+10}H${x+w-2}M${x+2} ${by-12}H${x+w-2}" stroke="#000" stroke-opacity=".3" stroke-width="2"/>`;
+      if (sp){
+        s += pumpkin(x + w/2, by - h + 26, 10, false, false);
+        for (let k = 0; k < sp[1]; k++) s += `<circle cx="${x + w/2}" cy="${by - h + 52 + k*15}" r="5" fill="#fff6d8"/>`;
+      } else if (rnd() < .2 && x < 520){
+        s += `<path d="M${x+w/2} ${by-h+20}v${h-40}" stroke="#c9a14a" stroke-opacity=".35" stroke-width="2"/>`;
+      }
+      x += w + 3; i++;
+    }
+    s += `<rect x="24" y="${by}" width="552" height="12" fill="#3b2418"/>`;
+  });
+  return s;
+}
+function chestZ(){
+  const f = S.f;
+  let s = `<rect width="600" height="400" fill="#1a0e08"/>
+    <rect x="60" y="56" width="480" height="300" rx="18" fill="#6b3b22" stroke="#2b160c" stroke-width="6"/>
+    <rect x="60" y="56" width="480" height="70" rx="18" fill="#7a4428"/>
+    <rect x="108" y="56" width="22" height="300" fill="#3a3a40"/><rect x="470" y="56" width="22" height="300" fill="#3a3a40"/>
+    <text x="300" y="100" text-anchor="middle" font-size="22" fill="#f3e2b8">本棚が 順番を 知っている</text>
+    <rect x="150" y="150" width="300" height="160" rx="14" fill="url(#gGold)" stroke="#5a4416" stroke-width="4"/>`;
+  for (let i = 0; i < 3; i++){
+    const cx = 210 + i*90, cy = 222;
+    s += `<g data-z="d${i}" style="cursor:${f.chest ? 'default' : 'pointer'}">
+      <circle cx="${cx}" cy="${cy}" r="42" fill="#3a2a10"/>
+      <circle cx="${cx}" cy="${cy}" r="33" fill="${DIAL_COL[S.dial[i]]}" stroke="#fff" stroke-opacity=".35" stroke-width="3"/>
+      <ellipse cx="${cx-10}" cy="${cy-12}" rx="10" ry="6" fill="#fff" opacity=".35"/></g>
+      <text x="${cx}" y="292" text-anchor="middle" font-size="20" fill="#3a2a10">${i+1}</text>`;
+  }
+  if (f.chest) s += `<text x="300" y="342" text-anchor="middle" font-size="20" fill="#ffd36b">カチリ…錠が外れている</text>`;
+  return s;
+}
+function portraitZ(){
+  const lit = !!S.f.lantern;
+  let s = `<rect width="600" height="400" fill="#120a1b"/>
+    <rect x="58" y="14" width="484" height="330" rx="6" fill="url(#gGold)" stroke="#5a4416" stroke-width="3"/>
+    <rect x="80" y="36" width="440" height="286" fill="url(#gNight)"/>
+    ${stars([[110,60,1.6],[240,52,1.2],[500,200,1.4],[300,300,1.1],[480,290,1.3],[120,200,1]])}
+    <circle cx="452" cy="104" r="44" fill="url(#gMoon)"/>
+    <path d="M80 322V292Q160 270 260 290Q360 306 520 280V322Z" fill="#0c0714"/>
+    ${witch(300, 214, 1.5)}`;
+  const B = [[128,92,.75,2],[470,248,1.05,9],[150,276,1.35,6],[332,88,1.7,4]];
+  B.forEach(([x,y,sc,d]) => {
+    s += bat(x, y, sc);
+    if (lit) s += `<text x="${x}" y="${y+10}" text-anchor="middle" font-size="28" fill="#ffd36b" filter="url(#fGlow)" font-family="Georgia,serif" font-weight="700">${d}</text>`;
+  });
+  if (lit) s += `<rect x="80" y="36" width="440" height="286" fill="#ff9a3a" opacity=".1"/>`;
+  else s += `<rect x="80" y="36" width="440" height="286" fill="#000" opacity=".55"/>`;
+  s += `<rect x="150" y="354" width="300" height="36" rx="4" fill="url(#gGold)" stroke="#5a4416" stroke-width="2"/>
+    <text x="300" y="379" text-anchor="middle" font-size="18" fill="#3a2410">小さきものから 大きなものへ</text>`;
+  return s;
+}
+function drawerZ(){
+  const f = S.f;
+  let s = `<rect width="600" height="400" fill="#1a0e08"/>
+    <rect x="40" y="66" width="520" height="268" rx="12" fill="#4b2e1e" stroke="#2a160c" stroke-width="6"/>
+    <rect x="120" y="106" width="360" height="188" rx="12" fill="url(#gGold)" stroke="#5a4416" stroke-width="4"/>`;
+  for (let i = 0; i < 4; i++){
+    const x = 165 + i*90;
+    const tri = (up) => up ? `M${x-16} 150L${x+16} 150L${x} 128Z` : `M${x-16} 252L${x+16} 252L${x} 274Z`;
+    s += `<g data-z="u${i}" style="cursor:pointer"><rect x="${x-40}" y="110" width="80" height="54" fill="transparent"/><path d="${tri(true)}" fill="#3a2a10"/></g>
+      <rect x="${x-32}" y="168" width="64" height="66" rx="8" fill="#1a1208"/>
+      <text x="${x}" y="218" text-anchor="middle" font-size="44" fill="#ffe9b0" font-family="Georgia,serif">${S.code[i]}</text>
+      <g data-z="w${i}" style="cursor:pointer"><rect x="${x-40}" y="238" width="80" height="54" fill="transparent"/><path d="${tri(false)}" fill="#3a2a10"/></g>`;
+  }
+  if (f.drawer) s += `<text x="300" y="320" text-anchor="middle" font-size="20" fill="#ffd36b">カチリ…引き出しが開いた</text>`;
+  return s;
+}
+function recipeZ(){
+  const L = ['秘薬「カボチャの鍵」','一、かまどに 火を入れよ','二、コウモリの羽','三、クモの糸','四、カエルの目玉','※順をたがえれば 煙と消える'];
+  let s = `<rect width="600" height="400" fill="#120a1b"/>
+    <path d="M90 24Q300 10 510 26Q520 200 506 376Q300 390 94 374Q80 200 90 24Z" fill="#e9d9b0" stroke="#a88a52" stroke-width="3"/>`;
+  L.forEach((t,i) => {
+    const big = i === 0;
+    s += `<text x="${big ? 300 : 150}" y="${big ? 86 : 150 + (i-1)*46}" ${big ? 'text-anchor="middle"' : ''} font-size="${big ? 30 : 26}" fill="${i===5 ? '#8a2f1a' : '#3a2410'}">${t}</text>`;
+  });
+  s += `<path d="M180 104H420" stroke="#a88a52" stroke-width="2"/>`;
+  return s;
+}
+
+/* ============ rendering ============ */
+const WALL_FN = [wall0, wall1, wall2, wall3];
+function render(){
+  $('room').innerHTML = DEFS + WALL_FN[S.wall]();
+  $('wallName').textContent = WALLS[S.wall];
+}
+const ICONS = {
+  broom:`<path d="M40 6L20 30" stroke="#a06a3a" stroke-width="4" stroke-linecap="round"/><path d="M15 26L25 34L14 44L4 36Z" fill="#d9b25e"/><path d="M15 27L23 33" stroke="#b03a3a" stroke-width="4"/>`,
+  candy:`<path d="M5 17L14 24L5 31Z M43 17L34 24L43 31Z" fill="#8b4fd8"/><circle cx="24" cy="24" r="11" fill="#fbf7ee"/><circle cx="25" cy="24" r="5.5" fill="#5fbf3f"/><circle cx="25.5" cy="24" r="2.5" fill="#111"/><path d="M16 18q3 2 2 5M30 31q-2-1-1-3" stroke="#e05050" stroke-width="1" fill="none"/>`,
+  match:`<rect x="7" y="17" width="32" height="22" rx="3" fill="#c0392b"/><rect x="7" y="17" width="32" height="6" fill="#5a1a14"/><path d="M13 30h20" stroke="#f0d08a" stroke-width="2"/><path d="M30 14L41 5" stroke="#e8c27a" stroke-width="3" stroke-linecap="round"/><circle cx="42" cy="4.5" r="3.2" fill="#d23c2c"/>`,
+  recipe:`<path d="M10 5h23l6 6v32H10Z" fill="#e9d9b0"/><path d="M33 5v6h6" fill="#cbb98a"/><path d="M15 15h18M15 21h18M15 27h14M15 33h16" stroke="#7a5a30" stroke-width="2"/>`,
+  key:`<path d="M15 6v5" stroke="#4a6b2a" stroke-width="3"/><ellipse cx="10" cy="20" rx="6" ry="9" fill="#ff8a1f"/><ellipse cx="20" cy="20" rx="6" ry="9" fill="#ff8a1f"/><ellipse cx="15" cy="20" rx="6" ry="9.5" fill="#ffa33d"/><path d="M11 18l2-2 2 2M15 18l2-2 2 2" stroke="#5a2405" stroke-width="1.5" fill="none"/><path d="M26 20H44M37 20v7M42 20v5" stroke="#e8b54a" stroke-width="4" stroke-linecap="round"/>`
+};
+function icon(id){ return `<svg viewBox="0 0 48 48" aria-hidden="true">${ICONS[id]}</svg>`; }
+let newItem = null;
+function renderInv(){
+  let h = '';
+  for (let i = 0; i < 5; i++){
+    const id = S.inv[i];
+    const cls = 'slot' + (id && S.sel === id ? ' sel' : '') + (id && id === newItem ? ' new' : '');
+    h += id
+      ? `<button class="${cls}" type="button" data-i="${id}" aria-label="${ITEMS[id].name}">${icon(id)}</button>`
+      : `<button class="slot" type="button" disabled aria-label="空き"></button>`;
+  }
+  $('inv').innerHTML = h;
+  newItem = null;
+  $('stage').classList.toggle('holding', !!S.sel);
+}
+function say(t){ $('msg').textContent = t; }
+function zsay(t){ $('zmsg').textContent = t; }
+function give(id){ if (!S.inv.includes(id)) { S.inv.push(id); newItem = id; } renderInv(); }
+function take(id){ S.inv = S.inv.filter(x => x !== id); if (S.sel === id) S.sel = null; renderInv(); }
+function setSel(id){ S.sel = id; renderInv(); }
+
+/* ============ interactions ============ */
+function lightFire(){
+  S.f.fire = true; sfx('fire'); render();
+  say('マッチで薪に火をつけた。暖炉がゴウッと燃えあがり、大鍋がぐつぐつ煮えはじめた！');
+}
+function hot(id){
+  if (S.mode !== 'play') return;
+  const it = S.sel, f = S.f;
+  if (it) setSel(null);
+  const nouse = () => { sfx('ng'); say(`${ITEMS[it].name}は、ここでは使えないようだ。`); };
+  switch (id){
+  case 'clock':
+    if (it) return nouse();
+    sfx('tick'); return say('大きな振り子時計。針は11時59分で止まっている。真夜中まで、あと1分…。');
+  case 'mini':
+    if (it) return nouse();
+    sfx('click'); return say('小さなカボチャたちが並んでいる。こっちを見ている気がする。');
+  case 'broom':
+    f.broom = true; give('broom'); sfx('pick'); render();
+    return say('古びた魔女のほうきを手に入れた。');
+  case 'door':
+    if (it === 'key'){
+      f.doorOpen = true; take('key'); sfx('creak'); render();
+      return say('カボチャの鍵がカチリと回った！ 扉がギィ…と開くと、小さなおばけが立っていた。「トリック・オア・トリート！ お菓子をくれなきゃ、通さないよ！」');
+    }
+    if (it) return nouse();
+    sfx('knock'); return say('重たい木の扉。カボチャの形をした鍵穴がある。');
+  case 'ghost':
+    if (it === 'candy'){
+      take('candy'); f.ghost = true; S.mode = 'ending'; sfx('magic'); render();
+      say('おばけは目玉キャンディを受け取ると、くるりと回って夜の向こうへ消えた。「ハッピー・ハロウィン！」');
+      setTimeout(clearGame, 1900);
+      return;
+    }
+    if (it){ sfx('ng'); return say('「それ、お菓子じゃないよ！ トリック・オア・トリート！」'); }
+    sfx('boo'); return say('「トリック・オア・トリート！ お菓子をくれなきゃ、通さないよ！」');
+  case 'fireplace':
+    if (f.fire) { sfx('click'); return say('薪がパチパチと燃えている。'); }
+    if (it === 'match') return lightFire();
+    if (it) return nouse();
+    sfx('click'); return say('火の消えた冷たい暖炉。薪は組んである。');
+  case 'cauldron':
+    if (it === 'match' && !f.fire) return lightFire();
+    if (it) return nouse();
+    sfx('click');
+    if (!f.fire) return say('魔女の大鍋。中の液体は冷えきっている。煮るには火が必要だ。');
+    if (f.brewed) return say('鍋の中身は空っぽになった。');
+    return say(S.brew.length ? `鍋に材料が${S.brew.length}つ入っている。ぐつぐつ…。` : '大鍋がぐつぐつ煮えている。暖炉の上の瓶の材料を入れられそうだ。');
+  case 'jarWing': case 'jarSilk': case 'jarEye':
+    return useJar(id, it);
+  case 'skull':
+    if (it) return nouse();
+    sfx('rattle'); return say('ドクロがカタカタ笑った…ような気がする。');
+  case 'spider':
+    if (it) return nouse();
+    sfx('click'); return say('天井からクモがぶら下がっている。目が合った。');
+  case 'window':
+    if (it) return nouse();
+    sfx('click'); return say('窓の外は満月。コウモリが飛びかっている。窓ははめ殺しで開かない。');
+  case 'cat':
+    if (it === 'broom'){
+      f.catMoved = true; take('broom'); sfx('meow'); render();
+      return say('ほうきの穂先でそっとくすぐると、黒猫は「ニャッ！」と窓辺へ跳んでいった。下から古い宝箱が出てきた。');
+    }
+    if (it === 'candy') { sfx('ng'); return say('黒猫はキャンディには見向きもしない。'); }
+    if (it) return nouse();
+    sfx('hiss'); return say('宝箱の上で黒猫がぐっすり眠っている。手でどかそうとしたら「シャーッ！」と怒られた。');
+  case 'cat2':
+    if (it) return nouse();
+    sfx('meow'); return say('黒猫は窓辺で、満月をじっと眺めている。');
+  case 'chest':
+    if (it) return nouse();
+    if (f.chest){ sfx('click'); return say('宝箱は空っぽだ。'); }
+    return openZoom('chest');
+  case 'shelf':
+    if (it) return nouse();
+    return openZoom('shelf');
+  case 'portrait':
+    if (it === 'match'){ sfx('ng'); return say('肖像画を燃やすのはやめておこう…。'); }
+    if (it) return nouse();
+    return openZoom('portrait');
+  case 'lantern':
+    if (f.lantern){ sfx('click'); return say('ジャック・オ・ランタンが不気味に光っている。光は壁の肖像画を照らしている。'); }
+    if (it === 'match'){
+      f.lantern = true; sfx('fire'); render();
+      return say('ランタンの中のロウソクに火を灯した。オレンジの光が、壁の肖像画をぼうっと照らしだす…。');
+    }
+    if (it) return nouse();
+    sfx('click'); return say('顔の彫られたカボチャのランタン。中にロウソクが入っているが、火はついていない。');
+  case 'crystal':
+    if (it) return nouse();
+    sfx('magic2'); return say('水晶玉をのぞくと、開いた扉と小さな人影がぼんやり映った…。');
+  case 'candy':
+    if (it) return nouse();
+    if (f.candy){ sfx('click'); return say('これ以上もらうと、魔女に怒られそうだ。'); }
+    f.candy = true; give('candy'); sfx('pick'); render();
+    return say('瓶から目玉キャンディを1つもらった。');
+  case 'drawer':
+    if (it) return nouse();
+    if (f.drawer){ sfx('click'); return say('引き出しは空っぽだ。'); }
+    return openZoom('drawer');
+  }
+}
+function useJar(id, it){
+  const nm = JAR[id];
+  if (it === 'match' && !S.f.fire){ sfx('ng'); return say('瓶を燃やしてもしかたない。火をつけるなら暖炉だ。'); }
+  if (it) { sfx('ng'); return say(`${ITEMS[it].name}は、ここでは使えないようだ。`); }
+  if (S.f.brewed){ sfx('click'); return say(`「${nm}」の瓶。もう使うことはなさそうだ。`); }
+  if (!S.f.fire){ sfx('click'); return say(`ラベルに「${nm}」と書かれた瓶。鍋に入れても、火がないと煮えなさそうだ。`); }
+  S.brew.push(id); sfx('plop');
+  if (S.brew.length < 3){ render(); return say(`${nm}をひとつまみ、鍋に入れた。ぐつぐつ…（${S.brew.length}/3）`); }
+  const ok = S.brew.every((v,i) => v === RECIPE[i]);
+  S.brew = [];
+  if (ok){
+    S.f.brewed = true; give('key'); sfx('magic'); render();
+    return say(`${nm}を入れると、鍋が紫色に光った！ …ポンッ！ カボチャの形をした鍵が浮かびあがってきた！`);
+  }
+  sfx('poof'); render();
+  return say(`${nm}を入れた瞬間、ボフンッ！ 緑の煙とともに鍋の中身が消えた。入れる順番が違うようだ。`);
+}
+
+/* ============ zoom ============ */
+const ZT = { shelf:'本棚', chest:'古い宝箱', portrait:'魔女の肖像画', drawer:'机の引き出し', recipe:'魔女のレシピ' };
+function openZoom(z){
+  S.zoom = z; sfx('click');
+  renderZoom();
+  const f = S.f;
+  const m = {
+    shelf: 'ぎっしり並んだ古い本。カボチャ印のついた背表紙が3冊ある。印の下の点の数がそれぞれ違う。',
+    chest: '錠前に、タップで色が変わる宝石が3つ。ふたには「本棚が順番を知っている」と彫られている。',
+    portrait: f.lantern
+      ? 'ランタンの光で、夜空のコウモリたちに数字が浮かびあがった！ 額の下のプレートには「小さきものから、大きなものへ」と刻まれている。'
+      : 'ほうきに乗った魔女の肖像画。部屋が暗くて、細かいところがよく見えない…。',
+    drawer: '引き出しには4桁のダイヤル錠がついている。▲▼で数字を合わせよう。',
+    recipe: '古い羊皮紙に、魔女の秘薬の作り方が書いてある。'
+  };
+  zsay(m[z]);
+  $('zoomOv').hidden = false;
+}
+function renderZoom(){
+  const z = S.zoom, f = S.f;
+  let s = DEFS, btn = false;
+  if (z === 'shelf') s += shelfZ();
+  else if (z === 'chest'){ s += chestZ(); btn = !f.chest; }
+  else if (z === 'portrait') s += portraitZ();
+  else if (z === 'drawer'){ s += drawerZ(); btn = !f.drawer; }
+  else if (z === 'recipe') s += recipeZ();
+  $('zsvg').innerHTML = s;
+  $('zOpen').hidden = !btn;
+  $('ztitle').textContent = ZT[z] || '';
+}
+function closeZoom(){
+  if (!S.zoom) return;
+  S.zoom = null; $('zoomOv').hidden = true; render();
+}
+$('zsvg').addEventListener('click', e => {
+  const t = e.target.closest('[data-z]');
+  if (!t || S.mode !== 'play') return;
+  const k = t.dataset.z, i = +k.slice(1);
+  if (S.zoom === 'chest' && !S.f.chest && k[0] === 'd'){ S.dial[i] = (S.dial[i] + 1) % 4; sfx('click'); renderZoom(); }
+  if (S.zoom === 'drawer' && !S.f.drawer){
+    if (k[0] === 'u') S.code[i] = (S.code[i] + 1) % 10;
+    else if (k[0] === 'w') S.code[i] = (S.code[i] + 9) % 10;
+    else return;
+    sfx('click'); renderZoom();
+  }
+});
+$('zOpen').addEventListener('click', () => {
+  if (S.mode !== 'play') return;
+  if (S.zoom === 'chest' && !S.f.chest){
+    if (S.dial.every((v,i) => v === DIAL_ANS[i])){
+      S.f.chest = true; give('match'); sfx('unlock'); renderZoom();
+      zsay('カチリ！ 宝箱が開いた。中には…マッチ箱が入っていた！');
+      say('マッチ箱を手に入れた。');
+    } else { sfx('ng'); zsay('ガチャ…開かない。色の順番が違うようだ。'); }
+  } else if (S.zoom === 'drawer' && !S.f.drawer){
+    if (S.code.every((v,i) => v === CODE_ANS[i])){
+      S.f.drawer = true; give('recipe'); sfx('unlock'); renderZoom();
+      zsay('カチリ！ 引き出しが開いた。中から古い羊皮紙…「魔女のレシピ」を手に入れた！ 持ち物からいつでも読める。');
+      say('魔女のレシピを手に入れた。持ち物をタップすると読める。');
+    } else { sfx('ng'); zsay('ガチャ…開かない。番号が違うようだ。'); }
+  }
+});
+$('zBack').addEventListener('click', closeZoom);
+$('zoomOv').addEventListener('click', e => { if (e.target === $('zoomOv')) closeZoom(); });
+
+/* ============ input ============ */
+$('room').addEventListener('click', e => {
+  const t = e.target.closest('[data-hot]');
+  if (!t){ if (S.sel && S.mode === 'play'){ setSel(null); say('手に持っていたものをしまった。'); } return; }
+  hot(t.dataset.hot);
+});
+$('inv').addEventListener('click', e => {
+  const b = e.target.closest('[data-i]');
+  if (!b || S.mode !== 'play') return;
+  const id = b.dataset.i;
+  if (id === 'recipe'){ setSel(null); return openZoom('recipe'); }
+  sfx('click');
+  if (S.sel === id){ setSel(null); say('手に持っていたものをしまった。'); return; }
+  setSel(id);
+  say(`「${ITEMS[id].name}」を手に持った。${ITEMS[id].desc} 使いたい場所をタップしよう。`);
+});
+function turn(d){
+  if (S.mode !== 'play' || S.zoom) return;
+  S.wall = (S.wall + d + 4) % 4; sfx('step'); render();
+}
+$('navL').addEventListener('click', () => turn(-1));
+$('navR').addEventListener('click', () => turn(1));
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft') turn(-1);
+  else if (e.key === 'ArrowRight') turn(1);
+  else if (e.key === 'Escape'){
+    if (S.mode === 'pause') resume();
+    else if (S.zoom) closeZoom();
+    else if (S.mode === 'play') pause();
+  }
+});
+
+/* ============ hints ============ */
+function hintText(){
+  const f = S.f;
+  if (!f.broom) return '扉の壁の右隅に、何か立てかけてある。';
+  if (!f.catMoved) return '窓の壁の黒猫を、ほうきでそっとどかしてみよう。持ち物をタップして手に持ち、猫をタップ。';
+  if (!f.chest) return '本棚を調べよう。カボチャ印の本の点の数が、宝箱の宝石の順番（1・2・3）を表している。';
+  if (!f.lantern) return 'マッチを手に持って、机の壁のカボチャのランタンに火を灯そう。';
+  if (!f.drawer) return '照らされた肖像画のコウモリの数字を、小さいコウモリから順に読もう。それが引き出しの番号。';
+  if (!f.fire) return '暖炉の壁へ。マッチで暖炉に火をつけよう。';
+  if (!f.brewed) return '持ち物の「魔女のレシピ」を読んで、書かれた順に暖炉の上の瓶をタップしよう。';
+  if (!f.doorOpen) return 'カボチャの鍵を手に持って、扉をタップしよう。';
+  if (!f.candy) return 'おばけはお菓子がほしいらしい。机の上の瓶を見てみよう。';
+  return '目玉キャンディを手に持って、おばけをタップしよう。';
+}
+$('hintBtn').addEventListener('click', () => {
+  if (S.mode !== 'play') return;
+  S.hints++; sfx('magic2');
+  const t = 'ヒント：' + hintText();
+  say(t); if (S.zoom) zsay(t);
+});
+
+/* ============ flow ============ */
+const fmt = t => { const s = Math.floor(t); return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0'); };
+function getBest(){ const v = parseFloat(store.get(KEY_BEST)); return isFinite(v) ? v : null; }
+function updateTitle(){
+  const b = getBest();
+  $('bestLine').textContent = b != null ? `自己ベスト ${fmt(b)}` : '';
+}
+function startGame(){
+  initAudio(true);
+  S = freshState();
+  S.mode = 'play';
+  document.body.classList.add('playing');
+  $('titleOv').hidden = true; $('clearOv').hidden = true; $('pauseOv').hidden = true; $('zoomOv').hidden = true;
+  render(); renderInv(); $('timer').textContent = '00:00';
+  say('ハロウィンの夜。気がつくと、魔女の屋敷の一室に閉じ込められていた…。左右の矢印で部屋を見回して、気になるところを調べよう。');
+  setBgm(true);
+}
+function backToTitle(){
+  S.mode = 'title'; S.zoom = null;
+  document.body.classList.remove('playing');
+  setBgm(false); disarmQuit();
+  $('clearOv').hidden = true; $('pauseOv').hidden = true; $('zoomOv').hidden = true;
+  $('titleOv').hidden = false;
+  updateTitle();
+}
+function pause(){
+  if (S.mode !== 'play') return;
+  S.mode = 'pause'; setBgm(false); sfx('click');
+  $('pauseOv').hidden = false;
+}
+function resume(){
+  if (S.mode !== 'pause') return;
+  disarmQuit(); initAudio();
+  S.mode = 'play'; $('pauseOv').hidden = true; setBgm(true);
+}
+function rankOf(t, h){
+  if (h === 0 && t < 300) return 'かぼちゃ大王';
+  if (h === 0) return '真夜中の魔法使い';
+  if (h <= 3) return 'みならい魔女';
+  return 'まいごのおばけ';
+}
+function clearGame(){
+  S.mode = 'clear';
+  document.body.classList.remove('playing');
+  setBgm(false); sfx('win');
+  const t = S.elapsed, h = S.hints;
+  const prev = getBest();
+  const isBest = prev == null || t < prev;
+  if (isBest) store.set(KEY_BEST, t.toFixed(2));
+  const rank = rankOf(t, h);
+  $('rTime').textContent = fmt(t);
+  $('rHint').textContent = h + '回';
+  $('rBest').textContent = fmt(isBest ? t : prev);
+  $('rRank').textContent = '称号「' + rank + '」' + (isBest && prev != null ? '　自己ベスト更新！' : '');
+  const text = `かぼちゃ屋敷から ${fmt(t)} で脱出した！ 称号「${rank}」（ヒント${h}回）\n#かぼちゃ屋敷からの脱出`;
+  $('shareBtn').href = 'https://x.com/intent/post?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(SHARE_URL);
+  $('clearOv').hidden = false;
+}
+$('startBtn').addEventListener('click', startGame);
+$('againBtn').addEventListener('click', startGame);
+$('titleBtn').addEventListener('click', () => { sfx('click'); backToTitle(); });
+$('pauseBtn').addEventListener('click', pause);
+$('resumeBtn').addEventListener('click', resume);
+$('pauseOv').addEventListener('click', e => { if (e.target === $('pauseOv')) resume(); });
+if (matchMedia('(pointer: coarse)').matches){ $('shareBtn').removeAttribute('target'); $('shareBtn').removeAttribute('rel'); }
+
+// 2-tap confirm for quitting mid-game
+let armed = false, armTimer = null;
+const quitBtn = $('quitBtn');
+quitBtn.addEventListener('click', () => {
+  if (!armed){
+    armed = true; quitBtn.textContent = '本当に？(もう一度タップ)';
+    quitBtn.classList.remove('ghost'); quitBtn.classList.add('danger');
+    clearTimeout(armTimer); armTimer = setTimeout(disarmQuit, 3000);
+    return;
+  }
+  disarmQuit(); backToTitle();
+});
+function disarmQuit(){
+  armed = false; clearTimeout(armTimer);
+  quitBtn.textContent = 'タイトルへ'; quitBtn.classList.add('ghost'); quitBtn.classList.remove('danger');
+}
+
+/* timer loop */
+let lastT = performance.now(), shown = -1;
+function loop(now){
+  const dt = Math.min(.25, (now - lastT) / 1000); lastT = now;
+  if (S.mode === 'play'){
+    S.elapsed += dt;
+    const sec = Math.floor(S.elapsed);
+    if (sec !== shown){ shown = sec; $('timer').textContent = fmt(S.elapsed); }
+  }
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+/* ============ audio ============ */
+let AC = null, MG = null, bgmOn = false, bgmTimer = null, nextT = 0, step = 0, NB = null;
+let soundOn = store.get(KEY_SND) !== '0';
+function initAudio(force){
+  if (AC && force){
+    try { AC.close().catch(() => {}); } catch(e){}
+    AC = null;
+  } else if (AC){
+    if (AC.state === 'closed') AC = null;
+    else { if (AC.state === 'suspended') AC.resume(); return; }
+  }
+  try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){ AC = null; return; }
+  MG = AC.createGain(); MG.gain.value = soundOn ? .5 : 0; MG.connect(AC.destination);
+  NB = AC.createBuffer(1, AC.sampleRate, AC.sampleRate);
+  const d = NB.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random()*2 - 1;
+  if (bgmOn){ nextT = AC.currentTime + .1; }
+}
+function tone(f, t, d, type = 'triangle', v = .2, glide){
+  if (!AC) return;
+  const o = AC.createOscillator(), g = AC.createGain();
+  o.type = type; o.frequency.setValueAtTime(f, t);
+  if (glide) o.frequency.exponentialRampToValueAtTime(glide, t + d);
+  g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(v, t + .012); g.gain.exponentialRampToValueAtTime(.0001, t + d);
+  o.connect(g); g.connect(MG); o.start(t); o.stop(t + d + .05);
+}
+function noise(t, d, v, fc, q = 1, type = 'bandpass'){
+  if (!AC || !NB) return;
+  const s = AC.createBufferSource(), fl = AC.createBiquadFilter(), g = AC.createGain();
+  s.buffer = NB; fl.type = type; fl.frequency.value = fc; fl.Q.value = q;
+  g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(v, t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + d);
+  s.connect(fl); fl.connect(g); g.connect(MG); s.start(t, Math.random()*.5); s.stop(t + d + .05);
+}
+const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
+function sfx(k){
+  if (!AC || !soundOn) return;
+  const t = AC.currentTime + .01;
+  switch (k){
+  case 'click': tone(1200, t, .05, 'square', .04); break;
+  case 'step': noise(t, .08, .08, 500, .7); break;
+  case 'tick': tone(1800, t, .03, 'square', .05); tone(1500, t + .35, .03, 'square', .05); break;
+  case 'pick': tone(660, t, .1, 'triangle', .2); tone(990, t + .08, .18, 'triangle', .2); break;
+  case 'unlock': [523,659,784,1047].forEach((f,i) => tone(f, t + i*.07, .2, 'triangle', .2)); noise(t, .05, .2, 3000, 2); break;
+  case 'ng': tone(220, t, .22, 'square', .07, 160); break;
+  case 'meow': tone(620, t, .12, 'sawtooth', .06, 980); tone(980, t + .12, .3, 'sawtooth', .06, 440); break;
+  case 'hiss': noise(t, .45, .18, 4000, .6, 'highpass'); break;
+  case 'fire': noise(t, .6, .25, 700, .5, 'lowpass'); noise(t + .1, .4, .12, 1600, 1); break;
+  case 'plop': tone(320, t, .18, 'sine', .3, 110); break;
+  case 'poof': noise(t, .7, .35, 380, .6); tone(140, t, .4, 'sine', .2, 60); break;
+  case 'magic': [62,66,69,74,78,81].forEach((m,i) => tone(mtof(m+12), t + i*.06, .4, 'sine', .14)); break;
+  case 'magic2': [74,78,81].forEach((m,i) => tone(mtof(m+12), t + i*.05, .3, 'sine', .08)); break;
+  case 'creak': tone(80, t, .9, 'sawtooth', .06, 150); tone(120, t + .2, .7, 'sawtooth', .04, 90); break;
+  case 'knock': noise(t, .07, .4, 220, 1.5); noise(t + .18, .07, .4, 220, 1.5); break;
+  case 'rattle': for (let i = 0; i < 5; i++) noise(t + i*.05, .03, .2, 2600, 4); break;
+  case 'boo': tone(440, t, .5, 'sine', .15, 330); tone(447, t, .5, 'sine', .1, 336); break;
+  case 'win': [62,65,69,74, 66,69,74,78].forEach((m,i) => tone(mtof(m+12), t + i*.11, .5, 'triangle', .16)); tone(mtof(50), t + .44, 1.2, 'sine', .2); break;
+  }
+}
+// spooky music-box loop (D minor)
+const MEL = [74,77,81,77, 74,77,81,82, 81,77,74,73, 74,0,0,0, 72,76,79,76, 72,76,79,81, 79,76,73,76, 74,0,69,0];
+const BAS = [50,50,45,50,48,48,45,50];
+const STEP = .26;
+function sched(){
+  if (!AC || !bgmOn) return;
+  while (nextT < AC.currentTime + .4){
+    const m = MEL[step % 32];
+    if (m && soundOn){ tone(mtof(m), nextT, .5, 'triangle', .07); tone(mtof(m + 12), nextT, .25, 'sine', .025); }
+    if (step % 4 === 0 && soundOn) tone(mtof(BAS[(step/4|0) % 8] - 12), nextT, STEP*3.6, 'sine', .11);
+    nextT += STEP; step++;
+  }
+}
+function setBgm(on){
+  bgmOn = on;
+  clearInterval(bgmTimer); bgmTimer = null;
+  if (on && AC){ nextT = AC.currentTime + .15; step = 0; bgmTimer = setInterval(sched, 90); }
+}
+const SND_ON = `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`;
+const SND_OFF = `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 9l6 6M22 9l-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
+function drawSnd(){ $('sndBtn').innerHTML = soundOn ? SND_ON : SND_OFF; $('sndBtn').setAttribute('aria-pressed', soundOn ? 'true' : 'false'); }
+$('sndBtn').addEventListener('click', () => {
+  soundOn = !soundOn; store.set(KEY_SND, soundOn ? '1' : '0'); drawSnd();
+  if (soundOn) initAudio();
+  if (MG) MG.gain.value = soundOn ? .5 : 0;
+  if (soundOn) sfx('click');
+});
+document.addEventListener('visibilitychange', () => { if (!document.hidden && AC) initAudio(); });
+
+/* ============ init ============ */
+const heroArt = `${DEFS}<circle cx="150" cy="40" r="24" fill="url(#gMoon)"/>${bat(52,30,.6)}${bat(92,18,.4)}${bat(170,82,.35)}
+  <ellipse cx="100" cy="112" rx="70" ry="44" fill="url(#gGlow)"/>${pumpkin(100, 98, 44, true)}`;
+$('heroSvg').innerHTML = heroArt;
+$('clearSvg').innerHTML = `${DEFS}<circle cx="44" cy="40" r="22" fill="url(#gMoon)"/>${ghost(130, 80, .9)}${pumpkin(60, 118, 24, true)}${bat(170,26,.5)}`;
+drawSnd(); updateTitle(); render(); renderInv();
+say('');
+})();
+</script>
+</body>
+</html>
