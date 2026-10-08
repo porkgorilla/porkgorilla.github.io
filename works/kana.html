@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KANA_QUIZ | porkgorilla://</title>
+  <meta name="description" content="ひらがな・カタカナの読み方(ローマ字)を4択で答えるクイズ。濁音・半濁音つき。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBT4300J0L');
+  </script>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    main { padding: 24px 16px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+    h1 { margin: 0; font-size: 1.6rem; }
+    #card { width: 100%; max-width: 480px; padding: 24px 20px; text-align: center; }
+    .opts { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; text-align: left; }
+    .opts label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .opts legend { color: var(--cyber-green-dim); font-size: .85rem; margin-bottom: 4px; }
+    fieldset { border: 1px solid var(--cyber-green-dim); padding: 10px 14px; margin: 0; }
+    #progress { color: var(--cyber-green-dim); font-size: .9rem; }
+    #kana { font-size: 5rem; line-height: 1.2; margin: 12px 0; color: var(--cyber-green); text-shadow: 0 0 10px var(--cyber-green); font-family: serif; }
+    #choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .choice { padding: 14px; font-size: 1.2rem; border: 1px solid var(--cyber-green-dim); background: var(--cyber-bg-panel);
+      color: var(--cyber-text); font-family: var(--cyber-font); cursor: pointer; }
+    .choice:hover:not(:disabled) { background: var(--cyber-green-faint); }
+    .choice.correct { background: var(--cyber-green); border-color: var(--cyber-green); color: #000; }
+    .choice.wrong { background: var(--cyber-red); border-color: var(--cyber-red); color: #000; }
+    #feedback { min-height: 1.6em; margin-top: 12px; }
+    #result b { font-size: 2.4rem; color: var(--cyber-green); text-shadow: 0 0 8px var(--cyber-green); display: block; margin: 8px 0; }
+    #misses { margin: 12px 0; font-size: .95rem; line-height: 1.8; }
+    .btn { margin-top: 12px; }
+    .hidden { display: none; }
+    .credit { font-size: 11px; color: var(--cyber-green-dim); margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>あ KANA_QUIZ</h1>
+
+    <div id="card" class="panel">
+      <div id="start">
+        <p>表示されたかなの読み方を、ローマ字4択で答えよう。全20問。</p>
+        <div class="opts">
+          <fieldset>
+            <legend>文字</legend>
+            <label><input type="radio" name="script" value="h" checked> ひらがな</label>
+            <label><input type="radio" name="script" value="k"> カタカナ</label>
+            <label><input type="radio" name="script" value="hk"> 両方</label>
+          </fieldset>
+          <label><input type="checkbox" id="dakuten"> 濁音・半濁音(が・ぱ など)も出す</label>
+          <label><input type="checkbox" id="yoon"> 拗音(きゃ・しゅ など)も出す</label>
+        </div>
+        <button class="btn" id="begin" type="button">START</button>
+      </div>
+      <div id="quiz" class="hidden">
+        <div id="progress"></div>
+        <div id="kana" lang="ja"></div>
+        <div id="choices"></div>
+        <div id="feedback"></div>
+      </div>
+      <div id="result" class="hidden">
+        <div>結果</div>
+        <b id="final"></b>
+        <div id="misses"></div>
+        <button class="btn" id="restart" type="button">もう一度</button>
+      </div>
+    </div>
+    <div class="credit">porkgorilla — 2026</div>
+  </main>
+
+  <script src="/site.js"></script>
+  <script>
+    // [ひらがな, ローマ字]。カタカナはコードポイントをずらして作る
+    const BASIC = 'あa いi うu えe おo かka きki くku けke こko さsa しshi すsu せse そso たta ちchi つtsu てte とto なna にni ぬnu ねne のno はha ひhi ふfu へhe ほho まma みmi むmu めme もmo やya ゆyu よyo らra りri るru れre ろro わwa をwo んn';
+    const DAKU = 'がga ぎgi ぐgu げge ごgo ざza じji ずzu ぜze ぞzo だda ぢji づzu でde どdo ばba びbi ぶbu べbe ぼbo ぱpa ぴpi ぷpu ぺpe ぽpo';
+    const YOON = 'きゃkya きゅkyu きょkyo しゃsha しゅshu しょsho ちゃcha ちゅchu ちょcho にゃnya にゅnyu にょnyo ひゃhya ひゅhyu ひょhyo みゃmya みゅmyu みょmyo りゃrya りゅryu りょryo ぎゃgya ぎゅgyu ぎょgyo じゃja じゅju じょjo びゃbya びゅbyu びょbyo ぴゃpya ぴゅpyu ぴょpyo';
+    const ROUNDS = 20;
+
+    const parse = s => s.split(' ').map(t => { const m = t.match(/^([^a-z]+)([a-z]+)$/); return [m[1], m[2]]; });
+    const toKata = s => s.replace(/[ぁ-ゖ]/g, c => String.fromCharCode(c.charCodeAt(0) + 0x60));
+    const $ = id => document.getElementById(id);
+
+    function shuffle(a) {
+      a = a.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    let pool, questions, index, score, answered, misses;
+
+    function startQuiz() {
+      const script = document.querySelector('input[name=script]:checked').value;
+      let base = parse(BASIC);
+      if ($('dakuten').checked) base = base.concat(parse(DAKU));
+      if ($('yoon').checked) base = base.concat(parse(YOON));
+      pool = [];
+      base.forEach(([h, r]) => {
+        if (script.includes('h')) pool.push([h, r]);
+        if (script.includes('k')) pool.push([toKata(h), r]);
+      });
+      // 出題数がプールより多いときは重複を許す
+      questions = [];
+      while (questions.length < ROUNDS) questions = questions.concat(shuffle(pool));
+      questions = questions.slice(0, ROUNDS);
+      index = 0; score = 0; misses = [];
+      $('start').classList.add('hidden');
+      $('result').classList.add('hidden');
+      $('quiz').classList.remove('hidden');
+      show();
+    }
+
+    function show() {
+      answered = false;
+      const [kana, roma] = questions[index];
+      $('progress').textContent = `${index + 1} / ${ROUNDS}問  ·  正解 ${score}`;
+      $('kana').textContent = kana;
+      $('feedback').textContent = '';
+      const wrongRoma = [...new Set(pool.map(p => p[1]).filter(r => r !== roma))];
+      const box = $('choices');
+      box.innerHTML = '';
+      shuffle([roma, ...shuffle(wrongRoma).slice(0, 3)]).forEach(r => {
+        const b = document.createElement('button');
+        b.className = 'choice';
+        b.type = 'button';
+        b.textContent = r;
+        b.onclick = () => answer(b, r === roma);
+        box.appendChild(b);
+      });
+    }
+
+    function answer(btn, ok) {
+      if (answered) return;
+      answered = true;
+      const [kana, roma] = questions[index];
+      btn.classList.add(ok ? 'correct' : 'wrong');
+      document.querySelectorAll('.choice').forEach(b => {
+        b.disabled = true;
+        if (b.textContent === roma) b.classList.add('correct');
+      });
+      if (ok) { score++; $('feedback').textContent = '○ 正解!'; }
+      else { misses.push(kana + ' = ' + roma); $('feedback').textContent = `× ${kana} は「${roma}」`; }
+      setTimeout(() => {
+        index++;
+        if (index >= ROUNDS) showResult(); else show();
+      }, ok ? 600 : 1400);
+    }
+
+    function showResult() {
+      $('quiz').classList.add('hidden');
+      $('result').classList.remove('hidden');
+      $('final').textContent = `${score} / ${ROUNDS}`;
+      $('misses').textContent = misses.length ? '間違えた文字: ' + [...new Set(misses)].join(' / ') : '全問正解! すばらしい!';
+    }
+
+    // 4択をキーボードの1〜4でも選べる
+    document.addEventListener('keydown', e => {
+      if ($('quiz').classList.contains('hidden')) return;
+      const n = parseInt(e.key, 10);
+      const btns = document.querySelectorAll('.choice');
+      if (n >= 1 && n <= btns.length) btns[n - 1].click();
+    });
+
+    $('begin').onclick = startQuiz;
+    $('restart').onclick = () => { $('result').classList.add('hidden'); $('start').classList.remove('hidden'); };
+  </script>
+</body>
+</html>

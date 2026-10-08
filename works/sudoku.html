@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SUDOKU | porkgorilla://</title>
+  <meta name="description" content="定番の数独(ナンプレ)。毎回自動生成、3段階の難易度、メモ機能つき。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBT4300J0L');
+  </script>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    main { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 24px 16px;
+      user-select: none; -webkit-user-select: none; text-align: center; }
+    h1 { margin: 0; font-size: 1.6rem; }
+    #info { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; justify-content: center; }
+    #info select { font-family: var(--cyber-font); font-size: .95rem; padding: 4px 6px;
+      background: var(--cyber-bg-panel); color: var(--cyber-text); border: 1px solid var(--cyber-green-dim); }
+    #board { display: grid; grid-template-columns: repeat(9, 1fr); width: min(94vw, 450px); aspect-ratio: 1;
+      border: 2px solid var(--cyber-green); background: var(--cyber-bg-panel); box-shadow: 0 0 12px rgba(57, 255, 106, .25); }
+    .cell { display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer;
+      border-right: 1px solid rgba(30, 143, 62, .45); border-bottom: 1px solid rgba(30, 143, 62, .45);
+      font-size: clamp(1rem, 5vw, 1.6rem); color: #8fffb0; }
+    .cell:nth-child(9n) { border-right: none; }
+    .cell:nth-child(9n+3), .cell:nth-child(9n+6) { border-right: 2px solid var(--cyber-green-dim); }
+    .cell.r2, .cell.r5 { border-bottom: 2px solid var(--cyber-green-dim); }
+    .cell.r8 { border-bottom: none; }
+    .cell.given { color: var(--cyber-text); font-weight: bold; cursor: default; }
+    .cell.peer { background: rgba(57, 255, 106, .06); }
+    .cell.same { background: rgba(57, 255, 106, .18); }
+    .cell.sel { background: rgba(57, 255, 106, .32); }
+    .cell.bad { color: var(--cyber-red); }
+    .notes { position: absolute; inset: 2px; display: grid; grid-template-columns: repeat(3, 1fr); font-size: clamp(.45rem, 2vw, .7rem);
+      color: var(--cyber-green-dim); line-height: 1; }
+    .notes span { display: flex; align-items: center; justify-content: center; }
+    #pad { display: grid; grid-template-columns: repeat(9, 1fr); gap: 6px; width: min(94vw, 450px); }
+    #pad button { padding: 8px 0; font-family: var(--cyber-font); font-size: 1.2rem; cursor: pointer;
+      border: 1px solid var(--cyber-green-dim); background: var(--cyber-green-faint); color: var(--cyber-green); }
+    #pad button:hover { background: var(--cyber-green); color: #000; }
+    #pad button.on { background: var(--cyber-green); color: #000; }
+    #pad button .left { display: block; font-size: .6rem; opacity: .7; }
+    #msg { min-height: 1.5em; color: var(--cyber-green); }
+    .keys { font-size: .8rem; color: var(--cyber-green-dim); }
+    .credit { font-size: 11px; color: var(--cyber-green-dim); margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>🔢 SUDOKU</h1>
+    <div id="info">
+      <select id="level" aria-label="難易度">
+        <option value="38">かんたん</option>
+        <option value="30" selected>ふつう</option>
+        <option value="25">むずかしい</option>
+      </select>
+      <span>⏱ <span id="time">0:00</span></span>
+      <span>ミス <span id="miss">0</span></span>
+    </div>
+    <div id="board"></div>
+    <div id="pad"></div>
+    <div id="msg"></div>
+    <button class="btn" id="new" type="button">NEW GAME</button>
+    <div class="keys">数字キーで入力 / 0・Delete で消す / N でメモ切り替え / 矢印で移動</div>
+    <div class="credit">porkgorilla — 2026</div>
+  </main>
+
+  <script src="/site.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    const peersOf = i => {
+      const r = Math.floor(i / 9), c = i % 9, br = r - r % 3, bc = c - c % 3, s = new Set();
+      for (let k = 0; k < 9; k++) { s.add(r * 9 + k); s.add(k * 9 + c); s.add((br + Math.floor(k / 3)) * 9 + bc + k % 3); }
+      s.delete(i);
+      return [...s];
+    };
+    const PEERS = Array.from({ length: 81 }, (_, i) => peersOf(i));
+
+    function shuffle(a) {
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+    const canPlace = (g, i, v) => PEERS[i].every(p => g[p] !== v);
+
+    // 解の数を数える(limit で打ち切り)。候補の少ないマスから埋める
+    function countSolutions(g, limit) {
+      let best = -1, bestOpts = null;
+      for (let i = 0; i < 81; i++) {
+        if (g[i]) continue;
+        const opts = [];
+        for (let v = 1; v <= 9; v++) if (canPlace(g, i, v)) opts.push(v);
+        if (!opts.length) return 0;
+        if (!bestOpts || opts.length < bestOpts.length) { best = i; bestOpts = opts; if (opts.length === 1) break; }
+      }
+      if (best < 0) return 1;
+      let n = 0;
+      for (const v of bestOpts) {
+        g[best] = v;
+        n += countSolutions(g, limit - n);
+        g[best] = 0;
+        if (n >= limit) break;
+      }
+      return n;
+    }
+
+    function fillGrid(g) {
+      const i = g.indexOf(0);
+      if (i < 0) return true;
+      for (const v of shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9])) {
+        if (canPlace(g, i, v)) { g[i] = v; if (fillGrid(g)) return true; }
+      }
+      g[i] = 0;
+      return false;
+    }
+
+    // 答えが1つに決まる範囲で、目標の手がかり数まで数字を抜く
+    function generate(clues) {
+      const sol = new Array(81).fill(0);
+      fillGrid(sol);
+      const puz = sol.slice();
+      let count = 81;
+      for (const i of shuffle([...Array(81).keys()])) {
+        if (count <= clues) break;
+        const v = puz[i];
+        puz[i] = 0;
+        if (countSolutions(puz.slice(), 2) !== 1) puz[i] = v; else count--;
+      }
+      return { sol, puz };
+    }
+
+    let sol, given, grid, notes, sel, noteMode, misses, startAt, timer, solved;
+
+    function newGame() {
+      const g = generate(parseInt($('level').value, 10));
+      sol = g.sol;
+      given = g.puz.map(v => v > 0);
+      grid = g.puz.slice();
+      notes = Array.from({ length: 81 }, () => new Set());
+      sel = given.indexOf(false);
+      misses = 0; solved = false;
+      $('miss').textContent = 0;
+      $('msg').textContent = '';
+      startAt = Date.now();
+      clearInterval(timer);
+      timer = setInterval(updateTime, 500);
+      updateTime();
+      render();
+    }
+
+    function updateTime() {
+      const s = Math.floor((Date.now() - startAt) / 1000);
+      $('time').textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+    }
+
+    const board = $('board');
+    const cells = [];
+    for (let i = 0; i < 81; i++) {
+      const d = document.createElement('div');
+      d.className = 'cell r' + Math.floor(i / 9);
+      d.onclick = () => { sel = i; render(); };
+      board.appendChild(d);
+      cells.push(d);
+    }
+
+    const pad = $('pad');
+    const padBtns = {};
+    [1, 2, 3, 4, 5, 6, 7, 8, 9, 'メモ', '消す'].forEach(k => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      if (typeof k === 'number') b.innerHTML = k + '<span class="left"></span>';
+      else b.textContent = k;
+      b.onclick = () => k === 'メモ' ? toggleNote() : k === '消す' ? input(0) : input(k);
+      pad.appendChild(b);
+      padBtns[k] = b;
+    });
+    // 1段目に1〜9、2段目にメモと消すを横長で置く
+    padBtns['メモ'].style.gridColumn = 'span 5';
+    padBtns['消す'].style.gridColumn = 'span 4';
+
+    function toggleNote() { noteMode = !noteMode; render(); }
+
+    function input(v) {
+      if (solved || sel < 0 || given[sel]) return;
+      if (noteMode && v) {
+        if (grid[sel]) return;
+        notes[sel].has(v) ? notes[sel].delete(v) : notes[sel].add(v);
+      } else {
+        if (v && v !== sol[sel] && grid[sel] !== v) { misses++; $('miss').textContent = misses; }
+        grid[sel] = v;
+        notes[sel].clear();
+        // 確定した数字は同じ行・列・ブロックのメモから消す
+        if (v === sol[sel]) PEERS[sel].forEach(p => notes[p].delete(v));
+      }
+      render();
+      if (grid.every((x, i) => x === sol[i])) win();
+    }
+
+    function win() {
+      solved = true;
+      clearInterval(timer);
+      $('msg').textContent = `🎉 クリア! タイム ${$('time').textContent} / ミス ${misses}`;
+    }
+
+    function render() {
+      const selVal = sel >= 0 ? grid[sel] : 0;
+      const peers = sel >= 0 ? new Set(PEERS[sel]) : new Set();
+      cells.forEach((d, i) => {
+        const v = grid[i];
+        d.classList.toggle('given', given[i]);
+        d.classList.toggle('sel', i === sel);
+        d.classList.toggle('peer', peers.has(i));
+        d.classList.toggle('same', !!selVal && v === selVal && i !== sel);
+        d.classList.toggle('bad', !!v && !given[i] && v !== sol[i]);
+        if (v) d.textContent = v;
+        else if (notes[i].size) d.innerHTML = '<div class="notes">' +
+          [1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => '<span>' + (notes[i].has(n) ? n : '') + '</span>').join('') + '</div>';
+        else d.textContent = '';
+      });
+      padBtns['メモ'].classList.toggle('on', !!noteMode);
+      padBtns['メモ'].textContent = noteMode ? '✎ メモON' : '✎ メモ';
+      for (let n = 1; n <= 9; n++) {
+        const left = 9 - grid.filter((x, i) => x === n && x === sol[i]).length;
+        padBtns[n].querySelector('.left').textContent = left ? '残' + left : '✓';
+      }
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.target.tagName === 'SELECT') return;
+      if (/^[1-9]$/.test(e.key)) input(+e.key);
+      else if (e.key === '0' || e.key === 'Backspace' || e.key === 'Delete') { e.preventDefault(); input(0); }
+      else if (e.key === 'n' || e.key === 'N') toggleNote();
+      else if (e.key.startsWith('Arrow')) {
+        e.preventDefault();
+        if (sel < 0) sel = 0;
+        const r = Math.floor(sel / 9), c = sel % 9;
+        const d = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] }[e.key];
+        sel = ((r + d[0] + 9) % 9) * 9 + (c + d[1] + 9) % 9;
+        render();
+      }
+    });
+
+    $('new').onclick = newGame;
+    $('level').onchange = newGame;
+    newGame();
+  </script>
+</body>
+</html>

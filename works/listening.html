@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LISTEN_TYPE | porkgorilla://</title>
+  <meta name="description" content="読み上げられた英単語を聞き取って書く、英語ディクテーション。全10問、ゆっくり再生とヒントつき。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBT4300J0L');
+  </script>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    main { padding: 24px 16px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+    h1 { margin: 0; font-size: 1.6rem; }
+    #card { width: 100%; max-width: 480px; padding: 24px 20px; text-align: center; }
+    #progress { color: var(--cyber-green-dim); font-size: .9rem; }
+    .play { display: flex; gap: 10px; justify-content: center; margin: 18px 0; flex-wrap: wrap; }
+    .play .btn { padding: .8rem 1.2rem; }
+    #ans { width: 100%; font-family: var(--cyber-font); font-size: 1.5rem; padding: 10px; text-align: center;
+      background: var(--cyber-bg); color: var(--cyber-green); border: 1px solid var(--cyber-green-dim);
+      text-transform: lowercase; letter-spacing: .08em; }
+    #ans:focus { outline: none; border-color: var(--cyber-green); box-shadow: 0 0 8px rgba(57, 255, 106, .3); }
+    #hint { min-height: 1.6em; margin-top: 10px; color: var(--cyber-green-dim); letter-spacing: .2em; }
+    #feedback { min-height: 3.2em; margin-top: 8px; line-height: 1.6; }
+    #feedback .ok { color: var(--cyber-green); }
+    #feedback .ng { color: var(--cyber-red); }
+    .actions { display: flex; gap: 10px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
+    #result b { font-size: 2.4rem; color: var(--cyber-green); text-shadow: 0 0 8px var(--cyber-green); display: block; margin: 8px 0; }
+    #review { text-align: left; margin: 12px auto; max-width: 320px; line-height: 1.8; font-size: .95rem; }
+    #review .ng { color: var(--cyber-red); }
+    .opts { margin: 14px 0; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+    .opts select { font-family: var(--cyber-font); font-size: .95rem; padding: 6px 8px;
+      background: var(--cyber-bg-panel); color: var(--cyber-text); border: 1px solid var(--cyber-green-dim); }
+    #nosound { color: var(--cyber-red); font-size: .9rem; }
+    .hidden { display: none; }
+    .credit { font-size: 11px; color: var(--cyber-green-dim); margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>🎧 LISTEN_TYPE</h1>
+
+    <div id="card" class="panel">
+      <div id="start">
+        <p>流れてくる英単語を聞き取って、つづりを入力しよう。全10問。<br>音が出る設定にしてね 🔊</p>
+        <div class="opts">
+          <select id="level" aria-label="レベル">
+            <option value="0">やさしい (3〜5文字)</option>
+            <option value="1" selected>ふつう (5〜7文字)</option>
+            <option value="2">むずかしい (8文字以上)</option>
+          </select>
+        </div>
+        <p id="nosound" class="hidden">このブラウザは音声読み上げに対応していません。</p>
+        <button class="btn" id="begin" type="button">START</button>
+      </div>
+      <div id="quiz" class="hidden">
+        <div id="progress"></div>
+        <div class="play">
+          <button class="btn" id="say" type="button">🔊 もう一度</button>
+          <button class="btn" id="slow" type="button">🐢 ゆっくり</button>
+        </div>
+        <form id="form" autocomplete="off">
+          <input id="ans" type="text" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="聞こえた単語">
+        </form>
+        <div id="hint"></div>
+        <div id="feedback"></div>
+        <div class="actions">
+          <button class="btn" id="hintBtn" type="button">ヒント</button>
+          <button class="btn" id="check" type="button">答える</button>
+        </div>
+      </div>
+      <div id="result" class="hidden">
+        <div>結果</div>
+        <b id="final"></b>
+        <div id="review"></div>
+        <button class="btn" id="restart" type="button">もう一度</button>
+      </div>
+    </div>
+    <div class="credit">porkgorilla — 2026</div>
+  </main>
+
+  <script src="/site.js"></script>
+  <script>
+    const WORDS = [
+      [ // やさしい
+        ['cat', 'ねこ'], ['dog', 'いぬ'], ['milk', '牛乳'], ['bird', '鳥'], ['fish', '魚'], ['rain', '雨'], ['snow', '雪'],
+        ['door', 'ドア'], ['hand', '手'], ['tree', '木'], ['green', '緑'], ['house', '家'], ['bread', 'パン'], ['chair', 'いす'],
+        ['clock', '時計'], ['night', '夜'], ['sleep', '眠る'], ['smile', '笑顔'], ['white', '白'], ['juice', 'ジュース']
+      ],
+      [ // ふつう
+        ['animal', '動物'], ['garden', '庭'], ['market', '市場'], ['orange', 'オレンジ'], ['people', '人々'], ['letter', '手紙'],
+        ['bridge', '橋'], ['travel', '旅行する'], ['winter', '冬'], ['summer', '夏'], ['island', '島'], ['kitchen', '台所'],
+        ['station', '駅'], ['picture', '写真・絵'], ['weather', '天気'], ['finish', '終える'], ['answer', '答え'], ['listen', '聞く'],
+        ['window', '窓'], ['doctor', '医者']
+      ],
+      [ // むずかしい
+        ['beautiful', '美しい'], ['important', '重要な'], ['vegetable', '野菜'], ['different', '異なる'], ['knowledge', '知識'],
+        ['necessary', '必要な'], ['environment', '環境'], ['restaurant', 'レストラン'], ['experience', '経験'], ['government', '政府'],
+        ['dictionary', '辞書'], ['temperature', '温度'], ['comfortable', '快適な'], ['Wednesday', '水曜日'], ['February', '2月'],
+        ['interesting', '面白い'], ['chocolate', 'チョコレート'], ['delicious', 'おいしい'], ['tomorrow', '明日'], ['exercise', '運動']
+      ]
+    ];
+    const ROUNDS = 10;
+    const $ = id => document.getElementById(id);
+    const canSpeak = 'speechSynthesis' in window;
+    if (!canSpeak) { $('nosound').classList.remove('hidden'); $('begin').disabled = true; }
+
+    function shuffle(a) {
+      a = a.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    let questions, index, score, hints, done, log;
+
+    function say(rate) {
+      if (!canSpeak) return;
+      const u = new SpeechSynthesisUtterance(questions[index][0]);
+      u.lang = 'en-US';
+      u.rate = rate || 0.9;
+      speechSynthesis.cancel();
+      speechSynthesis.speak(u);
+      $('ans').focus();
+    }
+
+    function startQuiz() {
+      questions = shuffle(WORDS[$('level').value]).slice(0, ROUNDS);
+      index = 0; score = 0; log = [];
+      $('start').classList.add('hidden');
+      $('result').classList.add('hidden');
+      $('quiz').classList.remove('hidden');
+      show();
+    }
+
+    function show() {
+      done = false; hints = 0;
+      $('progress').textContent = `${index + 1} / ${ROUNDS}問  ·  正解 ${score}`;
+      $('ans').value = '';
+      $('ans').readOnly = false;
+      $('hint').textContent = '';
+      $('feedback').innerHTML = '';
+      $('check').textContent = '答える';
+      $('hintBtn').disabled = false;
+      say();
+    }
+
+    function hint() {
+      const w = questions[index][0];
+      hints = Math.min(hints + 1, w.length - 1);
+      // 1回目は文字数、2回目以降は先頭から1文字ずつ見せる
+      $('hint').textContent = w.split('').map((c, i) => i < hints - 1 ? c : '_').join(' ') +
+        (hints === 1 ? `  (${w.length}文字)` : '');
+      if (hints >= w.length - 1) $('hintBtn').disabled = true;
+      $('ans').focus();
+    }
+
+    function check() {
+      if (done) return next();
+      const [word, meaning] = questions[index];
+      const typed = $('ans').value.trim();
+      if (!typed) { say(); return; }
+      done = true;
+      $('ans').readOnly = true;
+      $('hintBtn').disabled = true;
+      const ok = typed.toLowerCase() === word.toLowerCase();
+      if (ok) score++;
+      log.push({ word, meaning, typed, ok });
+      $('feedback').innerHTML = ok
+        ? '<span class="ok">○ 正解!</span>'
+        : '<span class="ng">× 正解は</span>';
+      const detail = document.createElement('div');
+      detail.textContent = `${word} — ${meaning}`;
+      $('feedback').appendChild(detail);
+      $('check').textContent = index + 1 === ROUNDS ? '結果を見る' : '次へ';
+      $('check').focus();
+    }
+
+    function next() {
+      index++;
+      if (index >= ROUNDS) return showResult();
+      show();
+    }
+
+    function showResult() {
+      $('quiz').classList.add('hidden');
+      $('result').classList.remove('hidden');
+      $('final').textContent = `${score} / ${ROUNDS}`;
+      const box = $('review');
+      box.innerHTML = '';
+      log.forEach(r => {
+        const d = document.createElement('div');
+        d.className = r.ok ? '' : 'ng';
+        d.textContent = (r.ok ? '○ ' : '× ') + r.word + (r.ok ? '' : `  (入力: ${r.typed})`);
+        box.appendChild(d);
+      });
+    }
+
+    $('form').onsubmit = e => { e.preventDefault(); check(); };
+    $('check').onclick = check;
+    $('hintBtn').onclick = hint;
+    $('say').onclick = () => say();
+    $('slow').onclick = () => say(0.5);
+    $('begin').onclick = startQuiz; // ユーザー操作から始めるので1問目も自動再生できる
+    $('restart').onclick = () => { $('result').classList.add('hidden'); $('start').classList.remove('hidden'); };
+  </script>
+</body>
+</html>
