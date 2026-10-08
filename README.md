@@ -32,6 +32,7 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 | [フラッピーばーちゃん](https://porkgorilla.com/works/flappy-baachan.html) | GAME | 焼き芋を食べたら屁で加速。竹林をくぐって飛ぶ、ばーちゃんのフラッピーゲーム |
 | [さばの○そ煮](https://porkgorilla.com/works/sabanomaru.html) | GAME | 開くとルーレットが回って、さばの○そ煮の「○」が決まるジョークアプリ |
 | [かぼちゃ屋敷からの脱出](https://porkgorilla.com/works/kabocha-yashiki.html) | GAME | ハロウィンの夜、魔女の屋敷の謎を解いて抜け出す2D脱出ゲーム |
+| [ドバドバドーザー](https://porkgorilla.com/works/dobadoba-dozer.html) | GAME | コインを落として押し出す、ポップな3Dコインドーザー |
 
 ## 構成
 
@@ -67,7 +68,8 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
     ├── taipei-infinity.html
     ├── flappy-baachan.html
     ├── sabanomaru.html
-    └── kabocha-yashiki.html
+    ├── kabocha-yashiki.html
+    └── dobadoba-dozer.html
 ```
 
 `theme.css` / `site.js` / `favicon.svg` はルート直下に置き、各作品ページからは絶対パス(`/theme.css` など)で読み込みます。404.html も GitHub Pages の仕様上ルート直下が必須です。
