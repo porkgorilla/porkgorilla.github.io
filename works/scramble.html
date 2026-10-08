@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SPELL_SCRAMBLE | porkgorilla://</title>
+  <meta name="description" content="バラバラになった文字を並べ替えて英単語をつくるパズル。日本語の意味がヒント。60秒で何問解けるか挑戦。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBT4300J0L');
+  </script>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    main { padding: 24px 16px; display: flex; flex-direction: column; align-items: center; gap: 16px;
+      user-select: none; -webkit-user-select: none; }
+    h1 { margin: 0; font-size: 1.6rem; }
+    #card { width: 100%; max-width: 520px; padding: 24px 16px; text-align: center; }
+    #hud { display: flex; justify-content: space-between; color: var(--cyber-green-dim); font-size: .95rem; }
+    #hud b { color: var(--cyber-green); }
+    #meaning { font-size: 1.6rem; margin: 18px 0 14px; }
+    .tiles { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; min-height: 52px; }
+    #answer { border-bottom: 1px dashed var(--cyber-green-dim); padding-bottom: 10px; margin-bottom: 14px; }
+    .tile { width: 42px; height: 46px; font-size: 1.4rem; font-family: var(--cyber-font); font-weight: bold;
+      border: 1px solid var(--cyber-green-dim); background: var(--cyber-green-faint); color: var(--cyber-green); cursor: pointer;
+      text-transform: lowercase; padding: 0; }
+    .tile:hover { border-color: var(--cyber-green); }
+    .tile.used { visibility: hidden; }
+    #answer .tile { background: var(--cyber-bg); }
+    #card.ok #answer .tile { background: var(--cyber-green); color: #000; }
+    #card.ng #answer { animation: shake .3s; }
+    @keyframes shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+    .actions { display: flex; gap: 10px; justify-content: center; margin-top: 16px; flex-wrap: wrap; }
+    .actions .btn { padding: .6rem 1rem; font-size: .9rem; }
+    #msg { min-height: 1.5em; margin-top: 10px; color: var(--cyber-green-dim); }
+    #result b { font-size: 2.4rem; color: var(--cyber-green); text-shadow: 0 0 8px var(--cyber-green); display: block; margin: 8px 0; }
+    #best { color: var(--cyber-green-dim); }
+    .hidden { display: none; }
+    .keys { font-size: .8rem; color: var(--cyber-green-dim); text-align: center; }
+    .credit { font-size: 11px; color: var(--cyber-green-dim); margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>🧩 SPELL_SCRAMBLE</h1>
+
+    <div id="card" class="panel">
+      <div id="start">
+        <p>バラバラの文字をタップして、意味に合う英単語をつくろう。<br>60秒で何問解けるかな?</p>
+        <p id="bestStart"></p>
+        <button class="btn" id="begin" type="button">START</button>
+      </div>
+      <div id="game" class="hidden">
+        <div id="hud"><span>TIME <b id="time">60</b></span><span>SCORE <b id="score">0</b></span></div>
+        <div id="meaning"></div>
+        <div id="answer" class="tiles"></div>
+        <div id="pool" class="tiles"></div>
+        <div id="msg"></div>
+        <div class="actions">
+          <button class="btn" id="undo" type="button">⌫ 1文字戻す</button>
+          <button class="btn" id="clear" type="button">クリア</button>
+          <button class="btn" id="skip" type="button">パス (-3秒)</button>
+        </div>
+      </div>
+      <div id="result" class="hidden">
+        <div>TIME UP!</div>
+        <b id="final"></b>
+        <div id="best"></div>
+        <div id="missed"></div>
+        <div class="actions"><button class="btn" id="restart" type="button">もう一度</button></div>
+      </div>
+    </div>
+    <div class="keys">キーボードでも入力できます (Backspace で1文字戻す)</div>
+    <div class="credit">porkgorilla — 2026</div>
+  </main>
+
+  <script src="/site.js"></script>
+  <script>
+    const WORDS = [
+      ['apple', 'りんご'], ['water', '水'], ['house', '家'], ['music', '音楽'], ['earth', '地球'], ['money', 'お金'],
+      ['light', '光'], ['ocean', '海'], ['plant', '植物'], ['train', '電車'], ['heart', '心'], ['dream', '夢'],
+      ['smile', '笑顔'], ['beach', '浜辺'], ['cloud', '雲'], ['spring', '春'], ['flower', '花'], ['friend', '友達'],
+      ['school', '学校'], ['animal', '動物'], ['garden', '庭'], ['winter', '冬'], ['planet', '惑星'], ['castle', '城'],
+      ['forest', '森'], ['island', '島'], ['bridge', '橋'], ['coffee', 'コーヒー'], ['camera', 'カメラ'], ['doctor', '医者'],
+      ['kitchen', '台所'], ['morning', '朝'], ['picture', '写真・絵'], ['weather', '天気'], ['country', '国'], ['history', '歴史'],
+      ['library', '図書館'], ['station', '駅'], ['holiday', '休日'], ['science', '科学'], ['mountain', '山'], ['birthday', '誕生日'],
+      ['computer', 'コンピューター'], ['language', '言語'], ['question', '質問'], ['umbrella', '傘'], ['elephant', 'ゾウ'], ['treasure', '宝物']
+    ];
+    const TIME = 60;
+    const STORE = 'scramble_best';
+    const $ = id => document.getElementById(id);
+
+    function shuffle(a) {
+      a = a.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+    function getBest() { try { return parseInt(localStorage.getItem(STORE) || '0', 10); } catch (e) { return 0; } }
+    function showBestStart() { const b = getBest(); $('bestStart').textContent = b ? `ベスト: ${b}問` : ''; }
+
+    let deck, word, letters, picked, score, timeLeft, timer, locked, missed;
+
+    function start() {
+      deck = shuffle(WORDS);
+      score = 0; timeLeft = TIME; missed = [];
+      $('score').textContent = 0;
+      $('time').textContent = TIME;
+      $('start').classList.add('hidden');
+      $('result').classList.add('hidden');
+      $('game').classList.remove('hidden');
+      clearInterval(timer);
+      timer = setInterval(tick, 1000);
+      nextWord();
+    }
+
+    function tick() {
+      timeLeft--;
+      $('time').textContent = Math.max(0, timeLeft);
+      if (timeLeft <= 0) end();
+    }
+
+    function nextWord() {
+      if (!deck.length) deck = shuffle(WORDS);
+      const [w, meaning] = deck.shift();
+      word = w;
+      // 元の単語と同じ並びにならないように混ぜる
+      do { letters = shuffle(word.split('')); } while (letters.join('') === word);
+      picked = [];
+      locked = false;
+      $('meaning').textContent = meaning;
+      $('msg').textContent = `${word.length}文字`;
+      $('card').classList.remove('ok', 'ng');
+      render();
+    }
+
+    function render() {
+      const pool = $('pool'), ans = $('answer');
+      pool.innerHTML = ''; ans.innerHTML = '';
+      letters.forEach((c, i) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'tile' + (picked.includes(i) ? ' used' : '');
+        b.textContent = c;
+        b.onclick = () => pick(i);
+        pool.appendChild(b);
+      });
+      picked.forEach((i, pos) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'tile';
+        b.textContent = letters[i];
+        b.onclick = () => { if (!locked) { picked.splice(pos, 1); render(); } };
+        ans.appendChild(b);
+      });
+    }
+
+    function pick(i) {
+      if (locked || picked.includes(i)) return;
+      picked.push(i);
+      render();
+      if (picked.length === letters.length) judge();
+    }
+
+    function judge() {
+      const made = picked.map(i => letters[i]).join('');
+      if (made === word) {
+        locked = true;
+        score++;
+        $('score').textContent = score;
+        $('card').classList.add('ok');
+        $('msg').textContent = '○ ' + word;
+        setTimeout(nextWord, 500);
+      } else {
+        $('card').classList.remove('ng');
+        void $('card').offsetWidth; // アニメーションをもう一度走らせる
+        $('card').classList.add('ng');
+        $('msg').textContent = 'ちがうみたい…';
+      }
+    }
+
+    function end() {
+      clearInterval(timer);
+      locked = true;
+      $('game').classList.add('hidden');
+      $('result').classList.remove('hidden');
+      $('final').textContent = `${score}問`;
+      const best = getBest();
+      if (score > best) {
+        try { localStorage.setItem(STORE, String(score)); } catch (e) {}
+        $('best').textContent = '🎉 ベスト更新!';
+      } else {
+        $('best').textContent = `ベスト: ${best}問`;
+      }
+      $('missed').textContent = missed.length ? 'パスした単語: ' + missed.join(', ') : '';
+    }
+
+    $('undo').onclick = () => { if (!locked && picked.length) { picked.pop(); render(); } };
+    $('clear').onclick = () => { if (!locked) { picked = []; render(); } };
+    $('skip').onclick = () => {
+      if (locked) return;
+      missed.push(word);
+      timeLeft = Math.max(1, timeLeft - 3);
+      $('time').textContent = timeLeft;
+      nextWord();
+    };
+    document.addEventListener('keydown', e => {
+      if ($('game').classList.contains('hidden') || locked) return;
+      if (e.key === 'Backspace') { e.preventDefault(); $('undo').click(); return; }
+      const k = e.key.toLowerCase();
+      if (k.length !== 1) return;
+      const i = letters.findIndex((c, idx) => c === k && !picked.includes(idx));
+      if (i >= 0) pick(i);
+    });
+    $('begin').onclick = start;
+    $('restart').onclick = start;
+    showBestStart();
+  </script>
+</body>
+</html>

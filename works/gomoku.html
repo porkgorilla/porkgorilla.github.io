@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GOMOKU | porkgorilla://</title>
+  <meta name="description" content="定番の五目並べ。縦・横・斜めに5つ並べたら勝ち。CPU対戦、先手・後手を選べる。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBT4300J0L');
+  </script>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    main { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 24px 16px;
+      user-select: none; -webkit-user-select: none; text-align: center; }
+    h1 { margin: 0; font-size: 1.6rem; }
+    #info { font-size: 1.05rem; }
+    #board { display: grid; grid-template-columns: repeat(15, 1fr); width: min(94vw, 480px); aspect-ratio: 1;
+      background: var(--cyber-bg-panel); border: 2px solid var(--cyber-green); box-shadow: 0 0 12px rgba(57, 255, 106, .25); padding: 4px; }
+    .pt { position: relative; cursor: pointer; border: none; background: none; padding: 0; }
+    /* 碁盤の線: 各マスの中心を通る十字を描く */
+    .pt::before, .pt::after { content: ""; position: absolute; background: var(--cyber-green-dim); }
+    .pt::before { left: 0; right: 0; top: 50%; height: 1px; }
+    .pt::after { top: 0; bottom: 0; left: 50%; width: 1px; }
+    .pt.c0::before { left: 50%; } .pt.c14::before { right: 50%; }
+    .pt.r0::after { top: 50%; } .pt.r14::after { bottom: 50%; }
+    .stone { position: absolute; inset: 8%; border-radius: 50%; z-index: 1; }
+    .stone.b { background: var(--cyber-green); box-shadow: 0 0 6px var(--cyber-green); }
+    .stone.w { background: var(--cyber-bg); border: 2px solid var(--cyber-text); }
+    .stone.last { outline: 2px solid var(--cyber-red); outline-offset: 1px; }
+    .stone.win { animation: glow .6s ease-in-out infinite alternate; }
+    @keyframes glow { to { transform: scale(1.15); } }
+    .pt:hover:not(:disabled) .ghost { position: absolute; inset: 20%; border-radius: 50%; background: var(--cyber-green-faint); z-index: 1; }
+    .star { position: absolute; left: 50%; top: 50%; width: 5px; height: 5px; margin: -2px 0 0 -2px; background: var(--cyber-green-dim); z-index: 0; }
+    #msg { min-height: 1.5em; color: var(--cyber-green); }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+    .row .btn { padding: .6rem 1.1rem; font-size: .9rem; }
+    #legend { font-size: .85rem; color: var(--cyber-green-dim); }
+    .credit { font-size: 11px; color: var(--cyber-green-dim); margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>⚪ GOMOKU</h1>
+    <div id="info">勝ち: <span id="wins">0</span> / 負け: <span id="loses">0</span> / 引分: <span id="draws">0</span></div>
+    <div id="board"></div>
+    <div id="msg"></div>
+    <div class="row">
+      <button class="btn" id="first" type="button">先手(●)で始める</button>
+      <button class="btn" id="second" type="button">後手(○)で始める</button>
+      <button class="btn" id="undo" type="button">↶ 待った</button>
+    </div>
+    <div id="legend">●=先手 / ○=後手 — 5つ並べたら勝ち(長連・禁じ手なしのルール)</div>
+    <div class="credit">porkgorilla — 2026</div>
+  </main>
+
+  <script src="/site.js"></script>
+  <script>
+    const N = 15;
+    const $ = id => document.getElementById(id);
+    const DIRS = [[0, 1], [1, 0], [1, 1], [1, -1]];
+    let board, me, cpu, turn, over, history;
+    const stats = { wins: 0, loses: 0, draws: 0 };
+    try { Object.assign(stats, JSON.parse(localStorage.getItem('gomoku_stats') || '{}')); } catch (e) {}
+    function saveStats() {
+      ['wins', 'loses', 'draws'].forEach(k => { $(k).textContent = stats[k]; });
+      try { localStorage.setItem('gomoku_stats', JSON.stringify(stats)); } catch (e) {}
+    }
+
+    const el = $('board');
+    const pts = [];
+    const STARS = [[3, 3], [3, 11], [7, 7], [11, 3], [11, 11]];
+    for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = `pt r${r} c${c}`;
+      b.setAttribute('aria-label', `${r + 1}行${c + 1}列`);
+      if (STARS.some(([sr, sc]) => sr === r && sc === c)) b.insertAdjacentHTML('beforeend', '<span class="star"></span>');
+      b.insertAdjacentHTML('beforeend', '<span class="ghost"></span>');
+      b.onclick = () => humanMove(r, c);
+      el.appendChild(b);
+      pts.push(b);
+    }
+
+    const at = (r, c) => (r < 0 || r >= N || c < 0 || c >= N) ? -1 : board[r * N + c];
+
+    function lineFrom(r, c, color) {
+      for (const [dr, dc] of DIRS) {
+        const cells = [[r, c]];
+        for (const s of [1, -1]) {
+          let rr = r + dr * s, cc = c + dc * s;
+          while (at(rr, cc) === color) { cells.push([rr, cc]); rr += dr * s; cc += dc * s; }
+        }
+        if (cells.length >= 5) return cells;
+      }
+      return null;
+    }
+
+    // ある点に color を置いたときの強さ。連の長さと両端が空いているかで点数をつける
+    function scoreAt(r, c, color) {
+      let total = 0;
+      for (const [dr, dc] of DIRS) {
+        let count = 1, open = 0;
+        for (const s of [1, -1]) {
+          let rr = r + dr * s, cc = c + dc * s;
+          while (at(rr, cc) === color) { count++; rr += dr * s; cc += dc * s; }
+          if (at(rr, cc) === 0) {
+            open++;
+            // 1マス空けて同色が続く「飛び」も少し評価する
+            if (at(rr + dr * s, cc + dc * s) === color) total += 30 * count;
+          }
+        }
+        if (count >= 5) total += 1e6;
+        else if (count === 4) total += open === 2 ? 1e5 : open === 1 ? 1e4 : 0;
+        else if (count === 3) total += open === 2 ? 5e3 : open === 1 ? 400 : 0;
+        else if (count === 2) total += open === 2 ? 200 : open === 1 ? 40 : 0;
+        else total += open * 4;
+      }
+      return total;
+    }
+
+    function cpuMove() {
+      if (history.length === 0) return [7, 7];
+      let best = null, bestScore = -1;
+      for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+        if (board[r * N + c]) continue;
+        // 既存の石から2マス以内だけを候補にする
+        let near = false;
+        for (let dr = -2; dr <= 2 && !near; dr++) for (let dc = -2; dc <= 2; dc++) if (at(r + dr, c + dc) > 0) { near = true; break; }
+        if (!near) continue;
+        const atk = scoreAt(r, c, cpu), def = scoreAt(r, c, me);
+        // 自分の勝ちを最優先、次に相手の勝ちを止める
+        const s = atk * 1.1 + def + Math.random() * 3 - (Math.abs(r - 7) + Math.abs(c - 7));
+        if (s > bestScore) { bestScore = s; best = [r, c]; }
+      }
+      return best;
+    }
+
+    function place(r, c, color) {
+      board[r * N + c] = color;
+      history.push([r, c, color]);
+      render();
+      const line = lineFrom(r, c, color);
+      if (line) {
+        over = true;
+        line.forEach(([rr, cc]) => pts[rr * N + cc].querySelector('.stone').classList.add('win'));
+        if (color === me) { stats.wins++; $('msg').textContent = '🎉 あなたの勝ち!'; }
+        else { stats.loses++; $('msg').textContent = 'CPUの勝ち…'; }
+        saveStats();
+        return;
+      }
+      if (history.length === N * N) { over = true; stats.draws++; saveStats(); $('msg').textContent = '引き分け'; return; }
+      turn = 3 - color;
+      $('msg').textContent = turn === me ? 'あなたの番' : 'CPU 考え中…';
+    }
+
+    function humanMove(r, c) {
+      if (over || turn !== me || board[r * N + c]) return;
+      place(r, c, me);
+      if (!over) setTimeout(() => { const [cr, cc] = cpuMove(); place(cr, cc, cpu); }, 250);
+    }
+
+    function render() {
+      const last = history[history.length - 1];
+      pts.forEach((p, i) => {
+        const v = board[i];
+        let s = p.querySelector('.stone');
+        if (!v) { if (s) s.remove(); p.disabled = false; return; }
+        if (!s) { s = document.createElement('span'); p.appendChild(s); }
+        s.className = 'stone ' + (v === 1 ? 'b' : 'w');
+        if (last && last[0] * N + last[1] === i) s.classList.add('last');
+        p.disabled = true;
+      });
+    }
+
+    function start(humanFirst) {
+      board = new Array(N * N).fill(0);
+      history = [];
+      over = false;
+      me = humanFirst ? 1 : 2;   // 1 = ● 先手, 2 = ○ 後手
+      cpu = 3 - me;
+      turn = 1;
+      render();
+      $('msg').textContent = humanFirst ? 'あなたの番(●)' : 'CPU 考え中…';
+      if (!humanFirst) setTimeout(() => place(7, 7, cpu), 300);
+    }
+
+    $('first').onclick = () => start(true);
+    $('second').onclick = () => start(false);
+    $('undo').onclick = () => {
+      if (over || turn !== me || history.length < 2) return;
+      // CPU の手と自分の手をまとめて戻す
+      let n = 0;
+      while (history.length && n < 2) {
+        const [r, c, color] = history[history.length - 1];
+        if (n === 0 && color !== cpu) break;
+        history.pop(); board[r * N + c] = 0; n++;
+      }
+      render();
+    };
+    saveStats();
+    start(true);
+  </script>
+</body>
+</html>

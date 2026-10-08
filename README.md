@@ -17,8 +17,15 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 | [MEMORY](https://porkgorilla.com/works/memory.html) | GAME | 神経衰弱 |
 | [CONNECT4](https://porkgorilla.com/works/connect4.html) | GAME | 四目並べ (対CPU) |
 | [15_PUZZLE](https://porkgorilla.com/works/puzzle15.html) | GAME | スライドパズル |
+| [SUDOKU](https://porkgorilla.com/works/sudoku.html) | GAME | 数独 (自動生成) |
+| [LIGHTS_OUT](https://porkgorilla.com/works/lightsout.html) | GAME | ライツアウト |
+| [GOMOKU](https://porkgorilla.com/works/gomoku.html) | GAME | 五目並べ (対CPU) |
 | [TYPE_ATTACK](https://porkgorilla.com/works/typing.html) | GAME / LANGUAGE | 60秒英単語タイピング |
 | [VOCAB_QUIZ](https://porkgorilla.com/works/vocab.html) | LANGUAGE | 英単語4択クイズ |
+| [KANA_QUIZ](https://porkgorilla.com/works/kana.html) | LANGUAGE | ひらがな・カタカナ読み方クイズ |
+| [FLASHCARDS](https://porkgorilla.com/works/flashcard.html) | LANGUAGE | 英単語カード (覚えた単語を記録) |
+| [LISTEN_TYPE](https://porkgorilla.com/works/listening.html) | LANGUAGE | 英単語ディクテーション |
+| [SPELL_SCRAMBLE](https://porkgorilla.com/works/scramble.html) | GAME / LANGUAGE | 文字並べ替えで英単語をつくる |
 | [CHAR_COUNTER](https://porkgorilla.com/works/counter.html) | TOOL | 文字数カウンター |
 | [POMODORO](https://porkgorilla.com/works/timer.html) | TOOL | ポモドーロタイマー |
 | [CALCULATOR](https://porkgorilla.com/works/calculator.html) | TOOL | 電卓 |
@@ -27,6 +34,9 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 | [UNIT_CONVERTER](https://porkgorilla.com/works/unit.html) | TOOL | 単位変換 |
 | [COLOR_CONVERTER](https://porkgorilla.com/works/color.html) | TOOL | HEX/RGB/HSL 変換 |
 | [JSON_FORMATTER](https://porkgorilla.com/works/jsonfmt.html) | TOOL | JSON 整形 |
+| [ENCODER](https://porkgorilla.com/works/encoder.html) | TOOL | Base64 / URL / HTML / Unicode 変換 |
+| [DATE_CALC](https://porkgorilla.com/works/datecalc.html) | TOOL | 日数・日付・年齢計算 |
+| [WARIKAN](https://porkgorilla.com/works/warikan.html) | TOOL | 割り勘計算 |
 | [KAMOGAWA](https://porkgorilla.com/works/kamogawa.html) | GAME | 鴨川等間隔。河原のいちばん空いている場所にカップルを座らせるゲーム |
 | [台北∞観景台](https://porkgorilla.com/works/taipei-infinity.html) | GAME | 台北101の逆さ台形フロアを積み上げて、台北102、103…と数字を増やしていく積み上げゲーム |
 | [フラッピーばーちゃん](https://porkgorilla.com/works/flappy-baachan.html) | GAME | 焼き芋を食べたら屁で加速。竹林をくぐって飛ぶ、ばーちゃんのフラッピーゲーム |
@@ -54,14 +64,24 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
     ├── memory.html
     ├── connect4.html
     ├── puzzle15.html
+    ├── sudoku.html
+    ├── lightsout.html
+    ├── gomoku.html
     ├── calculator.html
     ├── stopwatch.html
     ├── password.html
     ├── unit.html
     ├── color.html
     ├── jsonfmt.html
+    ├── encoder.html
+    ├── datecalc.html
+    ├── warikan.html
     ├── typing.html
     ├── vocab.html
+    ├── kana.html
+    ├── flashcard.html
+    ├── listening.html
+    ├── scramble.html
     ├── counter.html
     ├── timer.html
     ├── kamogawa.html

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ENCODER | porkgorilla://</title>
+  <meta name="description" content="Base64・URL エンコード・HTML エスケープ・Unicode エスケープの変換と復元。日本語(UTF-8)対応。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBT4300J0L');
+  </script>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    main { padding: 24px 16px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+    h1 { margin: 0; font-size: 1.6rem; }
+    .box { width: 100%; max-width: 640px; padding: 16px; }
+    .box > * + * { margin-top: 12px; }
+    label { color: var(--cyber-green-dim); font-size: .85rem; display: block; margin-bottom: 4px; }
+    textarea, select { font-family: var(--cyber-font); font-size: .95rem; padding: 8px 10px; width: 100%;
+      background: var(--cyber-bg-panel); color: var(--cyber-text); border: 1px solid var(--cyber-green-dim); }
+    textarea { min-height: 130px; resize: vertical; overflow-wrap: anywhere; }
+    textarea:focus, select:focus { outline: none; border-color: var(--cyber-green); }
+    .tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tabs button { flex: 1 1 auto; padding: 8px 10px; font-family: var(--cyber-font); font-size: .85rem; cursor: pointer;
+      border: 1px solid var(--cyber-green-dim); background: var(--cyber-bg-panel); color: var(--cyber-text); }
+    .tabs button.on { background: var(--cyber-green); color: #000; border-color: var(--cyber-green); }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .row .btn { flex: 1; padding: .6rem .8rem; font-size: .9rem; }
+    #err { color: var(--cyber-red); min-height: 1.3em; font-size: .9rem; }
+    .opt { display: flex; align-items: center; gap: 6px; font-size: .9rem; cursor: pointer; color: var(--cyber-text); margin: 0; }
+    .note { font-size: .8rem; color: var(--cyber-green-dim); }
+    .credit { font-size: 11px; color: var(--cyber-green-dim); margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>🔐 ENCODER</h1>
+    <div class="box panel">
+      <div class="tabs" id="tabs"></div>
+      <label class="opt" id="optWrap"><input type="checkbox" id="opt"> <span id="optLabel"></span></label>
+      <div><label for="src">入力</label><textarea id="src" spellcheck="false" placeholder="ここに入力">こんにちは、porkgorilla! https://porkgorilla.com/?q=日本語&amp;x=<b></textarea></div>
+      <div class="row">
+        <button class="btn" id="enc" type="button">▼ エンコード</button>
+        <button class="btn" id="dec" type="button">▼ デコード</button>
+      </div>
+      <div id="err"></div>
+      <div><label for="out">結果</label><textarea id="out" spellcheck="false" readonly></textarea></div>
+      <div class="row">
+        <button class="btn" id="copy" type="button">コピー</button>
+        <button class="btn" id="swap" type="button">⇅ 結果を入力へ</button>
+      </div>
+      <div class="note">変換はすべてブラウザ内で行い、入力内容はどこにも送信しません。</div>
+    </div>
+    <div class="credit">porkgorilla — 2026</div>
+  </main>
+
+  <script src="/site.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    const utf8 = s => new TextEncoder().encode(s);
+    const fromUtf8 = b => new TextDecoder('utf-8', { fatal: true }).decode(b);
+
+    const MODES = {
+      'Base64': {
+        opt: 'URL-safe (- と _ を使い、= を省く)',
+        enc(s, safe) {
+          let bin = '';
+          utf8(s).forEach(b => { bin += String.fromCharCode(b); });
+          let out = btoa(bin);
+          if (safe) out = out.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+          return out;
+        },
+        dec(s) {
+          let t = s.replace(/\s+/g, '').replace(/-/g, '+').replace(/_/g, '/');
+          while (t.length % 4) t += '=';
+          const bin = atob(t);
+          return fromUtf8(Uint8Array.from(bin, c => c.charCodeAt(0)));
+        }
+      },
+      'URL': {
+        opt: 'URL 全体として扱う (: / ? & = などを残す)',
+        enc: (s, whole) => whole ? encodeURI(s) : encodeURIComponent(s),
+        dec: s => decodeURIComponent(s.replace(/\+/g, ' '))
+      },
+      'HTML': {
+        opt: 'ASCII 以外も数値参照 (&#12354; など) にする',
+        enc(s, all) {
+          const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+          let out = s.replace(/[&<>"']/g, c => map[c]);
+          if (all) out = out.replace(/[^\x00-\x7f]/gu, c => '&#' + c.codePointAt(0) + ';');
+          return out;
+        },
+        dec(s) {
+          // DOM に挿入せず、パーサーだけでエンティティを解決する
+          const doc = new DOMParser().parseFromString('<!doctype html><textarea>' + s.replace(/<\/textarea/gi, '&lt;/textarea') + '</textarea>', 'text/html');
+          return doc.querySelector('textarea').value;
+        }
+      },
+      'Unicode': {
+        opt: 'ASCII もエスケープする',
+        enc(s, all) {
+          let out = '';
+          for (const ch of s) {
+            const cp = ch.codePointAt(0);
+            if (!all && cp < 0x80) out += ch;
+            else if (cp > 0xffff) out += '\\u{' + cp.toString(16) + '}';
+            else out += '\\u' + cp.toString(16).padStart(4, '0');
+          }
+          return out;
+        },
+        dec: s => s.replace(/\\u\{([0-9a-fA-F]+)\}|\\u([0-9a-fA-F]{4})/g, (_, a, b) => String.fromCodePoint(parseInt(a || b, 16)))
+      }
+    };
+
+    let mode = 'Base64';
+    const tabs = $('tabs');
+    Object.keys(MODES).forEach(k => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = k;
+      b.onclick = () => { mode = k; renderTabs(); };
+      tabs.appendChild(b);
+    });
+    function renderTabs() {
+      [...tabs.children].forEach(b => b.classList.toggle('on', b.textContent === mode));
+      $('optLabel').textContent = MODES[mode].opt;
+      $('opt').checked = false;
+      $('out').value = '';
+      $('err').textContent = '';
+    }
+
+    function run(kind) {
+      $('err').textContent = '';
+      try {
+        $('out').value = MODES[mode][kind]($('src').value, $('opt').checked);
+      } catch (e) {
+        $('out').value = '';
+        $('err').textContent = kind === 'dec' ? '× デコードできませんでした。入力が正しい形式か確認してください。' : '× 変換できませんでした: ' + e.message;
+      }
+    }
+
+    $('enc').onclick = () => run('enc');
+    $('dec').onclick = () => run('dec');
+    $('copy').onclick = async () => {
+      try { await navigator.clipboard.writeText($('out').value); $('copy').textContent = 'コピーしました ✓'; }
+      catch (e) { $('out').select(); document.execCommand('copy'); $('copy').textContent = 'コピーしました ✓'; }
+      setTimeout(() => { $('copy').textContent = 'コピー'; }, 1200);
+    };
+    $('swap').onclick = () => { $('src').value = $('out').value; $('out').value = ''; };
+    renderTabs();
+  </script>
+</body>
+</html>

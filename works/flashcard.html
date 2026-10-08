@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FLASHCARDS | porkgorilla://</title>
+  <meta name="description" content="めくって覚える英単語カード。覚えた単語を記録して、まだの単語だけを繰り返せる。発音の読み上げつき。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBT4300J0L');
+  </script>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    main { padding: 24px 16px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+    h1 { margin: 0; font-size: 1.6rem; }
+    .bar { width: 100%; max-width: 480px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .bar select { flex: 1; font-family: var(--cyber-font); font-size: .95rem; padding: 6px 8px;
+      background: var(--cyber-bg-panel); color: var(--cyber-text); border: 1px solid var(--cyber-green-dim); }
+    .bar label { display: flex; align-items: center; gap: 6px; font-size: .9rem; cursor: pointer; }
+    #stat { width: 100%; max-width: 480px; font-size: .85rem; color: var(--cyber-green-dim); display: flex; justify-content: space-between; }
+    #meter { width: 100%; max-width: 480px; height: 6px; border: 1px solid var(--cyber-green-dim); }
+    #meter div { height: 100%; background: var(--cyber-green); width: 0; transition: width .3s; }
+    #card { width: 100%; max-width: 480px; min-height: 220px; padding: 24px 20px; text-align: center; cursor: pointer;
+      display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px; }
+    #word { font-size: 2.4rem; font-weight: bold; color: var(--cyber-green); text-shadow: 0 0 8px var(--cyber-green); overflow-wrap: anywhere; }
+    #meaning { font-size: 1.5rem; min-height: 1.6em; }
+    #meaning.hide { visibility: hidden; }
+    #hint { font-size: .8rem; color: var(--cyber-green-dim); }
+    #card.done #word { font-size: 1.6rem; }
+    .row { display: flex; gap: 10px; width: 100%; max-width: 480px; }
+    .row .btn { flex: 1; padding: .8rem .4rem; }
+    #ng { color: var(--cyber-red); border-color: var(--cyber-red); background: rgba(255, 77, 109, .12); }
+    #ng:hover { background: var(--cyber-red); color: #000; }
+    #speak { border: none; background: none; font-size: 1.4rem; cursor: pointer; padding: 0; }
+    .keys { font-size: .8rem; color: var(--cyber-green-dim); text-align: center; line-height: 1.7; }
+    .credit { font-size: 11px; color: var(--cyber-green-dim); margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>🗂 FLASHCARDS</h1>
+    <div class="bar">
+      <select id="level" aria-label="レベル"></select>
+      <label><input type="checkbox" id="reverse"> 日本語→英語</label>
+    </div>
+    <div id="stat"><span id="left"></span><span id="known"></span></div>
+    <div id="meter"><div></div></div>
+
+    <div id="card" class="panel" role="button" tabindex="0" aria-label="カードをめくる">
+      <div id="word"></div>
+      <div id="meaning" class="hide"></div>
+      <button id="speak" type="button" title="発音を聞く" aria-label="発音を聞く">🔊</button>
+      <div id="hint">タップでめくる</div>
+    </div>
+
+    <div class="row">
+      <button class="btn" id="ng" type="button">✗ まだ</button>
+      <button class="btn" id="ok" type="button">✓ 覚えた</button>
+    </div>
+    <div class="row">
+      <button class="btn" id="reset" type="button">記録をリセット</button>
+    </div>
+    <div class="keys">Space: めくる / ← まだ / → 覚えた<br>覚えた単語はこのブラウザに保存され、次回から出なくなります。</div>
+    <div class="credit">porkgorilla — 2026</div>
+  </main>
+
+  <script src="/site.js"></script>
+  <script>
+    const LEVELS = {
+      '入門 (中学1〜2年)': [
+        ['apple', 'りんご'], ['family', '家族'], ['morning', '朝'], ['teacher', '先生'], ['window', '窓'],
+        ['animal', '動物'], ['music', '音楽'], ['country', '国'], ['answer', '答え'], ['minute', '分'],
+        ['busy', '忙しい'], ['hungry', 'お腹がすいた'], ['young', '若い'], ['early', '早い'], ['easy', '簡単な'],
+        ['open', '開ける'], ['close', '閉める'], ['wash', '洗う'], ['sing', '歌う'], ['swim', '泳ぐ'],
+        ['bring', '持ってくる'], ['buy', '買う'], ['send', '送る'], ['write', '書く'], ['understand', '理解する']
+      ],
+      '基礎 (中学3年〜高校)': [
+        ['borrow', '借りる'], ['lend', '貸す'], ['decide', '決める'], ['explain', '説明する'], ['forget', '忘れる'],
+        ['improve', '改善する'], ['protect', '守る'], ['receive', '受け取る'], ['solve', '解決する'], ['spend', '過ごす・費やす'],
+        ['environment', '環境'], ['experience', '経験'], ['government', '政府'], ['history', '歴史'], ['opinion', '意見'],
+        ['population', '人口'], ['science', '科学'], ['culture', '文化'], ['energy', 'エネルギー'], ['future', '未来'],
+        ['dangerous', '危険な'], ['necessary', '必要な'], ['popular', '人気のある'], ['similar', '似ている'], ['foreign', '外国の']
+      ],
+      '標準 (高校〜大学入試)': [
+        ['achieve', '達成する'], ['admit', '認める'], ['avoid', '避ける'], ['consider', 'よく考える'], ['depend', '頼る・次第である'],
+        ['encourage', '励ます'], ['establish', '設立する'], ['identify', '特定する'], ['maintain', '維持する'], ['reduce', '減らす'],
+        ['advantage', '利点'], ['attitude', '態度'], ['evidence', '証拠'], ['influence', '影響'], ['knowledge', '知識'],
+        ['opportunity', '機会'], ['resource', '資源'], ['survey', '調査'], ['tradition', '伝統'], ['variety', '多様性'],
+        ['efficient', '効率的な'], ['obvious', '明らかな'], ['ancient', '古代の'], ['entire', '全体の'], ['rapid', '急速な']
+      ],
+      '発展 (TOEIC・ビジネス)': [
+        ['acquire', '獲得する'], ['allocate', '割り当てる'], ['comply', '従う'], ['postpone', '延期する'], ['negotiate', '交渉する'],
+        ['reimburse', '払い戻す'], ['implement', '実行する'], ['inquire', '問い合わせる'], ['verify', '確認する'], ['anticipate', '予期する'],
+        ['agenda', '議題'], ['budget', '予算'], ['deadline', '締め切り'], ['invoice', '請求書'], ['revenue', '収益'],
+        ['estimate', '見積もり'], ['merger', '合併'], ['inventory', '在庫'], ['warranty', '保証'], ['itinerary', '旅程'],
+        ['mandatory', '義務的な'], ['tentative', '仮の'], ['substantial', 'かなりの'], ['eligible', '資格のある'], ['prompt', '迅速な']
+      ]
+    };
+    const STORE = 'flashcard_known';
+    const $ = id => document.getElementById(id);
+
+    let known = new Set();
+    try { known = new Set(JSON.parse(localStorage.getItem(STORE) || '[]')); } catch (e) {}
+    function save() { try { localStorage.setItem(STORE, JSON.stringify([...known])); } catch (e) {} }
+
+    function shuffle(a) {
+      a = a.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    let words, deck, current, flipped;
+
+    function loadLevel() {
+      words = LEVELS[$('level').value];
+      deck = shuffle(words.filter(w => !known.has(w[0])));
+      next();
+    }
+
+    function updateStat() {
+      const k = words.filter(w => known.has(w[0])).length;
+      $('left').textContent = `残り ${deck.length + (current ? 1 : 0)} 枚`;
+      $('known').textContent = `覚えた ${k} / ${words.length}`;
+      $('meter').firstElementChild.style.width = (k / words.length * 100) + '%';
+    }
+
+    function next() {
+      current = deck.shift() || null;
+      flipped = false;
+      $('meaning').classList.add('hide');
+      $('card').classList.toggle('done', !current);
+      $('ok').disabled = $('ng').disabled = !current;
+      if (!current) {
+        const allKnown = words.every(w => known.has(w[0]));
+        $('word').textContent = allKnown ? '🎉 全部覚えた!' : '1周おわり!';
+        $('meaning').textContent = allKnown ? '別のレベルにも挑戦しよう' : 'タップで「まだ」の単語をもう1周';
+        $('meaning').classList.remove('hide');
+        $('speak').style.visibility = 'hidden';
+        $('hint').textContent = '';
+        updateStat();
+        return;
+      }
+      const rev = $('reverse').checked;
+      $('word').textContent = rev ? current[1] : current[0];
+      $('meaning').textContent = rev ? current[0] : current[1];
+      $('speak').style.visibility = rev ? 'hidden' : 'visible';
+      $('hint').textContent = 'タップでめくる';
+      updateStat();
+    }
+
+    function flip() {
+      if (!current) { loadLevel(); return; }
+      flipped = !flipped;
+      $('meaning').classList.toggle('hide', !flipped);
+      if (flipped) {
+        $('speak').style.visibility = 'visible';
+        $('hint').textContent = '覚えた? まだ?';
+      }
+    }
+
+    function mark(ok) {
+      if (!current) return;
+      if (ok) { known.add(current[0]); save(); }
+      else deck.push(current); // まだの単語は山の最後に戻す
+      next();
+    }
+
+    function speak() {
+      if (!current || !('speechSynthesis' in window)) return;
+      const u = new SpeechSynthesisUtterance(current[0]);
+      u.lang = 'en-US';
+      speechSynthesis.cancel();
+      speechSynthesis.speak(u);
+    }
+
+    $('level').innerHTML = Object.keys(LEVELS).map(k => '<option>' + k + '</option>').join('');
+    $('level').onchange = loadLevel;
+    $('reverse').onchange = () => { if (current) deck.unshift(current); next(); };
+    $('card').onclick = e => { if (e.target.id !== 'speak') flip(); };
+    $('speak').onclick = speak;
+    $('ok').onclick = () => mark(true);
+    $('ng').onclick = () => mark(false);
+    $('reset').onclick = () => {
+      if (!confirm('このレベルの「覚えた」記録をリセットしますか?')) return;
+      words.forEach(w => known.delete(w[0]));
+      save();
+      loadLevel();
+    };
+    document.addEventListener('keydown', e => {
+      if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') return;
+      if (e.key === ' ' || e.key === 'Enter') {
+        if (e.target.tagName === 'BUTTON') return; // ボタン自身の押下に任せる
+        e.preventDefault(); flip();
+      }
+      else if (e.key === 'ArrowRight') mark(true);
+      else if (e.key === 'ArrowLeft') mark(false);
+    });
+    loadLevel();
+  </script>
+</body>
+</html>

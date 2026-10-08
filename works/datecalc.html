@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DATE_CALC | porkgorilla://</title>
+  <meta name="description" content="2つの日付の間の日数、○日後・○日前の日付、満年齢と和暦を計算する日付計算ツール。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBT4300J0L');
+  </script>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    main { padding: 24px 16px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+    h1 { margin: 0; font-size: 1.6rem; }
+    .box { width: 100%; max-width: 480px; padding: 18px 16px 16px; }
+    .box h2 { margin: 0 0 12px; font-size: 1rem; }
+    .box > * + * { margin-top: 10px; }
+    input, select { font-family: var(--cyber-font); font-size: 1rem; padding: 8px 10px; width: 100%; min-width: 0;
+      background: var(--cyber-bg-panel); color: var(--cyber-text); border: 1px solid var(--cyber-green-dim); color-scheme: dark; }
+    input:focus, select:focus { outline: none; border-color: var(--cyber-green); }
+    label { color: var(--cyber-green-dim); font-size: .85rem; display: block; margin-bottom: 4px; }
+    .row { display: flex; gap: 8px; align-items: flex-end; }
+    .row > div { flex: 1 1 0; min-width: 0; }
+    .row > .narrow { flex: 0 0 auto; }
+    .chk { display: flex; align-items: center; gap: 6px; font-size: .9rem; cursor: pointer; color: var(--cyber-text); margin: 0; }
+    .chk input { width: auto; }
+    .res { color: var(--cyber-green); font-size: 1.05rem; line-height: 1.7; overflow-wrap: anywhere; }
+    .res b { font-size: 1.5rem; text-shadow: 0 0 6px var(--cyber-green); }
+    .sub { color: var(--cyber-text); font-size: .9rem; }
+    .today { font-size: .8rem; padding: 6px 8px; border: 1px solid var(--cyber-green-dim); background: var(--cyber-green-faint);
+      color: var(--cyber-green); font-family: var(--cyber-font); cursor: pointer; white-space: nowrap; }
+    .credit { font-size: 11px; color: var(--cyber-green-dim); margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>📅 DATE_CALC</h1>
+
+    <section class="box panel">
+      <h2>日数を数える</h2>
+      <div class="row">
+        <div><label for="a1">開始日</label><input type="date" id="a1"></div>
+        <button class="today narrow" type="button" data-for="a1">今日</button>
+      </div>
+      <div class="row">
+        <div><label for="a2">終了日</label><input type="date" id="a2"></div>
+        <button class="today narrow" type="button" data-for="a2">今日</button>
+      </div>
+      <label class="chk"><input type="checkbox" id="incl"> 初日も数える(両端を含む)</label>
+      <div class="res" id="r1"></div>
+    </section>
+
+    <section class="box panel">
+      <h2>○日後・○日前</h2>
+      <div class="row">
+        <div><label for="b1">基準日</label><input type="date" id="b1"></div>
+        <button class="today narrow" type="button" data-for="b1">今日</button>
+      </div>
+      <div class="row">
+        <div><label for="bn">日数</label><input type="number" id="bn" value="100" inputmode="numeric"></div>
+        <div><label for="bu">単位</label>
+          <select id="bu"><option value="d">日</option><option value="w">週間</option><option value="m">か月</option><option value="y">年</option></select></div>
+        <div><label for="bd">方向</label>
+          <select id="bd"><option value="1">後</option><option value="-1">前</option></select></div>
+      </div>
+      <div class="res" id="r2"></div>
+    </section>
+
+    <section class="box panel">
+      <h2>年齢・和暦</h2>
+      <div><label for="c1">生年月日</label><input type="date" id="c1" value="2000-01-01"></div>
+      <div class="row">
+        <div><label for="c2">基準日</label><input type="date" id="c2"></div>
+        <button class="today narrow" type="button" data-for="c2">今日</button>
+      </div>
+      <div class="res" id="r3"></div>
+    </section>
+
+    <div class="credit">porkgorilla — 2026</div>
+  </main>
+
+  <script src="/site.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    const DOW = '日月火水木金土';
+    const DAY = 86400000;
+
+    // タイムゾーンや夏時間の影響を受けないよう、日付は UTC の 0 時として扱う
+    const parse = v => { if (!v) return null; const [y, m, d] = v.split('-').map(Number); return new Date(Date.UTC(y, m - 1, d)); };
+    const iso = d => d.toISOString().slice(0, 10);
+    const todayIso = () => { const t = new Date(); return iso(new Date(Date.UTC(t.getFullYear(), t.getMonth(), t.getDate()))); };
+    const fmt = d => `${d.getUTCFullYear()}年${d.getUTCMonth() + 1}月${d.getUTCDate()}日(${DOW[d.getUTCDay()]})`;
+
+    const ERAS = [
+      ['令和', Date.UTC(2019, 4, 1), 2019], ['平成', Date.UTC(1989, 0, 8), 1989],
+      ['昭和', Date.UTC(1926, 11, 25), 1926], ['大正', Date.UTC(1912, 6, 30), 1912], ['明治', Date.UTC(1868, 0, 25), 1868]
+    ];
+    function wareki(d) {
+      const e = ERAS.find(([, start]) => d.getTime() >= start);
+      if (!e) return '';
+      const n = d.getUTCFullYear() - e[2] + 1;
+      return `${e[0]}${n === 1 ? '元' : n}年`;
+    }
+
+    // 月末をまたぐ加算は、その月の末日に丸める(1/31 の1か月後 → 2/28 or 29)
+    function addMonths(d, m) {
+      const y = d.getUTCFullYear(), mo = d.getUTCMonth() + m, day = d.getUTCDate();
+      const last = new Date(Date.UTC(y, mo + 1, 0)).getUTCDate();
+      return new Date(Date.UTC(y, mo, Math.min(day, last)));
+    }
+
+    function calcDiff() {
+      const a = parse($('a1').value), b = parse($('a2').value);
+      if (!a || !b) { $('r1').textContent = ''; return; }
+      let days = Math.round((b - a) / DAY);
+      const sign = days < 0 ? -1 : 1;
+      if ($('incl').checked) days += sign;
+      const abs = Math.abs(days);
+      const w = Math.floor(abs / 7), rd = abs % 7;
+      // 何か月何日か(開始日から数える)
+      const [s, e] = a <= b ? [a, b] : [b, a];
+      let months = (e.getUTCFullYear() - s.getUTCFullYear()) * 12 + e.getUTCMonth() - s.getUTCMonth();
+      if (addMonths(s, months) > e) months--;
+      const md = Math.round((e - addMonths(s, months)) / DAY) + ($('incl').checked ? 1 : 0);
+      $('r1').innerHTML = '';
+      const main = document.createElement('div');
+      main.innerHTML = `<b>${abs.toLocaleString()}</b> 日${days < 0 ? '(終了日の方が前です)' : ''}`;
+      const sub = document.createElement('div');
+      sub.className = 'sub';
+      sub.textContent = `= ${w}週と${rd}日 / ${Math.floor(months / 12)}年${months % 12}か月と${md}日`;
+      $('r1').append(main, sub);
+    }
+
+    function calcAdd() {
+      const b = parse($('b1').value), n = parseInt($('bn').value, 10);
+      if (!b || isNaN(n)) { $('r2').textContent = ''; return; }
+      const k = n * +$('bd').value, u = $('bu').value;
+      const r = u === 'd' ? new Date(b.getTime() + k * DAY)
+        : u === 'w' ? new Date(b.getTime() + k * 7 * DAY)
+        : addMonths(b, u === 'm' ? k : k * 12);
+      $('r2').innerHTML = '';
+      const main = document.createElement('div');
+      main.innerHTML = '<b></b>';
+      main.firstChild.textContent = fmt(r);
+      const sub = document.createElement('div');
+      sub.className = 'sub';
+      sub.textContent = wareki(r) + ' / ' + iso(r);
+      $('r2').append(main, sub);
+    }
+
+    function calcAge() {
+      const bd = parse($('c1').value), ref = parse($('c2').value);
+      if (!bd || !ref) { $('r3').textContent = ''; return; }
+      $('r3').innerHTML = '';
+      const out = [];
+      if (ref < bd) {
+        out.push('基準日が生年月日より前です');
+      } else {
+        let age = ref.getUTCFullYear() - bd.getUTCFullYear();
+        if (ref.getUTCMonth() < bd.getUTCMonth() || (ref.getUTCMonth() === bd.getUTCMonth() && ref.getUTCDate() < bd.getUTCDate())) age--;
+        const lived = Math.round((ref - bd) / DAY);
+        let nextBd = addMonths(bd, (age + 1) * 12);
+        const toNext = Math.round((nextBd - ref) / DAY);
+        out.push(['満 ', age, ' 歳'], `数え年 ${ref.getUTCFullYear() - bd.getUTCFullYear() + 1} 歳 / 生まれて ${lived.toLocaleString()} 日目`,
+          `次の誕生日まで ${toNext} 日`);
+      }
+      out.push(`生まれ: ${fmt(bd)} ${wareki(bd)}`);
+      out.forEach((t, i) => {
+        const d = document.createElement('div');
+        if (Array.isArray(t)) { d.append(t[0]); const b = document.createElement('b'); b.textContent = t[1]; d.append(b, t[2]); }
+        else { d.textContent = t; d.className = i ? 'sub' : ''; }
+        $('r3').appendChild(d);
+      });
+    }
+
+    const today = todayIso();
+    ['a1', 'b1', 'c2'].forEach(id => { $(id).value = today; });
+    $('a2').value = today.slice(0, 4) + '-12-31';
+    document.querySelectorAll('.today').forEach(b => {
+      b.onclick = () => { $(b.dataset.for).value = todayIso(); $(b.dataset.for).dispatchEvent(new Event('input')); };
+    });
+    ['a1', 'a2', 'incl'].forEach(id => { $(id).addEventListener('input', calcDiff); $(id).addEventListener('change', calcDiff); });
+    ['b1', 'bn', 'bu', 'bd'].forEach(id => { $(id).addEventListener('input', calcAdd); $(id).addEventListener('change', calcAdd); });
+    ['c1', 'c2'].forEach(id => { $(id).addEventListener('input', calcAge); $(id).addEventListener('change', calcAge); });
+    calcDiff(); calcAdd(); calcAge();
+  </script>
+</body>
+</html>
