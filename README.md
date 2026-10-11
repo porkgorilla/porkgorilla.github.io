@@ -45,6 +45,7 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 | [ドバドバドーザー](https://porkgorilla.com/works/dobadoba-dozer.html) | GAME | コインを落として押し出す、ポップな3Dコインドーザー |
 | [グラボ高杉晋作](https://porkgorilla.com/works/grabo-takasugi.html) | GAME | 相場チャートを駆けて、底値でグラボを買うゲーム |
 | [まごころ浩二](https://porkgorilla.com/works/magokoro-koji.html) | GAME | 商店街の便利屋・浩二が、ちょうどいい加減のまごころで依頼をこなすゲーム |
+| [屁イオハザード](https://porkgorilla.com/works/heiohazard.html) | GAME | 腸内のガスだけでゾンビを倒し、洋館から脱出するゲーム |
 
 ## 構成
 
@@ -93,7 +94,8 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
     ├── kabocha-yashiki.html
     ├── dobadoba-dozer.html
     ├── grabo-takasugi.html
-    └── magokoro-koji.html
+    ├── magokoro-koji.html
+    └── heiohazard.html
 ```
 
 `theme.css` / `site.js` / `favicon.svg` はルート直下に置き、各作品ページからは絶対パス(`/theme.css` など)で読み込みます。404.html も GitHub Pages の仕様上ルート直下が必須です。
