@@ -49,6 +49,7 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 | [コンテナ砲撃場 戦車版](https://porkgorilla.com/works/container-yard-tank.html) | GAME | 港に積まれたコンテナを、戦車で撃って崩す3D物理シミュレーター |
 | [スポーツの日](https://porkgorilla.com/works/sportsday.html) | GAME | 徒競走・玉入れ・綱引きの3種目で競う運動会ゲーム |
 | [オジヒッパル](https://porkgorilla.com/works/ojihipparu.html) | GAME | おじさんのほっぺとおなかを引っ張るゲーム |
+| [てくてくペーちゃん](https://porkgorilla.com/works/tekuteku-pechan.html) | GAME | 梨の精のペーちゃんとアーちゃんが鬼ごっこをする3Dゲーム |
 
 ## 構成
 
@@ -101,7 +102,8 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
     ├── heiohazard.html
     ├── container-yard-tank.html
     ├── sportsday.html
-    └── ojihipparu.html
+    ├── ojihipparu.html
+    └── tekuteku-pechan.html
 ```
 
 `theme.css` / `site.js` / `favicon.svg` はルート直下に置き、各作品ページからは絶対パス(`/theme.css` など)で読み込みます。404.html も GitHub Pages の仕様上ルート直下が必須です。
