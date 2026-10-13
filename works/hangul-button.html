@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ハングルボタン | porkgorilla://</title>
+<meta name="description" content="押すと韓国語をしゃべる、ボタン3つだけのマシーン">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="ハングルボタン">
+<meta property="og:description" content="押すと韓国語をしゃべる、ボタン3つだけのマシーン">
+<meta property="og:url" content="https://porkgorilla.com/works/hangul-button.html">
+<meta property="og:image" content="https://porkgorilla.com/assets/og-hangul-button.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ハングルボタン">
+<meta name="twitter:description" content="押すと韓国語をしゃべる、ボタン3つだけのマシーン">
+<meta name="twitter:image" content="https://porkgorilla.com/assets/og-hangul-button.jpg">
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-MBT4300J0L');
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Dela+Gothic+One&family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --desk:#bfdbe6;
+  --desk2:#a9cbd8;
+  --body:#fbe36a;
+  --body-dark:#d9b934;
+  --body-edge:#b8962a;
+  --lcd:#c9d6a3;
+  --lcd-ink:#2f3a1c;
+  --ink:#2b2a26;
+  --sub:#4d6672;
+  --pumpkin:#f08a24;
+  --pumpkin-d:#b85f0c;
+  --good:#2fb36a;
+  --good-d:#1b7a45;
+  --stop:#e23a30;
+  --stop-d:#9c1d16;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0;min-height:100%;
+  background:
+    radial-gradient(circle at 50% 40%, var(--desk) 0%, var(--desk2) 100%);
+  color:var(--ink);
+  font-family:"M PLUS Rounded 1c","Hiragino Maru Gothic ProN","Hiragino Sans","Yu Gothic",sans-serif;
+  display:flex;flex-direction:column;align-items:center;
+  -webkit-tap-highlight-color:transparent;
+}
+.topbar{
+  width:100%;max-width:560px;display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px 0;
+}
+.home{color:var(--sub);text-decoration:none;font-size:12px;letter-spacing:.04em;white-space:nowrap;
+  min-height:44px;display:inline-flex;align-items:center}
+.home:hover{color:var(--ink)}
+.snd{min-width:44px;min-height:44px;border:2px solid rgba(77,102,114,.45);background:transparent;color:var(--sub);
+  border-radius:22px;font-family:inherit;font-size:13px;font-weight:800;padding:0 14px;cursor:pointer}
+.snd:hover{color:var(--ink);border-color:var(--ink)}
+.snd[aria-pressed="false"]{opacity:.6}
+.snd:focus-visible{outline:3px solid #1d4ed8;outline-offset:2px}
+
+main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  width:100%;padding:8px 16px 24px}
+
+/* ===== 本体 ===== */
+.machine{
+  position:relative;
+  width:min(360px, 92vw);
+  background:linear-gradient(170deg,#fff3a6 0%,var(--body) 22%,var(--body) 70%,var(--body-dark) 100%);
+  border-radius:44px 44px 64px 64px;
+  padding:22px 22px 30px;
+  box-shadow:
+    inset 0 3px 0 rgba(255,255,255,.7),
+    inset 0 -10px 0 var(--body-dark),
+    0 10px 0 var(--body-edge),
+    0 26px 30px rgba(40,70,85,.35);
+}
+.machine.shake{animation:shake .35s}
+@keyframes shake{
+  0%,100%{transform:translateX(0) rotate(0)}
+  20%{transform:translateX(-6px) rotate(-1.5deg)}
+  40%{transform:translateX(5px) rotate(1.2deg)}
+  60%{transform:translateX(-4px) rotate(-.8deg)}
+  80%{transform:translateX(2px) rotate(.4deg)}
+}
+.head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.logo{
+  font-family:"Dela Gothic One","Hiragino Sans",sans-serif;
+  font-size:22px;line-height:1;margin:0;color:#7a4f00;
+  text-shadow:0 1px 0 rgba(255,255,255,.6);
+  letter-spacing:.02em;
+}
+.grille{display:grid;grid-template-columns:repeat(5,7px);gap:5px}
+.grille i{width:7px;height:7px;border-radius:50%;background:#8a6a12;
+  box-shadow:inset 0 1px 1px rgba(0,0,0,.5),0 1px 0 rgba(255,255,255,.5)}
+.machine.talking .grille i{animation:buzz .12s infinite alternate}
+@keyframes buzz{to{transform:scale(1.25)}}
+
+/* 液晶 */
+.lcd{
+  background:var(--lcd);
+  border-radius:14px;
+  border:5px solid #6b5a1f;
+  box-shadow:inset 0 3px 8px rgba(0,0,0,.25);
+  min-height:122px;padding:10px 14px;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;
+  color:var(--lcd-ink);overflow:hidden;
+}
+.lcd .ko{font-family:"Black Han Sans","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  font-size:38px;line-height:1.1;letter-spacing:.02em}
+.lcd .ko.long{font-size:27px;word-break:keep-all}
+.lcd .kana{font-size:15px;font-weight:800;margin-top:4px}
+.lcd .mean{font-size:13px;margin-top:2px;opacity:.75}
+.lcd .idle{font-size:14px;font-weight:800;opacity:.7}
+.lcd .warn{font-size:12px;margin-top:6px;opacity:.8}
+.lcd.pop .ko{animation:pop .25s ease-out}
+@keyframes pop{from{transform:scale(.7);opacity:.2}to{transform:scale(1);opacity:1}}
+
+/* ボタンの三角配置 */
+.pad{
+  position:relative;
+  margin:26px auto 0;
+  width:100%;
+  aspect-ratio:1/1.02;
+}
+.btn-wrap{position:absolute;width:42%;display:flex;flex-direction:column;align-items:center;gap:8px}
+.btn-wrap.top{left:29%;top:0}
+.btn-wrap.bl{left:2%;bottom:0}
+.btn-wrap.br{right:2%;bottom:0}
+
+.big{
+  appearance:none;border:0;cursor:pointer;padding:0;
+  width:100%;aspect-ratio:1;border-radius:50%;
+  position:relative;
+  background:#7a5d12;            /* 台座 */
+  box-shadow:inset 0 3px 6px rgba(0,0,0,.45),0 2px 0 rgba(255,255,255,.55);
+  touch-action:manipulation;
+}
+.big .cap{
+  position:absolute;inset:9%;border-radius:50%;
+  background:radial-gradient(circle at 35% 28%, rgba(255,255,255,.75) 0 10%, transparent 30%), var(--c);
+  box-shadow:0 9px 0 var(--cd), 0 13px 10px rgba(0,0,0,.25);
+  transform:translateY(-7px);
+  transition:transform .06s, box-shadow .06s;
+  display:flex;align-items:center;justify-content:center;
+  font-family:"Black Han Sans","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  color:#fff;font-size:clamp(17px,5.4vw,22px);line-height:1.05;
+  text-shadow:0 2px 0 rgba(0,0,0,.25);
+  padding:0 8px;text-align:center;
+}
+.big.down .cap,.big:active .cap{transform:translateY(1px);box-shadow:0 1px 0 var(--cd),0 2px 3px rgba(0,0,0,.3)}
+.big:focus-visible{outline:4px solid #1d4ed8;outline-offset:4px}
+.b-pumpkin{--c:var(--pumpkin);--cd:var(--pumpkin-d)}
+.b-good{--c:var(--good);--cd:var(--good-d)}
+.b-stop{--c:var(--stop);--cd:var(--stop-d)}
+
+.tag{font-size:12px;font-weight:800;color:#6b4a00;white-space:nowrap}
+.tag.caution{
+  background:repeating-linear-gradient(-45deg,#222 0 6px,#ffd400 6px 12px);
+  color:transparent;position:relative;border-radius:4px;padding:3px 0;width:88%;
+}
+.tag.caution span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.tag.caution span b{background:#ffd400;color:#222;padding:0 6px;border-radius:3px;font-size:11px}
+
+.counter{
+  margin-top:20px;text-align:center;font-size:12px;color:#6b4a00;min-height:1.4em;font-weight:800
+}
+
+.credit{font-size:11px;color:var(--sub);margin-top:22px;letter-spacing:.05em}
+.hint{font-size:12px;color:var(--sub);margin-top:6px;text-align:center}
+.share{
+  margin-top:26px;display:inline-flex;align-items:center;gap:8px;
+  min-height:44px;padding:0 20px;border-radius:22px;
+  background:#000;color:#fff;text-decoration:none;
+  font-size:14px;font-weight:800;letter-spacing:.02em;
+  box-shadow:0 3px 0 rgba(0,0,0,.25);
+}
+.share svg{width:16px;height:16px;fill:currentColor}
+.share:hover{background:#222}
+.share:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.25)}
+.share:focus-visible{outline:3px solid #1d4ed8;outline-offset:3px}
+
+@media (prefers-reduced-motion: reduce){
+  .machine.shake,.machine.talking .grille i,.lcd.pop .ko{animation:none}
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <a class="home" href="/">&lt; porkgorilla</a>
+  <button class="snd" id="snd" aria-pressed="true" aria-label="音のオンオフ">音 ON</button>
+</div>
+
+<main>
+  <div class="machine" id="machine">
+    <div class="head">
+      <h1 class="logo">ハングルボタン</h1>
+      <div class="grille" aria-hidden="true">
+        <i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i>
+      </div>
+    </div>
+
+    <div class="lcd" id="lcd" aria-live="polite">
+      <div class="idle">ボタンを押してね</div>
+    </div>
+
+    <div class="pad">
+      <div class="btn-wrap top">
+        <button class="big b-pumpkin" data-k="pumpkin" aria-label="호박（カボチャ）"><span class="cap">호박</span></button>
+        <div class="tag">カボチャ</div>
+      </div>
+      <div class="btn-wrap bl">
+        <button class="big b-good" data-k="good" aria-label="좋아요（いいね）"><span class="cap">좋아요</span></button>
+        <div class="tag">いいね</div>
+      </div>
+      <div class="btn-wrap br">
+        <button class="big b-stop" data-k="stop" aria-label="누르지 마세요（押さないでください）"><span class="cap">누르지<br>마세요</span></button>
+        <div class="tag caution" aria-hidden="true"><span><b>押すな</b></span>&nbsp;</div>
+      </div>
+    </div>
+
+    <div class="counter" id="counter"></div>
+  </div>
+
+  <a class="share" id="share" href="https://x.com/intent/post" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    Xで共有
+  </a>
+  <div class="hint">キーボードなら 1・2・3 でも押せます</div>
+  <div class="credit">porkgorilla — 2026</div>
+</main>
+
+<script>
+(() => {
+  const PHRASES = {
+    pumpkin: { ko: '호박',          kana: 'ホバク',          mean: 'カボチャ' },
+    good:    { ko: '좋아요',        kana: 'チョアヨ',        mean: 'いいね / 好きです' },
+    stop:    { ko: '누르지 마세요', kana: 'ヌルジ マセヨ',   mean: '押さないでください' },
+  };
+  // 4回目以降、偶数回は怒る
+  const ANGRY = { ko: '누르지 말라고 했잖아요', kana: 'ヌルジ マルラゴ ヘッチャナヨ', mean: '押さないでって言ったじゃないですか' };
+  const SOUND_KEY = 'hangul-button-sound';
+  const STOP_LINES = [
+    '',
+    '',
+    '押さないでって言ったのに',
+    'まだ押す',
+    'ぜんぜん聞いてない',
+    'もはや押すためのボタン',
+  ];
+
+  const $ = id => document.getElementById(id);
+  const lcd = $('lcd'), machine = $('machine'), counter = $('counter');
+  const synth = window.speechSynthesis;
+  let koVoice = null;
+  let stopCount = 0;
+
+  // 音のオンオフ(作品固有キーで保存)
+  let soundOn = true;
+  try{ soundOn = localStorage.getItem(SOUND_KEY) !== 'off'; }catch(e){}
+  const sndBtn = $('snd');
+  function sndLabel(){ sndBtn.textContent = soundOn ? '音 ON' : '音 OFF'; sndBtn.setAttribute('aria-pressed', soundOn); }
+  sndLabel();
+  sndBtn.addEventListener('click', () => {
+    soundOn = !soundOn; sndLabel();
+    try{ localStorage.setItem(SOUND_KEY, soundOn ? 'on' : 'off'); }catch(e){}
+    if (!soundOn && synth){ synth.cancel(); machine.classList.remove('talking'); }
+    else unlock();
+  });
+
+  // iOS: 最初の読み上げをユーザー操作内で行って解錠する
+  let unlocked = false;
+  function unlock(){
+    if (unlocked || !synth) return;
+    unlocked = true;
+    try{ const u = new SpeechSynthesisUtterance(' '); u.volume = 0; u.lang = 'ko-KR'; synth.speak(u); }catch(e){}
+  }
+
+  function pickVoice(){
+    if (!synth) return;
+    const vs = synth.getVoices();
+    const ko = vs.filter(v => /^ko/i.test((v.lang || '').replace('_','-')));
+    const prefer = ['Yuna','Sora','Heami','Google 한국의','SunHi','InJoon'];
+    koVoice = ko.find(v => prefer.some(p => v.name.includes(p))) || ko[0] || null;
+  }
+  if (synth){
+    pickVoice();
+    if (typeof synth.onvoiceschanged !== 'undefined') synth.onvoiceschanged = pickVoice;
+  }
+
+  // 連打対策:
+  //  - cancel()直後のspeak()は取りこぼし・詰まりが起きやすいので、少し間を置いて「最後の1回」だけしゃべる
+  //  - 発話オブジェクトを保持しておく(Chromeで途中で回収されて終了イベントが来なくなるのを防ぐ)
+  //  - 古い発話の終了イベントで「しゃべり中」表示が消えないよう、今の発話か確認する
+  //  - 読み上げが詰まったままになったら、次の操作でリセットする
+  let curU = null, speakTimer = null, lastStartAt = 0;
+  function speak(text, rate){
+    if (!synth) return false;
+    if (!soundOn) return true;
+    if (!koVoice) pickVoice();
+    try{
+      const wasBusy = synth.speaking || synth.pending;
+      if (wasBusy && curU && performance.now() - lastStartAt > 8000) {
+        synth.cancel();   // 8秒以上しゃべり続け=詰まりとみなす
+      }
+      synth.cancel();
+      if (synth.paused) synth.resume();
+      clearTimeout(speakTimer);
+      const go = () => {
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = 'ko-KR';
+        if (koVoice) u.voice = koVoice;
+        u.rate = rate || 1;
+        u.pitch = 1;
+        u.onstart = () => { if (curU === u) machine.classList.add('talking'); };
+        u.onend = u.onerror = () => { if (curU === u){ machine.classList.remove('talking'); curU = null; } };
+        curU = u;
+        lastStartAt = performance.now();
+        synth.speak(u);
+      };
+      if (wasBusy) speakTimer = setTimeout(go, 70); else go();
+      return true;
+    }catch(e){ return false; }
+  }
+
+  function show(p, note){
+    lcd.innerHTML =
+      '<div class="ko' + (p.ko.length > 8 ? ' long' : '') + '">' + p.ko + '</div>' +
+      '<div class="kana">' + p.kana + '</div>' +
+      '<div class="mean">' + p.mean + '</div>' +
+      (note ? '<div class="warn">' + note + '</div>' : '');
+    lcd.classList.remove('pop'); void lcd.offsetWidth; lcd.classList.add('pop');
+  }
+
+  function press(k){
+    let p = PHRASES[k];
+    if (!p) return;
+    unlock();
+    let rate = 1;
+    if (k === 'stop'){
+      stopCount++;
+      rate = Math.min(1 + (stopCount - 1) * 0.08, 1.4);   // 押すほど早口に(上げすぎると声が崩れるので1.4で頭打ち)
+      machine.classList.remove('shake'); void machine.offsetWidth; machine.classList.add('shake');
+      const line = STOP_LINES[Math.min(stopCount, STOP_LINES.length - 1)];
+      counter.textContent = stopCount >= 2 ? `押された回数 ${stopCount}　${line}` : '';
+      if (stopCount >= 4 && stopCount % 2 === 0) p = ANGRY;
+    }
+    if (navigator.vibrate){ try{ navigator.vibrate(k === 'stop' ? [30,40,30] : 20); }catch(e){} }
+    const ok = speak(p.ko, rate);
+    if (!synth || !ok){
+      show(p, 'この環境では音声が出せません');
+    } else if (!soundOn){
+      show(p, '音はオフになっています');
+    } else if (!koVoice && synth.getVoices().length){
+      show(p, '韓国語の声が見つかりません。端末の音声設定で追加できます');
+    } else {
+      show(p);
+    }
+  }
+
+  document.querySelectorAll('.big').forEach(b => {
+    b.addEventListener('click', () => press(b.dataset.k));
+  });
+
+  // Xで共有: 押した回数を文面に入れる
+  const shareBtn = $('share');
+  const OG_CACHE_VERSION = 1;   // OGPのタグや画像を変えたら上げる(Xのカードのキャッシュ対策)
+  function shareUrl(){
+    if (/porkgorilla\.com$/.test(location.hostname)) return location.origin + location.pathname + '?ogv=' + OG_CACHE_VERSION;
+    const og = document.querySelector('meta[property="og:url"]');
+    return (og ? og.content : location.href) + '?ogv=' + OG_CACHE_VERSION;
+  }
+  function updateShare(){
+    let text;
+    if (stopCount >= 10)      text = `「押さないでください」と言われたボタンを${stopCount}回押して怒られました`;
+    else if (stopCount >= 1)  text = `「押さないでください」と言われたボタンを${stopCount}回押しました`;
+    else                      text = '押すと韓国語をしゃべるボタン。호박、좋아요、누르지 마세요';
+    const q = new URLSearchParams({ text: text + '\n#ハングルボタン', url: shareUrl() });
+    shareBtn.href = 'https://x.com/intent/post?' + q.toString();
+  }
+  updateShare();
+  shareBtn.addEventListener('pointerdown', updateShare);
+  shareBtn.addEventListener('focus', updateShare);
+  shareBtn.addEventListener('click', updateShare);
+
+  const keyMap = { '1':'pumpkin', '2':'good', '3':'stop' };
+  document.addEventListener('keydown', e => {
+    const k = keyMap[e.key];
+    if (!k || e.repeat) return;
+    const b = document.querySelector(`.big[data-k="${k}"]`);
+    b.classList.add('down');
+    setTimeout(() => b.classList.remove('down'), 120);
+    press(k);
+  });
+})();
+</script>
+</body>
+</html>
