@@ -51,6 +51,8 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 | [オジヒッパル](https://porkgorilla.com/works/ojihipparu.html) | GAME | おじさんのほっぺとおなかを引っ張るゲーム |
 | [てくてくペーちゃん](https://porkgorilla.com/works/tekuteku-pechan.html) | GAME | 梨の精のペーちゃんとアーちゃんが鬼ごっこをする3Dゲーム |
 | [ハングルボタン](https://porkgorilla.com/works/hangul-button.html) | LANGUAGE | 押すと韓国語をしゃべる、ボタン3つだけのマシーン |
+| [APPLE 30秒モーション (Opus 5.5)](https://porkgorilla.com/works/apple-motion-opus55.html) | LANGUAGE | 英単語「apple」だけを30秒のモーショングラフィックスで覚える（Claude Opus 5.5 版） |
+| [APPLE 30秒モーション (Sonnet 5.5)](https://porkgorilla.com/works/apple-motion-sonnet55.html) | LANGUAGE | 英単語「apple」だけを30秒のモーショングラフィックスで覚える（Claude Sonnet 5.5 版） |
 
 ## 構成
 
@@ -105,7 +107,9 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
     ├── sportsday.html
     ├── ojihipparu.html
     ├── tekuteku-pechan.html
-    └── hangul-button.html
+    ├── hangul-button.html
+    ├── apple-motion-opus55.html
+    └── apple-motion-sonnet55.html
 ```
 
 `theme.css` / `site.js` / `favicon.svg` はルート直下に置き、各作品ページからは絶対パス(`/theme.css` など)で読み込みます。404.html も GitHub Pages の仕様上ルート直下が必須です。

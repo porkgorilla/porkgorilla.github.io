@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>APPLE 30秒モーション — Opus 5.5 Edition | porkgorilla://</title>
+<meta name="description" content="英単語「apple」だけを、BGM付き30秒のモーショングラフィックスで覚えるアプリ。">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-MBT4300J0L');
+</script>
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="APPLE 30秒モーション — Opus 5.5 Edition">
+<meta property="og:description" content="英単語「apple」だけを、BGM付き30秒のモーショングラフィックスで覚えるアプリ。">
+<meta property="og:url" content="https://porkgorilla.com/works/apple-motion-opus55.html">
+<meta property="og:image" content="https://porkgorilla.com/assets/og-apple-motion-opus55.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="APPLE 30秒モーション — Opus 5.5 Edition">
+<meta name="twitter:description" content="英単語「apple」だけを、BGM付き30秒のモーショングラフィックスで覚えるアプリ。">
+<meta name="twitter:image" content="https://porkgorilla.com/assets/og-apple-motion-opus55.jpg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Dela+Gothic+One&family=JetBrains+Mono:wght@500;700&family=Zen+Kaku+Gothic+New:wght@500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@700&text=%2F%CB%88%C3%A6p.%C9%99l&display=swap">
+
+<style>
+/* Layout: full-bleed canvas stage (the 30s film) + poster-style DOM cards for title / test / result */
+:root{
+  --ink:#14110F;      /* film black, slightly warm */
+  --paper:#F2F0EA;    /* poster paper */
+  --red:#E1252E;      /* apple skin */
+  --leaf:#1D5C38;     /* leaf green */
+  --gold:#F5C443;     /* highlight / stress mark */
+  --sub:#9A938A;      /* quiet labels */
+  --f-display:'Anton',Impact,'Arial Narrow',sans-serif;
+  --f-jp:'Dela Gothic One','Hiragino Sans','Noto Sans JP',sans-serif;
+  --f-body:'Zen Kaku Gothic New','Hiragino Sans','Noto Sans JP',sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0;background:var(--ink);color:var(--paper);overflow:hidden;font-family:var(--f-body);-webkit-tap-highlight-color:transparent}
+#stage{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:manipulation}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;justify-content:space-between;align-items:center;
+  padding:calc(env(safe-area-inset-top,0px) + 6px) max(12px,env(safe-area-inset-right,0px)) 0 max(12px,env(safe-area-inset-left,0px));pointer-events:none}
+.home{pointer-events:auto;color:var(--sub);text-decoration:none;font:500 12px var(--f-mono);letter-spacing:.04em;white-space:nowrap;padding:14px 6px 14px 0;
+  text-shadow:0 0 6px rgba(20,17,15,.6)}
+.home:hover{color:var(--paper)}
+.tools{display:flex;gap:8px}
+.ibtn{pointer-events:auto;min-width:44px;min-height:44px;width:44px;height:44px;display:grid;place-items:center;padding:0;cursor:pointer;
+  background:rgba(20,17,15,.62);color:var(--paper);border:1px solid rgba(242,240,234,.28);border-radius:50%}
+.ibtn:hover{background:rgba(20,17,15,.85)}
+.ibtn svg{width:20px;height:20px;display:block}
+.ibtn:focus-visible,.go:focus-visible,.choice:focus-visible,.home:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+.ov{position:fixed;inset:0;z-index:20;display:flex;padding:72px 16px 24px;overflow:auto;background:rgba(20,17,15,.74);
+  -webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+.card{margin:auto;width:100%;max-width:440px;box-sizing:border-box;background:var(--paper);color:var(--ink);
+  padding:26px 24px 22px;box-shadow:10px 10px 0 var(--red);display:flex;flex-direction:column;gap:14px}
+.eyebrow{font:700 11px var(--f-mono);letter-spacing:.16em;color:var(--red);text-transform:uppercase;display:flex;justify-content:space-between;gap:8px}
+.word{font-family:var(--f-display);font-weight:400;font-size:clamp(84px,27vw,150px);line-height:.84;margin:2px 0 0;color:var(--red);letter-spacing:.005em}
+.lead{font-weight:700;font-size:16px;line-height:1.7;margin:0;text-wrap:pretty}
+.chapters{list-style:none;margin:0;padding:10px 0 0;border-top:2px solid var(--ink);display:flex;flex-wrap:wrap;gap:4px 14px;font:500 12px var(--f-mono)}
+.chapters b{color:var(--red);font-weight:700;margin-right:4px}
+.go{font:700 17px var(--f-body);min-height:50px;padding:12px 22px;cursor:pointer;background:var(--ink);color:var(--paper);border:2px solid var(--ink);
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;transition:transform .08s}
+.go:active{transform:translate(2px,2px)}
+.go.primary{background:var(--red);border-color:var(--red)}
+.go.ghost{background:transparent;color:var(--ink)}
+.go.ghost:hover{background:rgba(20,17,15,.07)}
+.go.armed{background:var(--gold);border-color:var(--gold);color:var(--ink)}
+.go[disabled]{opacity:.5;cursor:wait}
+.go small{font-weight:500;font-size:12px;opacity:.85}
+.actions{display:flex;flex-wrap:wrap;gap:10px}
+.actions .go{flex:1 1 150px}
+.stack{display:flex;flex-direction:column;gap:10px}
+.meta{font:500 12px var(--f-mono);color:#6d665e;margin:0}
+.edition{font:700 12px var(--f-mono);letter-spacing:.12em;color:#6d665e;margin:-6px 0 0}
+.credit{font:500 11px var(--f-mono);color:#8f8878;letter-spacing:.05em;margin:0}
+
+.qhead{display:flex;justify-content:space-between;align-items:center;font:700 12px var(--f-mono);letter-spacing:.12em}
+.dots{display:flex;gap:6px}
+.dots i{width:22px;height:6px;background:rgba(20,17,15,.15);display:block}
+.dots i.on{background:var(--ink)}
+.dots i.ok{background:var(--leaf)}
+.dots i.ng{background:var(--red)}
+.qtext{font-family:var(--f-jp);font-size:clamp(20px,6vw,26px);line-height:1.4;margin:4px 0 2px;text-wrap:balance}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.choice{min-height:60px;font:700 19px var(--f-body);background:transparent;color:var(--ink);border:2px solid var(--ink);cursor:pointer;padding:8px}
+.choice.latin{font-family:var(--f-mono);font-size:21px;letter-spacing:.04em}
+.choice:hover:not([disabled]){background:rgba(20,17,15,.07)}
+.choice.ok{background:var(--leaf);border-color:var(--leaf);color:var(--paper)}
+.choice.ng{background:var(--red);border-color:var(--red);color:var(--paper)}
+.choice[disabled]{cursor:default}
+.qnote{font-size:14px;font-weight:700;min-height:1.5em;margin:0;color:#4a443e}
+
+.score{font-family:var(--f-display);font-size:clamp(88px,26vw,128px);line-height:.9;margin:0;font-variant-numeric:tabular-nums}
+.score span{color:var(--red)}
+.share{font:700 14px var(--f-body);color:var(--ink);text-decoration:none;border-bottom:2px solid var(--ink);align-self:flex-start;padding:10px 0 2px}
+.share:hover{color:var(--red);border-color:var(--red)}
+.ptitle{font-family:var(--f-jp);font-size:28px;margin:0}
+
+@media (prefers-reduced-motion: reduce){ .go{transition:none} }
+</style>
+</head>
+<body>
+
+<canvas id="stage" aria-label="appleを教える30秒の映像"></canvas>
+<div id="probe" style="position:fixed;left:0;bottom:0;width:0;height:0;padding-bottom:env(safe-area-inset-bottom,0px);pointer-events:none;visibility:hidden"></div>
+
+<div class="topbar">
+  <a class="home" href="/">&lt; porkgorilla</a>
+  <div class="tools">
+    <button class="ibtn" id="soundBtn" type="button" aria-label="音のオン・オフ"></button>
+    <button class="ibtn" id="pauseBtn" type="button" aria-label="一時停止" hidden>
+      <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="3" width="4" height="14" fill="currentColor"/><rect x="12" y="3" width="4" height="14" fill="currentColor"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- タイトル -->
+<div class="ov" id="titleOv">
+  <div class="card">
+    <div class="eyebrow"><span>Vocab No.001</span><span>30 sec / 128 BPM</span></div>
+    <h1 class="word">APPLE</h1>
+    <p class="edition">Opus 5.5 Edition</p>
+    <p class="lead">英単語「apple」ひとつだけを、30秒の映像とBGMで覚えます。見終わったら、4問の確認テスト。</p>
+    <ol class="chapters">
+      <li><b>01</b>スペル</li><li><b>02</b>発音</li><li><b>03</b>意味</li><li><b>04</b>a / an</li><li><b>05</b>例文</li><li><b>06</b>まとめ</li>
+    </ol>
+    <button class="go primary" id="startBtn" type="button" disabled>準備中…</button>
+    <p class="meta" id="bestLine"></p>
+    <p class="credit">porkgorilla — 2026 / built with Claude Opus 5.5</p>
+  </div>
+</div>
+
+<!-- 一時停止 -->
+<div class="ov" id="pauseOv" hidden>
+  <div class="card">
+    <div class="eyebrow"><span>Paused</span><span id="pauseTime">00:00 / 00:30</span></div>
+    <p class="ptitle">一時停止</p>
+    <div class="stack">
+      <button class="go primary" id="resumeBtn" type="button">続きから再生</button>
+      <button class="go ghost" id="restartBtn" type="button" data-label="最初から見る">最初から見る</button>
+      <button class="go ghost" id="quitBtn" type="button" data-label="タイトルへ">タイトルへ</button>
+    </div>
+  </div>
+</div>
+
+<!-- 確認テスト -->
+<div class="ov" id="quizOv" hidden>
+  <div class="card">
+    <div class="qhead"><span id="qNum">CHECK 1/4</span><span class="dots" id="qDots"></span></div>
+    <p class="qtext" id="qText"></p>
+    <div class="choices" id="qChoices"></div>
+    <p class="qnote" id="qNote" aria-live="polite"></p>
+  </div>
+</div>
+
+<!-- 結果 -->
+<div class="ov" id="resultOv" hidden>
+  <div class="card">
+    <div class="eyebrow"><span>Result</span><span>apple ／ りんご</span></div>
+    <p class="score" id="scoreBig"><span>4</span>/4</p>
+    <p class="lead" id="resultMsg"></p>
+    <p class="meta" id="resultBest"></p>
+    <div class="actions">
+      <button class="go primary" id="againBtn" type="button">もう一度</button>
+      <button class="go ghost" id="titleBtn" type="button">タイトルへ</button>
+    </div>
+    <a class="share" id="shareBtn" href="#" target="_blank" rel="noopener">結果を X でシェア</a>
+  </div>
+</div>
+
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+
+/* ---------- 定数 ---------- */
+const GAME_URL = 'https://porkgorilla.com/works/apple-motion-opus55.html';
+const OG_CACHE_VERSION = 1;
+const SHARE_URL = GAME_URL + '?ogv=' + OG_CACHE_VERSION;
+const KEY_VIEWS = 'apple-motion-opus55-views', KEY_SOUND = 'apple-motion-opus55-sound', KEY_BEST = 'apple-motion-opus55-best';
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
+};
+let soundOn = store.get(KEY_SOUND) !== '0';
+const REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const C = {ink:'#14110F', paper:'#F2F0EA', red:'#E1252E', leaf:'#1D5C38', gold:'#F5C443', sub:'#9A938A', leafLight:'#5BAE4F', stem:'#3A2417'};
+const F = {
+  disp:'Anton, Impact, "Arial Narrow", sans-serif',
+  jp:'"Dela Gothic One", "Hiragino Sans", "Noto Sans JP", sans-serif',
+  body:'"Zen Kaku Gothic New", "Hiragino Sans", "Noto Sans JP", sans-serif',
+  mono:'"JetBrains Mono", ui-monospace, Menlo, monospace',
+  ipa:'"Noto Sans", "Segoe UI", "Lucida Grande", "Arial Unicode MS", sans-serif'
+};
+const IPA = '/ˈæp.əl/';
+const BPM = 128, B = 60 / BPM, TOTAL_BEATS = 64, DUR = TOTAL_BEATS * B; // 30.0秒
+const SC_BG = [C.ink, C.red, C.paper, C.leaf, C.ink, C.red, C.paper, C.ink];
+const CHAP = ['INTRO', 'スペル', '発音', '意味', 'a / an', '例文', 'スペル確認', 'まとめ'];
+const LET = ['A','P','P','L','E'], LNAME = ['エイ','ピー','ピー','エル','イー'];
+const IMPACTS = [8,9,10,11,12,56,57,58,59,60];
+const SAY = [
+  {beat:17, text:'apple'}, {beat:19.2, text:'apple'},
+  {beat:33, text:'an apple'}, {beat:36.2, text:'two apples'},
+  {beat:40.1, text:'I eat an apple.'}, {beat:60.1, text:'apple'}
+];
+const JP_CHARS = 'この30秒で覚えるのは、1語だけ。スペル文字発音意味例文確認まとめカタカナで書くならアッポゥ前の「ア」を強く短く最後のlは舌先を上の歯ぐきへりんごくだもの＝母音の音で始まるからではなく2個以上はわたしは食べるまちがいPは2つエイピーエルイー（）／・→！';
+
+/* ---------- canvas ---------- */
+const cv = $('stage'), ctx = cv.getContext('2d');
+let W = 0, H = 0, DPR = 1, U = 0, SAFE_B = 0;
+function resize(){
+  DPR = Math.min(2, window.devicePixelRatio || 1);
+  W = window.innerWidth; H = window.innerHeight; U = Math.min(W, H);
+  cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+  SAFE_B = parseFloat(getComputedStyle($('probe')).paddingBottom) || 0;
+}
+window.addEventListener('resize', resize);
+resize();
+
+const clamp = (v,a=0,b=1) => v < a ? a : v > b ? b : v;
+const eOut = x => 1 - Math.pow(1 - x, 3);
+const eIn = x => x * x * x;
+const eBack = x => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
+const eBounce = x => { const n=7.5625, d=2.75;
+  if (x < 1/d) return n*x*x; if (x < 2/d) return n*(x-=1.5/d)*x+.75; if (x < 2.5/d) return n*(x-=2.25/d)*x+.9375; return n*(x-=2.625/d)*x+.984375; };
+const pr = (lb, s, d=0.4) => clamp((lb - s) / d);
+
+function T(s, x, y, size, font, color, o = {}){
+  const a = o.alpha == null ? 1 : o.alpha;
+  if (a <= 0.002 || size <= 0) return;
+  ctx.save();
+  ctx.globalAlpha *= a;
+  ctx.translate(x, y);
+  if (o.rot) ctx.rotate(o.rot);
+  const sc = o.sc == null ? 1 : o.sc;
+  if (sc !== 1) ctx.scale(sc, sc);
+  ctx.font = `${o.weight || ''} ${size}px ${font}`;
+  ctx.fillStyle = color;
+  ctx.textAlign = o.align || 'center';
+  ctx.textBaseline = o.base || 'middle';
+  ctx.fillText(s, 0, 0);
+  ctx.restore();
+}
+function mw(s, size, font, weight=''){ ctx.font = `${weight} ${size}px ${font}`; return ctx.measureText(s).width; }
+function fit(s, font, maxW, maxS, weight=''){ const w = mw(s, 100, font, weight) || 1; return Math.min(maxS, maxW / w * 100); }
+function runs(parts, x, y, size, font, o = {}){
+  ctx.font = `${o.weight || ''} ${size}px ${font}`;
+  const ws = parts.map(p => ctx.measureText(p.s).width);
+  const tot = ws.reduce((a,b) => a + b, 0);
+  let cx = x - tot / 2; const out = [];
+  parts.forEach((p, i) => {
+    out.push({x:cx, w:ws[i]});
+    if (p.c) T(p.s, cx, y, size, font, p.c, {align:'left', alpha:(o.alpha == null ? 1 : o.alpha) * (p.a == null ? 1 : p.a), weight:o.weight, base:o.base});
+    cx += ws[i];
+  });
+  return out;
+}
+function cap(s, y, color, alpha, maxS){
+  const sz = fit(s, F.body, W * 0.88, maxS || Math.min(26, Math.max(15, W * 0.045)), '700');
+  T(s, W/2, y, sz, F.body, color, {alpha, weight:'700'});
+}
+function drawApple(x, y, r, o = {}){
+  if (r <= 0.5) return;
+  ctx.save(); ctx.translate(x, y); if (o.rot) ctx.rotate(o.rot);
+  if (o.alpha != null) ctx.globalAlpha *= o.alpha;
+  ctx.strokeStyle = o.stem || C.stem; ctx.lineWidth = r * 0.1; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(0, -r*0.55); ctx.quadraticCurveTo(r*0.02, -r*0.9, r*0.14, -r*1.08); ctx.stroke();
+  ctx.fillStyle = o.leaf || C.leafLight;
+  ctx.save(); ctx.translate(r*0.38, -r*0.92); ctx.rotate(-0.45);
+  ctx.beginPath(); ctx.moveTo(-r*0.3, 0); ctx.quadraticCurveTo(0, -r*0.24, r*0.3, 0); ctx.quadraticCurveTo(0, r*0.24, -r*0.3, 0); ctx.fill();
+  ctx.restore();
+  ctx.fillStyle = o.body || C.red;
+  ctx.beginPath();
+  ctx.moveTo(0, -r*0.58);
+  ctx.bezierCurveTo(r*0.38, -r*0.98, r*1.08, -r*0.82, r*1.02, -r*0.02);
+  ctx.bezierCurveTo(r*0.98, r*0.62, r*0.58, r*1.02, r*0.28, r*0.96);
+  ctx.bezierCurveTo(r*0.12, r*0.92, -r*0.12, r*0.92, -r*0.28, r*0.96);
+  ctx.bezierCurveTo(-r*0.58, r*1.02, -r*0.98, r*0.62, -r*1.02, -r*0.02);
+  ctx.bezierCurveTo(-r*1.08, -r*0.82, -r*0.38, -r*0.98, 0, -r*0.58);
+  ctx.fill();
+  if (o.hl !== false){ ctx.fillStyle = 'rgba(255,255,255,.28)'; ctx.beginPath(); ctx.ellipse(-r*0.5, -r*0.22, r*0.12, r*0.26, 0.35, 0, Math.PI*2); ctx.fill(); }
+  ctx.restore();
+}
+function rays(x, y, R, rot, color, alpha, n=14){
+  ctx.save(); ctx.translate(x, y); ctx.rotate(rot); ctx.globalAlpha *= alpha; ctx.fillStyle = color;
+  for (let i = 0; i < n; i++){ const a0 = i / n * Math.PI * 2, a1 = a0 + Math.PI / n;
+    ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0, 0, R, a0, a1); ctx.closePath(); ctx.fill(); }
+  ctx.restore();
+}
+
+/* ---------- 背景のワイプ ---------- */
+function bgWipe(si, lb){
+  const prev = si > 0 ? SC_BG[si-1] : C.ink, cur = SC_BG[si];
+  ctx.fillStyle = prev; ctx.fillRect(0, 0, W, H);
+  const p = si === 0 ? 1 : eOut(clamp(lb / 0.55));
+  ctx.fillStyle = cur;
+  if (si % 2 === 0){
+    ctx.beginPath(); ctx.arc(W/2, H/2, p * Math.hypot(W, H) / 2 + 1, 0, Math.PI*2); ctx.fill();
+  } else {
+    const sk = H * 0.35, x = -sk + p * (W + sk * 2);
+    ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(x + sk, 0); ctx.lineTo(x, H); ctx.lineTo(0, H); ctx.closePath(); ctx.fill();
+  }
+}
+
+/* ---------- シーン ---------- */
+// 00 INTRO
+function s0(lb){
+  const cx = W/2, cy = H/2;
+  const fs = Math.min(W * 0.3, H * 0.19);
+  const out = eIn(pr(lb, 3.55, 0.45));
+  ['ONE','WORD','ONLY.'].forEach((w, i) => {
+    const p = pr(lb, i, 0.3); if (p <= 0) return;
+    const sc = 1 + (1 - eOut(p)) * 0.9;
+    T(w, cx, cy + (i - 1) * fs * 0.98 - out * H * 0.7, fs, F.disp, i === 2 ? C.red : C.paper, {sc, alpha:clamp(p * 2) * (1 - out)});
+  });
+  if (lb >= 3.9){
+    const p = pr(lb, 4, 0.35), R = Math.min(W * 0.36, H * 0.26);
+    const ry = cy - H * 0.03;
+    ctx.save(); ctx.globalAlpha = clamp(p * 1.5);
+    ctx.lineWidth = Math.max(3, R * 0.045);
+    for (let i = 0; i < 16; i++){
+      const a = -Math.PI/2 + i / 16 * Math.PI * 2;
+      ctx.strokeStyle = i < Math.ceil(clamp((lb - 4) / 3.8) * 16) ? C.gold : 'rgba(242,240,234,.22)';
+      ctx.beginPath(); ctx.moveTo(cx + Math.cos(a) * R * 1.12, ry + Math.sin(a) * R * 1.12); ctx.lineTo(cx + Math.cos(a) * R * 1.2, ry + Math.sin(a) * R * 1.2); ctx.stroke();
+    }
+    ctx.strokeStyle = 'rgba(242,240,234,.14)'; ctx.beginPath(); ctx.arc(cx, ry, R, 0, Math.PI*2); ctx.stroke();
+    ctx.strokeStyle = C.red; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.arc(cx, ry, R, -Math.PI/2, -Math.PI/2 + clamp((lb - 4) / 3.8) * Math.PI * 2); ctx.stroke();
+    ctx.restore();
+    T('30', cx, ry - R * 0.06, R * 1.05, F.disp, C.paper, {sc:0.55 + 0.45 * eBack(p), alpha:clamp(p * 2)});
+    T('SECONDS', cx, ry + R * 0.55, Math.max(11, R * 0.13), F.mono, C.gold, {alpha:pr(lb, 4.5, 0.3), weight:'700'});
+    cap('この30秒で覚えるのは、1語だけ。', ry + R * 1.45, C.paper, pr(lb, 5, 0.4));
+  }
+  const dot = pr(lb, 7.3, 0.7);
+  if (dot > 0){ ctx.fillStyle = C.red; ctx.beginPath(); ctx.arc(cx, cy, eIn(dot) * U * 0.08, 0, Math.PI*2); ctx.fill(); }
+}
+
+// 01 スペル
+function s1(lb, b, pulse){
+  const fs = Math.min(W * 0.215, H * 0.3), gap = fs * 0.05;
+  const ws = LET.map(l => mw(l, fs, F.disp)); const total = ws.reduce((a,c) => a + c, 0) + gap * 4;
+  const xs = []; let x = W/2 - total/2; ws.forEach(w => { xs.push(x + w/2); x += w + gap; });
+  const cy = H * 0.46;
+  const bounce = lb >= 5 ? 1 + 0.035 * pulse : 1;
+  T('SPELLING', W/2, cy - fs * 0.86, Math.max(11, Math.min(16, W * 0.03)), F.mono, C.ink, {alpha:pr(lb, 0, 0.3), weight:'700'});
+  LET.forEach((l, i) => {
+    const p = pr(lb, i, 0.28); if (p <= 0) return;
+    const e = eBack(p);
+    const sc = (2.6 - 1.6 * e) * bounce, rot = (1 - eOut(p)) * (i % 2 ? 0.28 : -0.28);
+    T(l, xs[i], cy, fs, F.disp, C.paper, {sc, rot, alpha:clamp(p * 3)});
+    T(LNAME[i], xs[i], cy + fs * 0.64, Math.max(12, fs * 0.15), F.body, C.ink, {alpha:pr(lb, i + 0.15, 0.3), weight:'700'});
+  });
+  const up = eOut(pr(lb, 5, 1));
+  if (up > 0){ ctx.fillStyle = C.gold; ctx.fillRect(W/2 - total/2, cy + fs * 0.84, total * up, Math.max(4, fs * 0.05)); }
+  cap('スペルは5文字。A・P・P・L・E', cy + fs * 1.18, C.paper, pr(lb, 5.5, 0.4));
+}
+
+// 02 発音
+function s2(lb, b, pulse, t){
+  const cx = W/2;
+  T('PRONUNCIATION ／ 発音', cx, H * 0.19, Math.max(11, Math.min(15, W * 0.032)), F.mono, C.red, {alpha:pr(lb, 0, 0.3), weight:'700'});
+  const fsI = fit(IPA, F.ipa, W * 0.86, Math.min(H * 0.16, 150), '700');
+  T(IPA, cx, H * 0.33, fsI, F.ipa, C.ink, {weight:'700', sc:0.85 + 0.15 * eBack(pr(lb, 0, 0.35)), alpha:pr(lb, 0, 0.2)});
+  // 波形
+  const n = 36, ww = Math.min(W * 0.8, 600), bw = ww / n, wy = H * 0.49;
+  const env = (s) => { const d = lb - s; return d > 0 && d < 1.25 ? Math.sin(clamp(d / 1.25) * Math.PI) : 0; };
+  const sp = Math.max(env(1), env(3.2));
+  ctx.fillStyle = C.ink;
+  for (let i = 0; i < n; i++){
+    const center = 1 - Math.abs(i - n/2) / (n/2);
+    const amp = 0.05 + 0.04 * pulse + sp * center * (0.35 + 0.65 * Math.abs(Math.sin(i * 1.7 + t * 19) * Math.sin(i * 0.37 + t * 7)));
+    const h = Math.max(2, amp * H * 0.11);
+    ctx.globalAlpha = pr(lb, 0.3, 0.4);
+    ctx.fillRect(cx - ww/2 + i * bw + bw * 0.2, wy - h/2, bw * 0.6, h);
+  }
+  ctx.globalAlpha = 1;
+  // カタカナ
+  const kp = pr(lb, 1, 0.3);
+  if (kp > 0){
+    const fsK = Math.min(W * 0.2, H * 0.12), fsK2 = fsK * 0.6, g = fsK * 0.12;
+    const wA = mw('アッ', fsK, F.jp), wB = mw('ポゥ', fsK2, F.jp), tot = wA + g + wB;
+    const by = H * 0.7, x0 = cx - tot / 2;
+    T('カタカナで書くなら', cx, by - fsK * 1.25, Math.max(12, Math.min(15, W * 0.032)), F.mono, C.sub, {alpha:kp, weight:'700'});
+    const sc = 0.7 + 0.3 * eBack(kp);
+    T('アッ', x0, by, fsK, F.jp, C.red, {align:'left', base:'alphabetic', alpha:kp, sc});
+    T('ポゥ', x0 + wA + g, by, fsK2, F.jp, C.ink, {align:'left', base:'alphabetic', alpha:pr(lb, 1.4, 0.3)});
+    const dp = eBack(pr(lb, 1.6, 0.3));
+    if (dp > 0){ ctx.fillStyle = C.gold; ctx.beginPath(); ctx.arc(x0 + wA * 0.3, by - fsK * 1.0, fsK * 0.09 * dp, 0, Math.PI*2); ctx.fill(); }
+  }
+  cap('前の「ア」を、強く短く。', H * 0.79, C.ink, pr(lb, 4, 0.4));
+  cap('最後の l は、舌先を上の歯ぐきへ。', H * 0.79 + Math.min(34, W * 0.075), C.ink, pr(lb, 5, 0.4));
+}
+
+// 03 意味
+function s3(lb, b, pulse, t){
+  const land = W > H * 1.1;
+  const ax = land ? W * 0.3 : W / 2, ay = land ? H * 0.5 : H * 0.33;
+  const r = land ? Math.min(H * 0.24, W * 0.15) : Math.min(W * 0.25, H * 0.15);
+  rays(ax, ay, Math.hypot(W, H), t * 0.25, C.paper, 0.06 * pr(lb, 0, 0.6));
+  const ap = eBack(pr(lb, 0, 0.5));
+  drawApple(ax, ay + r * 0.05, r * ap * (1 + 0.04 * pulse), {rot:Math.sin(t * 2.1) * 0.06});
+  const tx = land ? W * 0.68 : W / 2, ty = land ? H * 0.47 : H * 0.69;
+  const fsA = land ? Math.min(W * 0.12, H * 0.2) : Math.min(W * 0.21, H * 0.1);
+  const p1 = pr(lb, 2, 0.35), p2 = pr(lb, 3, 0.35);
+  T('apple', tx + (1 - eOut(p1)) * W * 0.25, ty - fsA * 0.62, fsA, F.disp, C.paper, {alpha:p1});
+  const fsJ = fsA * 0.82;
+  const wE = mw('＝ ', fsJ * 0.6, F.jp), wR = mw('りんご', fsJ, F.jp), tot = wE + wR;
+  T('＝', tx - tot/2 + wE * 0.4, ty + fsA * 0.55, fsJ * 0.6, F.jp, C.paper, {alpha:p2});
+  T('りんご', tx - tot/2 + wE, ty + fsA * 0.55, fsJ, F.jp, C.gold, {align:'left', alpha:p2, sc:0.8 + 0.2 * eBack(p2)});
+  cap('くだものの「りんご」。', land ? H * 0.82 : H * 0.86, C.paper, pr(lb, 4.5, 0.4));
+}
+
+// 04 a / an
+function s4(lb, b, pulse){
+  const fsR = fit('an apple', F.disp, W * 0.7, Math.min(H * 0.1, 120));
+  const y1 = H * 0.2, y2 = H * 0.33;
+  const p0 = pr(lb, 0, 0.3);
+  const r1 = runs([{s:'a ', c:C.sub}, {s:'apple', c:C.sub}], W/2, y1, fsR, F.disp, {alpha:p0});
+  const sp = eOut(pr(lb, 1, 0.3));
+  if (sp > 0){
+    ctx.strokeStyle = C.red; ctx.lineWidth = Math.max(4, fsR * 0.07); ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(r1[0].x - fsR * 0.1, y1 + fsR * 0.25); ctx.lineTo(r1[0].x - fsR * 0.1 + (r1[0].w * 0.8 + fsR * 0.2) * sp, y1 + fsR * 0.25 - fsR * 0.5 * sp); ctx.stroke();
+    T('✕', r1[1].x + r1[1].w + fsR * 0.3, y1, fsR * 0.5, F.body, C.red, {alpha:sp, weight:'700'});
+  }
+  const p2 = pr(lb, 2, 0.3);
+  const r2 = runs([{s:'an ', c:C.gold}, {s:'apple', c:C.paper}], W/2, y2, fsR, F.disp, {alpha:p2});
+  if (p2 > 0) T('◯', r2[1].x + r2[1].w + fsR * 0.3, y2, fsR * 0.5, F.body, C.gold, {alpha:p2, weight:'700'});
+  cap('「ア」の音で始まるから、a ではなく an。', H * 0.44, C.paper, pr(lb, 2.5, 0.4));
+  // two apples
+  const ir = Math.min(W * 0.08, H * 0.055);
+  [0, 1].forEach(i => { const p = pr(lb, 4.6 + i * 0.3, 0.45); if (p <= 0) return;
+    drawApple(W/2 + (i - 0.5) * ir * 2.8, H * 0.58 - (1 - eBounce(p)) * H * 0.2, ir * (1 + 0.05 * pulse), {alpha:clamp(p * 3)}); });
+  runs([{s:'two ', c:C.paper}, {s:'apple', c:C.paper}, {s:'s', c:C.gold}], W/2, H * 0.71, fsR, F.disp, {alpha:pr(lb, 4, 0.3)});
+  cap('2個以上は apples。', H * 0.81, C.paper, pr(lb, 5.5, 0.4));
+}
+
+// 05 例文
+function s5(lb, b, pulse){
+  const words = ['I','eat','an','apple.'];
+  const one = fit('I eat an apple.', F.disp, W * 0.88, Math.min(H * 0.16, 170));
+  const two = fit('an apple.', F.disp, W * 0.84, Math.min(H * 0.14, 170));
+  const useTwo = two > one * 1.35;
+  const fs = useTwo ? two : one;
+  const lines = useTwo ? [[0,1],[2,3]] : [[0,1,2,3]];
+  const y0 = H * 0.4 - (lines.length - 1) * fs * 0.55;
+  lines.forEach((ln, li) => {
+    const parts = ln.map((wi, k) => ({s: words[wi] + (k < ln.length - 1 ? ' ' : ''), c:null}));
+    const pos = runs(parts, W/2, 0, fs, F.disp);
+    const y = y0 + li * fs * 1.1;
+    ln.forEach((wi, k) => {
+      const p = pr(lb, wi, 0.28); if (p <= 0) return;
+      const isApple = wi === 3;
+      const wordW = mw(words[wi], fs, F.disp);
+      if (isApple){
+        const hp = eOut(pr(lb, 3.25, 0.4));
+        if (hp > 0){ ctx.fillStyle = C.paper; ctx.fillRect(pos[k].x - fs * 0.08, y - fs * 0.5, (wordW + fs * 0.16) * hp, fs * 1.0); }
+      }
+      T(words[wi], pos[k].x + wordW/2, y, fs, F.disp, isApple && lb >= 3.4 ? C.red : C.paper, {sc:1 + (1 - eOut(p)) * 0.8, alpha:clamp(p * 3)});
+    });
+  });
+  const jy = y0 + (lines.length - 1) * fs * 1.1 + fs * 1.05;
+  const fsJ = fit('わたしは りんごを 食べる。', F.jp, W * 0.86, Math.min(H * 0.065, 56));
+  T('わたしは りんごを 食べる。', W/2, jy, fsJ, F.jp, C.ink, {alpha:pr(lb, 4, 0.35)});
+  cap('I ＝ わたし　eat ＝ 食べる', jy + fsJ * 1.3, C.paper, pr(lb, 5, 0.4));
+}
+
+// 06 スペル確認
+function s6(lb, b, pulse){
+  const ts = Math.min(W * 0.16, H * 0.15, 150), g = ts * 0.14, tot = ts * 5 + g * 4;
+  const y = H * 0.42;
+  LET.forEach((l, i) => {
+    const p = pr(lb, i * 0.15, 0.4); if (p <= 0) return;
+    let yy = y - (1 - eBack(p)) * H * 0.25;
+    const hs = 4 + i * 0.5, hp = clamp((lb - hs) / 0.5);
+    if (hp > 0 && hp < 1) yy -= Math.sin(hp * Math.PI) * ts * 0.28;
+    const x = W/2 - tot/2 + i * (ts + g);
+    const isP = i === 1 || i === 2;
+    const fp = isP ? pr(lb, 2 + (i - 1) * 0.25, 0.2) : 0;
+    ctx.save(); ctx.globalAlpha = clamp(p * 3);
+    if (fp > 0){ ctx.fillStyle = C.red; ctx.globalAlpha *= fp; ctx.fillRect(x, yy - ts/2, ts, ts); ctx.globalAlpha = clamp(p * 3); }
+    ctx.strokeStyle = isP && fp > 0.5 ? C.red : C.ink; ctx.lineWidth = Math.max(3, ts * 0.05);
+    ctx.strokeRect(x, yy - ts/2, ts, ts);
+    ctx.restore();
+    T(l, x + ts/2, yy + ts * 0.03, ts * 0.72, F.disp, fp > 0.5 ? C.paper : C.ink, {alpha:clamp(p * 3)});
+    if (hp > 0 && hp < 1) T(LNAME[i], x + ts/2, yy - ts * 0.82, Math.max(12, ts * 0.2), F.body, C.red, {alpha:Math.sin(hp * Math.PI), weight:'700'});
+  });
+  const bp = eBack(pr(lb, 3, 0.35));
+  if (bp > 0){
+    const bx = W/2 - tot/2 + 2 * (ts + g) + ts * 0.95, by = y - ts * 0.55, br = ts * 0.34 * bp;
+    ctx.fillStyle = C.gold; ctx.beginPath(); ctx.arc(bx, by, br, 0, Math.PI*2); ctx.fill();
+    T('P×2', bx, by, br * 0.62, F.disp, C.ink);
+  }
+  const ay = y + ts * 1.15, pa = pr(lb, 5.5, 0.4);
+  if (pa > 0){
+    const fsa = Math.min(ts * 0.42, 40);
+    const r = runs([{s:'aple', c:C.sub}], W/2, ay, fsa, F.mono, {alpha:pa, weight:'700'});
+    ctx.strokeStyle = C.red; ctx.globalAlpha = pa; ctx.lineWidth = Math.max(2, fsa * 0.08);
+    ctx.beginPath(); ctx.moveTo(r[0].x - 4, ay); ctx.lineTo(r[0].x + r[0].w + 4, ay); ctx.stroke(); ctx.globalAlpha = 1;
+  }
+  cap('P は 2つ。aple は、まちがい。', ay + Math.min(ts * 0.6, 56), C.ink, pr(lb, 5.8, 0.4));
+}
+
+// 07 まとめ
+const S7BG = [C.red, C.leaf, C.paper, C.red];
+function s7(lb, b, pulse, t){
+  if (lb < 4){
+    const k = Math.floor(lb), f = lb - k;
+    ctx.fillStyle = S7BG[k]; ctx.fillRect(0, 0, W, H);
+    const sc = 1.3 - 0.3 * eOut(clamp(f * 3));
+    if (k === 0) T('APPLE', W/2, H/2, fit('APPLE', F.disp, W * 0.86, H * 0.36), F.disp, C.paper, {sc});
+    if (k === 1) T('りんご', W/2, H/2, fit('りんご', F.jp, W * 0.8, H * 0.26), F.jp, C.gold, {sc});
+    if (k === 2) T(IPA, W/2, H/2, fit(IPA, F.ipa, W * 0.86, H * 0.24, '700'), F.ipa, C.ink, {sc, weight:'700'});
+    if (k === 3) T('AN APPLE', W/2, H/2, fit('AN APPLE', F.disp, W * 0.86, H * 0.3), F.disp, C.paper, {sc});
+    T('0' + (k + 1) + ' / 04', W/2, H * 0.2, Math.max(11, Math.min(15, W * 0.032)), F.mono, k === 2 ? C.ink : C.paper, {weight:'700', alpha:0.8});
+    return;
+  }
+  ctx.fillStyle = C.ink; ctx.fillRect(0, 0, W, H);
+  const l2 = lb - 4;
+  rays(W/2, H * 0.5, Math.hypot(W, H), t * 0.15, C.paper, 0.035 * pr(l2, 0, 0.6), 18);
+  const ar = Math.min(W * 0.12, H * 0.09);
+  const dp = pr(l2, 0, 0.7);
+  drawApple(W/2, H * 0.24 - (1 - eBounce(dp)) * H * 0.3, ar, {alpha:clamp(dp * 4)});
+  const fsW = fit('APPLE', F.disp, W * 0.82, H * 0.22);
+  T('APPLE', W/2, H * 0.47, fsW, F.disp, C.paper, {alpha:pr(l2, 0.25, 0.3), sc:0.9 + 0.1 * eBack(pr(l2, 0.25, 0.4))});
+  const fsJ = Math.min(fsW * 0.3, W * 0.1);
+  const p3 = pr(l2, 0.6, 0.35);
+  const rr = runs([{s:'りんご', c:null}, {s:'　', c:null}, {s:IPA, c:null}], W/2, 0, fsJ, F.jp);
+  const wJ = mw('りんご', fsJ, F.jp), wI = mw(IPA, fsJ, F.ipa, '700'), gap = fsJ * 0.8, tot = wJ + gap + wI;
+  T('りんご', W/2 - tot/2, H * 0.65, fsJ, F.jp, C.gold, {align:'left', alpha:p3});
+  T(IPA, W/2 - tot/2 + wJ + gap, H * 0.65, fsJ, F.ipa, C.paper, {align:'left', alpha:p3, weight:'700'});
+  T('ONE WORD. DONE.', W/2, H * 0.76, Math.max(12, Math.min(16, W * 0.034)), F.mono, C.sub, {alpha:pr(l2, 1.5, 0.4), weight:'700'});
+}
+const SCENES = [s0, s1, s2, s3, s4, s5, s6, s7];
+
+function bgOf(si, lb){ if (si === 7) return lb < 4 ? S7BG[Math.floor(lb)] : C.ink; return SC_BG[si]; }
+
+function hud(t, si, lb){
+  const fg = bgOf(si, lb) === C.paper ? C.ink : C.paper;
+  const pad = 16, y = H - Math.max(14, SAFE_B + 10);
+  const fsz = Math.max(11, Math.min(13, W * 0.03));
+  ctx.save(); ctx.globalAlpha = 0.85;
+  T(`${String(si).padStart(2, '0')}  ${CHAP[si]}`, pad, y - 16, fsz, F.mono, fg, {align:'left', weight:'700'});
+  const sec = Math.min(t, DUR);
+  T(`00:${sec.toFixed(1).padStart(4, '0')} / 00:30`, W - pad, y - 16, fsz, F.mono, fg, {align:'right', weight:'700'});
+  const bars = 16, gw = 4, tw = (W - pad * 2 - gw * (bars - 1)) / bars, bf = t / (B * 4);
+  for (let i = 0; i < bars; i++){
+    ctx.fillStyle = fg; ctx.globalAlpha = 0.22; ctx.fillRect(pad + i * (tw + gw), y, tw, 3);
+    const f = clamp(bf - i);
+    if (f > 0){ ctx.globalAlpha = 0.95; ctx.fillStyle = i >= 14 ? C.gold : fg; if (bgOf(si, lb) === C.paper && i >= 14) ctx.fillStyle = C.red; ctx.fillRect(pad + i * (tw + gw), y, tw * f, 3); }
+  }
+  ctx.restore();
+}
+
+function draw(t){
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  const b = Math.max(0, t) / B;
+  const si = Math.min(7, Math.floor(b / 8)), lb = b - si * 8;
+  const pulse = b >= 8 && b < 61 ? Math.exp(-(b % 1) * 6) : 0;
+  bgWipe(si, lb);
+  ctx.save();
+  if (!REDUCE){
+    let sh = 0;
+    for (const ib of IMPACTS){ const d = b - ib; if (d >= 0 && d < 0.6) sh = Math.max(sh, Math.exp(-d * 9)); }
+    if (sh > 0.01){ const a = U * 0.014 * sh; ctx.translate((Math.random() - 0.5) * a * 2, (Math.random() - 0.5) * a * 2); }
+  }
+  SCENES[si](lb, b, pulse, Math.max(0, t));
+  ctx.restore();
+  hud(Math.max(0, t), si, lb);
+}
+
+/* ---------- 音(Web Audio で全部合成) ---------- */
+let AC = null, master = null, musicBus = null, NOISE = null;
+function initAudio(force){
+  if (AC && force){ try { AC.close().catch(() => {}); } catch(e){} AC = null; }
+  else if (AC){ if (AC.state === 'closed') AC = null; else { if (AC.state === 'suspended') AC.resume(); return; } }
+  const Ctor = window.AudioContext || window.webkitAudioContext;
+  if (!Ctor) return;
+  try { AC = new Ctor(); } catch(e){ AC = null; return; }
+  master = AC.createGain(); master.gain.value = soundOn ? 0.9 : 0;
+  const comp = AC.createDynamicsCompressor();
+  comp.threshold.value = -14; comp.ratio.value = 4; comp.attack.value = 0.003; comp.release.value = 0.2;
+  master.connect(comp).connect(AC.destination);
+  musicBus = AC.createGain(); musicBus.gain.value = 1; musicBus.connect(master);
+  const len = AC.sampleRate * 1.5; NOISE = AC.createBuffer(1, len, AC.sampleRate);
+  const d = NOISE.getChannelData(0); for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+}
+const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
+function kick(t, v=1){
+  const o = AC.createOscillator(), g = AC.createGain();
+  o.type = 'sine'; o.frequency.setValueAtTime(170, t); o.frequency.exponentialRampToValueAtTime(44, t + 0.13);
+  g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.42);
+  o.connect(g).connect(musicBus); o.start(t); o.stop(t + 0.45);
+}
+function nz(t, dur, type, freq, q, v, freqEnd){
+  const s = AC.createBufferSource(); s.buffer = NOISE;
+  const f = AC.createBiquadFilter(); f.type = type; f.frequency.setValueAtTime(freq, t); f.Q.value = q;
+  if (freqEnd) f.frequency.exponentialRampToValueAtTime(freqEnd, t + dur);
+  const g = AC.createGain(); g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  s.connect(f).connect(g).connect(musicBus); s.start(t, Math.random() * 0.5); s.stop(t + dur + 0.02);
+}
+function clap(t, v=0.5){ nz(t, 0.02, 'bandpass', 1700, 0.9, v); nz(t + 0.012, 0.02, 'bandpass', 1700, 0.9, v); nz(t + 0.024, 0.15, 'bandpass', 1500, 0.8, v); }
+function hat(t, v=0.2, d=0.045){ nz(t, d, 'highpass', 8000, 0.7, v); }
+function bass(t, m, d, v=0.32){
+  const o = AC.createOscillator(), s = AC.createOscillator(), f = AC.createBiquadFilter(), g = AC.createGain();
+  o.type = 'sawtooth'; o.frequency.value = mtof(m); s.type = 'sine'; s.frequency.value = mtof(m - 12);
+  f.type = 'lowpass'; f.Q.value = 6; f.frequency.setValueAtTime(260, t); f.frequency.exponentialRampToValueAtTime(1100, t + 0.02); f.frequency.exponentialRampToValueAtTime(240, t + d);
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+  o.connect(f); s.connect(f); f.connect(g).connect(musicBus);
+  o.start(t); s.start(t); o.stop(t + d + 0.02); s.stop(t + d + 0.02);
+}
+function stab(t, notes, v=0.08, d=0.2){
+  const f = AC.createBiquadFilter(), g = AC.createGain();
+  f.type = 'lowpass'; f.Q.value = 3; f.frequency.setValueAtTime(3600, t); f.frequency.exponentialRampToValueAtTime(700, t + d);
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + 0.005); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+  f.connect(g).connect(musicBus);
+  notes.forEach(n => [-7, 7].forEach(dt => { const o = AC.createOscillator(); o.type = 'sawtooth'; o.frequency.value = mtof(n); o.detune.value = dt; o.connect(f); o.start(t); o.stop(t + d + 0.02); }));
+}
+function pad(t, notes, d, v=0.05, cut=1100){
+  const f = AC.createBiquadFilter(), g = AC.createGain();
+  f.type = 'lowpass'; f.frequency.setValueAtTime(cut * 0.5, t); f.frequency.linearRampToValueAtTime(cut, t + d * 0.6);
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + Math.min(0.35, d * 0.3)); g.gain.setValueAtTime(v, t + d * 0.8); g.gain.linearRampToValueAtTime(0, t + d + 0.25);
+  f.connect(g).connect(musicBus);
+  notes.forEach(n => [-12, 12].forEach(dt => { const o = AC.createOscillator(); o.type = 'sawtooth'; o.frequency.value = mtof(n); o.detune.value = dt; o.connect(f); o.start(t); o.stop(t + d + 0.3); }));
+}
+function pluck(t, m, v=0.05){
+  const o = AC.createOscillator(), f = AC.createBiquadFilter(), g = AC.createGain();
+  o.type = 'square'; o.frequency.value = mtof(m);
+  f.type = 'lowpass'; f.frequency.setValueAtTime(3000, t); f.frequency.exponentialRampToValueAtTime(500, t + 0.14);
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
+  o.connect(f).connect(g).connect(musicBus); o.start(t); o.stop(t + 0.18);
+}
+function riser(t, d, v=0.12){
+  const s = AC.createBufferSource(); s.buffer = NOISE; s.loop = true;
+  const f = AC.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = 2; f.frequency.setValueAtTime(300, t); f.frequency.exponentialRampToValueAtTime(7000, t + d);
+  const g = AC.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + d * 0.95); g.gain.linearRampToValueAtTime(0, t + d + 0.03);
+  s.connect(f).connect(g).connect(musicBus); s.start(t); s.stop(t + d + 0.05);
+}
+function whoosh(t, v=0.12){ nz(t, 0.35, 'bandpass', 5000, 1.2, v, 400); }
+function crash(t, v=0.25){ nz(t, 1.9, 'highpass', 4000, 0.5, v); }
+function impact(t, v=1){
+  kick(t, 1.1 * v); nz(t, 0.25, 'lowpass', 1400, 0.7, 0.45 * v);
+  const o = AC.createOscillator(), g = AC.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(70, t); o.frequency.exponentialRampToValueAtTime(40, t + 0.5);
+  g.gain.setValueAtTime(0.5 * v, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.6); o.connect(g).connect(musicBus); o.start(t); o.stop(t + 0.62);
+}
+function duck(t, v){ musicBus.gain.setTargetAtTime(v, t, 0.06); }
+function blip(ok){
+  if (!AC || !soundOn) return; const t = AC.currentTime + 0.01;
+  (ok ? [72, 79] : [55, 54]).forEach((m, i) => {
+    const o = AC.createOscillator(), g = AC.createGain(); o.type = ok ? 'triangle' : 'square'; o.frequency.value = mtof(m);
+    const s = t + i * 0.09; g.gain.setValueAtTime(0.0001, s); g.gain.exponentialRampToValueAtTime(ok ? 0.25 : 0.08, s + 0.005); g.gain.exponentialRampToValueAtTime(0.0001, s + 0.16);
+    o.connect(g).connect(master); o.start(s); o.stop(s + 0.18);
+  });
+}
+
+// 進行: C - G - Am - F
+const CH = [[60,64,67],[59,62,67],[60,64,69],[60,65,69]];
+const ROOT = [36, 43, 45, 41];
+let EV = [], evi = 0, t0 = 0;
+function buildEvents(){
+  const ev = []; const at = (beat, fn) => ev.push({at:beat, fn});
+  for (let bar = 0; bar < 16; bar++){
+    const ci = bar % 4, bt = bar * 4;
+    if (bar < 2) at(bt, t => pad(t, CH[ci].map(n => n - 12), B * 4, 0.07, 700 + bar * 900));
+    else if (bar < 4) at(bt, t => pad(t, CH[ci], B * 4, 0.03));
+    else if (bar < 6) at(bt, t => pad(t, CH[ci], B * 4, 0.045, 900));
+    else if (bar < 15) at(bt, t => pad(t, CH[ci], B * 4, 0.028, 1600));
+  }
+  for (let k = 0; k < 60; k++){
+    const bar = k >> 2, ib = k % 4, ci = bar % 4, r = ROOT[ci];
+    const full = (bar >= 2 && bar < 4) || (bar >= 6 && bar < 15);
+    const soft = bar >= 4 && bar < 6;
+    if (full) at(k, t => kick(t, 0.95));
+    if (soft && ib === 0) at(k, t => kick(t, 0.45));
+    if (full && (ib === 1 || ib === 3)) at(k, t => clap(t, 0.5));
+    if (full || soft) at(k + 0.5, t => hat(t, soft ? 0.1 : 0.2, ib === 3 && full ? 0.16 : 0.045));
+    if (bar >= 8 && bar < 15){ at(k + 0.25, t => hat(t, 0.07)); at(k + 0.75, t => hat(t, 0.07)); }
+    if (full){
+      at(k + 0.5, t => bass(t, r, B * 0.45));
+      if (ib === 0) at(k, t => bass(t, r, B * 0.4, 0.26));
+      if (bar >= 10 && (ib === 1 || ib === 3)) at(k + 0.75, t => bass(t, r + 12, B * 0.22, 0.18));
+    }
+    if (bar >= 6 && bar < 15 && full){
+      if (ib === 0) at(k, t => stab(t, CH[ci], 0.07));
+      if (ib === 1) at(k + 0.5, t => stab(t, CH[ci], 0.06));
+      if (ib === 2) at(k + 0.5, t => stab(t, CH[ci], 0.06));
+    }
+    if (bar >= 12 && bar < 15){
+      const seq = [0, 1, 2, 1];
+      for (let s = 0; s < 4; s++){ const n = CH[ci][seq[s]] + 12 + (s === 3 && ib % 2 ? 12 : 0); at(k + s * 0.25, t => pluck(t, n, 0.045)); }
+    }
+  }
+  // 文字の打ち込み
+  [8,9,10,11,12].forEach(k => at(k, t => impact(t, 0.75)));
+  // 場面転換
+  [16, 24, 32, 40, 48].forEach(k => at(k - 0.5, t => whoosh(t, 0.13)));
+  // ライザー・ロール
+  at(4, t => riser(t, B * 4, 0.1));
+  at(22, t => riser(t, B * 2, 0.08));
+  at(52, t => riser(t, B * 4, 0.14));
+  for (let s = 0; s < 8; s++) at(54 + s * 0.25, t => clap(t, 0.12 + s * 0.04));
+  // まとめの4連打
+  [56,57,58,59].forEach(k => at(k, t => impact(t, 1)));
+  // 終止
+  at(60, t => { impact(t, 1); crash(t, 0.22); pad(t, [48, 52, 55, 60, 64, 67], B * 4, 0.075, 2200); bass(t, 36, B * 3.5, 0.3); });
+  at(60, t => stab(t, [60, 64, 67, 72], 0.1, 0.6));
+  // 読み上げ中は音楽を少し下げる
+  at(16, t => duck(t, 0.55)); at(24, t => duck(t, 1));
+  at(32.8, t => duck(t, 0.65)); at(34.6, t => duck(t, 1));
+  at(36, t => duck(t, 0.65)); at(37.8, t => duck(t, 1));
+  at(39.9, t => duck(t, 0.55)); at(43.6, t => duck(t, 1));
+  at(60.05, t => duck(t, 0.6));
+  ev.sort((a, b) => a.at - b.at);
+  return ev;
+}
+function sched(){
+  if (!AC || state !== 'play' || clk.mode !== 'ac') return;
+  const now = AC.currentTime;
+  while (evi < EV.length && t0 + EV[evi].at * B < now + 0.25){
+    const at = t0 + EV[evi].at * B;
+    if (at >= now - 0.04){ try { EV[evi].fn(Math.max(at, now)); } catch(e){} }
+    evi++;
+  }
+}
+setInterval(sched, 50);
+
+/* ---------- 読み上げ ---------- */
+let voice = null;
+function pickVoice(){
+  if (!('speechSynthesis' in window)) return;
+  const vs = speechSynthesis.getVoices();
+  voice = vs.find(v => /^en[-_]US/i.test(v.lang) && /Samantha|Google US|Aria|Jenny|Ava|Allison/i.test(v.name))
+       || vs.find(v => /^en[-_]US/i.test(v.lang)) || vs.find(v => /^en/i.test(v.lang)) || null;
+}
+if ('speechSynthesis' in window){ pickVoice(); try { speechSynthesis.addEventListener('voiceschanged', pickVoice); } catch(e){} }
+function say(text){
+  if (!soundOn || !('speechSynthesis' in window)) return;
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'en-US'; if (voice) u.voice = voice; u.rate = text.length > 12 ? 0.95 : 0.85; u.volume = 1;
+    speechSynthesis.speak(u);
+  } catch(e){}
+}
+function unlockSpeech(){
+  if (!('speechSynthesis' in window)) return;
+  try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); } catch(e){}
+}
+function stopSpeech(){ try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch(e){} }
+
+/* ---------- 時計(音と映像を同期) ---------- */
+let state = 'title';
+const clk = {mode:'ac', perfStart:0, pausedAt:0, startPerf:0};
+let saidIdx = 0;
+function curT(){
+  if (clk.mode === 'ac' && AC) return AC.currentTime - t0;
+  const n = state === 'pause' ? clk.pausedAt : performance.now();
+  return (n - clk.perfStart) / 1000;
+}
+
+/* ---------- 画面遷移 ---------- */
+const ovs = ['titleOv', 'pauseOv', 'quizOv', 'resultOv'];
+function show(id){ ovs.forEach(o => { $(o).hidden = o !== id; }); $('pauseBtn').hidden = state !== 'play'; }
+
+function startFilm(){
+  initAudio(true);
+  unlockSpeech(); pickVoice();
+  EV = buildEvents(); evi = 0; saidIdx = 0;
+  store.set(KEY_VIEWS, String(views() + 1));
+  clk.startPerf = performance.now();
+  if (AC){ clk.mode = 'ac'; t0 = AC.currentTime + 0.15; try { AC.resume(); } catch(e){} }
+  else { clk.mode = 'perf'; clk.perfStart = performance.now() + 150; }
+  state = 'play'; disarmAll(); show(null); sched();
+}
+function pauseFilm(){
+  if (state !== 'play') return;
+  state = 'pause';
+  if (clk.mode === 'ac' && AC){ try { AC.suspend(); } catch(e){} }
+  clk.pausedAt = performance.now();
+  stopSpeech();
+  const t = clamp(curT(), 0, DUR);
+  $('pauseTime').textContent = `00:${t.toFixed(1).padStart(4, '0')} / 00:30`;
+  show('pauseOv');
+}
+function resumeFilm(){
+  if (state !== 'pause') return;
+  if (clk.mode === 'perf') clk.perfStart += performance.now() - clk.pausedAt;
+  else if (AC){ try { AC.resume(); } catch(e){} }
+  state = 'play'; disarmAll(); show(null);
+}
+function backToTitle(){
+  state = 'title'; stopSpeech();
+  if (AC){ try { musicBus.gain.cancelScheduledValues(AC.currentTime); musicBus.gain.setValueAtTime(0, AC.currentTime); } catch(e){} }
+  EV = []; evi = 0; disarmAll(); updateBest(); show('titleOv');
+}
+function endFilm(){ state = 'quiz'; stopSpeech(); startQuiz(); }
+
+/* ---------- 確認テスト ---------- */
+const QS = [
+  {q:'apple の意味は？', a:'りんご', c:['りんご','みかん','もも','ぶどう'], shuffle:true, note:'apple ＝ りんご。'},
+  {q:'正しいスペルは？', a:'apple', c:['aple','apple','appel','aplle'], shuffle:true, latin:true, note:'A・P・P・L・E。P は 2つ。'},
+  {q:'（　）apple　入るのは？', a:'an', c:['a','an'], latin:true, note:'「ア」の音で始まるので an。'},
+  {q:'強く読むのは、どっち？', a:'アッ（前）', c:['アッ（前）','ポゥ（後ろ）'], note:'/ˈæp.əl/ 前の「ア」が強い。'}
+];
+let qi = 0, score = 0, results = [];
+function shuffle(a){ a = a.slice(); for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function startQuiz(){ qi = 0; score = 0; results = []; show('quizOv'); renderQ(); }
+function renderQ(){
+  const Q = QS[qi];
+  $('qNum').textContent = `CHECK ${qi + 1}/${QS.length}`;
+  $('qDots').innerHTML = QS.map((_, i) => `<i class="${i < qi ? (results[i] ? 'ok' : 'ng') : i === qi ? 'on' : ''}"></i>`).join('');
+  $('qText').textContent = Q.q;
+  $('qNote').textContent = '';
+  const box = $('qChoices'); box.innerHTML = '';
+  (Q.shuffle ? shuffle(Q.c) : Q.c).forEach(c => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'choice' + (Q.latin ? ' latin' : ''); b.textContent = c;
+    b.addEventListener('click', () => answer(b, c));
+    box.appendChild(b);
+  });
+  const first = box.querySelector('button'); if (first && matchMedia('(pointer: fine)').matches) first.focus({preventScroll:true});
+}
+function answer(btn, c){
+  const Q = QS[qi], ok = c === Q.a;
+  [...$('qChoices').children].forEach(b => { b.disabled = true; if (b.textContent === Q.a) b.classList.add('ok'); });
+  if (!ok) btn.classList.add('ng');
+  results.push(ok); if (ok) score++;
+  $('qNote').textContent = (ok ? '正解。' : 'ざんねん。') + Q.note;
+  blip(ok);
+  if (qi === 0 || qi === 1) say(ok ? 'apple' : 'apple');
+  setTimeout(() => { qi++; if (qi < QS.length) renderQ(); else showResult(); }, ok ? 950 : 1600);
+}
+const MSG = ['ここからが本番。もう一度30秒、見てみましょう。', 'まずは1問。もう一度見れば、きっと増えます。', '半分クリア。スペルと a / an をもう一度。', 'あと1問。ほぼ覚えました。', '完璧。apple は、もうあなたの単語です。'];
+function showResult(){
+  state = 'result';
+  const best = Math.max(score, parseInt(store.get(KEY_BEST) || '0', 10) || 0);
+  store.set(KEY_BEST, String(best));
+  $('scoreBig').innerHTML = `<span>${score}</span>/${QS.length}`;
+  $('resultMsg').textContent = MSG[score];
+  $('resultBest').textContent = `最高記録 ${best}/${QS.length} ・ 再生 ${views()} 回`;
+  const text = `英単語「apple」だけを30秒で覚えた。確認テスト ${score}/${QS.length}\n#APPLE30秒モーションOPUS55`;
+  $('shareBtn').href = 'https://x.com/intent/post?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(SHARE_URL);
+  show('resultOv');
+}
+function views(){ return parseInt(store.get(KEY_VIEWS) || '0', 10) || 0; }
+function updateBest(){
+  const best = parseInt(store.get(KEY_BEST) || '', 10), v = views();
+  const a = v ? `再生 ${v} 回` : '';
+  const b = isNaN(best) ? '確認テストは4問。' : `テスト最高 ${best}/${QS.length}`;
+  $('bestLine').textContent = [a, b].filter(Boolean).join(' ・ ');
+}
+
+/* ---------- 2回押しの確認 ---------- */
+const armState = new Map();
+function armable(btn, fn){
+  btn.addEventListener('click', () => {
+    const s = armState.get(btn);
+    if (!s){
+      btn.textContent = '本当に？(もう一度タップ)'; btn.classList.add('armed');
+      armState.set(btn, setTimeout(() => disarm(btn), 3000));
+      return;
+    }
+    disarm(btn); fn();
+  });
+}
+function disarm(btn){ clearTimeout(armState.get(btn)); armState.delete(btn); btn.textContent = btn.dataset.label; btn.classList.remove('armed'); }
+function disarmAll(){ [...armState.keys()].forEach(disarm); }
+
+/* ---------- 音ボタン ---------- */
+const ICON_ON = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 7h3l4-3.5v13L6 13H3z" fill="currentColor"/><path d="M13 6.5a5 5 0 0 1 0 7M15.5 4a8.5 8.5 0 0 1 0 12" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>';
+const ICON_OFF = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 7h3l4-3.5v13L6 13H3z" fill="currentColor"/><path d="M13 7.5l5 5M18 7.5l-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+function renderSound(){ const b = $('soundBtn'); b.innerHTML = soundOn ? ICON_ON : ICON_OFF; b.setAttribute('aria-pressed', String(soundOn)); b.setAttribute('aria-label', soundOn ? '音をオフにする' : '音をオンにする'); }
+$('soundBtn').addEventListener('click', () => {
+  soundOn = !soundOn; store.set(KEY_SOUND, soundOn ? '1' : '0'); renderSound();
+  if (master && AC) master.gain.setTargetAtTime(soundOn ? 0.9 : 0, AC.currentTime, 0.03);
+  if (!soundOn) stopSpeech();
+});
+renderSound();
+
+/* ---------- イベント ---------- */
+$('startBtn').addEventListener('click', startFilm);
+$('pauseBtn').addEventListener('click', pauseFilm);
+$('resumeBtn').addEventListener('click', resumeFilm);
+armable($('restartBtn'), startFilm);
+armable($('quitBtn'), backToTitle);
+$('againBtn').addEventListener('click', startFilm);
+$('titleBtn').addEventListener('click', backToTitle);
+cv.addEventListener('click', () => { if (state === 'play') pauseFilm(); });
+document.addEventListener('keydown', e => {
+  if (e.key === ' ' || e.key === 'Escape'){
+    if (state === 'play'){ e.preventDefault(); pauseFilm(); }
+    else if (state === 'pause' && e.key === ' '){ e.preventDefault(); resumeFilm(); }
+  }
+});
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && state === 'play') pauseFilm();
+  else if (!document.hidden && state !== 'play') initAudio(false);
+});
+if (matchMedia('(pointer: coarse)').matches){ $('shareBtn').removeAttribute('target'); $('shareBtn').removeAttribute('rel'); }
+
+/* ---------- ループ ---------- */
+function loop(){
+  if (state === 'play'){
+    // AudioContext の時計が進まない端末では、映像だけ performance.now で進める
+    if (clk.mode === 'ac' && AC && performance.now() - clk.startPerf > 900 && curT() < 0.2){
+      clk.mode = 'perf'; clk.perfStart = performance.now() - Math.max(0, curT()) * 1000;
+    }
+    const t = curT();
+    while (saidIdx < SAY.length && t >= SAY[saidIdx].beat * B){
+      if (t < SAY[saidIdx].beat * B + 0.6) say(SAY[saidIdx].text);
+      saidIdx++;
+    }
+    if (t >= DUR + 0.7){ endFilm(); }
+    draw(clamp(t, 0, DUR - 0.001));
+  } else if (state === 'pause'){
+    draw(clamp(curT(), 0, DUR - 0.001));
+  } else {
+    draw(DUR - 0.6);
+  }
+  requestAnimationFrame(loop);
+}
+
+/* ---------- フォントを待ってから開始可能に ---------- */
+const ready = () => { const b = $('startBtn'); b.disabled = false; b.innerHTML = '▶ 30秒の映像を再生 <small>音が出ます</small>'; };
+const fontJobs = [];
+if (document.fonts && document.fonts.load){
+  fontJobs.push(
+    document.fonts.load('100px Anton', 'APPLEONEWORDLY.SECONDI eat an apple.two'),
+    document.fonts.load('100px "Dela Gothic One"', JP_CHARS),
+    document.fonts.load('700 100px "Zen Kaku Gothic New"', JP_CHARS),
+    document.fonts.load('700 100px "Noto Sans"', IPA),
+    document.fonts.load('700 20px "JetBrains Mono"', '0123456789:/ SPELINGRONUCATDW.')
+  );
+}
+Promise.race([Promise.all(fontJobs).catch(() => {}), new Promise(r => setTimeout(r, 3000))]).then(ready);
+
+window.__appleMotionDrawAt = t => draw(t); // 確認用(描画のみ・副作用なし)
+updateBest();
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
