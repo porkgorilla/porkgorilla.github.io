@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>酢作りドラゴン | porkgorilla://</title>
+<meta name="description" content="ドラゴンの火加減で壺の酢を育て、米酢から黒酢まで仕込むゲーム">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:title" content="酢作りドラゴン">
+<meta property="og:description" content="ドラゴンの火加減で壺の酢を育て、米酢から黒酢まで仕込むゲーム">
+<meta property="og:url" content="https://porkgorilla.com/works/suzukuri-dragon.html">
+<meta property="og:image" content="https://porkgorilla.com/assets/og-suzukuri-dragon.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="酢作りドラゴン">
+<meta name="twitter:description" content="ドラゴンの火加減で壺の酢を育て、米酢から黒酢まで仕込むゲーム">
+<meta name="twitter:image" content="https://porkgorilla.com/assets/og-suzukuri-dragon.jpg">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-MBT4300J0L');
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sky:#1c2342; --dusk:#5b3a55; --soil:#2e2420; --jar:#3a2618;
+  --gold:#e9c45b; --fire:#ff8a1e; --jade:#4fae86; --ink:#f6ecd6; --sub:#a99f90;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%;background:var(--sky);color:var(--ink);overflow:hidden;
+  font-family:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Hiragino Sans","Yu Gothic",sans-serif;
+  -webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+#wrap{position:relative;width:100%;height:100%}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#hud{position:absolute;left:0;right:0;top:0;z-index:20;pointer-events:none;
+  display:flex;align-items:center;gap:10px;padding:6px max(10px,env(safe-area-inset-left)) 0 max(10px,env(safe-area-inset-left))}
+.home{color:var(--sub);text-decoration:none;font-size:12px;letter-spacing:.04em;white-space:nowrap;pointer-events:auto;padding:12px 4px}
+.home:hover{color:var(--ink)}
+#stats{flex:1;display:flex;justify-content:center;gap:16px;font-weight:900;font-size:17px;text-shadow:0 2px 0 rgba(0,0,0,.45)}
+#stats>span{white-space:nowrap}
+#stats .lbl{font-size:11px;color:var(--sub);font-weight:700;margin-right:4px}
+#stats .warn{color:#ff6b4a}
+.icon{pointer-events:auto;min-width:44px;min-height:44px;border-radius:12px;border:2px solid rgba(246,236,214,.25);
+  background:rgba(20,16,24,.55);color:var(--ink);font:700 13px/1 inherit;font-family:inherit;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;padding:0 8px}
+.icon:hover{border-color:rgba(246,236,214,.5)}
+.pausebars{display:flex;gap:5px}
+.pausebars i{display:block;width:5px;height:16px;background:var(--ink);border-radius:2px}
+.ov{position:absolute;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;
+  background:rgba(14,12,26,.84);padding:64px 16px 20px;overflow-y:auto}
+.ov[hidden]{display:none}
+.card{width:100%;max-width:440px;text-align:center;margin:auto}
+h1{font-family:"Dela Gothic One",sans-serif;font-weight:400;font-size:clamp(40px,11vw,60px);line-height:1.05;margin:0;
+  color:var(--gold);text-shadow:0 4px 0 #7a3a12,0 0 26px rgba(255,138,30,.45);letter-spacing:.02em}
+.pun{margin:10px 0 18px;color:var(--sub);font-size:14px}
+.pun b{color:var(--ink)}
+.howto{text-align:left;margin:0 auto 18px;padding:14px 16px;border-radius:14px;background:rgba(0,0,0,.28);
+  font-size:14px;line-height:1.75;border:1px solid rgba(233,196,91,.18)}
+.howto p{margin:0 0 6px}
+.howto p:last-child{margin:0}
+.chip{display:inline-block;padding:0 6px;border-radius:6px;font-weight:900;font-size:13px}
+.c-gold{background:rgba(233,196,91,.2);color:var(--gold)}
+.c-red{background:rgba(255,90,60,.2);color:#ff7a5c}
+.c-blue{background:rgba(120,170,255,.2);color:#9cc4ff}
+.go{font-family:inherit;font-weight:900;font-size:19px;color:#2a160a;background:linear-gradient(#ffd36b,#f39a2c);
+  border:none;border-radius:999px;padding:14px 38px;cursor:pointer;box-shadow:0 5px 0 #8a4512;min-height:48px}
+.go:active{transform:translateY(3px);box-shadow:0 2px 0 #8a4512}
+.go.ghost{background:transparent;color:var(--gold);box-shadow:none;border:2px solid rgba(233,196,91,.55);font-size:17px;padding:12px 26px}
+.go.ghost:hover{background:rgba(233,196,91,.12)}
+.go.danger{background:transparent;color:#ff7a5c;border-color:#ff7a5c}
+.actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px;margin-top:6px}
+.best{margin-top:14px;color:var(--sub);font-size:13px}
+.credit{font-size:11px;color:#7f7768;margin-top:18px;letter-spacing:.05em}
+h2{font-family:"Dela Gothic One",sans-serif;font-weight:400;font-size:30px;margin:0 0 6px;color:var(--gold)}
+.score{font-family:"Dela Gothic One",sans-serif;font-size:56px;line-height:1.1;margin:6px 0 0}
+.score small{font-size:18px;margin-left:4px;color:var(--sub);font-family:"Zen Maru Gothic",sans-serif;font-weight:900}
+.rank{font-weight:900;font-size:18px;margin:4px 0 14px}
+.tally{display:flex;justify-content:center;gap:8px;margin:0 0 16px;flex-wrap:wrap}
+.tally div{background:rgba(0,0,0,.28);border-radius:12px;padding:8px 6px;min-width:62px;font-size:11px;color:var(--sub)}
+.tally b{display:block;font-size:22px;color:var(--ink)}
+.newbest{color:var(--fire);font-weight:900;margin:-8px 0 12px}
+.share{display:inline-flex;align-items:center;gap:6px;margin-top:14px;color:var(--ink);text-decoration:none;font-weight:700;font-size:14px;
+  border:2px solid rgba(246,236,214,.3);border-radius:999px;padding:10px 20px;min-height:44px}
+.share:hover{border-color:rgba(246,236,214,.6)}
+#toast{position:absolute;left:50%;top:22%;transform:translateX(-50%);z-index:9;pointer-events:none;
+  font-weight:900;font-size:20px;color:#bfe3ff;text-shadow:0 2px 0 #0a1a33;opacity:0;transition:opacity .3s;white-space:nowrap}
+button:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){#toast{transition:none}}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="cv"></canvas>
+  <div id="hud">
+    <a class="home" href="/">&lt; porkgorilla</a>
+    <div id="stats" hidden>
+      <span><span class="lbl">酢</span><span id="sScore">0</span></span>
+      <span><span class="lbl">残り</span><span id="sTime">90</span></span>
+    </div>
+    <div style="flex:1" id="spacer"></div>
+    <button class="icon" id="soundBtn" aria-label="音のオン・オフ">音 ON</button>
+    <button class="icon" id="pauseBtn" aria-label="一時停止" hidden><span class="pausebars"><i></i><i></i></span></button>
+  </div>
+  <div id="toast"></div>
+
+  <div class="ov" id="titleOv">
+    <div class="card">
+      <h1>酢作り<br>ドラゴン</h1>
+      <p class="pun">巣作りの季節。この竜は<b>酢</b>を作る。</p>
+      <div class="howto">
+        <p>🔥 壺をタップすると、竜が火を吹く。</p>
+        <p>温度計を<span class="chip c-gold">金の帯</span>に保つと発酵が進む。<span class="chip c-red">赤</span>まで上げると焦げる。<span class="chip c-blue">青</span>まで冷やしたままにすると腐ってくる。火は隣の壺も少し温める。</p>
+        <p>できあがると壺の下に<span class="chip c-gold">汲む</span>ボタンが出る。汲まずに壺を温め続けると、米酢 → 熟成酢 → 黒酢と値打ちが上がる。</p>
+        <p>持ち時間は90秒。壺はだんだん増えていく。</p>
+      </div>
+      <button class="go" id="startBtn">仕込みを始める</button>
+      <div class="best" id="titleBest"></div>
+      <div class="credit">porkgorilla — 2026</div>
+    </div>
+  </div>
+
+  <div class="ov" id="pauseOv" hidden>
+    <div class="card">
+      <h2>ひと休み</h2>
+      <p class="pun">壺の温度は止まっている。</p>
+      <div class="actions">
+        <button class="go" id="resumeBtn">再開する</button>
+        <button class="go ghost" id="quitBtn">タイトルへ</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="ov" id="overOv" hidden>
+    <div class="card">
+      <h2>本日の仕込み、終了</h2>
+      <div class="score"><span id="rScore">0</span><small>酢ポイント</small></div>
+      <div class="rank" id="rRank"></div>
+      <div class="newbest" id="rNew" hidden>自己ベスト更新！</div>
+      <div class="tally">
+        <div>米酢<b id="rKome">0</b></div>
+        <div>熟成酢<b id="rJuku">0</b></div>
+        <div>黒酢<b id="rKuro">0</b></div>
+        <div>焦がした壺<b id="rBurn">0</b></div>
+        <div>腐らせた壺<b id="rRot">0</b></div>
+      </div>
+      <div class="actions">
+        <button class="go" id="againBtn">もう一度</button>
+        <button class="go ghost" id="titleBtn">タイトルへ</button>
+      </div>
+      <a class="share" id="shareBtn" href="#" target="_blank" rel="noopener">𝕏 結果をポスト</a>
+      <div class="best" id="rBest"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+'use strict';
+const GAME_URL = 'https://porkgorilla.com/works/suzukuri-dragon.html';
+const OG_CACHE_VERSION = 1;
+const SHARE_URL = GAME_URL + '?ogv=' + OG_CACHE_VERSION;
+const KEY_BEST = 'suzukuri-dragon-best';
+const KEY_SOUND = 'suzukuri-dragon-sound';
+
+const $ = id => document.getElementById(id);
+const cv = $('cv'), ctx = cv.getContext('2d');
+
+// ---------- 定数 ----------
+const WW = 480, WH = 820;               // 論理サイズ(縦長固定・レターボックス)
+const GAME_TIME = 90;
+const ZONE_LO = 55, ZONE_HI = 78, BURN = 92;
+const COOL = 3.2;                       // 1秒あたりの冷え
+const HEAT = 20, SPLASH = 6;            // 直撃と隣への余熱
+const BREW_RATE = 9, HOT_RATE = 4;      // 発酵速度(%/秒)
+const AGE_JUKU = 5, AGE_KURO = 12;      // 熟成の閾値(金帯にいた秒数)
+const COLD = 30, COLD_GRACE = 2.5;     // この温度未満が猶予秒を超えると腐り始める
+const ROT_RATE = 10, DOWN_EVERY = 3;   // 仕込み中は進み具合が減る(%/秒)、できた酢は3秒ごとに格下げ
+const GRADES = [
+  { name: '米酢',   pt: 100, col: '#f3e3a4' },
+  { name: '熟成酢', pt: 300, col: '#e9a94b' },
+  { name: '黒酢',   pt: 800, col: '#c56a3a' },
+];
+const COLS = [95, 240, 385], ROWS = [350, 520, 690];
+// 汲むボタン(壺の真下)。見た目と当たり判定(少し大きめ)
+const BTN = { w: 112, h: 40, dy: 80 }, BTN_HIT = { w: 124, top: 54, bot: 108 };
+const OPEN_ORDER = [3, 4, 5, 7, 1, 6, 8, 0, 2]; // 最初の3つ+10秒ごとに1つ
+const DRAGON = { x: 240, y: 200, neckX: 240, neckY: 150 };
+
+// ---------- 保存 ----------
+function load(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } }
+function save(k, v) { try { localStorage.setItem(k, String(v)); } catch (e) {} }
+let best = parseInt(load(KEY_BEST, '0'), 10) || 0;
+let soundOn = load(KEY_SOUND, '1') !== '0';
+
+// ---------- 状態 ----------
+const S = {
+  mode: 'title', t: 0, score: 0, counts: [0, 0, 0], burnt: 0,
+  pots: [], parts: [], floats: [], pend: [],
+  breath: 0, headAng: 0, headTarget: 0, cool: 0,
+  rain: 0, rainWarn: 0, nextRain: 24, rainDrops: [],
+  opened: 0, idle: 0,
+};
+function makePots() {
+  S.pots = [];
+  for (let i = 0; i < 9; i++) {
+    S.pots.push({ i, x: COLS[i % 3], y: ROWS[(i / 3) | 0], active: false, T: 40, prog: 0, age: 0,
+      state: 'brew', burnT: 0, coolMul: 0.85 + Math.random() * 0.35, pop: 0, flash: 0, bub: Math.random() * 6, coldT: 0, rotAcc: DOWN_EVERY });
+  }
+}
+makePots();
+for (let k = 0; k < 3; k++) { const p = S.pots[OPEN_ORDER[k]]; p.active = true; p.T = 48 + k * 6; }
+
+function resetGame() {
+  makePots();
+  S.t = 0; S.score = 0; S.counts = [0, 0, 0]; S.burnt = 0; S.rotten = 0;
+  S.parts = []; S.floats = []; S.pend = [];
+  S.breath = 0; S.cool = 0; S.rain = 0; S.rainWarn = 0; S.nextRain = 22 + Math.random() * 6;
+  S.opened = 0;
+  for (let k = 0; k < 3; k++) openPot(false);
+}
+function openPot(fx) {
+  if (S.opened >= 9) return;
+  const p = S.pots[OPEN_ORDER[S.opened++]];
+  p.active = true; p.T = 42; p.prog = 0; p.age = 0; p.coldT = 0; p.state = 'brew'; p.pop = fx ? 1 : 0;
+  if (fx) { sfx('pop'); toast('壺がひとつ増えた'); }
+}
+function neighbors(p) {
+  const c = p.i % 3, r = (p.i / 3) | 0, out = [];
+  [[1,0],[-1,0],[0,1],[0,-1]].forEach(([dx, dy]) => {
+    const cc = c + dx, rr = r + dy;
+    if (cc >= 0 && cc < 3 && rr >= 0 && rr < 3) { const q = S.pots[rr * 3 + cc]; if (q.active) out.push(q); }
+  });
+  return out;
+}
+function gradeOf(age) { return age >= AGE_KURO ? 2 : age >= AGE_JUKU ? 1 : 0; }
+
+// ---------- 入力 ----------
+let view = { s: 1, ox: 0, oy: 0, W: 0, H: 0, dpr: 1 };
+function toWorld(cx, cy) { return { x: (cx - view.ox) / view.s, y: (cy - view.oy) / view.s }; }
+cv.addEventListener('pointerdown', e => {
+  if (S.mode !== 'play') return;
+  e.preventDefault();
+  const r = cv.getBoundingClientRect();
+  const w = toWorld(e.clientX - r.left, e.clientY - r.top);
+  // 1) 汲むボタンを優先
+  for (const p of S.pots) {
+    if (!p.active || p.state !== 'ready') continue;
+    if (Math.abs(w.x - p.x) <= BTN_HIT.w / 2 && w.y >= p.y + BTN_HIT.top && w.y <= p.y + BTN_HIT.bot) { harvest(p); return; }
+  }
+  // 2) 壺本体 → 火を吹く(できあがった壺も温められる)
+  let hit = null, bd = 1e9;
+  for (const p of S.pots) {
+    if (!p.active) continue;
+    const dx = w.x - p.x, dy = w.y - p.y;
+    if (dy < -72 || dy > 56 || Math.abs(dx) > 64) continue;
+    const d = Math.hypot(dx, dy);
+    if (d < bd) { bd = d; hit = p; }
+  }
+  if (hit) tapPot(hit);
+});
+function tapPot(p) {
+  if (p.state === 'burnt') return;
+  if (S.cool > 0) return;
+  S.cool = 0.16;
+  breathe(p);
+}
+function mouthPos() {
+  const a = S.headAng;
+  const lx = 0, ly = 50;
+  return { x: DRAGON.neckX + lx * Math.cos(a) - ly * Math.sin(a), y: DRAGON.neckY + lx * Math.sin(a) + ly * Math.cos(a) };
+}
+function aimAngle(p) {
+  const dx = p.x - DRAGON.neckX, dy = (p.y - 40) - DRAGON.neckY;
+  return Math.max(-1.05, Math.min(1.05, -Math.atan2(dx, dy)));
+}
+function breathe(p) {
+  S.headTarget = aimAngle(p);
+  S.headAng += (S.headTarget - S.headAng) * 0.7;
+  S.breath = 0.32;
+  const m = mouthPos(), tx = p.x, ty = p.y - 30;
+  for (let k = 0; k < 26; k++) {
+    const delay = k * 0.007, life = 0.24 + Math.random() * 0.12;
+    const jx = (Math.random() - 0.5) * 30, jy = (Math.random() - 0.5) * 20;
+    S.parts.push({ kind: 'fire', x: m.x, y: m.y, vx: (tx + jx - m.x) / 0.24, vy: (ty + jy - m.y) / 0.24,
+      life, max: life, delay, r: 7 + Math.random() * 9 });
+  }
+  S.pend.push({ t: 0.2, fn: () => {
+    if (!p.active) return;
+    p.T += HEAT; p.flash = 1;
+    for (const q of neighbors(p)) q.T += SPLASH;
+    for (let k = 0; k < 10; k++) {
+      const a = Math.random() * Math.PI * 2, v = 40 + Math.random() * 90;
+      S.parts.push({ kind: 'spark', x: tx, y: ty, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 40, life: 0.5, max: 0.5, delay: 0, r: 2.5 });
+    }
+  }});
+  sfx('fire');
+}
+function harvest(p) {
+  const g = gradeOf(p.age);
+  S.score += GRADES[g].pt; S.counts[g]++;
+  S.floats.push({ x: p.x, y: p.y - 70, text: GRADES[g].name + ' +' + GRADES[g].pt, col: GRADES[g].col, t: 0, big: g === 2 });
+  for (let k = 0; k < (g === 2 ? 26 : 14); k++) {
+    const a = -Math.PI / 2 + (Math.random() - 0.5) * 1.6, v = 120 + Math.random() * 160;
+    S.parts.push({ kind: 'drop', x: p.x, y: p.y - 46, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 0.8, max: 0.8, delay: 0, r: 3 + Math.random() * 3, col: GRADES[g].col });
+  }
+  p.state = 'brew'; p.prog = 0; p.age = 0; p.pop = 0.6; p.coldT = 0;
+  sfx('harvest', g);
+}
+
+function downgrade(p) {
+  const g = gradeOf(p.age);
+  if (g === 0) {
+    p.state = 'brew'; p.prog = 0; p.age = 0; p.pop = 0.6; S.rotten++;
+    S.floats.push({ x: p.x, y: p.y - 70, text: '腐った…', col: '#a9c46a', t: 0 });
+  } else {
+    p.age = g === 2 ? AGE_JUKU : 0; p.pop = 0.4;
+    S.floats.push({ x: p.x, y: p.y - 70, text: GRADES[g - 1].name + 'に落ちた', col: '#a9c46a', t: 0 });
+  }
+  sfx('rot');
+}
+
+// ---------- 更新 ----------
+function update(dt) {
+  if (S.mode === 'play') {
+    S.t += dt;
+    const left = GAME_TIME - S.t;
+    // 壺を増やす
+    const want = Math.min(9, 3 + Math.floor(S.t / 10));
+    while (S.opened < want) openPot(true);
+    // 夕立
+    if (S.rain <= 0 && S.rainWarn <= 0 && S.t >= S.nextRain && left > 8) { S.rainWarn = 2; toast('☁ 夕立が来る…'); }
+    if (S.rainWarn > 0) { S.rainWarn -= dt; if (S.rainWarn <= 0) S.rain = 6; }
+    if (S.rain > 0) { S.rain -= dt; if (S.rain <= 0) S.nextRain = S.t + 18 + Math.random() * 8; }
+    const coolF = S.rain > 0 ? 2.3 : 1;
+    if (S.cool > 0) S.cool -= dt;
+    for (let k = S.pend.length - 1; k >= 0; k--) { const q = S.pend[k]; q.t -= dt; if (q.t <= 0) { S.pend.splice(k, 1); q.fn(); } }
+    for (const p of S.pots) {
+      if (!p.active) continue;
+      if (p.state === 'burnt') {
+        p.burnT -= dt;
+        if (p.burnT <= 0) { p.state = 'brew'; p.coldT = 0; p.T = 35; p.prog = 0; p.age = 0; p.pop = 0.6; }
+        continue;
+      }
+      p.T = Math.max(12, p.T - COOL * p.coolMul * coolF * dt);
+      if (p.T > BURN) {
+        p.state = 'burnt'; p.burnT = 3.2; p.prog = 0; S.burnt++; sfx('burn');
+        S.floats.push({ x: p.x, y: p.y - 70, text: '焦げた…', col: '#ff7a5c', t: 0 });
+        continue;
+      }
+      const inZone = p.T >= ZONE_LO && p.T <= ZONE_HI;
+      // 冷えすぎ: 猶予を過ぎると腐り始める
+      if (p.T < COLD) p.coldT += dt; else { p.coldT = 0; p.rotAcc = DOWN_EVERY; }
+      const rotting = p.coldT > COLD_GRACE;
+      if (rotting) {
+        if (p.state === 'brew') p.prog = Math.max(0, p.prog - ROT_RATE * dt);
+        else if (p.state === 'ready') { p.rotAcc += dt; if (p.rotAcc >= DOWN_EVERY) { p.rotAcc = 0; downgrade(p); continue; } }
+      }
+      if (p.state === 'brew') {
+        if (inZone) p.prog += BREW_RATE * dt;
+        else if (p.T > ZONE_HI) p.prog += HOT_RATE * dt;
+        if (p.prog >= 100) { p.prog = 100; p.state = 'ready'; p.age = 0; p.pop = 0.5; sfx('ready'); }
+      } else if (p.state === 'ready') {
+        const before = gradeOf(p.age);
+        if (inZone) p.age += dt;
+        if (gradeOf(p.age) > before) { p.pop = 0.5; sfx('grade', gradeOf(p.age)); }
+      }
+    }
+    if (left <= 0) endGame();
+    updHud();
+  } else if (S.mode === 'title') {
+    // タイトル背景: 竜がゆっくり首を振る
+    S.idle += dt;
+    S.headTarget = Math.sin(S.idle * 0.6) * 0.5;
+  }
+  if (S.mode !== 'pause') {
+    S.headAng += (S.headTarget - S.headAng) * Math.min(1, dt * 8);
+    if (S.breath > 0) S.breath -= dt;
+    for (const p of S.pots) { if (p.pop > 0) p.pop = Math.max(0, p.pop - dt * 2); if (p.flash > 0) p.flash = Math.max(0, p.flash - dt * 3); p.bub += dt; }
+    for (let k = S.parts.length - 1; k >= 0; k--) {
+      const q = S.parts[k];
+      if (q.delay > 0) { q.delay -= dt; continue; }
+      q.life -= dt; q.x += q.vx * dt; q.y += q.vy * dt;
+      if (q.kind === 'drop' || q.kind === 'spark') q.vy += 520 * dt;
+      if (q.kind === 'smoke') { q.vx *= 0.98; }
+      if (q.life <= 0) S.parts.splice(k, 1);
+    }
+    for (let k = S.floats.length - 1; k >= 0; k--) { const f = S.floats[k]; f.t += dt; if (f.t > 1.1) S.floats.splice(k, 1); }
+    // 焦げ壺の煙
+    for (const p of S.pots) if (p.active && p.state === 'burnt' && Math.random() < dt * 12)
+      S.parts.push({ kind: 'smoke', x: p.x + (Math.random() - 0.5) * 20, y: p.y - 50, vx: (Math.random() - 0.5) * 20, vy: -40 - Math.random() * 30, life: 1.2, max: 1.2, delay: 0, r: 8 + Math.random() * 8 });
+    // 雨粒
+    if (S.rain > 0 && S.mode === 'play') {
+      for (let k = 0; k < 6; k++) S.rainDrops.push({ x: Math.random() * (view.W / view.s + 200) - view.ox / view.s - 100, y: -view.oy / view.s - 20, v: 900 + Math.random() * 300 });
+    }
+    for (let k = S.rainDrops.length - 1; k >= 0; k--) { const d = S.rainDrops[k]; d.y += d.v * dt; d.x -= d.v * 0.15 * dt; if (d.y > WH + view.oy / view.s + 20) S.rainDrops.splice(k, 1); }
+  }
+  audioTick();
+}
+
+// ---------- 描画 ----------
+let stars = [];
+for (let k = 0; k < 70; k++) stars.push({ x: Math.random(), y: Math.random() * 0.5, r: Math.random() * 1.4 + 0.3, tw: Math.random() * 6 });
+
+function resize() {
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  const W = cv.clientWidth, H = cv.clientHeight;
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+  const topPad = 52;  // HUDの分
+  const s = Math.min(W / WW, (H - topPad) / WH, 1.35);
+  view = { s, ox: (W - WW * s) / 2, oy: topPad + (H - topPad - WH * s) / 2, W, H, dpr };
+}
+window.addEventListener('resize', resize);
+
+function drawBackground(tm) {
+  const { W, H, dpr } = view;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const rainDim = S.rain > 0 ? 1 : 0;
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, rainDim ? '#151a2c' : '#1c2342');
+  g.addColorStop(0.45, rainDim ? '#2c2a3c' : '#5b3a55');
+  g.addColorStop(0.62, rainDim ? '#3b3236' : '#c86e45');
+  g.addColorStop(0.63, '#2e2420');
+  g.addColorStop(1, '#1d1714');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  if (!rainDim) for (const s of stars) {
+    ctx.globalAlpha = 0.35 + 0.35 * Math.sin(tm * 1.3 + s.tw);
+    ctx.fillStyle = '#fff4dc';
+    ctx.beginPath(); ctx.arc(s.x * W, s.y * H, s.r, 0, 7); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  // 遠くの火山(地平線基準)
+  const hy = H * 0.63;
+  ctx.fillStyle = rainDim ? '#2a2430' : '#3d2a3a';
+  ctx.beginPath(); ctx.moveTo(W * 0.48, hy);
+  ctx.lineTo(W * 0.66, hy - H * 0.14); ctx.lineTo(W * 0.71, hy - H * 0.15); ctx.lineTo(W * 0.74, hy - H * 0.13);
+  ctx.lineTo(W * 0.95, hy); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = 'rgba(200,180,190,.12)';
+  for (let k = 0; k < 4; k++) {
+    const t = (tm * 0.05 + k / 4) % 1;
+    ctx.beginPath(); ctx.arc(W * 0.70 + t * 40, hy - H * 0.15 - t * H * 0.12, 10 + t * 30, 0, 7); ctx.fill();
+  }
+  // 段々の地面
+  for (let k = 0; k < 5; k++) {
+    ctx.fillStyle = k % 2 ? 'rgba(0,0,0,.08)' : 'rgba(255,220,180,.025)';
+    const y = hy + (H - hy) * (k / 5) ** 1.3;
+    ctx.fillRect(0, y, W, 3);
+  }
+}
+
+function worldBegin() {
+  const { dpr, s, ox, oy } = view;
+  ctx.setTransform(dpr * s, 0, 0, dpr * s, dpr * ox, dpr * oy);
+}
+
+function jarPath(x, y, sc) {
+  ctx.beginPath();
+  ctx.moveTo(x - 24 * sc, y - 46 * sc);
+  ctx.bezierCurveTo(x - 30 * sc, y - 36 * sc, x - 54 * sc, y - 30 * sc, x - 54 * sc, y - 2 * sc);
+  ctx.bezierCurveTo(x - 54 * sc, y + 28 * sc, x - 40 * sc, y + 44 * sc, x - 26 * sc, y + 46 * sc);
+  ctx.lineTo(x + 26 * sc, y + 46 * sc);
+  ctx.bezierCurveTo(x + 40 * sc, y + 44 * sc, x + 54 * sc, y + 28 * sc, x + 54 * sc, y - 2 * sc);
+  ctx.bezierCurveTo(x + 54 * sc, y - 30 * sc, x + 30 * sc, y - 36 * sc, x + 24 * sc, y - 46 * sc);
+  ctx.closePath();
+}
+
+function drawPot(p, tm) {
+  const x = p.x, y = p.y;
+  // 空き地(まだ置かれていない場所)
+  if (!p.active) {
+    ctx.strokeStyle = 'rgba(246,236,214,.10)'; ctx.lineWidth = 2; ctx.setLineDash([6, 8]);
+    ctx.beginPath(); ctx.ellipse(x, y + 44, 46, 13, 0, 0, 7); ctx.stroke(); ctx.setLineDash([]);
+    return;
+  }
+  const sc = 1 + Math.sin(p.pop * Math.PI) * 0.12;
+  // 影
+  ctx.fillStyle = 'rgba(0,0,0,.35)';
+  ctx.beginPath(); ctx.ellipse(x, y + 46, 52, 13, 0, 0, 7); ctx.fill();
+  // できあがりの後光
+  if (p.state === 'ready') {
+    const g = gradeOf(p.age);
+    const rg = ctx.createRadialGradient(x, y, 10, x, y, 95);
+    rg.addColorStop(0, GRADES[g].col + '66'); rg.addColorStop(1, GRADES[g].col + '00');
+    ctx.fillStyle = rg; ctx.beginPath(); ctx.arc(x, y, 95 + Math.sin(tm * 4) * 4, 0, 7); ctx.fill();
+  }
+  // 胴
+  jarPath(x, y, sc);
+  const bg = ctx.createRadialGradient(x - 20, y - 18, 6, x, y, 70);
+  if (p.state === 'burnt') { bg.addColorStop(0, '#2b2420'); bg.addColorStop(1, '#0d0a09'); }
+  else { bg.addColorStop(0, '#6e4a2c'); bg.addColorStop(0.55, '#3a2618'); bg.addColorStop(1, '#1c120b'); }
+  ctx.fillStyle = bg; ctx.fill();
+  // 温度で色づく
+  if (p.state !== 'burnt') {
+    let tint = null, a = 0;
+    if (p.T < ZONE_LO) { tint = '90,150,230'; a = Math.min(0.45, (ZONE_LO - p.T) / 60); }
+    else if (p.T > ZONE_HI) { tint = '255,70,40'; a = 0.18 + (p.T - ZONE_HI) / (BURN - ZONE_HI) * 0.45; }
+    if (tint) { ctx.fillStyle = `rgba(${tint},${a})`; jarPath(x, y, sc); ctx.fill(); }
+    if (p.flash > 0) { ctx.fillStyle = `rgba(255,200,90,${p.flash * 0.5})`; jarPath(x, y, sc); ctx.fill(); }
+  }
+  // 釉薬のハイライト
+  ctx.strokeStyle = 'rgba(255,230,200,.22)'; ctx.lineWidth = 4; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.arc(x - 6, y + 2, 38 * sc, Math.PI * 1.05, Math.PI * 1.35); ctx.stroke();
+  // 焦げのひび
+  if (p.state === 'burnt') {
+    ctx.strokeStyle = '#ff6b3d'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(x - 6, y - 40); ctx.lineTo(x + 4, y - 18); ctx.lineTo(x - 8, y + 2); ctx.lineTo(x + 6, y + 26); ctx.stroke();
+  }
+  // 口と蓋(和紙を紐で縛る)
+  ctx.fillStyle = '#2a1a10';
+  ctx.beginPath(); ctx.ellipse(x, y - 46 * sc, 26 * sc, 7 * sc, 0, 0, 7); ctx.fill();
+  ctx.fillStyle = p.state === 'burnt' ? '#5a4a3c' : '#e8dcc0';
+  ctx.beginPath();
+  ctx.moveTo(x - 30 * sc, y - 42 * sc);
+  ctx.quadraticCurveTo(x, y - 66 * sc, x + 30 * sc, y - 42 * sc);
+  ctx.quadraticCurveTo(x, y - 36 * sc, x - 30 * sc, y - 42 * sc);
+  ctx.fill();
+  ctx.strokeStyle = '#b5482e'; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.ellipse(x, y - 42 * sc, 27 * sc, 5 * sc, 0, 0, Math.PI); ctx.stroke();
+  // 発酵の泡(金帯で)
+  if (p.state !== 'burnt' && p.T >= ZONE_LO && p.T <= ZONE_HI) {
+    for (let k = 0; k < 3; k++) {
+      const t = (p.bub * 0.8 + k / 3) % 1;
+      ctx.globalAlpha = (1 - t) * 0.7;
+      ctx.strokeStyle = '#f3e3a4'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(x - 10 + k * 10 + Math.sin(t * 8 + k) * 4, y - 58 - t * 34, 2.5 + t * 3, 0, 7); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  }
+  // 温度計
+  const gx = x + 62, gt = y - 40, gh = 80;
+  const yOf = T => gt + gh - Math.max(0, Math.min(1, (T - 10) / (100 - 10))) * gh;
+  ctx.fillStyle = 'rgba(0,0,0,.45)'; roundRect(gx - 5, gt - 2, 10, gh + 4, 5); ctx.fill();
+  ctx.fillStyle = 'rgba(233,196,91,.75)'; ctx.fillRect(gx - 4, yOf(ZONE_HI), 8, yOf(ZONE_LO) - yOf(ZONE_HI));
+  ctx.fillStyle = 'rgba(255,90,60,.7)'; ctx.fillRect(gx - 4, yOf(100), 8, yOf(BURN) - yOf(100));
+  ctx.fillStyle = 'rgba(110,160,255,.7)'; ctx.fillRect(gx - 4, yOf(COLD), 8, yOf(10) - yOf(COLD));
+  if (p.state !== 'burnt') {
+    const my = yOf(p.T);
+    const hot = p.T > ZONE_HI, cold = p.T < ZONE_LO;
+    ctx.fillStyle = hot ? '#ff6b4a' : cold ? '#8fc0ff' : '#fff6dc';
+    ctx.beginPath(); ctx.moveTo(gx - 9, my); ctx.lineTo(gx - 17, my - 6); ctx.lineTo(gx - 17, my + 6); ctx.closePath(); ctx.fill();
+    ctx.fillRect(gx - 5, my - 1.5, 10, 3);
+  }
+  // 冷えすぎの警告
+  if (p.state !== 'burnt' && p.T < COLD) {
+    const rot = p.coldT > COLD_GRACE;
+    const blink = rot ? 1 : 0.55 + 0.45 * Math.sin(tm * 10);
+    ctx.globalAlpha = blink;
+    label(x, y - 82, rot ? '腐ってきた' : '冷えすぎ', rot ? '#a9c46a' : '#9cc4ff', 16);
+    ctx.globalAlpha = 1;
+    if (!rot) {  // 腐るまでの猶予
+      const k = 1 - p.coldT / COLD_GRACE, w = 56;
+      ctx.fillStyle = 'rgba(0,0,0,.5)'; roundRect(x - w / 2, y - 70, w, 4, 2); ctx.fill();
+      ctx.fillStyle = '#9cc4ff'; roundRect(x - w / 2, y - 70, w * k, 4, 2); ctx.fill();
+    }
+  }
+  // 進み具合・ラベル
+  if (p.state === 'brew') {
+    const bw = 84, bx = x - bw / 2, by = y + 60;
+    ctx.fillStyle = 'rgba(0,0,0,.5)'; roundRect(bx, by, bw, 8, 4); ctx.fill();
+    ctx.fillStyle = p.coldT > COLD_GRACE ? '#a9c46a' : '#e9c45b'; roundRect(bx, by, bw * p.prog / 100, 8, 4); ctx.fill();
+  } else if (p.state === 'ready') {
+    const g = gradeOf(p.age);
+    // 汲むボタン。中の塗りが次の格までの進み具合
+    const bw = BTN.w, bh = BTN.h, bx = x - bw / 2, by = y + BTN.dy - bh / 2;
+    ctx.fillStyle = 'rgba(0,0,0,.35)'; roundRect(bx, by + 4, bw, bh, bh / 2); ctx.fill();
+    ctx.fillStyle = '#3a2412'; roundRect(bx, by, bw, bh, bh / 2); ctx.fill();
+    if (g < 2) {
+      const need = g === 0 ? AGE_JUKU : AGE_KURO, from = g === 0 ? 0 : AGE_JUKU;
+      const k = Math.max(0, Math.min(1, (p.age - from) / (need - from)));
+      ctx.save(); roundRect(bx, by, bw, bh, bh / 2); ctx.clip();
+      ctx.fillStyle = GRADES[g + 1].col + '55'; ctx.fillRect(bx, by, bw * k, bh);
+      ctx.restore();
+    } else {
+      ctx.fillStyle = GRADES[2].col + '55'; roundRect(bx, by, bw, bh, bh / 2); ctx.fill();
+    }
+    ctx.lineWidth = 2.5; ctx.strokeStyle = GRADES[g].col; roundRect(bx, by, bw, bh, bh / 2); ctx.stroke();
+    ctx.font = '900 15px "Zen Maru Gothic",sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = GRADES[g].col; ctx.fillText(GRADES[g].name + 'を汲む', x, by + bh / 2 + 1); ctx.textBaseline = 'alphabetic';
+  } else if (p.state === 'burnt') {
+    ctx.font = '900 14px "Zen Maru Gothic",sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = '#ff8a6a'; ctx.fillText('焦げた… ' + Math.ceil(p.burnT), x, y + 70);
+  }
+}
+function roundRect(x, y, w, h, r) {
+  w = Math.max(0, w); r = Math.min(r, w / 2, h / 2);
+  ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+function label(x, y, text, col, size) {
+  ctx.font = `400 ${size}px "Dela Gothic One",sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(30,14,6,.85)'; ctx.strokeText(text, x, y);
+  ctx.fillStyle = col; ctx.fillText(text, x, y); ctx.textBaseline = 'alphabetic';
+}
+
+function drawDragon(tm) {
+  const bx = DRAGON.x, by = DRAGON.y;
+  const breathe = Math.sin(tm * 2) * 2;
+  // 巣(わらの輪)
+  ctx.fillStyle = '#6b4c2a';
+  ctx.beginPath(); ctx.ellipse(bx, by + 52, 92, 24, 0, 0, 7); ctx.fill();
+  ctx.strokeStyle = '#b08a4e'; ctx.lineWidth = 2;
+  for (let k = 0; k < 26; k++) {
+    const a = k / 26 * Math.PI * 2, r1 = 70 + (k % 3) * 8;
+    ctx.beginPath();
+    ctx.moveTo(bx + Math.cos(a) * r1, by + 52 + Math.sin(a) * 18);
+    ctx.lineTo(bx + Math.cos(a + 0.5) * (r1 + 14), by + 52 + Math.sin(a + 0.5) * 22);
+    ctx.stroke();
+  }
+  // 尻尾
+  ctx.strokeStyle = '#3d8c6a'; ctx.lineWidth = 16; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(bx + 30, by + 40);
+  ctx.quadraticCurveTo(bx + 100, by + 50 + Math.sin(tm * 1.5) * 6, bx + 92, by + 6);
+  ctx.stroke();
+  ctx.fillStyle = '#e9c45b';
+  ctx.beginPath(); ctx.moveTo(bx + 92, by - 8); ctx.lineTo(bx + 82, by + 10); ctx.lineTo(bx + 102, by + 8); ctx.closePath(); ctx.fill();
+  // 翼
+  const flap = Math.sin(tm * 3) * 0.08;
+  [-1, 1].forEach(sd => {
+    ctx.save(); ctx.translate(bx + sd * 34, by - 8); ctx.rotate(sd * (0.35 + flap));
+    ctx.fillStyle = '#2f6f55';
+    ctx.beginPath(); ctx.moveTo(0, 0);
+    ctx.quadraticCurveTo(sd * 30, -60, sd * 70, -54);
+    ctx.quadraticCurveTo(sd * 58, -30, sd * 66, -14);
+    ctx.quadraticCurveTo(sd * 44, -16, sd * 44, 6);
+    ctx.quadraticCurveTo(sd * 24, -4, 0, 14); ctx.closePath(); ctx.fill();
+    ctx.restore();
+  });
+  // 胴
+  const bg = ctx.createRadialGradient(bx - 14, by - 10, 8, bx, by, 64);
+  bg.addColorStop(0, '#6cc79c'); bg.addColorStop(1, '#2f7a5a');
+  ctx.fillStyle = bg;
+  ctx.beginPath(); ctx.ellipse(bx, by + 10 + breathe * 0.3, 50, 52 + breathe, 0, 0, 7); ctx.fill();
+  ctx.fillStyle = '#f2dfa8';
+  ctx.beginPath(); ctx.ellipse(bx, by + 20 + breathe * 0.3, 30, 36 + breathe, 0, 0, 7); ctx.fill();
+  ctx.strokeStyle = 'rgba(160,120,60,.4)'; ctx.lineWidth = 2;
+  for (let k = 0; k < 4; k++) { ctx.beginPath(); ctx.ellipse(bx, by + 2 + k * 14, 24 - Math.abs(k - 1.5) * 3, 4, 0, 0, Math.PI); ctx.stroke(); }
+  // 足
+  ctx.fillStyle = '#2f7a5a';
+  [-1, 1].forEach(sd => { ctx.beginPath(); ctx.ellipse(bx + sd * 30, by + 56, 16, 9, 0, 0, 7); ctx.fill(); });
+  // 頭(首の付け根で回転、鼻先は下向き)
+  ctx.save(); ctx.translate(DRAGON.neckX, DRAGON.neckY); ctx.rotate(S.headAng);
+  const open = S.breath > 0 ? Math.min(1, S.breath * 6) : 0;
+  // 角
+  ctx.fillStyle = '#e9d8b0';
+  [-1, 1].forEach(sd => {
+    ctx.beginPath(); ctx.moveTo(sd * 14, -18); ctx.quadraticCurveTo(sd * 34, -40, sd * 30, -50); ctx.quadraticCurveTo(sd * 24, -32, sd * 6, -22); ctx.closePath(); ctx.fill();
+  });
+  // 頭
+  ctx.fillStyle = '#4fae86';
+  ctx.beginPath(); ctx.ellipse(0, 0, 34, 30, 0, 0, 7); ctx.fill();
+  // 鼻づら
+  ctx.fillStyle = '#5fbf95';
+  ctx.beginPath(); ctx.ellipse(0, 26, 24, 20, 0, 0, 7); ctx.fill();
+  // 口
+  ctx.fillStyle = '#5a1f1a';
+  ctx.beginPath(); ctx.ellipse(0, 40 + open * 4, 14, 3 + open * 9, 0, 0, 7); ctx.fill();
+  if (open > 0) { ctx.fillStyle = '#ffb347'; ctx.beginPath(); ctx.ellipse(0, 41 + open * 4, 8, 2 + open * 5, 0, 0, 7); ctx.fill(); }
+  // 鼻の穴(煙)
+  ctx.fillStyle = '#245c45';
+  [-1, 1].forEach(sd => { ctx.beginPath(); ctx.ellipse(sd * 8, 30, 3, 2, 0, 0, 7); ctx.fill(); });
+  // 目
+  [-1, 1].forEach(sd => {
+    ctx.fillStyle = '#fff8e6'; ctx.beginPath(); ctx.ellipse(sd * 15, -2, 9, 10, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = '#2a1608'; ctx.beginPath(); ctx.ellipse(sd * 15, 1, 5, 7, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(sd * 15 - 2, -2, 2, 0, 7); ctx.fill();
+  });
+  // ほっぺ
+  ctx.fillStyle = 'rgba(255,140,120,.35)';
+  [-1, 1].forEach(sd => { ctx.beginPath(); ctx.ellipse(sd * 24, 14, 6, 4, 0, 0, 7); ctx.fill(); });
+  ctx.restore();
+  // 鼻からのけむり(待機中)
+  if (S.breath <= 0 && Math.random() < 0.03) {
+    const m = mouthPos();
+    S.parts.push({ kind: 'smoke', x: m.x, y: m.y - 8, vx: (Math.random() - 0.5) * 10, vy: -25, life: 1, max: 1, delay: 0, r: 4 });
+  }
+}
+
+function drawParts() {
+  for (const q of S.parts) {
+    if (q.delay > 0) continue;
+    const k = q.life / q.max;
+    if (q.kind === 'smoke') {
+      ctx.fillStyle = `rgba(190,180,170,${k * 0.25})`;
+      ctx.beginPath(); ctx.arc(q.x, q.y, q.r * (2 - k), 0, 7); ctx.fill();
+    } else if (q.kind === 'drop') {
+      ctx.globalAlpha = Math.min(1, k * 1.5); ctx.fillStyle = q.col;
+      ctx.beginPath(); ctx.arc(q.x, q.y, q.r, 0, 7); ctx.fill(); ctx.globalAlpha = 1;
+    }
+  }
+  ctx.globalCompositeOperation = 'lighter';
+  for (const q of S.parts) {
+    if (q.delay > 0) continue;
+    const k = q.life / q.max;
+    if (q.kind === 'fire') {
+      const r = q.r * (0.6 + (1 - k) * 0.9);
+      const g = ctx.createRadialGradient(q.x, q.y, 0, q.x, q.y, r);
+      g.addColorStop(0, `rgba(255,240,170,${k})`); g.addColorStop(0.45, `rgba(255,140,30,${k * 0.8})`); g.addColorStop(1, 'rgba(200,40,10,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(q.x, q.y, r, 0, 7); ctx.fill();
+    } else if (q.kind === 'spark') {
+      ctx.fillStyle = `rgba(255,200,90,${k})`; ctx.beginPath(); ctx.arc(q.x, q.y, q.r, 0, 7); ctx.fill();
+    }
+  }
+  ctx.globalCompositeOperation = 'source-over';
+}
+function drawFloats() {
+  for (const f of S.floats) {
+    const k = f.t / 1.1;
+    ctx.globalAlpha = 1 - k * k;
+    label(f.x, f.y - k * 40, f.text, f.col, f.big ? 26 : 19);
+  }
+  ctx.globalAlpha = 1;
+}
+function drawRain() {
+  if (!S.rainDrops.length) return;
+  ctx.strokeStyle = 'rgba(170,200,255,.45)'; ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  for (const d of S.rainDrops) { ctx.moveTo(d.x, d.y); ctx.lineTo(d.x + 4, d.y - 22); }
+  ctx.stroke();
+}
+
+function draw(tm) {
+  drawBackground(tm);
+  worldBegin();
+  drawDragon(tm);
+  // 後ろの列から描く
+  for (const p of S.pots) drawPot(p, tm);
+  drawParts();
+  drawFloats();
+  drawRain();
+}
+
+// ---------- HUD・画面 ----------
+const sScore = $('sScore'), sTime = $('sTime');
+let lastHudT = -1;
+function updHud() {
+  sScore.textContent = S.score.toLocaleString();
+  const left = Math.max(0, Math.ceil(GAME_TIME - S.t));
+  if (left !== lastHudT) { sTime.textContent = left; sTime.classList.toggle('warn', left <= 10); lastHudT = left; }
+}
+let toastTimer = null;
+function toast(msg) {
+  const el = $('toast'); el.textContent = msg; el.style.opacity = 1;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => el.style.opacity = 0, 1500);
+}
+function showHudPlay(on) {
+  $('stats').hidden = !on; $('pauseBtn').hidden = !on; $('spacer').hidden = on;
+}
+function refreshTitle() {
+  $('titleBest').textContent = best > 0 ? `自己ベスト ${best.toLocaleString()} 酢ポイント` : '';
+}
+function rankOf(sc) {
+  if (sc >= 16000) return '伝説の酢作りドラゴン';
+  if (sc >= 10000) return '黒酢の守り竜';
+  if (sc >= 5000) return '酢蔵のあるじ';
+  if (sc >= 2000) return '一人前の酢竜';
+  return '見習い酢竜';
+}
+function startGame() {
+  initAudio(true);
+  resetGame();
+  S.mode = 'play';
+  $('titleOv').hidden = true; $('overOv').hidden = true; $('pauseOv').hidden = true;
+  showHudPlay(true); lastHudT = -1; updHud();
+  S.headTarget = 0;
+}
+function endGame() {
+  S.mode = 'over';
+  showHudPlay(false);
+  S.rainDrops = []; S.rain = 0;
+  const sc = S.score, isNew = sc > best;
+  if (isNew) { best = sc; save(KEY_BEST, best); }
+  $('rScore').textContent = sc.toLocaleString();
+  $('rRank').textContent = '称号: ' + rankOf(sc);
+  $('rNew').hidden = !isNew || sc === 0;
+  $('rKome').textContent = S.counts[0]; $('rJuku').textContent = S.counts[1]; $('rKuro').textContent = S.counts[2];
+  $('rBurn').textContent = S.burnt; $('rRot').textContent = S.rotten;
+  $('rBest').textContent = `自己ベスト ${best.toLocaleString()} 酢ポイント`;
+  const text = `酢作りドラゴンで ${sc.toLocaleString()} 酢ポイント！ 黒酢${S.counts[2]}本・熟成酢${S.counts[1]}本・米酢${S.counts[0]}本\n称号「${rankOf(sc)}」 #酢作りドラゴン`;
+  $('shareBtn').href = 'https://x.com/intent/post?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(SHARE_URL);
+  $('overOv').hidden = false;
+  sfx('end');
+}
+function backToTitle() {
+  S.mode = 'title';
+  disarmQuit();
+  showHudPlay(false);
+  $('overOv').hidden = true; $('pauseOv').hidden = true; $('titleOv').hidden = false;
+  S.rainDrops = []; S.rain = 0; S.parts = []; S.floats = [];
+  refreshTitle();
+}
+function pause() {
+  if (S.mode !== 'play') return;
+  S.mode = 'pause'; $('pauseOv').hidden = false;
+}
+function resume() {
+  if (S.mode !== 'pause') return;
+  disarmQuit();
+  initAudio(false);
+  S.mode = 'play'; $('pauseOv').hidden = true;
+}
+// 一時停止からのタイトル戻りは2回押しで確認
+let armed = false, armTimer = null;
+const quitBtn = $('quitBtn');
+quitBtn.addEventListener('click', () => {
+  if (!armed) {
+    armed = true; quitBtn.textContent = '本当に？(もう一度タップ)'; quitBtn.classList.add('danger');
+    clearTimeout(armTimer); armTimer = setTimeout(disarmQuit, 3000); return;
+  }
+  disarmQuit(); backToTitle();
+});
+function disarmQuit() { armed = false; clearTimeout(armTimer); quitBtn.textContent = 'タイトルへ'; quitBtn.classList.remove('danger'); }
+
+$('startBtn').addEventListener('click', startGame);
+$('againBtn').addEventListener('click', startGame);
+$('titleBtn').addEventListener('click', backToTitle);
+$('pauseBtn').addEventListener('click', pause);
+$('resumeBtn').addEventListener('click', resume);
+window.addEventListener('keydown', e => {
+  if (e.key === 'Escape' || e.key === 'p') { if (S.mode === 'play') pause(); else if (S.mode === 'pause') resume(); }
+});
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) pause(); else initAudio(false);
+});
+if (matchMedia('(pointer: coarse)').matches) { $('shareBtn').removeAttribute('target'); $('shareBtn').removeAttribute('rel'); }
+
+// ---------- 音 ----------
+let AC = null, master = null, rainGain = null, bgmNext = 0, bgmStep = 0;
+function initAudio(force) {
+  if (AC && force) {
+    try { AC.close().catch(() => {}); } catch (e) {}
+    AC = null;
+  } else if (AC) {
+    if (AC.state === 'closed') AC = null;
+    else { if (AC.state === 'suspended') AC.resume(); return; }
+  }
+  try {
+    AC = new (window.AudioContext || window.webkitAudioContext)();
+    master = AC.createGain(); master.gain.value = soundOn ? 0.8 : 0; master.connect(AC.destination);
+    // 雨のループ(ノイズ)
+    const buf = noiseBuf(2);
+    const src = AC.createBufferSource(); src.buffer = buf; src.loop = true;
+    const f = AC.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 1400;
+    rainGain = AC.createGain(); rainGain.gain.value = 0;
+    src.connect(f); f.connect(rainGain); rainGain.connect(master); src.start();
+    bgmNext = AC.currentTime + 0.1; bgmStep = 0;
+  } catch (e) { AC = null; }
+}
+function noiseBuf(sec) {
+  const b = AC.createBuffer(1, AC.sampleRate * sec, AC.sampleRate), d = b.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  return b;
+}
+function tone(freq, t, dur, type, vol, slide) {
+  const o = AC.createOscillator(), g = AC.createGain();
+  o.type = type; o.frequency.setValueAtTime(freq, t);
+  if (slide) o.frequency.exponentialRampToValueAtTime(slide, t + dur);
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g); g.connect(master); o.start(t); o.stop(t + dur + 0.02);
+}
+function noise(t, dur, vol, f0, f1, q) {
+  const s = AC.createBufferSource(); s.buffer = noiseBuf(dur + 0.05);
+  const f = AC.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = q || 1;
+  f.frequency.setValueAtTime(f0, t); f.frequency.exponentialRampToValueAtTime(f1, t + dur);
+  const g = AC.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.03); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  s.connect(f); f.connect(g); g.connect(master); s.start(t); s.stop(t + dur + 0.05);
+}
+function sfx(name, arg) {
+  if (!AC || !soundOn || AC.state !== 'running') return;
+  const t = AC.currentTime;
+  switch (name) {
+    case 'fire': noise(t, 0.35, 0.5, 500, 2200, 0.8); tone(90, t, 0.25, 'sawtooth', 0.06, 50); break;
+    case 'harvest': {
+      const base = [660, 784, 988][arg || 0];
+      tone(base, t, 0.18, 'triangle', 0.22); tone(base * 1.5, t + 0.08, 0.3, 'triangle', 0.18);
+      if (arg === 2) tone(base * 2, t + 0.18, 0.5, 'sine', 0.15);
+      noise(t, 0.12, 0.15, 2000, 4000, 3); break;
+    }
+    case 'ready': tone(1046, t, 0.12, 'sine', 0.12); tone(1318, t + 0.07, 0.18, 'sine', 0.1); break;
+    case 'grade': tone(arg === 2 ? 523 : 440, t, 0.3, 'triangle', 0.14, arg === 2 ? 1046 : 880); break;
+    case 'burn': tone(120, t, 0.4, 'square', 0.12, 50); noise(t, 0.5, 0.4, 300, 120, 0.7); break;
+    case 'rot': tone(220, t, 0.45, 'sine', 0.14, 110); tone(233, t, 0.45, 'sine', 0.08, 116); break;
+    case 'pop': tone(300, t, 0.12, 'sine', 0.2, 600); break;
+    case 'end': [523, 659, 784, 1046].forEach((f, k) => tone(f, t + k * 0.1, 0.4, 'triangle', 0.15)); break;
+  }
+}
+// 五音音階のゆるいBGM(ゲームロジックの外で毎フレーム)
+const BGM = [0, 2, 4, 7, 9, 7, 4, 2, 0, -3, 0, 4, 2, -1, -3, -5];
+function audioTick() {
+  if (!AC || AC.state !== 'running') return;
+  const playing = S.mode === 'play';
+  // 雨音: プレイ中で雨のときだけ、それ以外は0へフェード
+  if (rainGain) rainGain.gain.setTargetAtTime(playing && S.rain > 0 && soundOn ? 0.07 : 0, AC.currentTime, 0.2);
+  if (!playing || !soundOn) { bgmNext = AC.currentTime + 0.1; return; }
+  const step = 0.36 * (S.t > GAME_TIME - 10 ? 0.75 : 1);
+  while (bgmNext < AC.currentTime + 0.15) {
+    const n = BGM[bgmStep % BGM.length];
+    const f = 293.66 * Math.pow(2, n / 12);
+    tone(f, bgmNext, 0.32, 'triangle', 0.05);
+    if (bgmStep % 4 === 0) tone(f / 2, bgmNext, 0.6, 'sine', 0.05);
+    bgmStep++; bgmNext += step;
+  }
+}
+function setSoundLabel() { $('soundBtn').textContent = soundOn ? '音 ON' : '音 OFF'; }
+$('soundBtn').addEventListener('click', () => {
+  soundOn = !soundOn; save(KEY_SOUND, soundOn ? '1' : '0'); setSoundLabel();
+  initAudio(false);
+  if (master) master.gain.setTargetAtTime(soundOn ? 0.8 : 0, AC.currentTime, 0.02);
+});
+setSoundLabel();
+
+// ---------- ループ ----------
+let last = performance.now();
+function loop(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  update(dt);
+  draw(now / 1000);
+  requestAnimationFrame(loop);
+}
+resize(); refreshTitle();
+requestAnimationFrame(loop);
+
+})();
+</script>
+</body>
+</html>

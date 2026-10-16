@@ -55,6 +55,7 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 | [APPLE 30秒モーション (Sonnet 5.5)](https://porkgorilla.com/works/apple-motion-sonnet55.html) | LANGUAGE | 英単語「apple」だけを30秒のモーショングラフィックスで覚える（Claude Sonnet 5.5 版） |
 | [スキマッチョ](https://porkgorilla.com/works/sukimaccho.html) | GAME | 回転するマッチョを、タイミングよく落として床の隙間にハメるゲーム |
 | [課金興亡録](https://porkgorilla.com/works/kakin-koubou.html) | APP | ある廃課金者の興亡を、BGM付き30秒のモーショングラフィックスで見届けるアプリ |
+| [酢作りドラゴン](https://porkgorilla.com/works/suzukuri-dragon.html) | GAME | ドラゴンの火加減で壺の酢を育て、米酢から黒酢まで仕込むゲーム |
 
 ## 構成
 
@@ -113,7 +114,8 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
     ├── apple-motion-opus55.html
     ├── apple-motion-sonnet55.html
     ├── sukimaccho.html
-    └── kakin-koubou.html
+    ├── kakin-koubou.html
+    └── suzukuri-dragon.html
 ```
 
 `theme.css` / `site.js` / `favicon.svg` はルート直下に置き、各作品ページからは絶対パス(`/theme.css` など)で読み込みます。404.html も GitHub Pages の仕様上ルート直下が必須です。
