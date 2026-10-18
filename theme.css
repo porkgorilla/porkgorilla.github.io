@@ -142,6 +142,40 @@ h1, h2, h3 {
 }
 .btn:disabled { opacity: .4; cursor: default; }
 
+/* ---------- X(旧Twitter)の案内バナー ---------- */
+.x-news {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--cyber-green-dim);
+  background: var(--cyber-bg-panel);
+  color: var(--cyber-text);
+  font-size: .9rem;
+  line-height: 1.5;
+}
+.x-news:hover {
+  color: var(--cyber-text);
+  text-shadow: none;
+  border-color: var(--cyber-green);
+  border-bottom-style: solid;
+  box-shadow: 0 0 14px rgba(57, 255, 106, 0.25);
+}
+.x-news-label {
+  padding: 1px 6px;
+  font-size: 11px;
+  letter-spacing: .08em;
+  color: var(--cyber-bg);
+  background: var(--cyber-green);
+}
+.x-news-text { flex: 1 1 auto; }
+.x-news-id {
+  color: var(--cyber-green);
+  white-space: nowrap;
+}
+.x-news:hover .x-news-id { color: #fff; text-shadow: 0 0 6px var(--cyber-green); }
+
 /* ---------- タグ ---------- */
 .tag {
   display: inline-block;
