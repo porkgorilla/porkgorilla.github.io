@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>バズラリー | porkgorilla://</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="バズってますよ！ トスした瞬間からスパイクとレシーブが止まらない、疑似バズ体験アプリ">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-MBT4300J0L');
+</script>
+<meta property="og:type" content="website">
+<meta property="og:title" content="バズってますよ！ 〜バズラリー〜">
+<meta property="og:description" content="トスした瞬間からスパイクとレシーブが止まらない、疑似バズ体験アプリ">
+<meta property="og:url" content="https://porkgorilla.com/works/buzz-rally.html">
+<meta property="og:image" content="https://porkgorilla.com/assets/og-buzz-rally.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="バズってますよ！ 〜バズラリー〜">
+<meta name="twitter:description" content="トスした瞬間からスパイクとレシーブが止まらない、疑似バズ体験アプリ">
+<meta name="twitter:image" content="https://porkgorilla.com/assets/og-buzz-rally.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Chakra+Petch:wght@500;600&display=swap">
+<style>
+[hidden]{display:none!important}
+/* Layout: header + fixed whistle band + scrolling court + composer. Orange = spike, blue = receive (from the provided icons). Skins swap tokens only. */
+:root{
+  --bg:#eef2f7; --surface:#ffffff; --surface2:#f6f8fb; --ink:#152033; --sub:#5d6b80; --line:#dbe2ec;
+  --spike:#d97f00; --spike-soft:#ffe6cc; --receive:#4570b0; --receive-soft:#dae8fc;
+  --ret:#2f8f6b; --quick:#8a5bd0; --accent:#e07800; --on-accent:#ffffff;
+  --toast:#152033; --toast-ink:#f2f5fa; --band:#e3e9f1; --shadow:0 6px 18px rgba(21,32,51,.16);
+  --f-disp:"Mochiy Pop One","Hiragino Maru Gothic ProN","Hiragino Sans","Yu Gothic",sans-serif;
+  --f-body:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+  --f-num:"Chakra Petch","Zen Kaku Gothic New",ui-monospace,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e131b; --surface:#161d28; --surface2:#1b2431; --ink:#e7ecf4; --sub:#93a0b4; --line:#273244;
+  --spike:#ffab2e; --spike-soft:#3a2a12; --receive:#82a8e8; --receive-soft:#1c2a41;
+  --ret:#5cc49b; --quick:#b391f0; --accent:#ff9a1f; --on-accent:#1a1206;
+  --toast:#e9eef6; --toast-ink:#111823; --band:#121821; --shadow:0 6px 18px rgba(0,0,0,.5); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e131b; --surface:#161d28; --surface2:#1b2431; --ink:#e7ecf4; --sub:#93a0b4; --line:#273244;
+  --spike:#ffab2e; --spike-soft:#3a2a12; --receive:#82a8e8; --receive-soft:#1c2a41;
+  --ret:#5cc49b; --quick:#b391f0; --accent:#ff9a1f; --on-accent:#1a1206;
+  --toast:#e9eef6; --toast-ink:#111823; --band:#121821; --shadow:0 6px 18px rgba(0,0,0,.5); color-scheme:dark}
+/* explicit skins (placed after, same specificity, so they win) */
+:root[data-skin="gym"]{
+  --bg:#eef2f7; --surface:#ffffff; --surface2:#f6f8fb; --ink:#152033; --sub:#5d6b80; --line:#dbe2ec;
+  --spike:#d97f00; --spike-soft:#ffe6cc; --receive:#4570b0; --receive-soft:#dae8fc;
+  --ret:#2f8f6b; --quick:#8a5bd0; --accent:#e07800; --on-accent:#ffffff;
+  --toast:#152033; --toast-ink:#f2f5fa; --band:#e3e9f1; --shadow:0 6px 18px rgba(21,32,51,.16); color-scheme:light}
+:root[data-skin="night"]{
+  --bg:#0e131b; --surface:#161d28; --surface2:#1b2431; --ink:#e7ecf4; --sub:#93a0b4; --line:#273244;
+  --spike:#ffab2e; --spike-soft:#3a2a12; --receive:#82a8e8; --receive-soft:#1c2a41;
+  --ret:#5cc49b; --quick:#b391f0; --accent:#ff9a1f; --on-accent:#1a1206;
+  --toast:#e9eef6; --toast-ink:#111823; --band:#121821; --shadow:0 6px 18px rgba(0,0,0,.5); color-scheme:dark}
+:root[data-skin="beach"]{
+  --bg:#f1e9d8; --surface:#fbf7ee; --surface2:#f5eedf; --ink:#1d2b2b; --sub:#6b6a5c; --line:#e1d6bf;
+  --spike:#e0671f; --spike-soft:#fbdcc5; --receive:#127c8c; --receive-soft:#cdeaec;
+  --ret:#3c8a3a; --quick:#a2559a; --accent:#0f8a96; --on-accent:#ffffff;
+  --toast:#123c42; --toast-ink:#f4f1e6; --band:#e7dcc4; --shadow:0 6px 18px rgba(18,60,66,.18); color-scheme:light}
+:root[data-skin="sakura"]{
+  --bg:#fbf0f3; --surface:#ffffff; --surface2:#fdf5f7; --ink:#3a1f2b; --sub:#86677a; --line:#f0d9e1;
+  --spike:#e0457f; --spike-soft:#fbd9e6; --receive:#7a68c9; --receive-soft:#e4defa;
+  --ret:#3f9a7c; --quick:#c06a2b; --accent:#d6457a; --on-accent:#ffffff;
+  --toast:#4a2236; --toast-ink:#fff3f7; --band:#f6e2e9; --shadow:0 6px 18px rgba(74,34,54,.16); color-scheme:light}
+:root[data-skin="citypop"]{
+  --bg:#17123d; --surface:#211a52; --surface2:#2a2263; --ink:#f4efff; --sub:#a99fd6; --line:#382f78;
+  --spike:#ff6fb1; --spike-soft:#4a1f55; --receive:#4fe0e6; --receive-soft:#163f5c;
+  --ret:#ffd166; --quick:#b79bff; --accent:#ff6fb1; --on-accent:#1a0f2e;
+  --toast:#f4efff; --toast-ink:#17123d; --band:#120e33; --shadow:0 6px 22px rgba(255,111,177,.25); color-scheme:dark}
+:root[data-skin="terminal"]{
+  --bg:#030803; --surface:#071107; --surface2:#0a170a; --ink:#c6ffd4; --sub:#5fae74; --line:#143a1c;
+  --spike:#39ff88; --spike-soft:#0d3318; --receive:#4fd6ff; --receive-soft:#0b2a33;
+  --ret:#e6ff5c; --quick:#ff8cf0; --accent:#39ff88; --on-accent:#021204;
+  --toast:#39ff88; --toast-ink:#021204; --band:#020602; --shadow:0 0 16px rgba(57,255,136,.25); color-scheme:dark;
+  --f-body:ui-monospace,"SFMono-Regular",Menlo,Consolas,"Osaka-Mono","MS Gothic",monospace;
+  --f-disp:ui-monospace,"SFMono-Regular",Menlo,Consolas,"Osaka-Mono",monospace}
+:root{padding:0!important}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;overflow:hidden;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+button:focus-visible,a:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{height:100%;display:flex;flex-direction:column}
+.col{max-width:620px;margin:0 auto;width:100%;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.num{font-family:var(--f-num);font-weight:600;font-variant-numeric:tabular-nums}
+
+/* header */
+header{background:var(--surface);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px);position:relative;z-index:30}
+.hbar{display:flex;align-items:center;gap:4px;height:52px}
+.home{color:var(--sub);text-decoration:none;font-size:12px;letter-spacing:.04em;white-space:nowrap;min-height:44px;display:flex;align-items:center;margin-right:6px}
+.home:hover{color:var(--ink)}
+.logo{font-family:var(--f-disp);font-size:18px;display:flex;align-items:center;gap:5px;margin-right:auto;white-space:nowrap;min-width:0}
+.logo svg{width:20px;height:20px;color:var(--spike);flex:none}
+@media (max-width:400px){.logo span{display:none}}
+.iconbtn{min-width:44px;min-height:44px;display:grid;place-items:center;border-radius:12px;color:var(--sub);position:relative}
+.iconbtn:hover{background:var(--surface2);color:var(--ink)}
+.iconbtn svg{width:22px;height:22px}
+.iconbtn.off{opacity:.55}
+.iconbtn.x{color:var(--ink);font-weight:700;font-size:13px;gap:0;grid-auto-flow:column;padding:0 8px}
+.iconbtn.x svg{width:18px;height:18px;margin-right:3px}
+.tabs{display:flex}
+.tab{flex:1;min-width:0;min-height:46px;display:flex;align-items:center;justify-content:center;gap:5px;font-weight:700;font-size:13.5px;color:var(--sub);position:relative;white-space:nowrap}
+.tab svg{width:18px;height:18px;flex:none}
+.tab[aria-selected="true"]{color:var(--ink)}
+.tab[aria-selected="true"]::after{content:"";position:absolute;left:25%;right:25%;bottom:0;height:3px;border-radius:3px;background:var(--accent)}
+@media (max-width:400px){.tab svg{display:none}.tab{font-size:12.5px;gap:3px}}
+.badge{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--accent);color:var(--on-accent);font-family:var(--f-num);font-size:11px;line-height:18px;text-align:center}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+
+/* whistle band */
+.band{background:var(--band);border-bottom:1px solid var(--line);flex:none}
+.band .col{height:104px;display:flex;flex-direction:column;gap:4px;padding-block:6px;overflow:hidden;position:relative}
+.bidle{margin:auto;color:var(--sub);font-size:12.5px;display:flex;align-items:center;gap:6px}
+.bidle svg{width:16px;height:16px}
+.toast{flex:none;height:28px;background:var(--toast);color:var(--toast-ink);border-radius:9px;padding:0 10px;display:flex;gap:8px;align-items:center;box-shadow:var(--shadow);font-size:12.5px;animation:tin .26s cubic-bezier(.2,.9,.3,1.15)}
+.toast svg{width:17px;height:17px;flex:none}
+.toast .tx{min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.toast .t-spk{color:var(--spike)}.toast .t-rcv{color:var(--receive)}.toast .t-ret{color:var(--ret)}.toast .t-mile{color:var(--accent)}
+.toast.big{background:var(--accent);color:var(--on-accent);font-weight:700}
+.toast.big svg{color:var(--on-accent)}
+.toast.ach{background:linear-gradient(90deg,var(--spike),var(--accent));color:var(--on-accent);font-weight:700}
+.toast.ach svg{color:var(--on-accent)}
+.toast.old{opacity:.72}
+@keyframes tin{from{transform:translateY(-16px);opacity:0}to{transform:none;opacity:1}}
+
+/* stage */
+.stage{flex:1;min-height:0;position:relative;display:flex;flex-direction:column}
+.scroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+.view{padding-block:0 28px}
+
+/* home strip */
+.me{display:flex;align-items:center;gap:12px;padding-block:12px;border-bottom:1px solid var(--line);cursor:pointer}
+.me .meta{min-width:0;flex:1}
+.me b{display:block;font-size:15px}
+.me small{color:var(--sub);font-size:12.5px}
+.me .team{font-family:var(--f-num);font-weight:600;color:var(--ink)}
+.trend{display:flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:var(--spike);background:var(--spike-soft);padding:4px 10px;border-radius:999px;white-space:nowrap}
+.trend span{font-family:var(--f-num)}
+
+/* avatar */
+.av{flex:none;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:16px;color:#fff;background:hsl(var(--h,200) 55% 46%);font-family:var(--f-body)}
+.av.me-av{background:var(--accent);color:var(--on-accent)}
+.av.sm{width:34px;height:34px;font-size:13px}
+.av.media{border-radius:10px;background:hsl(var(--h,200) 30% 30%)}
+
+/* post */
+.post{display:flex;gap:12px;padding-block:14px;border-bottom:1px solid var(--line);cursor:pointer}
+.pbody{min-width:0;flex:1}
+.phead{display:flex;gap:6px;align-items:baseline;flex-wrap:wrap;font-size:14px}
+.phead b{font-weight:700}
+.phead span{color:var(--sub);font-size:13px}
+.pill{font-size:10.5px;font-weight:700;letter-spacing:.06em;color:var(--sub);border:1px solid var(--line);border-radius:4px;padding:0 5px}
+.ptext{white-space:pre-wrap;word-break:break-word;margin-top:2px}
+.acts{display:flex;gap:2px;margin-top:6px;margin-left:-10px;flex-wrap:wrap}
+.act{display:flex;align-items:center;gap:6px;min-height:36px;padding:0 10px;border-radius:999px;color:var(--sub);font-family:var(--f-num);font-size:13.5px;font-weight:500;font-variant-numeric:tabular-nums}
+.act svg{width:19px;height:19px;flex:none}
+.act.spk:hover,.act.spk.on,.act.live.spk{color:var(--spike)}
+.act.rcv.live{color:var(--receive)}
+.act.bump svg{animation:bump .35s ease-out}
+@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.35) rotate(12deg)}100%{transform:scale(1)}}
+.post.mine.fresh{animation:fresh 1.6s ease-out}
+@keyframes fresh{from{background:var(--spike-soft)}to{background:transparent}}
+.act.ret:hover,.act.ret.live{color:var(--ret)}
+.act.qk:hover{color:var(--quick)}
+button.act{cursor:pointer}
+.peek{margin-top:6px;border-left:3px solid var(--ret);background:var(--surface2);border-radius:0 12px 12px 0;padding:8px 10px 4px;cursor:pointer}
+.peek-r{display:flex;gap:8px;align-items:flex-start;min-width:0}
+.peek-r .av{width:24px;height:24px;font-size:10px}
+.peek-r .tx{min-width:0;flex:1;font-size:13.5px;line-height:1.5}
+.peek-r .tx b{font-size:12.5px;margin-right:4px}
+.peek-r .tx span{overflow-wrap:anywhere}
+.peek-r.in{animation:slidein .35s ease-out}
+.peek-more{display:flex;align-items:center;min-height:36px;font-size:13px;font-weight:700;color:var(--ret);padding:0}
+.peek-more .num{margin:0 2px}
+.feedlabel{font-size:11.5px;letter-spacing:.12em;color:var(--sub);padding-block:16px 4px;font-weight:700}
+
+.embed{border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin-top:8px;font-size:13.5px;background:var(--surface2)}
+.embed b{font-size:13px}
+.embed .ptext{color:var(--sub);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.empty{color:var(--sub);text-align:center;padding:40px 8px;font-size:14px}
+.empty b{display:block;color:var(--ink);font-size:16px;margin-bottom:4px}
+
+/* notifications */
+.nhead{display:flex;align-items:center;gap:8px;padding-block:10px;border-bottom:1px solid var(--line)}
+.nhead h2{font-size:15px;margin:0 auto 0 0}
+.smallbtn{min-height:44px;padding:0 14px;border-radius:999px;font-size:13px;font-weight:700;color:var(--sub);border:1px solid var(--line);background:var(--surface)}
+.smallbtn:hover{color:var(--ink)}
+.smallbtn.danger{color:#fff;background:#c8402c;border-color:#c8402c}
+.nitem{display:flex;gap:12px;padding-block:12px;border-bottom:1px solid var(--line);cursor:pointer}
+.nitem.new{animation:nnew 1.2s ease-out}
+@keyframes nnew{from{background:var(--surface2)}to{background:transparent}}
+.nicon{flex:none;width:42px;display:flex;justify-content:flex-end;padding-top:2px}
+.nicon svg{width:26px;height:26px}
+.nicon.spk{color:var(--spike)}.nicon.rcv{color:var(--receive)}.nicon.team{color:var(--ret)}.nicon.mile{color:var(--accent)}
+.nbody{min-width:0;flex:1}
+.avrow{display:flex;gap:4px;margin-bottom:4px}
+.avrow .av{width:28px;height:28px;font-size:11px}
+.nbody p{margin:0;font-size:14px}
+.nbody .quote{color:var(--sub);font-size:13.5px;margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* detail */
+.dtop{display:flex;align-items:center;gap:8px;padding-block:6px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:5}
+.dtop h2{font-size:16px;margin:0}
+.dpost{padding-block:16px;border-bottom:1px solid var(--line)}
+.dpost .phead{align-items:center;gap:10px}
+.dpost .ptext{font-size:19px;line-height:1.55;margin-top:12px}
+.dtime{color:var(--sub);font-size:13px;margin-top:10px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:14px;padding-block:12px;border-block:1px solid var(--line)}
+.stat{min-width:0}
+.stat .num{display:block;font-size:20px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat small{color:var(--sub);font-size:11.5px;letter-spacing:.04em}
+.stat.spk .num{color:var(--spike)}.stat.rcv .num{color:var(--receive)}.stat.ret .num{color:var(--ret)}.stat.qk .num{color:var(--quick)}
+.share{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.xbtn{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;background:var(--ink);color:var(--bg);text-decoration:none;font-weight:700;font-size:14px}
+.xbtn svg{width:18px;height:18px}
+.seg{display:flex;border-bottom:1px solid var(--line)}
+.seg button{flex:1;min-height:46px;font-weight:700;color:var(--sub);position:relative}
+.seg button[aria-selected="true"]{color:var(--ink)}
+.seg button[aria-selected="true"]::after{content:"";position:absolute;left:32%;right:32%;bottom:0;height:3px;border-radius:3px;background:var(--accent)}
+.reply{display:flex;gap:10px;padding-block:12px;border-bottom:1px solid var(--line)}
+.reply.in{animation:slidein .4s ease-out}
+@keyframes slidein{from{opacity:.2;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.replyto{color:var(--sub);font-size:12.5px}
+.replyto em{color:var(--receive);font-style:normal}
+
+/* profile */
+.pcover{height:84px;margin-top:12px;border-radius:16px;background:
+  linear-gradient(90deg,transparent 49.6%,var(--line) 49.6%,var(--line) 50.4%,transparent 50.4%),
+  repeating-linear-gradient(90deg,var(--spike-soft) 0 40px,var(--receive-soft) 40px 80px)}
+.phero{display:flex;align-items:flex-end;gap:12px;margin-top:-30px;padding-left:12px}
+.phero .av{width:72px;height:72px;font-size:28px;border:4px solid var(--bg)}
+.phero .who{padding-bottom:4px;min-width:0}
+.phero b{font-size:19px;display:block;line-height:1.3;overflow-wrap:anywhere}
+.phero small{color:var(--sub)}
+.bigteam{margin-top:14px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.bigteam .num{font-size:clamp(30px,9vw,42px);line-height:1;color:var(--ink)}
+.bigteam span{color:var(--sub);font-weight:700}
+.pgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:14px}
+.pgrid div{background:var(--surface);padding:10px 12px;min-width:0}
+.pgrid .num{display:block;font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pgrid small{color:var(--sub);font-size:11.5px}
+@media (max-width:400px){.pgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.next{margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.next p{margin:0;font-size:13.5px}
+.next .bar{height:8px;border-radius:4px;background:var(--surface2);margin-top:8px;overflow:hidden;border:1px solid var(--line)}
+.next .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--receive),var(--spike));width:0}
+.next small{color:var(--sub);font-size:12px}
+.sec{font-size:12px;letter-spacing:.12em;color:var(--sub);font-weight:700;margin:22px 0 8px}
+.achs{display:grid;gap:8px}
+.ach-item{display:flex;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.ach-item .medal{flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--spike-soft);color:var(--spike)}
+.ach-item .medal svg{width:22px;height:22px}
+.ach-item .t{min-width:0;flex:1}
+.ach-item b{display:block;font-size:14px}
+.ach-item small{color:var(--sub);font-size:12px}
+.ach-item.locked{opacity:.5}
+.ach-item.locked .medal{background:var(--surface2);color:var(--sub)}
+.ach-item time{font-family:var(--f-num);font-size:11.5px;color:var(--sub);white-space:nowrap}
+
+/* settings */
+.set-row{display:flex;align-items:center;gap:12px;padding-block:12px;border-bottom:1px solid var(--line)}
+.set-row .t{flex:1;min-width:0}
+.set-row b{display:block;font-size:14.5px}
+.set-row small{color:var(--sub);font-size:12.5px}
+.switch{flex:none;width:56px;height:44px;display:grid;place-items:center}
+.switch i{width:48px;height:28px;border-radius:14px;background:var(--line);position:relative;transition:background .2s}
+.switch i::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.switch[aria-checked="true"] i{background:var(--accent)}
+.switch[aria-checked="true"] i::after{transform:translateX(20px)}
+.skins{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.skin{border:2px solid var(--line);border-radius:14px;padding:8px;text-align:left;background:var(--surface);min-height:44px}
+.skin[aria-checked="true"]{border-color:var(--accent)}
+.skin .pv{height:48px;border-radius:9px;display:flex;align-items:flex-end;gap:5px;padding:7px;border:1px solid rgba(128,128,128,.25)}
+.skin .pv i{width:14px;height:14px;border-radius:50%}
+.skin .pv i.wide{width:28px;border-radius:7px}
+.skin b{display:block;font-size:13px;margin-top:6px}
+.skin small{color:var(--sub);font-size:11px}
+.segctl{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;flex:none}
+.segctl button{min-height:40px;padding:0 12px;font-size:12.5px;font-weight:700;color:var(--sub)}
+.segctl button[aria-checked="true"]{background:var(--accent);color:var(--on-accent)}
+.namefield{display:flex;gap:8px;margin-top:8px}
+.namefield input{flex:1;min-width:0;min-height:44px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:16px;padding:0 12px}
+.setblock{padding-block:12px;border-bottom:1px solid var(--line)}
+.setblock b{display:block;font-size:14.5px}
+.setblock small{color:var(--sub);font-size:12.5px}
+.setblock .skins{margin-top:10px}
+
+/* composer */
+.composer{background:var(--surface);border-top:1px solid var(--line);padding-bottom:max(10px,env(safe-area-inset-bottom,0px))}
+.cform{display:flex;gap:10px;align-items:flex-end;padding-block:10px 0}
+.cform .av{width:38px;height:38px;font-size:14px;margin-bottom:3px}
+.cfield{flex:1;min-width:0;background:var(--surface2);border:1px solid var(--line);border-radius:18px;padding:8px 12px 6px}
+textarea{width:100%;resize:none;border:0;background:transparent;color:var(--ink);font:inherit;font-size:16px;line-height:1.45;max-height:120px;outline:none;display:block}
+textarea::placeholder{color:var(--sub)}
+.crow{display:flex;justify-content:flex-end;font-family:var(--f-num);font-size:12px;color:var(--sub)}
+.crow.over{color:#c8402c}
+.tossbtn{flex:none;min-height:44px;padding:0 18px;border-radius:999px;background:var(--accent);color:var(--on-accent);font-weight:700;font-size:15px;display:flex;align-items:center;gap:6px;margin-bottom:2px}
+.tossbtn.dim{opacity:.45}
+.tossbtn svg{width:18px;height:18px}
+
+/* title */
+.ov{position:absolute;inset:0;z-index:28;background:var(--bg);overflow-y:auto;display:flex}
+.card{margin:auto;width:100%;max-width:520px;padding-block:28px}
+.card .inner{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.kicker{font-family:var(--f-disp);font-size:clamp(38px,11.5vw,62px);line-height:1.18;letter-spacing:.02em;margin:0;color:var(--ink);text-wrap:balance;position:relative}
+.kicker em{font-style:normal;color:var(--spike)}
+.kicker .burst{position:absolute;right:-4px;top:-18px;width:56px;height:56px;color:var(--spike);animation:spin 9s linear infinite;opacity:.9}
+@keyframes spin{to{transform:rotate(360deg)}}
+.subttl{font-family:var(--f-disp);font-size:clamp(18px,5vw,24px);color:var(--receive);margin:8px 0 0;letter-spacing:.08em}
+.lead{font-size:15.5px;margin:14px 0 16px;font-weight:500}
+.glossary{display:grid;grid-template-columns:auto 1fr;gap:5px 14px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 16px;font-size:14px;align-items:center;margin:0}
+.glossary dt{display:flex;align-items:center;gap:6px;font-weight:700;white-space:nowrap}
+.glossary dt svg{width:18px;height:18px}
+.glossary dd{margin:0;color:var(--sub)}
+.namerow{display:flex;flex-direction:column;gap:4px;margin-top:16px}
+.namerow label{font-size:12.5px;color:var(--sub);font-weight:700}
+.namerow input{min-height:46px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:16px;padding:0 14px}
+.resume{margin-top:12px;font-size:13px;color:var(--sub)}
+.resume b{color:var(--ink)}
+.start{margin-top:14px;width:100%;min-height:54px;border-radius:999px;background:var(--accent);color:var(--on-accent);font-family:var(--f-disp);font-size:20px;letter-spacing:.06em}
+.credit{font-size:11px;color:var(--sub);margin-top:18px;letter-spacing:.05em;text-align:center;opacity:.8}
+.c-spk{color:var(--spike)}.c-rcv{color:var(--receive)}.c-ret{color:var(--ret)}.c-qk{color:var(--quick)}
+
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header>
+    <div class="col">
+      <div class="hbar">
+        <a class="home" href="/">&lt; porkgorilla</a>
+        <div class="logo"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-spike"/></svg><span>バズラリー</span></div>
+        <button class="iconbtn" id="bannerBtn" aria-label="ホイッスルのバナー表示オン・オフ" aria-pressed="true"></button>
+        <button class="iconbtn" id="soundBtn" aria-label="音のオン・オフ" aria-pressed="true"></button>
+        <a class="iconbtn x" id="xTop" href="#" target="_blank" rel="noopener" aria-label="成績をXに投稿"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-share"/></svg>X</a>
+      </div>
+      <nav class="tabs" id="tabs" role="tablist" hidden>
+        <button class="tab" role="tab" id="tabHome" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-court"/></svg>コート</button>
+        <button class="tab" role="tab" id="tabNotif" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-whistle"/></svg>ホイッスル<span class="badge" id="badge" hidden>0</span></button>
+        <button class="tab" role="tab" id="tabProf" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-team"/></svg>マイページ<span class="dot" id="profDot" hidden></span></button>
+        <button class="tab" role="tab" id="tabSet" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-gear"/></svg>設定</button>
+      </nav>
+    </div>
+  </header>
+
+  <div class="band" id="band" hidden>
+    <div class="col" id="toasts" aria-live="polite">
+      <div class="bidle" id="bidle"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-whistle"/></svg>トスすると、ここにホイッスルが流れます</div>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="scroll" id="scroll">
+      <!-- home -->
+      <section class="view" id="vHome">
+        <div class="col">
+          <div class="me" id="meStrip">
+            <div class="av me-av" id="meAv">あ</div>
+            <div class="meta"><b id="meName">あなた</b><small>@you ・ チームメイト <span class="team" id="meTeam">0</span>人</small></div>
+            <div class="trend" id="trend" hidden>トレンド <span id="trendRank">50</span>位</div>
+          </div>
+          <div id="myFeed"></div>
+          <div class="feedlabel">ほかのトス</div>
+          <div id="otherFeed"></div>
+        </div>
+      </section>
+      <!-- notifications -->
+      <section class="view" id="vNotif" hidden>
+        <div class="col">
+          <div class="nhead"><h2>ホイッスル</h2></div>
+          <div id="nList"></div>
+          <div class="empty" id="nEmpty"><b>まだホイッスルは鳴っていません</b>下のフォームから何かトスしてみてください。</div>
+        </div>
+      </section>
+      <!-- profile -->
+      <section class="view" id="vProf" hidden>
+        <div class="col">
+          <div class="pcover" aria-hidden="true"></div>
+          <div class="phero"><div class="av me-av" id="pAv">あ</div><div class="who"><b id="pName">あなた</b><small>@you</small></div></div>
+          <div class="bigteam"><span class="num" id="pTeam">0</span><span>人のチームメイト</span></div>
+          <div class="pgrid">
+            <div><span class="num" id="pTosses">0</span><small>トス</small></div>
+            <div><span class="num c-spk" id="pSpike">0</span><small>累計スパイク</small></div>
+            <div><span class="num c-rcv" id="pRecv">0</span><small>累計レシーブ</small></div>
+            <div><span class="num" id="pBestOne">0</span><small>1トス最高スパイク</small></div>
+            <div><span class="num" id="pRank">―</span><small>最高トレンド</small></div>
+            <div><span class="num" id="pAchN">0</span><small>実績</small></div>
+          </div>
+          <div class="next" id="pNext"></div>
+          <div class="share"><a class="xbtn" id="xProf" href="#" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-share"/></svg>成績をXに投稿</a></div>
+          <div class="sec">実績</div>
+          <div class="achs" id="achList"></div>
+        </div>
+      </section>
+      <!-- settings -->
+      <section class="view" id="vSet" hidden>
+        <div class="col">
+          <div class="setblock">
+            <b>表示名</b>
+            <div class="namefield"><input id="setName" maxlength="20" placeholder="あなた" autocomplete="off"><button class="smallbtn" id="setNameBtn" type="button">変更</button></div>
+          </div>
+          <div class="set-row">
+            <div class="t"><b>ホイッスルのバナー</b><small>オフにしても、通知欄と数字は増え続けます</small></div>
+            <button class="switch" role="switch" id="swBanner" aria-checked="true" aria-label="ホイッスルのバナー"><i></i></button>
+          </div>
+          <div class="set-row">
+            <div class="t"><b>音</b><small>ホイッスルの効果音</small></div>
+            <button class="switch" role="switch" id="swSound" aria-checked="true" aria-label="音"><i></i></button>
+          </div>
+          <div class="set-row">
+            <div class="t"><b>バズの規模</b><small>次のトスから反映されます</small></div>
+            <div class="segctl" role="radiogroup" id="scaleCtl">
+              <button role="radio" data-v="0.15" aria-checked="false">控えめ</button>
+              <button role="radio" data-v="1" aria-checked="true">ふつう</button>
+              <button role="radio" data-v="6" aria-checked="false">大バズ</button>
+            </div>
+          </div>
+          <div class="setblock">
+            <b>デザイン</b>
+            <small>アプリ全体の色を切り替えます</small>
+            <div class="skins" role="radiogroup" id="skinList"></div>
+          </div>
+          <div class="set-row">
+            <div class="t"><b>データをリセット</b><small>トス・通知・チームメイト・実績をすべて消します</small></div>
+            <button class="smallbtn" id="resetBtn" type="button">リセット</button>
+          </div>
+          <div class="credit">porkgorilla — 2026</div>
+        </div>
+      </section>
+      <!-- detail -->
+      <section class="view" id="vDetail" hidden>
+        <div class="col">
+          <div class="dtop"><button class="iconbtn" id="backBtn" aria-label="戻る"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><h2>トス</h2></div>
+          <div class="dpost" id="dPost"></div>
+          <div class="seg" role="tablist">
+            <button role="tab" id="segRet" aria-selected="true">リターン</button>
+            <button role="tab" id="segQk" aria-selected="false">クイック</button>
+          </div>
+          <div id="dList"></div>
+        </div>
+      </section>
+    </div>
+
+    <div class="composer" id="composer">
+      <div class="col">
+        <div class="cform">
+          <div class="av me-av" id="cAv">あ</div>
+          <div class="cfield">
+            <textarea id="ctext" rows="1" maxlength="400" placeholder="いま、なにをトスする？" aria-label="トスする文章"></textarea>
+            <div class="crow" id="crow"><span id="ccount">0</span>/140</div>
+          </div>
+          <button class="tossbtn dim" type="button" id="tossBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-toss"/></svg>トス</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- title -->
+    <div class="ov" id="titleOv">
+      <div class="card"><div class="inner">
+        <h1 class="kicker"><em>バズって</em><br>ますよ！<svg class="burst" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-spike"/></svg></h1>
+        <p class="subttl">〜バズラリー〜</p>
+        <p class="lead">なにを書いても、トスした瞬間にバズる。<br>止まらないホイッスルを、ただ浴びてください。</p>
+        <dl class="glossary">
+          <dt>トス</dt><dd>投稿すること</dd>
+          <dt class="c-spk"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-spike"/></svg>スパイク</dt><dd>「いいね」にあたるもの</dd>
+          <dt class="c-rcv"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-receive"/></svg>レシーブ</dt><dd>拡散してつなぐこと</dd>
+          <dt class="c-ret"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-return"/></svg>リターン</dt><dd>返信</dd>
+          <dt class="c-qk"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-quick"/></svg>クイック</dt><dd>ひとこと添えて拡散(引用)</dd>
+          <dt>チームメイト</dt><dd>フォロワー。トスするほど増えていく</dd>
+        </dl>
+        <div class="namerow">
+          <label for="nameIn">あなたの表示名</label>
+          <input id="nameIn" maxlength="20" placeholder="あなた" autocomplete="off">
+        </div>
+        <div class="resume" id="resume" hidden></div>
+        <button class="start" id="startBtn">コートに入る</button>
+        <div class="credit">porkgorilla — 2026</div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-spike" viewBox="0 0 24 24"><polygon id="starPoly" fill="currentColor" fill-opacity=".22" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" points=""/></symbol>
+    <symbol id="i-receive" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 0 0-14.2-5"/><path d="M5.2 2.8v4.6h4.6"/><path d="M4 12a8 8 0 0 0 14.2 5"/><path d="M18.8 21.2v-4.6h-4.6"/></g></symbol>
+    <symbol id="i-return" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19c2-8 7-12 15-12"/><path d="M15.5 3.5L19 7l-3.5 3.5"/><circle cx="5" cy="19" r="1.4" fill="currentColor"/></g></symbol>
+    <symbol id="i-quick" viewBox="0 0 24 24"><path d="M13.5 2.5L5 13.5h6l-1 8 8.5-11h-6z" fill="currentColor" fill-opacity=".2" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-court" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M12 5v14M8 5v14M16 5v14" stroke-width="1.2"/></g></symbol>
+    <symbol id="i-whistle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><circle cx="8" cy="14" r="5"/><path d="M8 9h13v4h-6"/><circle cx="8" cy="14" r="1.3" fill="currentColor"/></g></symbol>
+    <symbol id="i-whistle-off" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><circle cx="8" cy="14" r="5"/><path d="M8 9h13v4h-6"/><path d="M3 3l18 18"/></g></symbol>
+    <symbol id="i-toss" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="8" r="4.5"/><path d="M6 21c1-4 3-6 6-7.5M18 21c-1-4-3-6-6-7.5"/></g></symbol>
+    <symbol id="i-team" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-4 3.4-6 6.5-6s5.7 2 6.5 6"/><path d="M18 8v6M15 11h6"/></g></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></g></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7.5 7.5L12 3l4.5 4.5"/><path d="M5 12v7.5h14V12"/></g></symbol>
+    <symbol id="i-trophy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3"/><path d="M12 14v3M8 20.5h8M9.5 17h5"/></g></symbol>
+    <symbol id="i-sound-on" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M4 9.5h3.5L12 5v14l-4.5-4.5H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></g></symbol>
+    <symbol id="i-sound-off" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M4 9.5h3.5L12 5v14l-4.5-4.5H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></g></symbol>
+  </defs>
+</svg>
+
+<script>
+(() => {
+'use strict';
+// ---------- constants ----------
+const GAME_URL = 'https://porkgorilla.com/works/buzz-rally.html';
+const OG_CACHE_VERSION = 1;
+const SHARE_URL = GAME_URL + '?ogv=' + OG_CACHE_VERSION;
+const HASHTAG = '#バズラリー';
+const KEY_SET = 'buzz-rally-settings';
+const KEY_STAT = 'buzz-rally-stats';
+const MAX_NOTIF_DOM = 220;
+const MAX_REPLIES = 300;
+const MAX_QUOTES = 120;
+
+(() => {
+  const pts = [];
+  for (let i = 0; i < 16; i++) {
+    const a = -Math.PI / 2 + i * Math.PI / 8, r = i % 2 ? 4.6 : 10.4;
+    pts.push((12 + r * Math.cos(a)).toFixed(2) + ',' + (12 + r * Math.sin(a)).toFixed(2));
+  }
+  document.getElementById('starPoly').setAttribute('points', pts.join(' '));
+})();
+
+const $ = id => document.getElementById(id);
+const rand = (a, b) => a + Math.random() * (b - a);
+const ri = (a, b) => Math.floor(rand(a, b + 1));
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const ico = (id, cls = '') => `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true"><use href="#${id}"/></svg>`;
+const store = {
+  get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+
+function fmt(n) {
+  n = Math.floor(n);
+  const unit = (v, u) => (v < 100 ? v.toFixed(1).replace(/\.0$/, '') : Math.floor(v).toLocaleString('ja-JP')) + u;
+  if (n < 10000) return n.toLocaleString('ja-JP');
+  if (n < 1e8) return unit(n / 1e4, '万');
+  if (n < 1e12) return unit(n / 1e8, '億');
+  return unit(n / 1e12, '兆');
+}
+function ago(ms) {
+  const s = Math.max(0, Math.floor(ms / 1000));
+  if (s < 60) return s + '秒';
+  if (s < 3600) return Math.floor(s / 60) + '分';
+  return Math.floor(s / 3600) + '時間';
+}
+const ymd = t => { const d = new Date(t); return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`; };
+function clock(t) {
+  const d = new Date(t);
+  return `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')} ・ ${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
+}
+const excerpt = (t, n = 24) => { const s = t.replace(/\s+/g, ' '); return s.length > n ? s.slice(0, n) + '…' : s; };
+
+// ---------- persistent settings & stats ----------
+const SET = Object.assign({ name: '', banner: true, sound: true, scale: 1, skin: 'auto' }, store.get(KEY_SET) || {});
+const STAT_DEFAULT = () => ({ team: 0, tosses: 0, spike: 0, receive: 0, bestOne: 0, bestRank: 0, ach: {} });
+let ST = Object.assign(STAT_DEFAULT(), store.get(KEY_STAT) || {});
+let statDirty = false;
+const saveSet = () => store.set(KEY_SET, SET);
+const saveStat = () => { store.set(KEY_STAT, ST); statDirty = false; };
+setInterval(() => { if (statDirty) saveStat(); }, 2000);
+
+// ---------- skins ----------
+const SKINS = [
+  { id: 'auto', name: '自動', note: '端末の明暗に合わせる', pv: ['#eef2f7', '#0e131b', '#e07800', '#4570b0'] },
+  { id: 'gym', name: '体育館', note: '明るい板張り', pv: ['#eef2f7', '#ffffff', '#d97f00', '#4570b0'] },
+  { id: 'night', name: 'ナイター', note: '夜のコート', pv: ['#0e131b', '#161d28', '#ffab2e', '#82a8e8'] },
+  { id: 'beach', name: 'ビーチ', note: '砂浜と海', pv: ['#f1e9d8', '#fbf7ee', '#e0671f', '#127c8c'] },
+  { id: 'sakura', name: 'さくら', note: 'やわらかい桃色', pv: ['#fbf0f3', '#ffffff', '#e0457f', '#7a68c9'] },
+  { id: 'citypop', name: 'シティポップ', note: 'ネオンの夜', pv: ['#17123d', '#211a52', '#ff6fb1', '#4fe0e6'] },
+  { id: 'terminal', name: 'ターミナル', note: '黒画面に緑の文字', pv: ['#030803', '#071107', '#39ff88', '#4fd6ff'] }
+];
+function applySkin() {
+  const r = document.documentElement;
+  if (SET.skin === 'auto') r.removeAttribute('data-skin'); else r.setAttribute('data-skin', SET.skin);
+  document.querySelectorAll('.skin').forEach(b => b.setAttribute('aria-checked', String(b.dataset.id === SET.skin)));
+}
+function renderSkins() {
+  $('skinList').innerHTML = SKINS.map(s => `
+    <button class="skin" role="radio" data-id="${s.id}" aria-checked="false">
+      <div class="pv" style="background:${s.id === 'auto' ? `linear-gradient(90deg,${s.pv[0]} 50%,${s.pv[1]} 50%)` : s.pv[0]}"><i class="wide" style="background:${s.id === 'auto' ? '#ffffff' : s.pv[1]}"></i><i style="background:${s.pv[2]}"></i><i style="background:${s.pv[3]}"></i></div>
+      <b>${s.name}</b><small>${s.note}</small>
+    </button>`).join('');
+  $('skinList').querySelectorAll('.skin').forEach(b => b.addEventListener('click', () => { SET.skin = b.dataset.id; saveSet(); applySkin(); }));
+  applySkin();
+}
+
+// ---------- people ----------
+const NAME_A = ['もち', 'たぬき', 'こむぎ', 'しろくま', 'さば缶', 'ぽてと', 'ゆず', 'みかん', 'くまお', 'あおい', 'そら', 'ひなた', 'れん', 'たけし', 'ゆうこ', 'ケン', 'マイ', 'ジロウ', 'ハル', 'のり', 'ちくわ', 'ぎょうざ', 'まめ', 'つばめ', 'かもめ', 'ねぎ', 'ひじき', 'おから', 'トモ', 'サキ', 'ユウキ', 'ナナ', 'こけし', 'うに', 'めかぶ', 'アキラ', 'みどり', 'すずめ', 'ぱんだ', 'ごま'];
+const NAME_B = ['', '', '', '', '🍙', '(社畜)', '｜毎日22時', '@低浮上', '💤', '🏐', '｜旅と珈琲', '@ダイエット中', '🐈', '｜二児の母', '(元バレー部)', '｜深夜のラーメン', '🌙', '@ROM専', '｜写真', '🍜'];
+const HANDLE = ['mochi', 'tanuki', 'komugi', 'kuma', 'saba', 'potato', 'yuzu', 'mikan', 'aoi', 'sora', 'hinata', 'ren', 'ken', 'mai', 'haru', 'nori', 'chikuwa', 'gyoza', 'mame', 'tsubame', 'negi', 'hijiki', 'tomo', 'saki', 'nana', 'uni', 'goma', 'panda'];
+const MEDIA = ['バズまとめ速報', 'トレンド観測所', 'ネットの声研究会', 'デイリー話題ナビ', 'タイムライン新聞'];
+function person() {
+  const a = pick(NAME_A);
+  return { name: a + pick(NAME_B), handle: pick(HANDLE) + (Math.random() < .6 ? ri(1, 9999) : '_' + pick(HANDLE)), h: ri(0, 359), ini: a[0] };
+}
+function mediaPerson() { const n = pick(MEDIA); return { name: n, handle: 'news_' + pick(HANDLE), h: ri(180, 240), ini: n[0], media: true }; }
+const avHTML = (p, cls = '') => `<div class="av ${p.media ? 'media' : ''} ${cls}" style="--h:${p.h}">${esc(p.ini)}</div>`;
+const myName = () => SET.name || 'あなた';
+const myIni = () => myName()[0] || 'あ';
+
+// ---------- text generation ----------
+function keyword(text) {
+  const t = text.replace(/https?:\/\/\S+/g, '').trim();
+  const m = t.match(/[一-鿿々〆]{2,}|[゠-ヿー]{2,}|[A-Za-z][A-Za-z0-9]{2,}/g) || [];
+  const cand = m.sort((a, b) => b.length - a.length);
+  let k = cand.find(w => w.length <= 10) || cand[0];
+  if (!k) k = t.replace(/\s+/g, '').slice(0, 8);
+  if (k.length > 10) k = k.slice(0, 10);
+  return k || 'それ';
+}
+const R_EARLY = [
+  '{k}わかりすぎて声出た', 'これ{k}の話で合ってる？', '{k}、言語化してくれてありがとう', '朝から{k}で笑ってる', 'おすすめに流れてきた',
+  '保存した', 'これは良いトス', '{k}警察です。異常なし', 'うちの猫も{k}してる', 'ちょっと何言ってるかわからないけどスパイクした',
+  '親に見せたら泣いてた', '{k}って結局なんなの？', 'それな', 'わかる', '完全に同意', '職場で読んで吹いた', 'この人のトスいつも好き',
+  '{k}は国が保護すべき', 'ソースは？', '急に伸びてて草', '{k}、今年いちばん刺さった', '3回読んだ', 'これ書けるの天才では',
+  '今日これ見るために生きてた', '逆に{k}じゃない人いるの？', '前から思ってたことを代弁された', '{k}のくだりでやられた',
+  'いや冷静に考えて{k}はおかしい', '普通に良い話で困る', 'ナイストス！！', '小学生の頃から{k}だった', '{k}ってそういう意味だったのか',
+  'This is so real 😂', '{k}...!?', '{k}の解像度が高すぎる', 'インターハイ並みの跳躍力', '電車で読んで変な声出た', '{k}派です',
+  'あとでじっくり読む', 'ちょっと泣いた', 'ここまで{k}な人はじめて見た', '{k}、明日から使います'
+];
+const R_LATE = [
+  'トレンドから来ました', 'リターン欄が民度高い', 'ここまで伸びると思ってなかった人', 'まだ伸びてて怖い', '{k}で検索したら全部このトスだった',
+  'もう{k}の人として生きていくしかない', 'スパイク数バグってない？', '歴史的瞬間に立ち会ってる', 'バズりおめでとうございます！',
+  '有名人になる前にチームインしとこ', '誰かと思ったら知らない人だった', 'まとめで見て本家に来た', '海外でも話題になってるらしい',
+  'Translate: so true about {k}', '今北産業', '教科書に載るやつ', 'このトスの続きが気になる', '{k}、グッズ化してほしい',
+  'ここに名前を残しておきます', 'リターン多すぎて追えない'
+];
+const R_ODD = ['プロフ見てね🏐', '【募集】{k}好きな人とつながりたい', 'チームイン100％返します', '🙏🙏🙏', 'わたしは{k}よりパン派です', '関係ないけど今日いい天気'];
+const Q_NORMAL = [
+  'これ{k}の真理', '全人類に見てほしい', 'いや、{k}は違うと思う。理由は3つある', '{k}についてはこのトスが全て', 'これに尽きる',
+  'このトスが伸びてる世界、優しい', 'わかる人にはわかる', '{k}、わたしも昨日思ってた', 'これをトスできる勇気', '保存用',
+  '{k}の話になると早口になる人です', '久々に心が動いた', '会社のチャットに貼った'
+];
+const Q_MEDIA = ['【話題】「{k}」をめぐるトスに共感の声', '【速報】#{k} がトレンド入り', 'ネットで話題の「{k}」、反響まとめ', '「{k}」投稿が大反響 なぜ人々は惹かれるのか'];
+const fill = (tpl, k) => tpl.replace(/\{k\}/g, k);
+
+// ---------- achievements ----------
+// team milestones compare with stable real-world numbers (approximate)
+const ACH = [
+  { id: 'toss1', name: 'はじめてのトス', desc: '最初のトスをした', test: () => ST.tosses >= 1 },
+  { id: 'f6', team: 6, name: '1チーム結成', desc: 'バレーボール1チーム(6人)を越えた' },
+  { id: 'f40', team: 40, name: 'クラスの人気者', desc: '学校の1クラス(40人)を越えた' },
+  { id: 'f14k', team: 14000, name: '武道館を満員に', desc: '日本武道館の収容人数(約1万4千人)を越えた' },
+  { id: 'f47k', team: 47000, name: '甲子園を満員に', desc: '甲子園球場の収容人数(約4万7千人)を越えた' },
+  { id: 'f72k', team: 72000, name: 'スタジアム満員', desc: '日産スタジアムの収容人数(約7万2千人)を越えた' },
+  { id: 'f530k', team: 530000, name: '県ひとつ分', desc: '鳥取県の人口(約53万人)を越えた' },
+  { id: 'f2m8', team: 2800000, name: '大都市ひとつ分', desc: '大阪市の人口(約280万人)を越えた' },
+  { id: 'f14m', team: 14000000, name: '首都ひとつ分', desc: '東京都の人口(約1,400万人)を越えた' },
+  { id: 'f120m', team: 120000000, name: '国民的トス', desc: '日本の人口(約1億2千万人)を越えた' },
+  { id: 'f8b', team: 8000000000, name: '地球代表', desc: '地球の人口(約80億人)を越えた' },
+  { id: 'f400b', team: 400000000000, name: '銀河のエース', desc: '天の川銀河の星の数(1,000億〜4,000億とも)を越えた' },
+  { id: 'toss10', name: '常連トッサー', desc: '10回トスした', test: () => ST.tosses >= 10 },
+  { id: 'toss50', name: 'トスの鬼', desc: '50回トスした', test: () => ST.tosses >= 50 },
+  { id: 'one1m', name: 'ミリオンスパイク', desc: '1つのトスで100万スパイク', test: () => ST.bestOne >= 1e6 },
+  { id: 'trend1', name: 'トレンド1位', desc: 'トレンド1位になった', test: () => ST.bestRank === 1 }
+];
+const TEAM_ACH = ACH.filter(a => a.team);
+function checkAch() {
+  for (const a of ACH) {
+    if (ST.ach[a.id]) continue;
+    const ok = a.team ? ST.team > a.team : a.test();
+    if (!ok) continue;
+    ST.ach[a.id] = Date.now(); statDirty = true;
+    const line = a.team ? `チームメイトが${a.desc}！` : `実績「${a.name}」: ${a.desc}`;
+    toast('i-trophy', '', esc(line), { cls: 'ach', sound: 'big', force: true });
+    addNotif(`<div class="nicon mile">${ico('i-trophy')}</div><div class="nbody"><p><b>実績解除「${esc(a.name)}」</b></p><div class="quote">${esc(a.team ? 'チームメイトが' + a.desc : a.desc)}</div></div>`, () => showTab('prof'));
+    if (S.tab !== 'prof') $('profDot').hidden = false;
+    if (S.tab === 'prof') renderProfile();
+  }
+}
+
+// ---------- runtime state ----------
+const S = { started: false, posts: [], tab: 'home', detail: null, seg: 'ret', unread: 0, trendRank: 0, nextToast: 0, lastSound: 0, teamAcc: 0 };
+let nextId = 1;
+
+// ---------- sound ----------
+let AC = null;
+function initAudio(force) {
+  if (AC && force) { try { AC.close().catch(() => {}); } catch (e) {} AC = null; }
+  else if (AC) {
+    if (AC.state === 'closed') AC = null;
+    else { if (AC.state === 'suspended') AC.resume().catch(() => {}); return; }
+  }
+  try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { AC = null; }
+}
+function blip(kind) {
+  if (!SET.sound || !AC) return;
+  const now = performance.now();
+  if (kind !== 'big' && now - S.lastSound < 140) return;
+  S.lastSound = now;
+  try {
+    const t = AC.currentTime;
+    const tone = (f0, at, len, vol, type) => {
+      const o = AC.createOscillator(), g = AC.createGain();
+      o.type = type; o.frequency.setValueAtTime(f0, t + at);
+      o.frequency.exponentialRampToValueAtTime(f0 * .62, t + at + .12);
+      g.gain.setValueAtTime(0.0001, t + at);
+      g.gain.exponentialRampToValueAtTime(vol, t + at + .01);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + at + len);
+      o.connect(g); g.connect(AC.destination); o.start(t + at); o.stop(t + at + len + .05);
+    };
+    if (kind === 'big') { tone(880, 0, .45, .2, 'triangle'); tone(1320, .09, .5, .14, 'triangle'); return; }
+    const f = kind === 'rcv' ? 520 : kind === 'ret' ? 760 : 640;
+    tone(f * (1 + Math.random() * .08), 0, .16, .09, 'sine');
+  } catch (e) {}
+}
+
+// ---------- toggles (header + settings stay in sync) ----------
+function renderToggles() {
+  $('soundBtn').innerHTML = ico(SET.sound ? 'i-sound-on' : 'i-sound-off');
+  $('soundBtn').setAttribute('aria-pressed', String(SET.sound));
+  $('soundBtn').classList.toggle('off', !SET.sound);
+  $('bannerBtn').innerHTML = ico(SET.banner ? 'i-whistle' : 'i-whistle-off');
+  $('bannerBtn').setAttribute('aria-pressed', String(SET.banner));
+  $('bannerBtn').classList.toggle('off', !SET.banner);
+  $('swSound').setAttribute('aria-checked', String(SET.sound));
+  $('swBanner').setAttribute('aria-checked', String(SET.banner));
+  $('band').hidden = !S.started || !SET.banner;
+  document.querySelectorAll('#scaleCtl button').forEach(b => b.setAttribute('aria-checked', String(+b.dataset.v === SET.scale)));
+}
+const toggleSound = () => { SET.sound = !SET.sound; saveSet(); if (SET.sound) initAudio(false); renderToggles(); };
+const toggleBanner = () => { SET.banner = !SET.banner; saveSet(); if (!SET.banner) clearToasts(); renderToggles(); };
+$('soundBtn').addEventListener('click', toggleSound);
+$('swSound').addEventListener('click', toggleSound);
+$('bannerBtn').addEventListener('click', toggleBanner);
+$('swBanner').addEventListener('click', toggleBanner);
+document.querySelectorAll('#scaleCtl button').forEach(b => b.addEventListener('click', () => { SET.scale = +b.dataset.v; saveSet(); renderToggles(); }));
+document.addEventListener('visibilitychange', () => { if (!document.hidden && S.started) initAudio(false); });
+
+// ---------- sample feed ----------
+const SAMPLES = [
+  { p: { name: 'こむぎ🍙', handle: 'komugi_mame', h: 32, ini: 'こ' }, text: '炊飯器のタイマー、今日も1時間ずれてた', mins: 4, s: 3, r: 0, t: 1 },
+  { p: { name: 'しろくま(社畜)', handle: 'kuma2048', h: 205, ini: 'し' }, text: '会議が「軽く」で始まって2時間かかるの、なんでだろう', mins: 11, s: 28, r: 4, t: 2 },
+  { p: { name: 'つばめ｜旅と珈琲', handle: 'tsubame_haru', h: 150, ini: 'つ' }, text: '駅前の喫茶店、ナポリタンが鉄板で出てきた。正解', mins: 26, s: 12, r: 1, t: 0 },
+  { p: { name: 'ねぎ@低浮上', handle: 'negi_negi', h: 95, ini: 'ね' }, text: 'ひさしぶりにトスします', mins: 52, s: 2, r: 0, t: 0 }
+];
+function renderSamples() {
+  $('otherFeed').innerHTML = SAMPLES.map(x => `
+    <article class="post">
+      ${avHTML(x.p)}
+      <div class="pbody">
+        <div class="phead"><b>${esc(x.p.name)}</b><span>@${esc(x.p.handle)} ・ ${x.mins}分</span></div>
+        <div class="ptext">${esc(x.text)}</div>
+        <div class="acts">
+          <span class="act">${ico('i-return')}<span>${x.t}</span></span>
+          <span class="act">${ico('i-receive')}<span>${x.r}</span></span>
+          <span class="act">${ico('i-spike')}<span>${x.s}</span></span>
+        </div>
+      </div>
+    </article>`).join('');
+}
+
+// ---------- my posts ----------
+function lognormal(median, sigma) {
+  const u = 1 - Math.random(), v = Math.random();
+  return median * Math.exp(sigma * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v));
+}
+function createPost(text) {
+  // bigger team -> bigger buzz (compounds as you keep tossing)
+  const median = 60000 * Math.pow(1 + ST.team / 3000, 0.95) * SET.scale;
+  const T = Math.min(5e12, Math.max(2000 * SET.scale, lognormal(median, 0.85)));
+  const p = {
+    id: nextId++, text, t0: performance.now(), wall: Date.now(), kw: keyword(text),
+    T, tau: rand(45, 90),
+    rRatio: rand(.16, .34), tRatio: rand(.005, .012), qRatio: rand(.0025, .006),
+    spike: 0, receive: 0, ret: 0, quick: 0,
+    accS: 0, accR: 0, pendRet: 0, pendQ: 0, nextRetAt: 0, nextQAt: 0,
+    replies: [], quotes: [], mileIdx: 0, mine: false
+  };
+  S.posts.unshift(p);
+  const el = document.createElement('article');
+  el.className = 'post mine fresh';
+  el.innerHTML = `
+    <div class="av me-av">${esc(myIni())}</div>
+    <div class="pbody">
+      <div class="phead"><b>${esc(myName())}</b><span>@you ・ <span class="ago">0秒</span></span></div>
+      <div class="ptext">${esc(text)}</div>
+      <div class="acts">
+        <button class="act ret" aria-label="リターンを見る">${ico('i-return')}<span class="n-ret">0</span></button>
+        <span class="act rcv">${ico('i-receive')}<span class="n-rcv">0</span></span>
+        <button class="act spk" aria-label="自分でスパイク">${ico('i-spike')}<span class="n-spk">0</span></button>
+        <button class="act qk" aria-label="クイックを見る">${ico('i-quick')}<span class="n-qk">0</span></button>
+      </div>
+      <div class="peek" hidden>
+        <div class="peek-r"></div>
+        <button class="peek-more" type="button">リターン<span class="num n-peek">0</span>件をすべて見る ›</button>
+      </div>
+    </div>`;
+  p.ref = { ago: el.querySelector('.ago'), ret: el.querySelector('.n-ret'), rcv: el.querySelector('.n-rcv'), spk: el.querySelector('.n-spk'),
+    qk: el.querySelector('.n-qk'), aRet: el.querySelector('.act.ret'), aRcv: el.querySelector('.act.rcv'), aSpk: el.querySelector('.act.spk'),
+    peek: el.querySelector('.peek'), peekR: el.querySelector('.peek-r'), peekN: el.querySelector('.n-peek') };
+  p.peekAt = 0;
+  el.addEventListener('click', e => {
+    if (e.target.closest('.act.spk')) { e.stopPropagation(); p.mine = !p.mine; p.ref.aSpk.classList.toggle('on', p.mine); updatePostNums(p); return; }
+    if (e.target.closest('.act.qk')) { openDetail(p, 'qk'); return; }
+    if (e.target.closest('.act.ret, .peek')) { openDetail(p, 'ret'); return; }
+    openDetail(p, 'ret');
+  });
+  el.addEventListener('animationend', () => el.classList.remove('fresh'), { once: true });
+  $('myFeed').prepend(el);
+  ST.tosses++; statDirty = true;
+  return p;
+}
+function updatePostNums(p) {
+  p.ref.ret.textContent = fmt(p.ret);
+  p.ref.rcv.textContent = fmt(p.receive);
+  p.ref.spk.textContent = fmt(p.spike + (p.mine ? 1 : 0));
+  p.ref.qk.textContent = fmt(p.quick);
+  p.ref.peekN.textContent = fmt(p.ret);
+  if (S.detail === p) renderDetailStats();
+}
+function bump(el) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+
+// ---------- whistle band ----------
+function clearToasts() { document.querySelectorAll('#toasts .toast').forEach(t => t.remove()); $('bidle').hidden = false; }
+function toast(icon, cls, html, opts = {}) {
+  if (!SET.banner) return;
+  const box = $('toasts');
+  $('bidle').hidden = true;
+  const el = document.createElement('div');
+  el.className = 'toast' + (opts.cls ? ' ' + opts.cls : '');
+  el.innerHTML = `${ico(icon, cls)}<div class="tx">${html}</div>`;
+  box.prepend(el);
+  const items = box.querySelectorAll('.toast');
+  items.forEach((t, i) => t.classList.toggle('old', i > 0));
+  for (let i = 3; i < items.length; i++) items[i].remove();
+  clearTimeout(box._idle);
+  box._idle = setTimeout(clearToasts, 6000);
+  blip(opts.sound || 'spk');
+}
+
+// ---------- notifications ----------
+function addNotif(html, onClick) {
+  const list = $('nList');
+  const el = document.createElement('div');
+  el.className = 'nitem new';
+  el.innerHTML = html;
+  if (onClick) el.addEventListener('click', onClick);
+  list.prepend(el);
+  while (list.children.length > MAX_NOTIF_DOM) list.lastElementChild.remove();
+  $('nEmpty').hidden = true;
+  if (S.tab !== 'notif') { S.unread++; renderBadge(); }
+}
+function renderBadge() {
+  $('badge').hidden = S.unread === 0;
+  $('badge').textContent = S.unread > 99 ? '99+' : String(S.unread);
+}
+function groupNotif(p, kind, n, people) {
+  const word = kind === 'spk' ? 'スパイク' : 'レシーブ';
+  const names = people.map(x => esc(x.name)).join('さん、');
+  const tail = n > people.length ? `さん他<span class="num">${fmt(n - people.length)}</span>人` : 'さん';
+  addNotif(`
+    <div class="nicon ${kind}">${ico(kind === 'spk' ? 'i-spike' : 'i-receive')}</div>
+    <div class="nbody">
+      <div class="avrow">${people.map(x => avHTML(x)).join('')}</div>
+      <p><b>${names}</b>${tail}があなたのトスを${word}しました</p>
+      <div class="quote">${esc(excerpt(p.text, 60))}</div>
+    </div>`, () => openDetail(p));
+  return { names, tail, word };
+}
+function makeReply(p) {
+  const s = (performance.now() - p.t0) / 1000;
+  const late = s > 25 && Math.random() < Math.min(.5, s / 160);
+  const tpl = Math.random() < .06 ? pick(R_ODD) : late ? pick(R_LATE) : pick(R_EARLY);
+  const r = { who: person(), text: fill(tpl, p.kw), spk: ri(0, Math.random() < .15 ? 900 : 30) };
+  p.replies.unshift(r);
+  if (p.replies.length > MAX_REPLIES) p.replies.pop();
+  addNotif(`
+    <div class="nicon">${avHTML(r.who)}</div>
+    <div class="nbody">
+      <p><b>${esc(r.who.name)}</b> <span class="replyto">@${esc(r.who.handle)} ・ リターン</span></p>
+      <p>${esc(r.text)}</p>
+      <div class="quote">あなたのトス「${esc(excerpt(p.text))}」へ</div>
+    </div>`, () => openDetail(p, 'ret'));
+  if (S.detail === p && S.seg === 'ret') prependDetailItem(replyHTML(r));
+  updatePeek(p, r);
+  return r;
+}
+function updatePeek(p, r) {
+  const now = performance.now();
+  if (now - p.peekAt < 1300 && !p.ref.peek.hidden) return;   // keep it readable
+  p.peekAt = now;
+  p.ref.peek.hidden = false;
+  p.ref.peekR.classList.remove('in'); void p.ref.peekR.offsetWidth; p.ref.peekR.classList.add('in');
+  p.ref.peekR.innerHTML = `${avHTML(r.who)}<div class="tx"><b>${esc(r.who.name)}</b><span>${esc(r.text)}</span></div>`;
+}
+function makeQuote(p) {
+  const media = Math.random() < .12;
+  const who = media ? mediaPerson() : person();
+  const q = { who, text: fill(media ? pick(Q_MEDIA) : pick(Q_NORMAL), p.kw) };
+  p.quotes.unshift(q);
+  if (p.quotes.length > MAX_QUOTES) p.quotes.pop();
+  addNotif(`
+    <div class="nicon">${avHTML(who)}</div>
+    <div class="nbody">
+      <p><b>${esc(who.name)}</b> ${who.media ? '<span class="pill">公式</span> ' : ''}<span class="replyto">・ クイック</span></p>
+      <p>${esc(q.text)}</p>
+      <div class="embed"><b>${esc(myName())}</b><div class="ptext">${esc(p.text)}</div></div>
+    </div>`, () => openDetail(p, 'qk'));
+  if (S.detail === p && S.seg === 'qk') prependDetailItem(quoteHTML(q, p));
+}
+
+// ---------- detail ----------
+function replyHTML(r) {
+  return `<div class="reply in">${avHTML(r.who, 'sm')}<div class="pbody">
+    <div class="phead"><b>${esc(r.who.name)}</b><span>@${esc(r.who.handle)}</span></div>
+    <div class="replyto">返信先: <em>@you</em></div>
+    <div class="ptext">${esc(r.text)}</div>
+    <div class="acts"><span class="act">${ico('i-spike')}<span>${fmt(r.spk)}</span></span></div>
+  </div></div>`;
+}
+function quoteHTML(q, p) {
+  return `<div class="reply in">${avHTML(q.who, 'sm')}<div class="pbody">
+    <div class="phead"><b>${esc(q.who.name)}</b>${q.who.media ? '<span class="pill">公式</span>' : ''}<span>@${esc(q.who.handle)}</span></div>
+    <div class="ptext">${esc(q.text)}</div>
+    <div class="embed"><b>${esc(myName())}</b><div class="ptext">${esc(p.text)}</div></div>
+  </div></div>`;
+}
+function prependDetailItem(html) {
+  const list = $('dList');
+  const empty = list.querySelector('.empty'); if (empty) empty.remove();
+  list.insertAdjacentHTML('afterbegin', html);
+  while (list.children.length > 150) list.lastElementChild.remove();
+}
+const xIntent = text => 'https://x.com/intent/post?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(SHARE_URL);
+function postShareHref(p) {
+  return xIntent(`バズってますよ！\nトスしたら ${fmt(p.spike + (p.mine ? 1 : 0))}スパイク・${fmt(p.receive)}レシーブ。\n「${excerpt(p.text, 40)}」\n${HASHTAG}`);
+}
+function overallShareHref() {
+  if (!ST.tosses) return xIntent(`トスした瞬間にバズる、疑似バズ体験アプリ「バズってますよ！ 〜バズラリー〜」\n${HASHTAG}`);
+  const got = TEAM_ACH.filter(a => ST.ach[a.id]).pop();
+  const rank = ST.bestRank ? `、最高トレンド${ST.bestRank}位` : '';
+  const brag = got ? `\nチームメイトが${got.desc}！` : '';
+  return xIntent(`バズってますよ！\nチームメイト ${fmt(ST.team)}人、累計 ${fmt(ST.spike)}スパイク${rank}。${brag}\n${HASHTAG}`);
+}
+function wireShare(a, hrefFn) {
+  a.addEventListener('click', () => { a.href = hrefFn(); });
+  if (matchMedia('(pointer: coarse)').matches) { a.removeAttribute('target'); a.removeAttribute('rel'); }
+}
+wireShare($('xTop'), overallShareHref);
+wireShare($('xProf'), overallShareHref);
+
+function openDetail(p, seg) {
+  S.detail = p;
+  if (seg) S.seg = seg;
+  ['vHome', 'vNotif', 'vProf', 'vSet'].forEach(id => $(id).hidden = true);
+  $('vDetail').hidden = false;
+  $('dPost').innerHTML = `
+    <div class="phead"><div class="av me-av">${esc(myIni())}</div><div><b>${esc(myName())}</b><br><span>@you</span></div></div>
+    <div class="ptext">${esc(p.text)}</div>
+    <div class="dtime">${clock(p.wall)}</div>
+    <div class="stats">
+      <div class="stat spk"><span class="num" id="dsS">0</span><small>スパイク</small></div>
+      <div class="stat rcv"><span class="num" id="dsR">0</span><small>レシーブ</small></div>
+      <div class="stat ret"><span class="num" id="dsT">0</span><small>リターン</small></div>
+      <div class="stat qk"><span class="num" id="dsQ">0</span><small>クイック</small></div>
+    </div>
+    <div class="share"><a class="xbtn" id="xShare" href="#" target="_blank" rel="noopener">${ico('i-share')}このトスの結果をXに投稿</a></div>`;
+  wireShare($('xShare'), () => postShareHref(p));
+  renderDetailStats();
+  renderDetailList();
+  $('scroll').scrollTop = 0;
+}
+function renderDetailStats() {
+  const p = S.detail; if (!p) return;
+  $('dsS').textContent = fmt(p.spike + (p.mine ? 1 : 0));
+  $('dsR').textContent = fmt(p.receive);
+  $('dsT').textContent = fmt(p.ret);
+  $('dsQ').textContent = fmt(p.quick);
+}
+function renderDetailList() {
+  const p = S.detail;
+  $('segRet').setAttribute('aria-selected', String(S.seg === 'ret'));
+  $('segQk').setAttribute('aria-selected', String(S.seg === 'qk'));
+  const items = S.seg === 'ret' ? p.replies.slice(0, 150).map(replyHTML) : p.quotes.slice(0, 150).map(q => quoteHTML(q, p));
+  $('dList').innerHTML = items.length ? items.join('').replace(/reply in/g, 'reply') :
+    `<div class="empty"><b>${S.seg === 'ret' ? 'リターン' : 'クイック'}はまもなく届きます</b>少しだけ待ってみてください。</div>`;
+}
+$('segRet').addEventListener('click', () => { S.seg = 'ret'; renderDetailList(); });
+$('segQk').addEventListener('click', () => { S.seg = 'qk'; renderDetailList(); });
+$('backBtn').addEventListener('click', () => showTab(S.tab));
+
+// ---------- profile ----------
+function renderProfile() {
+  $('pAv').textContent = myIni(); $('pName').textContent = myName();
+  $('pTeam').textContent = fmt(ST.team);
+  $('pTosses').textContent = fmt(ST.tosses);
+  $('pSpike').textContent = fmt(ST.spike);
+  $('pRecv').textContent = fmt(ST.receive);
+  $('pBestOne').textContent = fmt(ST.bestOne);
+  $('pRank').textContent = ST.bestRank ? ST.bestRank + '位' : '―';
+  $('pAchN').textContent = `${Object.keys(ST.ach).length}/${ACH.length}`;
+  const next = TEAM_ACH.find(a => !ST.ach[a.id]);
+  if (next) {
+    const prev = [...TEAM_ACH].reverse().find(a => ST.ach[a.id]);
+    const lo = prev ? prev.team : 0;
+    const pct = Math.max(0, Math.min(100, (Math.log10(ST.team + 1) - Math.log10(lo + 1)) / (Math.log10(next.team + 1) - Math.log10(lo + 1)) * 100));
+    $('pNext').innerHTML = `<p>次の目標: <b>${esc(next.desc.replace(/を越えた$/, ''))}</b></p><div class="bar"><i style="width:${pct.toFixed(1)}%"></i></div><small>あと <span class="num">${fmt(Math.max(1, next.team - ST.team + 1))}</span> 人</small>`;
+  } else {
+    $('pNext').innerHTML = '<p><b>すべての目標を越えました。</b>銀河の外までトスを続けてください。</p>';
+  }
+  $('achList').innerHTML = ACH.map(a => {
+    const t = ST.ach[a.id];
+    return `<div class="ach-item ${t ? '' : 'locked'}"><div class="medal">${ico('i-trophy')}</div><div class="t"><b>${esc(a.name)}</b><small>${esc(a.team ? 'チームメイトが' + a.desc : a.desc)}</small></div>${t ? `<time>${ymd(t)}</time>` : ''}</div>`;
+  }).join('');
+}
+$('meStrip').addEventListener('click', () => showTab('prof'));
+
+// ---------- tabs ----------
+const VIEWS = { home: 'vHome', notif: 'vNotif', prof: 'vProf', set: 'vSet' };
+const TABS = { home: 'tabHome', notif: 'tabNotif', prof: 'tabProf', set: 'tabSet' };
+function showTab(t) {
+  S.tab = t; S.detail = null;
+  $('vDetail').hidden = true;
+  for (const k in VIEWS) { $(VIEWS[k]).hidden = k !== t; $(TABS[k]).setAttribute('aria-selected', String(k === t)); }
+  if (t === 'notif') { S.unread = 0; renderBadge(); }
+  if (t === 'prof') { $('profDot').hidden = true; renderProfile(); }
+  if (t === 'set') $('setName').value = SET.name;
+  $('scroll').scrollTop = 0;
+}
+for (const k in TABS) $(TABS[k]).addEventListener('click', () => showTab(k));
+
+// ---------- settings: name & reset ----------
+function applyName() {
+  $('meName').textContent = myName(); $('meAv').textContent = myIni(); $('cAv').textContent = myIni();
+}
+$('setNameBtn').addEventListener('click', () => {
+  SET.name = $('setName').value.trim(); saveSet(); applyName();
+  $('setNameBtn').textContent = '変更しました';
+  setTimeout(() => { $('setNameBtn').textContent = '変更'; }, 1500);
+});
+let armed = false, armTimer = null;
+function disarm() { armed = false; clearTimeout(armTimer); $('resetBtn').textContent = 'リセット'; $('resetBtn').classList.remove('danger'); }
+$('resetBtn').addEventListener('click', () => {
+  if (!armed) { armed = true; $('resetBtn').textContent = '本当に？(もう一度)'; $('resetBtn').classList.add('danger'); clearTimeout(armTimer); armTimer = setTimeout(disarm, 3000); return; }
+  disarm();
+  S.posts = []; S.trendRank = 0; S.unread = 0; S.teamAcc = 0;
+  ST = STAT_DEFAULT(); saveStat();
+  $('myFeed').innerHTML = ''; $('nList').innerHTML = ''; $('nEmpty').hidden = false; $('trend').hidden = true;
+  clearToasts();
+  $('meTeam').textContent = '0';
+  renderBadge();
+  showTab('home');
+});
+
+// ---------- composer ----------
+const ta = $('ctext');
+function autosize() { ta.style.height = 'auto'; ta.style.height = Math.min(120, ta.scrollHeight) + 'px'; }
+function onInput() {
+  const n = [...ta.value].length;
+  $('ccount').textContent = n;
+  $('crow').classList.toggle('over', n > 140);
+  $('tossBtn').classList.toggle('dim', !ta.value.trim() || n > 140);
+  autosize();
+}
+['input', 'keyup', 'change', 'compositionend'].forEach(ev => ta.addEventListener(ev, onInput));
+ta.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && !e.isComposing) { e.preventDefault(); doToss(); } });
+$('tossBtn').addEventListener('click', doToss);
+function doToss() {
+  const text = ta.value.trim();
+  if (!text) { ta.focus(); return; }
+  if ([...text].length > 140) { toast('i-toss', 't-mile', '140文字以内にしてください', { sound: 'ret' }); return; }
+  initAudio(false);
+  createPost(text);
+  limitLive();
+  ta.value = ''; onInput();
+  if (S.tab !== 'home' || S.detail) showTab('home');
+  $('scroll').scrollTop = 0;
+  S.nextToast = performance.now() + 500;
+  setTimeout(() => toast('i-toss', 't-mile', '<b>トスしました。</b>ボールが上がっています…', { sound: 'ret' }), 60);
+}
+
+// ---------- engine ----------
+// keep the page light: a toss stops growing after 10 minutes, and only the newest 30 keep growing
+const LIVE_SEC = 600;
+const MAX_LIVE = 30;
+function freezePost(p) {
+  if (p.done) return;
+  p.done = true;
+  p.accS = p.accR = p.pendRet = p.pendQ = 0;
+  p.ref.aSpk.classList.remove('live'); p.ref.aRcv.classList.remove('live');
+  p.ref.ago.insertAdjacentText('afterend', ' ・ 伸び終わり');
+}
+function limitLive() {
+  let live = 0;
+  for (const p of S.posts) { if (p.done) continue; if (++live > MAX_LIVE) freezePost(p); }
+}
+const MILES = [100, 1000, 10000, 100000, 1000000, 10000000, 1e8, 1e9, 1e10];
+const RANKS = [50, 30, 20, 10, 5, 3, 2, 1];
+function rankFor(total) {
+  if (total < 3000) return 0;
+  const r = Math.ceil(60 / (1 + total / 9000));
+  return RANKS.find(x => r >= x) || 1;
+}
+function tick(now) {
+  if (!S.posts.length) return;
+  let rateSum = 0;
+  for (const p of S.posts) {
+    if (p.done) continue;
+    const elapsed = (now - p.t0) / 1000;
+    const x = Math.min(elapsed, LIVE_SEC) / p.tau;   // final values are fixed at LIVE_SEC, even after a long background
+    const f = 1 - Math.exp(-Math.pow(x, 1.6)) + 0.025 * x;
+    const spike = Math.floor(p.T * f);
+    const receive = Math.floor(p.T * p.rRatio * Math.pow(f, 1.08));
+    const ret = Math.floor(p.T * p.tRatio * Math.pow(f, 1.15));
+    const quick = Math.floor(p.T * p.qRatio * Math.pow(f, 1.25));
+    const dS = spike - p.spike, dR = receive - p.receive, dT = ret - p.ret, dQ = quick - p.quick;
+    if (dS > 0) { p.accS += dS; S.teamAcc += dS * 0.04; ST.spike += dS; statDirty = true; }
+    if (dR > 0) { p.accR += dR; ST.receive += dR; }
+    if (dT > 0) p.pendRet = Math.min(4, p.pendRet + dT);
+    if (dQ > 0) p.pendQ = Math.min(3, p.pendQ + dQ);
+    p.spike = spike; p.receive = receive; p.ret = ret; p.quick = quick;
+    if (p.spike > ST.bestOne) ST.bestOne = p.spike;
+    if (dS || dR || dT) {
+      updatePostNums(p);
+      if (dS > 0 && Math.random() < .3) bump(p.ref.aSpk);
+      if (dR > 0 && Math.random() < .2) bump(p.ref.aRcv);
+      p.ref.aSpk.classList.toggle('live', dS > 0);
+      p.ref.aRcv.classList.toggle('live', dR > 0);
+    }
+    if (p.pendRet >= 1 && now >= p.nextRetAt) {
+      p.pendRet -= 1; const r = makeReply(p);
+      p.nextRetAt = now + rand(220, 600);
+      if (Math.random() < .35 && now >= S.nextToast) { toast('i-return', 't-ret', `<b>${esc(r.who.name)}</b> がリターン: ${esc(r.text)}`, { sound: 'ret' }); S.nextToast = now + rand(250, 500); }
+    }
+    if (p.pendQ >= 1 && now >= p.nextQAt) { p.pendQ -= 1; makeQuote(p); p.nextQAt = now + rand(900, 2200); }
+    while (p.mileIdx < MILES.length && p.spike >= MILES[p.mileIdx]) {
+      const m = MILES[p.mileIdx++];
+      toast('i-spike', '', `「${esc(excerpt(p.text, 12))}」が <span class="num">${fmt(m)}</span> スパイク突破！`, { cls: 'big', sound: 'big' });
+      addNotif(`<div class="nicon mile">${ico('i-spike')}</div><div class="nbody"><p>あなたのトスが <b class="num">${fmt(m)}</b> スパイクを突破しました</p><div class="quote">${esc(excerpt(p.text, 60))}</div></div>`, () => openDetail(p));
+      S.nextToast = now + 900;
+    }
+    rateSum += Math.max(0, dS);
+    if (elapsed >= LIVE_SEC) freezePost(p);
+  }
+
+  if (S.teamAcc >= 1) {
+    const n = Math.floor(S.teamAcc); S.teamAcc -= n; ST.team += n; statDirty = true;
+    $('meTeam').textContent = fmt(ST.team);
+    if (S.tab === 'prof' && Math.random() < .3) renderProfile();
+    if (Math.random() < .02) {
+      const ppl = [person(), person()];
+      addNotif(`<div class="nicon team">${ico('i-team')}</div><div class="nbody"><div class="avrow">${ppl.map(x => avHTML(x)).join('')}</div><p><b>${ppl.map(x => esc(x.name)).join('さん、')}</b>さん他<span class="num">${fmt(n * ri(20, 60))}</span>人があなたのチームに入りました</p></div>`, () => showTab('prof'));
+    }
+  }
+
+  const best = S.posts.reduce((a, b) => (b.spike > a.spike ? b : a), S.posts[0]);
+  const rk = rankFor(best.spike);
+  if (rk && (S.trendRank === 0 || rk < S.trendRank)) {
+    S.trendRank = rk;
+    if (!ST.bestRank || rk < ST.bestRank) { ST.bestRank = rk; statDirty = true; }
+    $('trend').hidden = false; $('trendRank').textContent = rk;
+    toast('i-quick', 't-mile', `<b>#${esc(best.kw)}</b> がトレンド <span class="num">${rk}</span> 位に`, { sound: 'big' });
+    addNotif(`<div class="nicon mile">${ico('i-quick')}</div><div class="nbody"><p><b>#${esc(best.kw)}</b> がトレンド <b class="num">${rk}</b> 位になりました</p></div>`, () => openDetail(best));
+    S.nextToast = now + 700;
+  }
+
+  checkAch();
+
+  if (now >= S.nextToast) {
+    const busy = S.posts.filter(p => p.accS >= 1 || p.accR >= 1);
+    if (busy.length) {
+      const p = pick(busy);
+      const kind = (p.accR >= 1 && Math.random() < .35) || p.accS < 1 ? 'rcv' : 'spk';
+      const n = Math.floor(kind === 'spk' ? p.accS : p.accR);
+      if (kind === 'spk') p.accS -= n; else p.accR -= n;
+      const people = Array.from({ length: Math.min(n, ri(1, 3)) }, person);
+      const g = groupNotif(p, kind, n, people);
+      toast(kind === 'spk' ? 'i-spike' : 'i-receive', kind === 'spk' ? 't-spk' : 't-rcv', `<b>${g.names}</b>${g.tail}が${g.word}しました`, { sound: kind });
+      S.nextToast = now + rand(320, 700) * (1.9 - Math.min(1, rateSum / 400));
+    }
+  }
+}
+
+let last = 0, agoTimer = 0;
+function loop(now) {
+  requestAnimationFrame(loop);
+  if (innerWidth < 1 || innerHeight < 1) return;
+  try {
+    if (now - last >= 100) { last = now; if (S.started) tick(now); }
+    if (now - agoTimer > 1000) { agoTimer = now; for (const p of S.posts) p.ref.ago.textContent = ago(now - p.t0); }
+  } catch (e) { console.error(e); }
+}
+requestAnimationFrame(loop);
+addEventListener('pagehide', () => { if (statDirty) saveStat(); });
+
+// ---------- title ----------
+$('nameIn').value = SET.name;
+if (ST.tosses) {
+  $('resume').hidden = false;
+  $('resume').innerHTML = `続きから: チームメイト <b class="num">${fmt(ST.team)}</b>人 ・ <b class="num">${fmt(ST.tosses)}</b>トス`;
+}
+$('startBtn').addEventListener('click', () => {
+  SET.name = $('nameIn').value.trim(); saveSet();
+  applyName();
+  initAudio(true);
+  S.started = true;
+  $('titleOv').hidden = true;
+  $('tabs').hidden = false;
+  $('meTeam').textContent = fmt(ST.team);
+  renderToggles();
+  setTimeout(() => { try { ta.focus({ preventScroll: true }); } catch (e) {} }, 50);
+});
+
+renderSkins();
+renderToggles();
+renderSamples();
+renderBadge();
+})();
+</script>
+</body>
+</html>
