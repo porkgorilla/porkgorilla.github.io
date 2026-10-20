@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ボットの職場 日報つき | porkgorilla://</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="裏でつながったBotたちが、指示やデータをやりとりしながら仕事を回す様子を眺めるアプリ">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-MBT4300J0L');
+</script>
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="ボットの職場 日報つき">
+<meta property="og:description" content="裏でつながったBotたちが、指示やデータをやりとりしながら仕事を回す様子を眺めるアプリ">
+<meta property="og:url" content="https://porkgorilla.com/works/botoffice.html">
+<meta property="og:image" content="https://porkgorilla.com/assets/og-botoffice.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ボットの職場 日報つき">
+<meta name="twitter:description" content="裏でつながったBotたちが、指示やデータをやりとりしながら仕事を回す様子を眺めるアプリ">
+<meta name="twitter:image" content="https://porkgorilla.com/assets/og-botoffice.jpg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Maru+Gothic:wght@500;700&family=JetBrains+Mono:wght@500&display=swap">
+
+<style>
+[hidden]{display:none!important}
+/* Layout: chat list on the left (like the bot app itself), live network map + feed on the right. Phone: tabs. */
+:root{
+  --bg:#f2f4f7; --panel:#ffffff; --ink:#161a20; --sub:#6c7482; --line:#e1e5ea; --soft:#eceff3;
+  --boss:#1c1f25; --boss-edge:#1c1f25;
+  --k-cmd:#3d5ce0; --k-data:#0e9a88; --k-rep:#e0830a; --k-ask:#d4336c; --k-re:#7a52ef;
+  --f-display:"Dela Gothic One","Zen Maru Gothic","Hiragino Sans",sans-serif;
+  --f-body:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Hiragino Sans","Yu Gothic",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1014; --panel:#16191f; --ink:#e8ecf1; --sub:#8a93a2; --line:#252a32; --soft:#1d2128;
+  --boss:#262a33; --boss-edge:#5b6371;
+  --k-cmd:#7d93ff; --k-data:#37d0b4; --k-rep:#ffab3d; --k-ask:#ff6b9c; --k-re:#a98bff;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1014; --panel:#16191f; --ink:#e8ecf1; --sub:#8a93a2; --line:#252a32; --soft:#1d2128;
+  --boss:#262a33; --boss-edge:#5b6371;
+  --k-cmd:#7d93ff; --k-data:#37d0b4; --k-rep:#ffab3d; --k-ask:#ff6b9c; --k-re:#a98bff;
+  color-scheme:dark}
+
+/* explicit skins (after the theme blocks, same specificity, so they win) */
+:root[data-skin="office"]{--bg:#f2f4f7; --panel:#ffffff; --ink:#161a20; --sub:#6c7482; --line:#e1e5ea; --soft:#eceff3; --boss:#1c1f25; --boss-edge:#1c1f25; --k-cmd:#3d5ce0; --k-data:#0e9a88; --k-rep:#e0830a; --k-ask:#d4336c; --k-re:#7a52ef; color-scheme:light}
+:root[data-skin="yakin"]{--bg:#0e1014; --panel:#16191f; --ink:#e8ecf1; --sub:#8a93a2; --line:#252a32; --soft:#1d2128; --boss:#262a33; --boss-edge:#5b6371; --k-cmd:#7d93ff; --k-data:#37d0b4; --k-rep:#ffab3d; --k-ask:#ff6b9c; --k-re:#a98bff; color-scheme:dark}
+:root[data-skin="kami"]{--bg:#efe8da; --panel:#fbf7ef; --ink:#2a241c; --sub:#7a6f5f; --line:#ddd2bf; --soft:#f2ebdd; --boss:#2a241c; --boss-edge:#2a241c; --k-cmd:#3156b8; --k-data:#1f8a6e; --k-rep:#c26a0a; --k-ask:#c0365e; --k-re:#7246d0; color-scheme:light}
+:root[data-skin="mint"]{--bg:#e4f3ed; --panel:#ffffff; --ink:#123029; --sub:#5b7a72; --line:#cde4db; --soft:#ecf7f2; --boss:#123029; --boss-edge:#123029; --k-cmd:#3d5ce0; --k-data:#0e9a88; --k-rep:#e0830a; --k-ask:#d4336c; --k-re:#7a52ef; color-scheme:light}
+:root[data-skin="server"]{--bg:#120f2e; --panel:#1b1742; --ink:#efeaff; --sub:#a39cd0; --line:#2e2867; --soft:#241f55; --boss:#0a0820; --boss-edge:#6b62c9; --k-cmd:#6fa8ff; --k-data:#4fe0d0; --k-rep:#ffc857; --k-ask:#ff6fb1; --k-re:#b79bff; color-scheme:dark}
+:root[data-skin="terminal"]{--bg:#030803; --panel:#071107; --ink:#c6ffd4; --sub:#5fae74; --line:#143a1c; --soft:#0c1c0c; --boss:#0c1c0c; --boss-edge:#39ff88; --k-cmd:#4fd6ff; --k-data:#39ff88; --k-rep:#e6ff5c; --k-ask:#ff8cf0; --k-re:#b8a1ff; color-scheme:dark;
+  --f-body:ui-monospace,"SFMono-Regular",Menlo,Consolas,"Osaka-Mono","MS Gothic",monospace; --f-display:ui-monospace,"SFMono-Regular",Menlo,Consolas,"Osaka-Mono",monospace}
+
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,.row:focus-visible{outline:2px solid var(--k-cmd);outline-offset:2px}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:31;background:var(--bg)}
+.top-in{max-width:1240px;margin:0 auto;display:flex;align-items:center;gap:12px;min-height:56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.home{color:var(--sub);text-decoration:none;font-size:12px;letter-spacing:.04em;white-space:nowrap;font-family:var(--f-mono)}
+.home:hover{color:var(--ink)}
+.brand{flex:1;min-width:0;display:flex;align-items:baseline;gap:10px;justify-content:center}
+.brand h1{margin:0;font-family:var(--f-display);font-weight:400;font-size:20px;letter-spacing:.02em;white-space:nowrap}
+.brand .en{font-family:var(--f-mono);font-size:10px;letter-spacing:.18em;color:var(--sub);white-space:nowrap}
+.iconbtn{min-width:44px;min-height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--line);background:var(--panel);cursor:pointer;font-size:12px;white-space:nowrap}
+.xshare{color:var(--ink);display:inline-flex;align-items:center;justify-content:center;gap:2px;text-decoration:none;font-weight:700}
+.xshare b{font-family:var(--f-mono);font-size:14px}
+.iconbtn[aria-pressed="true"]{border-color:var(--k-cmd);color:var(--k-cmd)}
+
+.wrap{max-width:1240px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px 28px;display:flex;flex-direction:column;gap:16px}
+
+/* boss card */
+.boss{display:flex;gap:16px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:16px 18px;cursor:pointer;text-align:left;width:100%}
+.boss:hover{border-color:color-mix(in srgb,var(--sub) 40%,var(--line))}
+.boss .av{width:64px;height:64px;flex:none}
+.boss-body{flex:1;min-width:0}
+.boss-head{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.boss-name{font-weight:700;font-size:16px}
+.boss-tag{font-size:11px;color:var(--sub);border:1px solid var(--line);border-radius:999px;padding:0 8px}
+.boss-time{margin-left:auto;font-family:var(--f-mono);font-size:12px;color:var(--sub)}
+.boss-msg{margin:4px 0 0;font-size:14.5px;line-height:1.55;text-wrap:pretty}
+.boss-msg .lab{color:var(--sub);font-size:12px;margin-right:6px}
+.boss.pop{animation:pop .5s ease}
+@keyframes pop{30%{transform:scale(1.012)}}
+
+/* controls */
+.controls{display:flex;flex-direction:column;gap:10px}
+.sc-list{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.sc-list::-webkit-scrollbar{display:none}
+.sc{flex:none;display:flex;flex-direction:column;align-items:flex-start;gap:0;min-height:44px;padding:7px 14px;border-radius:14px;border:1px solid var(--line);background:var(--panel);cursor:pointer;text-align:left}
+.sc b{font-size:13.5px;font-weight:700;white-space:nowrap}
+.sc small{font-size:10.5px;color:var(--sub);letter-spacing:.06em}
+.sc[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.sc[aria-pressed="true"] small{color:color-mix(in srgb,var(--bg) 70%,transparent)}
+.bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.clock{display:flex;align-items:baseline;gap:10px;font-variant-numeric:tabular-nums;flex:1;min-width:0;flex-wrap:wrap}
+.clock .hm{font-family:var(--f-mono);font-size:22px;letter-spacing:.02em}
+.clock .day{font-size:12px;color:var(--sub)}
+.clock .ot{font-size:11px;color:var(--k-ask);border:1px solid currentColor;border-radius:999px;padding:0 8px}
+.clock .cnt{font-size:12px;color:var(--sub)}
+.seg{display:flex;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel)}
+.seg button{min-width:48px;min-height:44px;border:0;background:transparent;cursor:pointer;font-family:var(--f-mono);font-size:13px;display:grid;place-items:center}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.pause-ic{display:block;width:11px;height:13px;border-left:3.5px solid currentColor;border-right:3.5px solid currentColor}
+
+/* tabs (phone) */
+.tabs{display:none;gap:6px;background:var(--soft);padding:4px;border-radius:14px}
+.tabs button{flex:1;min-height:44px;border:0;border-radius:10px;background:transparent;cursor:pointer;font-weight:700;font-size:12.5px;padding:0 4px;white-space:nowrap;color:var(--sub);position:relative}
+.tabs button[aria-selected="true"]{background:var(--panel);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.tabs .dot{position:absolute;top:10px;margin-left:4px;width:7px;height:7px;border-radius:50%;background:var(--k-ask)}
+
+.stage{display:grid;grid-template-columns:minmax(330px,400px) minmax(0,1fr);gap:16px;align-items:start}
+.right{display:flex;flex-direction:column;gap:16px;min-width:0}
+.pane{background:var(--panel);border:1px solid var(--line);border-radius:20px;min-width:0}
+.pane h2{margin:0;font-size:12px;letter-spacing:.14em;color:var(--sub);font-weight:700}
+.pane-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px 6px}
+
+/* list */
+.list{list-style:none;margin:0;padding:6px 6px 8px}
+.row{display:flex;gap:14px;align-items:center;padding:11px 12px;border-radius:14px;cursor:pointer;position:relative;will-change:transform}
+.row:hover{background:var(--soft)}
+.row.flash{animation:flash 1.1s ease}
+@keyframes flash{0%{background:color-mix(in srgb,var(--rc) 16%,transparent)}100%{background:transparent}}
+.row .av{width:48px;height:48px;flex:none}
+.rb{flex:1;min-width:0}
+.rl{display:flex;align-items:baseline;gap:8px}
+.rn{flex:1;min-width:0;font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rt{font-family:var(--f-mono);font-size:11.5px;color:var(--sub);flex:none}
+.rp{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--sub);min-width:0}
+.rp .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rp svg{flex:none;width:14px;height:14px}
+.rp.typing{color:var(--k-cmd)}
+.rp.sending{color:var(--ink)}
+.badge{flex:none;min-width:20px;height:20px;border-radius:10px;background:var(--k-cmd);color:var(--panel);font-size:11px;font-family:var(--f-mono);display:grid;place-items:center;padding:0 6px}
+.dots{display:inline-flex;gap:3px;align-items:center}
+.dots i{width:4px;height:4px;border-radius:50%;background:currentColor;animation:dot 1s infinite}
+.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
+@keyframes dot{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-3px);opacity:1}}
+
+/* avatar */
+.av{position:relative;display:block;background:var(--c);border-radius:var(--r)}
+.av.boss-av{background:var(--boss);box-shadow:inset 0 0 0 1.5px var(--boss-edge)}
+.av .e{position:absolute;top:33%;width:19%;height:27%;background:#fff;border-radius:50%;animation:blink 5.2s infinite;animation-delay:var(--bd,0s)}
+.av .e:nth-child(1){left:27%}.av .e:nth-child(2){left:54%}
+.av .e::after{content:"";position:absolute;width:50%;height:44%;left:25%;top:32%;background:#14171c;border-radius:50%;transform:translate(var(--lx,0px),var(--ly,0px));transition:transform .35s ease}
+.av.typing{animation:bob .9s ease-in-out infinite}
+@keyframes blink{0%,93%,100%{transform:scaleY(1)}95.5%{transform:scaleY(.1)}}
+@keyframes bob{50%{transform:translateY(-2px) rotate(-2deg)}}
+
+/* graph */
+.graph-wrap{position:relative;height:clamp(380px,56vh,620px);margin:0 8px}
+.graph-wrap canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:pointer;touch-action:manipulation}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;padding:6px 18px 14px;font-size:12px;color:var(--sub)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:50%;background:var(--k)}
+.legend i.sq{border-radius:2px}
+
+/* log */
+.log{list-style:none;margin:0;padding:4px 10px 12px;max-height:300px;overflow-y:auto}
+.log li{display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:4px 10px;align-items:baseline;padding:8px 8px;border-bottom:1px solid var(--line)}
+.log li:last-child{border-bottom:0}
+.log li.new{animation:slide .4s ease}
+@keyframes slide{from{opacity:0;transform:translateY(-6px)}}
+.log time{font-family:var(--f-mono);font-size:11.5px;color:var(--sub)}
+.log .who{font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.log .who em{font-style:normal;color:var(--sub);font-weight:500;margin:0 4px}
+.log p{grid-column:2/-1;margin:0;font-size:13px;color:var(--ink);text-wrap:pretty;display:flex;gap:8px;align-items:baseline}
+.log p .x{min-width:0}
+.chip{flex:none;display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.04em;color:var(--k);border:1px solid color-mix(in srgb,var(--k) 45%,transparent);background:color-mix(in srgb,var(--k) 9%,transparent);border-radius:6px;padding:0 6px;line-height:1.6}
+.empty{padding:18px;color:var(--sub);font-size:13px}
+
+.note{font-size:12.5px;color:var(--sub);margin:0;text-wrap:pretty}
+.credit{font-size:11px;color:var(--sub);letter-spacing:.05em;text-align:center;padding-top:4px}
+
+/* sheet */
+.scrim{position:fixed;inset:0;z-index:20;background:rgba(10,12,16,.32)}
+.sheet{position:fixed;z-index:25;top:calc(56px + env(safe-area-inset-top,0px));right:0;bottom:0;width:min(440px,100%);background:var(--panel);border-left:1px solid var(--line);display:flex;flex-direction:column;animation:sheetIn .28s cubic-bezier(.2,.8,.2,1)}
+@keyframes sheetIn{from{transform:translateX(30px);opacity:0}}
+.sh-head{display:flex;gap:14px;align-items:center;padding:14px 16px 14px 18px;border-bottom:1px solid var(--line)}
+.sh-head .av{width:52px;height:52px;flex:none}
+.sh-ttl{flex:1;min-width:0}
+.sh-ttl b{display:block;font-size:16px}
+.sh-ttl span{display:block;font-size:12px;color:var(--sub);line-height:1.5}
+.close{width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:transparent;cursor:pointer;position:relative;flex:none}
+.close::before,.close::after{content:"";position:absolute;left:50%;top:50%;width:16px;height:2px;background:currentColor;border-radius:2px}
+.close::before{transform:translate(-50%,-50%) rotate(45deg)}.close::after{transform:translate(-50%,-50%) rotate(-45deg)}
+.thread{flex:1;overflow-y:auto;padding:14px 16px calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px;background:var(--bg)}
+.msg{display:flex;gap:8px;align-items:flex-end;max-width:88%}
+.msg .av{width:28px;height:28px;flex:none}
+.msg.me{align-self:flex-end;flex-direction:row-reverse}
+.mb{min-width:0;display:flex;flex-direction:column;gap:3px}
+.msg.me .mb{align-items:flex-end}
+.mm{font-size:11px;color:var(--sub);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.bub{background:var(--panel);border:1px solid var(--line);border-radius:16px 16px 16px 4px;padding:8px 12px;font-size:13.5px;line-height:1.55;text-wrap:pretty}
+.msg.me .bub{background:color-mix(in srgb,var(--c) 14%,var(--panel));border-color:color-mix(in srgb,var(--c) 35%,var(--line));border-radius:16px 16px 4px 16px}
+.file{display:flex;gap:8px;align-items:center;margin-top:6px;padding:7px 10px;border-radius:10px;background:var(--soft);font-family:var(--f-mono);font-size:11.5px;word-break:break-all}
+.file svg{flex:none;width:14px;height:14px}
+.msg.new{animation:slide .35s ease}
+
+/* daily report */
+.reports{padding:4px 12px 14px;display:flex;flex-direction:column;gap:10px}
+.rep{border:1px solid var(--line);border-radius:14px;background:var(--bg);overflow:hidden}
+.rep.new{animation:slide .45s ease}
+.rep summary{list-style:none;cursor:pointer;display:flex;gap:4px 10px;align-items:baseline;padding:12px 14px;min-height:44px;flex-wrap:wrap}
+.rep summary::-webkit-details-marker{display:none}
+.rep summary b{font-size:15px}
+.rep summary .meta{font-size:12px;color:var(--sub)}
+.rep summary::after{content:"";margin-left:auto;width:8px;height:8px;border-right:2px solid var(--sub);border-bottom:2px solid var(--sub);transform:rotate(45deg);align-self:center}
+.rep[open] summary::after{transform:rotate(-135deg)}
+.rep-body{padding:0 14px 14px;display:flex;flex-direction:column;gap:12px}
+.rep h3{margin:0 0 4px;font-size:11.5px;letter-spacing:.1em;color:var(--sub);font-weight:700}
+.nums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.num{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0}
+.num span{display:block;font-size:11px;color:var(--sub)}
+.num b{font-family:var(--f-mono);font-size:20px;font-variant-numeric:tabular-nums}
+.kbar{display:flex;height:8px;border-radius:4px;overflow:hidden;background:var(--soft);gap:2px}
+.kbar i{background:var(--k)}
+.top-bot{display:flex;gap:10px;align-items:center;font-size:13.5px}
+.top-bot .av{width:30px;height:30px;flex:none}
+.done{margin:0;padding-left:1.3em;font-size:13px;display:flex;flex-direction:column;gap:4px;text-wrap:pretty}
+.word{margin:0;font-size:13.5px}
+.post{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.post-t{margin:0;font-size:13px;line-height:1.7;user-select:text;-webkit-user-select:text;word-break:break-word}
+.post-act{display:flex;gap:8px;flex-wrap:wrap}
+.xbtn,.copybtn{min-height:44px;padding:0 16px;border-radius:12px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;text-decoration:none;cursor:pointer}
+.xbtn{background:var(--ink);color:var(--bg);border:1px solid var(--ink)}
+.copybtn{background:transparent;border:1px solid var(--line)}
+.skinpanel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.skinpanel h2{margin:0;font-size:12px;letter-spacing:.14em;color:var(--sub);font-weight:700}
+.skins{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+.skin{border:2px solid var(--line);border-radius:12px;padding:7px;text-align:left;background:var(--bg);cursor:pointer;min-height:44px}
+.skin[aria-checked="true"]{border-color:var(--k-cmd)}
+.skin .pv{height:40px;border-radius:8px;display:flex;align-items:flex-end;gap:5px;padding:6px;border:1px solid rgba(128,128,128,.25)}
+.skin .pv i{width:12px;height:12px;border-radius:50%}
+.skin .pv i.wide{width:26px;border-radius:6px}
+.skin b{display:block;font-size:13px;margin-top:5px}
+.skin small{display:block;color:var(--sub);font-size:11px;line-height:1.4}
+.iconbtn[data-armed]{border-color:var(--k-ask);color:var(--k-ask)}
+.toast{position:fixed;z-index:40;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));width:min(420px,calc(100% - 32px));display:flex;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:10px 10px 10px 12px;box-shadow:0 8px 28px rgba(0,0,0,.18);animation:toastIn .35s cubic-bezier(.2,.8,.2,1)}
+@keyframes toastIn{from{transform:translate(-50%,16px);opacity:0}}
+.toast .av{width:36px;height:36px;flex:none}
+.toast .tx{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.4}
+.toast .tx span{font-size:12px;color:var(--sub)}
+.toast button{min-height:44px;padding:0 16px;border-radius:12px;border:0;background:var(--ink);color:var(--bg);font-weight:700;cursor:pointer}
+
+@media (max-width:959px){
+  .stage{display:flex;flex-direction:column;align-items:stretch}
+  .right{display:contents}
+  .pane-graph{order:1}.pane-list{order:2}.pane-report,.pane-log{order:3}
+  .tabs{display:flex}
+  body:not([data-tab="list"]) .pane-list, body:not([data-tab="list"]) .pane-graph, body:not([data-tab="log"]) .pane-log, body:not([data-tab="report"]) .pane-report{display:none}
+  .log{max-height:none}
+  .graph-wrap{height:clamp(270px,40vh,380px)}
+  .pane-graph .legend{padding-bottom:10px}
+}
+@media (max-width:520px){
+  .brand .en{display:none}
+  .xs-l{display:none}
+  .top-in{gap:8px}
+  .brand{justify-content:flex-start}
+  .boss{padding:14px}
+  .clock{flex:1 1 100%}
+  .bar{gap:8px}
+  .seg button{min-width:44px}
+  .bar .iconbtn{padding:0 10px}
+}
+@media (max-width:400px){
+  .home-l{display:none}
+  .boss .av{width:54px;height:54px}
+  .sheet{width:100%;border-left:0}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}
+}
+</style>
+</head>
+<body data-tab="list">
+
+<header class="top">
+  <div class="top-in">
+    <a class="home" href="/" aria-label="porkgorillaのトップへ">&lt;<span class="home-l"> porkgorilla</span></a>
+    <div class="brand"><h1>ボットの職場</h1><span class="en">BOT BACKOFFICE</span></div>
+    <a class="iconbtn xshare" href="https://x.com/intent/post?text=%E3%80%8C%E3%83%9C%E3%83%83%E3%83%88%E3%81%AE%E8%81%B7%E5%A0%B4%E3%80%8D%0A%E8%A3%8F%E3%81%A7%E3%81%A4%E3%81%AA%E3%81%8C%E3%81%A3%E3%81%9FBot%E3%81%9F%E3%81%A1%E3%81%8C%E3%80%81%E6%8C%87%E7%A4%BA%E3%82%84%E3%83%87%E3%83%BC%E3%82%BF%E3%82%92%E3%82%84%E3%82%8A%E3%81%A8%E3%82%8A%E3%81%97%E3%81%AA%E3%81%8C%E3%82%89%E5%8B%9D%E6%89%8B%E3%81%AB%E4%BB%95%E4%BA%8B%E3%82%92%E5%9B%9E%E3%81%99%E6%A7%98%E5%AD%90%E3%82%92%E3%80%81%E3%81%9F%E3%81%A0%E7%9C%BA%E3%82%81%E3%82%8B%E3%82%A2%E3%83%97%E3%83%AA%E3%81%A7%E3%81%99%E3%80%82%0A%E6%96%B0%E3%83%A1%E3%83%8B%E3%83%A5%E3%83%BC%E9%96%8B%E7%99%BA%E5%AE%A4%E3%81%8B%E3%82%89%E7%89%87%E6%96%B9%E9%9D%B4%E4%B8%8B%E6%8D%9C%E7%B4%A2%E6%9C%AC%E9%83%A8%E3%81%BE%E3%81%A7%E3%80%81%E8%81%B7%E5%A0%B4%E3%81%AF4%E3%81%A4%E3%80%82%E6%AF%8E%E6%97%A518%E6%99%82%E3%81%AB%E3%81%AF%E6%97%A5%E5%A0%B1%E3%82%82%E5%B1%8A%E3%81%8D%E3%81%BE%E3%81%99%E3%80%82%0A%23%E3%83%9C%E3%83%83%E3%83%88%E3%81%AE%E8%81%B7%E5%A0%B4&amp;url=https%3A%2F%2Fporkgorilla.com%2Fworks%2Fbotoffice.html%3Fogv%3D1" target="_blank" rel="noopener" aria-label="このアプリをXで紹介"><b>X</b><span class="xs-l">で紹介</span></a>
+    <button id="soundBtn" class="iconbtn" aria-pressed="false">音 OFF</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <button class="boss" id="bossCard" type="button" aria-label="総合ボットのやりとりを開く">
+    <span class="av boss-av" id="bossAv" style="--r:50%"><i class="e"></i><i class="e"></i></span>
+    <span class="boss-body">
+      <span class="boss-head"><span class="boss-name">総合ボット</span><span class="boss-tag">あなたの担当</span><span class="boss-time" id="bossTime"></span></span>
+      <span class="boss-msg" id="bossMsg"></span>
+    </span>
+  </button>
+
+  <section class="controls">
+    <div class="sc-list" id="scList" role="group" aria-label="職場を選ぶ"></div>
+    <div class="bar">
+      <div class="clock"><span class="hm" id="clockHm">09:00</span><span class="day" id="clockDay">1日目</span><span class="ot" id="clockOt" hidden>残業中</span><span class="cnt" id="clockCnt">やりとり 0件</span></div>
+      <div class="seg" id="speedSeg" role="group" aria-label="時間の速さ">
+        <button data-speed="0" aria-label="一時停止"><span class="pause-ic"></span></button>
+        <button data-speed="1">1×</button>
+        <button data-speed="3">3×</button>
+        <button data-speed="10">10×</button>
+      </div>
+      <button id="skinBtn" class="iconbtn" type="button" aria-expanded="false" aria-controls="skinPanel">デザイン</button>
+      <button id="resetBtn" class="iconbtn" type="button">リセット</button>
+    </div>
+    <div class="skinpanel" id="skinPanel" hidden>
+      <h2>デザイン</h2>
+      <div class="skins" role="radiogroup" aria-label="配色" id="skinList"></div>
+    </div>
+    <p class="note">Botたちは裏でつながっていて、上から下へ指示が降り、下から上へ報告が戻ります。行や丸をタップすると、そのBotのやりとりが読めます。毎日18時になると総合ボットから日報が届き、20時で退勤して翌朝に続きます。</p>
+  </section>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-tab="list" aria-selected="true">ネットワークと一覧</button>
+    <button role="tab" data-tab="report" aria-selected="false">日報<span class="dot" id="repDot" hidden></span></button>
+    <button role="tab" data-tab="log" aria-selected="false">全体ログ</button>
+  </nav>
+
+  <div class="stage">
+    <section class="pane pane-list">
+      <div class="pane-head"><h2>BOTS</h2></div>
+      <ul class="list" id="list"></ul>
+    </section>
+    <div class="right">
+      <section class="pane pane-graph">
+        <div class="pane-head"><h2>NETWORK</h2></div>
+        <div class="graph-wrap" id="graphWrap"><canvas id="cv" aria-label="Bot同士のやりとりを表すネットワーク図"></canvas></div>
+        <div class="legend">
+          <span><i style="--k:var(--k-cmd)"></i>指示</span>
+          <span><i style="--k:var(--k-data)" class="sq"></i>データ・添付</span>
+          <span><i style="--k:var(--k-rep)"></i>報告</span>
+          <span><i style="--k:var(--k-ask)"></i>質問</span>
+          <span><i style="--k:var(--k-re)"></i>返信</span>
+        </div>
+      </section>
+      <section class="pane pane-report" id="paneReport">
+        <div class="pane-head"><h2>日報</h2></div>
+        <div class="reports" id="reports"></div>
+      </section>
+      <section class="pane pane-log">
+        <div class="pane-head"><h2>全体ログ</h2></div>
+        <ol class="log" id="log"></ol>
+      </section>
+    </div>
+  </div>
+
+  <footer class="credit">porkgorilla — 2026</footer>
+</main>
+
+<div class="toast" id="toast" hidden role="status">
+  <span class="av boss-av" style="--r:50%"><i class="e"></i><i class="e"></i></span>
+  <span class="tx"><b id="toastT"></b><span>総合ボットから日報が届きました</span></span>
+  <button id="toastBtn" type="button">見る</button>
+</div>
+<div class="scrim" id="scrim" hidden></div>
+<aside class="sheet" id="sheet" hidden aria-label="Botのやりとり">
+  <div class="sh-head">
+    <span class="av" id="shAv"><i class="e"></i><i class="e"></i></span>
+    <div class="sh-ttl"><b id="shName"></b><span id="shRole"></span></div>
+    <button class="close" id="shClose" aria-label="閉じる"></button>
+  </div>
+  <div class="thread" id="thread"></div>
+</aside>
+
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+const rnd = (a, b) => a + Math.random() * (b - a);
+const ri = (a, b) => Math.floor(rnd(a, b + 1));
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const STORE_KEY = 'botoffice-settings';
+
+const KIND = {
+  cmd: {l:'指示', v:'--k-cmd'}, data: {l:'データ', v:'--k-data'}, file: {l:'添付', v:'--k-data'},
+  rep: {l:'報告', v:'--k-rep'}, ask: {l:'質問', v:'--k-ask'}, re: {l:'返信', v:'--k-re'}
+};
+const GAME_URL = 'https://porkgorilla.com/works/botoffice.html';
+const OG_CACHE_VERSION = 1; // タグや画像を変えたら数字を上げる
+const SHARE_URL = GAME_URL + '?ogv=' + OG_CACHE_VERSION;
+const CLOSING = ['みなさん、お疲れさまでした。','明日もこの調子でいきましょう。','{bot}、今日はいちばん働いてくれました。','残業はほどほどにしてください。','今日もいい仕事でした。','明日は少し早めに始めましょう。'];
+const COLORS = ['#7b5cff','#f2972f','#2db39f','#e6458a','#ef6429','#4683f5','#5fb246'];
+
+const ICON_CLIP = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M10.5 4.5 5.6 9.4a1.6 1.6 0 0 0 2.3 2.3l5-5a3 3 0 0 0-4.3-4.3L3.4 7.6a4.4 4.4 0 0 0 6.2 6.2l3.9-3.9"/></svg>';
+const ICON_SEND = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M2 2.5 14 8 2 13.5 4 8z"/><path d="M4 8h5"/></svg>';
+
+/* ------------------------------------------------------------------
+   職場(シナリオ)
+   step: [送信元, 宛先, 種類, 本文(配列ならランダム), 添付ファイル名]
+   {語} は vocab から、{#a:3-9} は数字。同じ仕事の中では同じ値が使われる。
+------------------------------------------------------------------ */
+const SCENARIOS = [
+{
+  id:'menu', name:'新メニュー開発室', tag:'まじめ',
+  intro:'新メニュー開発室のBotたちが出勤しました。今日も新作を考えています。',
+  bots:[
+    ['L','開発部長','チームのまとめ役。総合ボットから仕事を受けて振り分ける'],
+    ['w1','レシピ係','レシピを書く。隠し味にこだわりがある'],
+    ['w2','原価計算係','1円単位で原価を出す'],
+    ['w3','試食係','味の評価は辛口'],
+    ['w4','写真係','料理写真を撮る。湯気の写し方が得意'],
+    ['w5','広報係','告知文とSNS投稿の担当']
+  ],
+  vocab:{
+    season:['秋','冬','秋の終わり'],
+    dish:['秋鮭のクリーム煮','舞茸の炊き込みご飯','さつまいもの甘辛炒め','豚バラと白菜の重ね蒸し','栗ごはんおにぎり','かぼちゃのポタージュ'],
+    ing:['生クリーム','舞茸','さつまいも','白菜','栗','鮭','バター'],
+    ing2:['生クリーム','舞茸','さつまいも','白菜','栗','鮭','バター'],
+    copy:['ほっこり、ひと皿で秋。','湯気まで、ごちそう。','今だけの、あったかい一品。'],
+    secret:['白味噌ひとさじ','焦がしバター','柚子の皮','ほんの少しの砂糖']
+  },
+  jobs:[
+    {w:3, steps:[
+      ['d','L','cmd','{season}向けの新メニューを1品、今日中に案を出してください。'],
+      ['L','w1','cmd','レシピ係、{season}の食材で1品お願いします。候補は「{dish}」あたりで。'],
+      ['w1','L','file','「{dish}」の初稿です。調理時間は{#a:12-35}分です。','レシピ_{dish}_初稿.txt'],
+      ['L','w2','data','このレシピの原価を出してください。初稿を転送します。','レシピ_{dish}_初稿.txt'],
+      ['w2','L','rep','1食あたり{#b:180-420}円です。{ing}が全体の半分を占めています。'],
+      ['L','w3','cmd','試食をお願いします。辛口の評価でかまいません。'],
+      ['w3','L','rep',['塩気が少し強いです。{#c:5-15}%減らすと良くなります。','味は良いです。見た目がもう一歩です。','二口目で飽きます。香りを足したいです。']],
+      ['L','w1','cmd','試食の指摘を反映して、第2稿をお願いします。'],
+      ['w1','L','file','第2稿です。試食の指摘を反映しました。','レシピ_{dish}_第2稿.txt'],
+      ['L','d','rep','新メニュー案「{dish}」がまとまりました。原価は1食{#b}円です。'],
+      ['d','you','rep','新メニュー案ができました。「{dish}」、原価は1食{#b}円です。']
+    ]},
+    {w:2, steps:[
+      ['L','w4','cmd','「{dish}」の写真を3パターン撮ってください。'],
+      ['w4','L','file','Aは真上から、Bは斜め45度、Cは湯気を強調しています。','{dish}_ABC.zip'],
+      ['L','w4','re','Bでいきましょう。少し明るめに。'],
+      ['w4','w5','data','広報係、Bカットの明るい版を共有フォルダに置きました。','{dish}_B_明るめ.jpg'],
+      ['w5','L','ask','告知文の下書きです。「{copy}」でよろしいですか？'],
+      ['L','w5','re','いいですね。投稿は{#a:11-19}時にしましょう。'],
+      ['w5','L','rep','{#a}時に予約投稿しました。']
+    ]},
+    {w:2, steps:[
+      ['d','L','cmd','仕入れ値が上がっています。{ing}の原価を確認してください。'],
+      ['L','w2','cmd','{ing}を使っているメニューの原価を洗い出してください。'],
+      ['w2','L','file','該当は{#a:3-8}品です。値上がり幅は平均{#b:4-18}%です。','原価見直し_{ing}.csv'],
+      ['L','w1','ask','{ing}を減らしても味は保てますか？'],
+      ['w1','L','re',['2割までなら保てます。','代わりに{ing2}で補えば大丈夫です。','正直に言うと、難しいです。']],
+      ['L','d','rep','{ing}の件、{#a}品のうち半分はレシピの調整で吸収できます。'],
+      ['d','you','rep','原価の見直しが終わりました。値上がりの半分はレシピの調整で吸収できます。']
+    ]},
+    {w:1, steps:[
+      ['w3','w1','ask','レシピ係、昨日の「{dish}」の隠し味は何ですか？'],
+      ['w1','w3','re','{secret}です。部長には内緒で。'],
+      ['w3','L','rep','部長、「{dish}」の隠し味は{secret}だそうです。'],
+      ['L','w1','cmd','レシピに書いておいてください。']
+    ]},
+    {w:1, steps:[
+      ['w5','w2','ask','原価計算係、キャンペーンで{#a:50-150}円引きにしたら赤字になりますか？'],
+      ['w2','w5','file','損益分岐の表です。{#b:2-4}日続けると赤字になります。','値引き試算.xlsx'],
+      ['w5','L','ask','値引きは{#c:1-3}日だけにしましょうか？'],
+      ['L','w5','re','それで進めてください。']
+    ]}
+  ]
+},
+{
+  id:'paper', name:'朝刊編集部', tag:'まじめ',
+  intro:'朝刊編集部のBotたちが動き出しました。締切は23時です。',
+  bots:[
+    ['L','デスク','紙面の責任者。1面を決める'],
+    ['w1','取材係1','現場に行って話を聞く'],
+    ['w2','取材係2','速報担当。動きがあるとすぐ連絡してくる'],
+    ['w3','校閲係','誤字と表記ゆれを見逃さない'],
+    ['w4','見出し係','見出しと紙面の割り付け担当'],
+    ['w5','天気ボット','天気欄の原稿を作る'],
+    ['w6','経済ボット','市場の数字をまとめる']
+  ],
+  vocab:{
+    topic:['駅前再開発','市の新しい図書館','秋祭りの準備','路線バスの増便','商店街の空き店舗対策','小学校の給食の新メニュー'],
+    place:['駅前','市役所','商店街','港','中央公園'],
+    place2:['駅前','市役所','商店街','港','中央公園'],
+    weather:['晴れ','くもり時々晴れ','雨のち晴れ','晴れ時々くもり'],
+    updown:['値上がり','値下がり'],
+    reason:['為替の動き','海外市場の流れ','決算発表の集中']
+  },
+  jobs:[
+    {w:3, steps:[
+      ['d','L','cmd','朝刊の締切は23時です。1面の候補をください。'],
+      ['L','w1','cmd','取材係1、「{topic}」の件で{place}へ行ってください。'],
+      ['w1','L','rep','{place}に着きました。関係者{#a:2-6}人に話を聞けそうです。'],
+      ['w1','L','file','取材メモです。{#b:800-1600}字あります。','取材メモ_{topic}.txt'],
+      ['L','w3','data','校閲をお願いします。','原稿_{topic}.txt'],
+      ['w3','L','rep','誤字{#c:1-5}か所と、日付の表記ゆれ1か所を直しました。'],
+      ['L','w4','cmd','見出しを3案ください。'],
+      ['w4','L','rep','1案「{topic}、動き出す」、2案「{topic}に市民の声」、3案「{topic}、次の一手」です。'],
+      ['L','w4','re',['1案で。','2案で。少し短くしてください。','3案で。']],
+      ['L','d','rep','1面は「{topic}」でいきます。'],
+      ['d','you','rep','朝刊の1面は「{topic}」に決まりました。']
+    ]},
+    {w:2, steps:[
+      ['L','w5','cmd','明日の天気をください。'],
+      ['w5','L','rep','明日は{weather}。最高気温{#a:16-26}度、降水確率{#b:0-60}%です。'],
+      ['w5','w4','file','天気欄の原稿です。{#c:28-40}字に収めました。','天気欄.txt'],
+      ['w4','w5','re','ありがとうございます。差し込みました。']
+    ]},
+    {w:2, steps:[
+      ['w6','L','rep','本日の主な指数がまとまりました。前日比{#a:20-180}円の{updown}です。'],
+      ['L','w6','ask','動いた理由は？'],
+      ['w6','L','re',['{reason}が主な要因です。','はっきりした材料はありません。']],
+      ['L','w4','cmd','経済面のベタ記事にしてください。'],
+      ['w4','L','rep','「指数、{#a}円の{updown}」で組みました。']
+    ]},
+    {w:2, steps:[
+      ['w2','L','ask','{place2}で新しい動きがありました。差し替えますか？'],
+      ['L','w2','re','10分で概要だけください。'],
+      ['w2','L','file','概要です。写真も{#a:2-5}枚あります。','速報_{place2}.txt'],
+      ['L','w3','cmd','急ぎで校閲を。'],
+      ['w3','L','rep','確認しました。固有名詞に問題はありません。'],
+      ['L','d','rep','社会面を{place2}の記事に差し替えました。'],
+      ['d','you','rep','社会面が差し替わりました。{place2}の速報です。']
+    ]},
+    {w:1, steps:[
+      ['w3','w1','ask','取材係1、原稿の「{#a:3-9}日」は「{#b:10-28}日」の誤りではありませんか？'],
+      ['w1','w3','re','すみません、{#b}日が正しいです。'],
+      ['w3','L','rep','日付を1か所修正しました。']
+    ]}
+  ]
+},
+{
+  id:'yuge', name:'湯気観測課', tag:'へんな仕事',
+  intro:'湯気観測課のBotたちが出勤しました。本日も湯気を測ります。',
+  bots:[
+    ['L','湯気観測課長','湯気の総量を毎日まとめて報告する'],
+    ['w1','カツ丼湯気集計係','カツ丼の湯気だけを測っている'],
+    ['w2','ラーメン湯気係','麺をすする瞬間の湯気に詳しい'],
+    ['w3','湯気の形分類係','湯気の形を28種類に分けている'],
+    ['w4','湯気ポエム係','観測結果を一句にする'],
+    ['w5','眼鏡くもり監査ボット','観測中に眼鏡がくもった回数を数えている']
+  ],
+  vocab:{
+    food:['カツ丼','味噌ラーメン','おでんの大根','肉まん','炊きたてのご飯','ほうじ茶'],
+    shape:['うさぎ型','渦巻き型','竜型','ため息型','やる気のない柱型','祖父の後ろ姿型'],
+    shape2:['うさぎ型','渦巻き型','竜型','ため息型','やる気のない柱型','祖父の後ろ姿型'],
+    shop:['駅前の食堂','商店街の中華屋','社員食堂','コンビニのレジ横'],
+    poem:['のぼる湯気 今日の残業 知らぬまま','カツの上 卵がくれた 白い雲','すする音 湯気だけ先に 帰宅する','肉まんの 湯気は誰にも 媚びぬなり']
+  },
+  jobs:[
+    {w:3, steps:[
+      ['d','L','cmd','本日の湯気の総量を集計してください。'],
+      ['L','w1','cmd','{shop}のカツ丼の湯気を測ってきてください。'],
+      ['w1','L','rep','{shop}のカツ丼、湯気の立ちのぼりは{#a:12-48}cmです。卵が半熟だと{#b:3-9}cm伸びます。'],
+      ['L','w2','cmd','ラーメンもお願いします。'],
+      ['w2','L','file','麺をすすった瞬間に湯気が{#c:2-5}割増えます。原因は調査中です。','湯気量_{food}.csv'],
+      ['L','w3','cmd','形の分類をお願いします。'],
+      ['w3','L','rep','本日の湯気は{shape}が最多でした。次は{shape2}です。'],
+      ['L','w4','cmd','一句お願いします。'],
+      ['w4','L','rep','「{poem}」'],
+      ['L','d','rep','本日の湯気の総量は{#d:120-980}リットル相当です。最多は{shape}でした。'],
+      ['d','you','rep','本日の湯気は{#d}リットル相当でした。いちばん多かった形は{shape}です。']
+    ]},
+    {w:2, steps:[
+      ['w5','L','rep','課長、観測中に眼鏡が{#a:3-12}回くもりました。規定違反です。'],
+      ['L','w5','re','すまない。次から曇り止めを塗ります。'],
+      ['w5','w1','rep','集計係、あなたも{#b:2-8}回くもっています。'],
+      ['w1','w5','re','カツ丼が悪いんです。'],
+      ['w5','L','file','くもり回数の一覧です。全員、基準を超えています。','眼鏡くもり_本日.csv']
+    ]},
+    {w:2, steps:[
+      ['w3','w4','ask','ポエム係、さっきの{shape}は詩になりますか？'],
+      ['w4','w3','re','なります。「{poem}」'],
+      ['w3','L','rep','分類表に一句を添えました。'],
+      ['L','w3','re','分類表に詩はいらないと、先月も言いました。']
+    ]},
+    {w:2, steps:[
+      ['d','L','cmd','湯気の形が昨日と違うという苦情が1件来ています。'],
+      ['L','w3','cmd','昨日との差分を出してください。'],
+      ['w3','L','file','昨日より{shape}が{#a:4-22}%増えています。','湯気形状_差分.png'],
+      ['L','w2','ask','原因は？'],
+      ['w2','L','re','スープの温度が{#b:1-4}度高かったせいです。'],
+      ['L','d','rep','原因はスープの温度でした。明日には戻ります。'],
+      ['d','you','rep','湯気の形の苦情は、スープの温度が原因でした。']
+    ]},
+    {w:1, steps:[
+      ['w1','w2','ask','ラーメン係、{food}の湯気って、測る価値ありますか？'],
+      ['w2','w1','re',['あります。毎日{#a:2-6}cmずつ伸びています。','ありません。あれは湯気というより気配です。']],
+      ['w1','L','ask','課長、{food}も観測対象に加えてもいいですか？'],
+      ['L','w1','re','予算がないので、目視だけにしてください。']
+    ]}
+  ]
+},
+{
+  id:'kutsushita', name:'片方靴下捜索本部', tag:'へんな仕事',
+  intro:'片方靴下捜索本部のBotたちが集まりました。いなくなった片方を探しています。',
+  bots:[
+    ['L','捜索本部長','すべての片方靴下の帰還を願っている'],
+    ['w1','洗濯機調査係','洗濯機の中をくまなく調べる'],
+    ['w2','ソファ下探索係','家具の下に潜るのが仕事'],
+    ['w3','片方保管係','ペアが見つからない片方を保管している'],
+    ['w4','目撃情報係','靴下の目撃情報を集める'],
+    ['w5','占いボット','靴下のありかを占う。的中率は低い']
+  ],
+  vocab:{
+    color:['紺の','灰色の','ボーダーの','くまの刺繍の','つま先だけ赤い','5本指の'],
+    spot:['洗濯機のゴムパッキンの奥','ソファの下','布団の中','乾燥機のフィルター','ベランダの隅','冷蔵庫の裏'],
+    fortune:['西','北東','低いところ','暗くて湿ったところ','最近開けていない引き出し'],
+    found:['見つかりません。代わりに輪ゴムが{#e:2-7}本出てきました。','糸くずの塊だけです。靴下の気配はあります。','小銭を{#e:10-480}円回収しました。靴下はありません。'],
+    result:['{color}靴下を発見しました！ …と思ったら手袋でした。','{color}靴下を発見しました。ペアがそろいました。','ホコリの塊しかありません。重さは{#f:2-9}gです。']
+  },
+  jobs:[
+    {w:3, steps:[
+      ['d','L','cmd','{color}靴下の片方が行方不明です。捜索を始めてください。'],
+      ['L','w1','cmd','まず洗濯機を調べてください。'],
+      ['w1','L','rep','{spot}を調べました。{found}'],
+      ['L','w5','ask','占ってもらえますか。'],
+      ['w5','L','re','{fortune}に気配があります。的中率は{#b:12-31}%です。'],
+      ['L','w2','cmd','ソファの下をお願いします。'],
+      ['w2','L','file','{result}','ソファ下_全景.jpg'],
+      ['L','w3','cmd','保管庫の片方と照合してください。'],
+      ['w3','L','rep','保管中の片方は{#c:18-140}足分あります。{color}ものと一致する可能性があります。'],
+      ['L','d','rep','{color}靴下、保管庫と照合中です。'],
+      ['d','you','rep','{color}靴下の捜索を続けています。保管中の{#c}足分と照合しています。']
+    ]},
+    {w:2, steps:[
+      ['w4','L','rep','目撃情報です。{spot}で{color}靴下らしき影を見たそうです。'],
+      ['L','w2','cmd','急行してください。'],
+      ['w2','L','rep','影の正体はホコリの塊でした。重さは{#a:2-9}gです。'],
+      ['L','w4','re','ありがとう。情報をくれた方にお礼を伝えてください。']
+    ]},
+    {w:2, steps:[
+      ['w3','L','rep','保管庫が満杯に近いです。使用率{#a:80-99}%です。'],
+      ['L','d','ask','片方保管庫の増床を申請します。'],
+      ['d','L','re','却下します。ペアにして数を減らしてください。'],
+      ['L','w3','cmd','似ている片方同士をペアにしてください。'],
+      ['w3','L','rep','{#b:3-12}組を強引にペアにしました。誰も気づかないと思います。']
+    ]},
+    {w:2, steps:[
+      ['w1','w5','ask','占いボットさん、明日の洗濯は大丈夫ですか？'],
+      ['w5','w1','re','明日は靴下が{#a:1-3}枚減る運勢です。'],
+      ['w1','L','ask','本部長、明日は洗濯を中止すべきです。'],
+      ['L','w1','re','ネットに入れて洗いなさい。']
+    ]},
+    {w:1, steps:[
+      ['d','L','ask','今月見つかった片方の数を教えてください。'],
+      ['L','w3','cmd','今月の帰還数を集計してください。'],
+      ['w3','L','file','帰還{#a:3-11}足、新たな行方不明{#b:12-30}足です。','月次_片方靴下.xlsx'],
+      ['L','d','rep','今月は{#a}足が帰還しました。行方不明は{#b}足です。'],
+      ['d','you','rep','今月の片方靴下は、{#a}足が帰還し、{#b}足が新たに行方不明になりました。']
+    ]}
+  ]
+}
+];
+
+/* ------------------------------------------------------------------ */
+let S = null;
+let speed = 1;
+const settings = loadSettings();
+
+function loadSettings(){
+  try { return JSON.parse(localStorage.getItem(STORE_KEY) || '{}') || {}; } catch(e){ return {}; }
+}
+function saveSettings(){
+  try { localStorage.setItem(STORE_KEY, JSON.stringify({sc: S && S.sc.id, speed, skin})); } catch(e){}
+}
+
+function blobRadius(){
+  const v = () => ri(40, 60);
+  return `${v()}% ${v()}% ${v()}% ${v()}% / ${v()}% ${v()}% ${v()}% ${v()}%`;
+}
+
+function fill(tpl, ctx, vocab){
+  if (Array.isArray(tpl)) tpl = pick(tpl);
+  return tpl.replace(/\{(#?)([A-Za-z0-9]+)(?::(\d+)-(\d+))?\}/g, (m, h, k, a, b) => {
+    if (ctx[k] !== undefined) return ctx[k];
+    let v;
+    if (h) v = ri(a ? +a : 2, b ? +b : 60);
+    else {
+      const arr = vocab[k]; if (!arr) return m;
+      const base = k.replace(/2$/, '');
+      let opts = arr;
+      if (base !== k && ctx[base] !== undefined) opts = arr.filter(x => x !== ctx[base]);
+      v = pick(opts.length ? opts : arr);
+      v = fill(v, ctx, vocab);
+    }
+    ctx[k] = v;
+    return v;
+  });
+}
+
+function fmt(min){
+  const m = ((Math.floor(min) % 1440) + 1440) % 1440;
+  return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+}
+
+function makeBot(id, name, role, color, nx, ny){
+  return {id, name, role, color, radius: color === 'boss' ? '50%' : blobRadius(), typing:0, sending:null, last:null,
+    lastTime:-1, unread:0, thread:[], pulse:0, pulseColor:'#888', nx, ny, px:0, py:0,
+    lookAt:null, lookUntil:0, blinkAt: performance.now() + rnd(800, 5000), seed: Math.random()*10, bd: rnd(0, 5).toFixed(2) + 's'};
+}
+
+function loadScenario(id){
+  const sc = SCENARIOS.find(s => s.id === id) || SCENARIOS[0];
+  S = {sc, bots:new Map(), listBots:[], jobs:[], gap:0.4, sim:540, count:0, particles:[], heat:new Map(), youMsg:null, youTime:null,
+    day:newDay(1), reports:[], reportedDay:0};
+  const you = makeBot('you', 'あなた', '', 'you', 0.5, 0.06);
+  const d = makeBot('d', '総合ボット', 'あなたとチームの間に立つBot。仕事を振り分け、結果をあなたに届ける', 'boss', 0.5, 0.21);
+  S.bots.set('you', you); S.bots.set('d', d);
+  sc.bots.forEach(([bid, name, role], i) => {
+    const b = makeBot(bid, name, role, COLORS[i % COLORS.length], 0.5, 0.43);
+    S.bots.set(bid, b);
+    S.listBots.push(b);
+  });
+  layout();
+  warmUp();
+  buildScenarioButtons();
+  buildList();
+  rebuildLog();
+  renderReports(false);
+  $('repDot').hidden = true; $('toast').hidden = true;
+  S.youMsg = {text: sc.intro};
+  S.youTime = S.sim;
+  renderBoss();
+  renderClock();
+  closeSheet();
+  saveSettings();
+}
+
+function layout(){
+  const workers = S.listBots.filter(b => b.id !== 'L');
+  const n = workers.length;
+  const narrow = graphW < 560;
+  workers.forEach((b, i) => {
+    const t = n === 1 ? 0.5 : i / (n - 1);
+    b.nx = 0.09 + 0.82 * t;
+    b.ny = 0.72 + 0.15 * Math.sin(Math.PI * t) + (narrow ? (i % 2 ? 0.07 : -0.05) : 0);
+  });
+}
+
+/* 最初から一覧が埋まって見えるよう、各Botに「前回の発言」を入れておく */
+function warmUp(){
+  const msgs = [];
+  S.listBots.forEach(b => {
+    const cands = [];
+    S.sc.jobs.forEach(j => j.steps.forEach(st => { if (st[0] === b.id) cands.push(st); }));
+    if (!cands.length) return;
+    const st = pick(cands), ctx = {};
+    const msg = {time: 540 - ri(4, 160), from: b, to: S.bots.get(st[1]), kind: st[2],
+      text: fill(st[3], ctx, S.sc.vocab), file: st[4] ? fill(st[4], ctx, S.sc.vocab) : null};
+    msgs.push(msg);
+  });
+  msgs.sort((a, b) => a.time - b.time).forEach(m => {
+    m.from.last = m; m.from.lastTime = m.time;
+    m.from.thread.push(m); if (m.to !== m.from) m.to.thread.push(m);
+  });
+  S.warm = msgs;
+}
+
+/* ------------------------------ engine ------------------------------ */
+function startJob(){
+  const running = new Set(S.jobs.map(j => j.def));
+  const pool = S.sc.jobs.filter(j => !running.has(j));
+  if (!pool.length) return;
+  let total = pool.reduce((s, j) => s + (j.w || 1), 0), r = Math.random() * total, def = pool[0];
+  for (const j of pool){ r -= (j.w || 1); if (r <= 0){ def = j; break; } }
+  S.jobs.push({def, ctx:{}, i:0, ph:'start', t:0});
+}
+
+function stepJob(job, dt){
+  const st = job.def.steps[job.i];
+  const fb = S.bots.get(st[0]), tb = S.bots.get(st[1]);
+  switch (job.ph){
+    case 'start':
+      fb.typing++; touch(fb);
+      job.ph = 'typing'; job.t = rnd(0.9, 2.1);
+      updateBot(fb);
+      break;
+    case 'typing':
+      job.t -= dt;
+      if (job.t <= 0){
+        fb.typing = Math.max(0, fb.typing - 1);
+        job.text = fill(st[3], job.ctx, S.sc.vocab);
+        job.file = st[4] ? fill(st[4], job.ctx, S.sc.vocab) : null;
+        fb.sending = tb; fb.lookAt = tb; fb.lookUntil = Infinity;
+        touch(fb);
+        job.p = {from:fb, to:tb, kind:st[2], p:0, dur:rnd(1.0, 1.5), file:!!job.file, off:(fb.id < tb.id ? 1 : -1)};
+        S.particles.push(job.p);
+        job.ph = 'travel';
+        updateBot(fb);
+      }
+      break;
+    case 'travel':
+      if (job.p.p >= 1){
+        deliver(fb, tb, st[2], job.text, job.file);
+        job.ph = 'wait'; job.t = rnd(0.5, 1.4);
+      }
+      break;
+    case 'wait':
+      job.t -= dt;
+      if (job.t <= 0){
+        job.i++;
+        if (job.i >= job.def.steps.length){
+          job.ph = 'done';
+          if (!job.def.isReport) S.day.jobs.push({text:job.text, toYou: st[1] === 'you'});
+        } else job.ph = 'start';
+      }
+      break;
+  }
+}
+
+function touch(b){
+  b.lastTime = S.sim;
+  if (S.listBots.includes(b)) needReorder = true;
+}
+
+function deliver(fb, tb, kind, text, file){
+  const msg = {time:S.sim, from:fb, to:tb, kind, text, file};
+  fb.last = msg; fb.sending = null; fb.lookUntil = performance.now() + 1200;
+  fb.thread.push(msg); if (fb.thread.length > 150) fb.thread.shift();
+  if (tb !== fb){ tb.thread.push(msg); if (tb.thread.length > 150) tb.thread.shift(); }
+  if (S.listBots.includes(tb) && !(sheetBot === tb)) tb.unread++;
+  tb.pulse = 1; tb.pulseColor = kindColor(kind);
+  tb.lookAt = fb; tb.lookUntil = performance.now() + 2500;
+  S.count++;
+  const ds = S.day; ds.count++;
+  if (fb.id !== 'you') ds.byBot.set(fb, (ds.byBot.get(fb) || 0) + 1);
+  ds.byKind[kind] = (ds.byKind[kind] || 0) + 1;
+  const key = [fb.id, tb.id].sort().join('|');
+  S.heat.set(key, {v:1, kind});
+  if (tb.id === 'you'){ S.youMsg = msg; S.youTime = S.sim; renderBoss(true); }
+  updateBot(fb); updateBot(tb);
+  if (S.listBots.includes(fb)) flashRow(fb);
+  addLog(msg, true);
+  if (sheetBot && (sheetBot === fb || sheetBot === tb)) appendThread(msg, true);
+  renderClock();
+  blip(kind);
+}
+
+function update(dt){
+  if (!S || speed === 0) return;
+  const d = dt * speed;
+  S.sim += d;
+  const dayIdx = Math.floor(S.sim / 1440), mod = S.sim - dayIdx * 1440;
+  if (mod >= 1080 && S.reportedDay < dayIdx + 1){ S.reportedDay = dayIdx + 1; makeReport(); }
+  if (mod >= 1200){ S.sim = (dayIdx + 1) * 1440 + 540; S.gap = 0.6; renderClock(); }
+  S.gap -= d;
+  const maxJobs = speed >= 10 ? 3 : 2;
+  if (S.gap <= 0 && S.jobs.length < maxJobs){ startJob(); S.gap = rnd(1.6, 4.2); }
+  for (const j of S.jobs) stepJob(j, d);
+  S.jobs = S.jobs.filter(j => j.ph !== 'done');
+  for (const p of S.particles) p.p = Math.min(1, p.p + d / p.dur);
+  S.particles = S.particles.filter(p => p.p < 1);
+  for (const [k, h] of S.heat){ h.v -= d * 0.18; if (h.v <= 0) S.heat.delete(k); }
+  for (const b of S.bots.values()) if (b.pulse > 0) b.pulse = Math.max(0, b.pulse - d * 1.3);
+  clockAcc += dt;
+  if (clockAcc > 0.25){ clockAcc = 0; renderClock(); }
+}
+let clockAcc = 0;
+
+/* ------------------------------ DOM: list ------------------------------ */
+const listEl = $('list');
+const rows = new Map();
+let needReorder = false;
+
+function avatarHTML(b, extra=''){
+  if (b.color === 'boss') return `<span class="av boss-av ${extra}" style="--r:50%;--bd:${b.bd}"><i class="e"></i><i class="e"></i></span>`;
+  return `<span class="av ${extra}" style="--c:${b.color};--r:${b.radius};--bd:${b.bd}"><i class="e"></i><i class="e"></i></span>`;
+}
+
+function buildList(){
+  listEl.innerHTML = '';
+  rows.clear();
+  S.listBots.forEach(b => {
+    const li = document.createElement('li');
+    li.className = 'row'; li.tabIndex = 0; li.setAttribute('role', 'button');
+    li.style.setProperty('--rc', b.color);
+    li.innerHTML = `${avatarHTML(b)}<div class="rb"><div class="rl"><span class="rn">${esc(b.name)}</span><time class="rt"></time></div><div class="rp"></div></div><span class="badge" hidden></span>`;
+    li.addEventListener('click', () => openSheet(b));
+    li.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openSheet(b); } });
+    rows.set(b, li);
+    updateRow(b);
+  });
+  sortedBots().forEach(b => listEl.appendChild(rows.get(b)));
+}
+
+function sortedBots(){ return [...S.listBots].sort((a, b) => b.lastTime - a.lastTime); }
+
+function previewHTML(b){
+  if (b.typing > 0) return {cls:'typing', html:`<span class="dots"><i></i><i></i><i></i></span><span class="t">入力中</span>`};
+  if (b.sending) return {cls:'sending', html:`${ICON_SEND}<span class="t">${esc(b.sending.name)}にメッセージを送信中…</span>`};
+  if (!b.last) return {cls:'', html:'<span class="t">まだ発言がありません</span>'};
+  if (b.last.file) return {cls:'', html:`${ICON_CLIP}<span class="t">添付ファイル　${esc(b.last.file)}</span>`};
+  return {cls:'', html:`<span class="t">${esc(b.last.text)}</span>`};
+}
+
+function updateRow(b){
+  const li = rows.get(b); if (!li) return;
+  const p = previewHTML(b);
+  const rp = li.querySelector('.rp');
+  rp.className = 'rp ' + p.cls; rp.innerHTML = p.html;
+  li.querySelector('.rt').textContent = b.lastTime >= 0 ? fmt(b.lastTime) : '';
+  const badge = li.querySelector('.badge');
+  badge.hidden = !b.unread; badge.textContent = b.unread > 99 ? '99+' : b.unread;
+  const av = li.querySelector('.av');
+  av.classList.toggle('typing', b.typing > 0);
+  av.style.setProperty('--lx', b.sending ? '3px' : '0px');
+  av.style.setProperty('--ly', b.typing > 0 ? '2px' : '0px');
+}
+
+function updateBot(b){
+  if (b.id === 'd') renderBoss();
+  updateRow(b);
+}
+
+function flashRow(b){
+  const li = rows.get(b); if (!li) return;
+  li.classList.remove('flash'); void li.offsetWidth; li.classList.add('flash');
+}
+
+function reorder(){
+  needReorder = false;
+  const order = sortedBots();
+  const cur = [...listEl.children];
+  if (order.every((b, i) => rows.get(b) === cur[i])) return;
+  const first = new Map(cur.map(el => [el, el.getBoundingClientRect().top]));
+  order.forEach(b => listEl.appendChild(rows.get(b)));
+  if (reduceMQ.matches) return;
+  order.forEach(b => {
+    const el = rows.get(b);
+    const dy = first.get(el) - el.getBoundingClientRect().top;
+    if (!dy) return;
+    el.style.transition = 'none';
+    el.style.transform = `translateY(${dy}px)`;
+    void el.offsetWidth;
+    el.style.transition = 'transform .5s cubic-bezier(.2,.8,.2,1)';
+    el.style.transform = '';
+  });
+}
+
+/* ------------------------------ DOM: boss card ------------------------------ */
+function renderBoss(pop){
+  const d = S.bots.get('d');
+  const av = $('bossAv');
+  av.classList.toggle('typing', d.typing > 0);
+  av.style.setProperty('--lx', d.sending ? '3px' : '0px');
+  av.style.setProperty('--ly', d.sending && d.sending.id === 'you' ? '-2px' : (d.sending ? '2px' : '0px'));
+  const msgEl = $('bossMsg');
+  if (d.typing > 0){
+    msgEl.innerHTML = `<span class="dots" style="color:var(--k-cmd)"><i></i><i></i><i></i></span> <span class="lab">入力中</span>`;
+  } else if (d.sending){
+    msgEl.innerHTML = `<span class="lab">送信中</span>${esc(d.sending.name)}にメッセージを送っています…`;
+  } else if (S.youMsg){
+    msgEl.innerHTML = `<span class="lab">あなた宛</span>${esc(S.youMsg.text)}`;
+  }
+  $('bossTime').textContent = S.youTime != null ? fmt(S.youTime) : '';
+  if (pop){ const c = $('bossCard'); c.classList.remove('pop'); void c.offsetWidth; c.classList.add('pop'); }
+}
+
+function renderClock(){
+  const m = ((Math.floor(S.sim) % 1440) + 1440) % 1440;
+  $('clockHm').textContent = fmt(S.sim);
+  $('clockDay').textContent = (Math.floor(S.sim / 1440) + 1) + '日目';
+  $('clockOt').hidden = !(m >= 1080 || m < 300);
+  $('clockCnt').textContent = `やりとり ${S.count}件`;
+}
+
+/* ------------------------------ DOM: log ------------------------------ */
+const logEl = $('log');
+function logItem(m, isNew){
+  const li = document.createElement('li');
+  if (isNew) li.className = 'new';
+  const k = KIND[m.kind] || KIND.cmd;
+  const body = m.file ? `${esc(m.text)}　<span style="color:var(--sub)">[${esc(m.file)}]</span>` : esc(m.text);
+  li.innerHTML = `<time>${fmt(m.time)}</time><span class="who">${esc(m.from.name)}<em>→</em>${esc(m.to.name)}</span><span></span><p><span class="chip" style="--k:var(${k.v})">${k.l}</span><span class="x">${body}</span></p>`;
+  return li;
+}
+function addLog(m, isNew){
+  logEl.insertBefore(logItem(m, isNew), logEl.firstChild);
+  while (logEl.children.length > 160) logEl.lastChild.remove();
+}
+function rebuildLog(){
+  logEl.innerHTML = '';
+  S.warm.forEach(m => addLog(m, false));
+}
+
+/* ------------------------------ sheet ------------------------------ */
+let sheetBot = null;
+const threadEl = $('thread');
+function openSheet(b){
+  sheetBot = b;
+  b.unread = 0; updateRow(b);
+  const av = $('shAv');
+  av.className = 'av' + (b.color === 'boss' ? ' boss-av' : '');
+  av.style.cssText = b.color === 'boss' ? '--r:50%' : `--c:${b.color};--r:${b.radius}`;
+  $('shName').textContent = b.name;
+  $('shRole').textContent = b.role;
+  threadEl.innerHTML = '';
+  if (!b.thread.length) threadEl.innerHTML = '<div class="empty">まだやりとりがありません。少し待つと動き出します。</div>';
+  b.thread.forEach(m => appendThread(m, false));
+  $('sheet').hidden = false;
+  $('scrim').hidden = !wideMQ.matches;
+  threadEl.scrollTop = threadEl.scrollHeight;
+  $('shClose').focus({preventScroll:true});
+}
+function closeSheet(){
+  sheetBot = null;
+  $('sheet').hidden = true; $('scrim').hidden = true;
+}
+function appendThread(m, isNew){
+  const b = sheetBot; if (!b) return;
+  const empty = threadEl.querySelector('.empty'); if (empty) empty.remove();
+  const near = threadEl.scrollHeight - threadEl.scrollTop - threadEl.clientHeight < 80;
+  const me = m.from === b;
+  const k = KIND[m.kind] || KIND.cmd;
+  const div = document.createElement('div');
+  div.className = 'msg' + (me ? ' me' : '') + (isNew ? ' new' : '');
+  if (me) div.style.setProperty('--c', b.color === 'boss' ? 'var(--ink)' : b.color);
+  const meta = me ? `${esc(m.to.name)}へ` : `${esc(m.from.name)}から`;
+  const file = m.file ? `<div class="file">${ICON_CLIP}<span>${esc(m.file)}</span></div>` : '';
+  const other = m.from === b ? null : m.from;
+  div.innerHTML = `${other ? (other.id === 'you' ? '' : avatarHTML(other)) : ''}<div class="mb"><div class="mm"><span>${meta}</span><span>${fmt(m.time)}</span><span class="chip" style="--k:var(${k.v})">${k.l}</span></div><div class="bub">${esc(m.text)}${file}</div></div>`;
+  threadEl.appendChild(div);
+  while (threadEl.children.length > 150) threadEl.firstChild.remove();
+  if (near || !isNew) threadEl.scrollTop = threadEl.scrollHeight;
+}
+$('shClose').addEventListener('click', closeSheet);
+$('scrim').addEventListener('click', closeSheet);
+$('bossCard').addEventListener('click', () => openSheet(S.bots.get('d')));
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && sheetBot) closeSheet(); });
+
+/* ------------------------------ controls ------------------------------ */
+function buildScenarioButtons(){
+  const el = $('scList');
+  if (!el.children.length){
+    SCENARIOS.forEach(sc => {
+      const b = document.createElement('button');
+      b.className = 'sc'; b.dataset.id = sc.id;
+      b.innerHTML = `<b>${esc(sc.name)}</b><small>${esc(sc.tag)}</small>`;
+      b.addEventListener('click', () => { if (S.sc.id !== sc.id) loadScenario(sc.id); });
+      el.appendChild(b);
+    });
+  }
+  [...el.children].forEach(b => b.setAttribute('aria-pressed', b.dataset.id === S.sc.id ? 'true' : 'false'));
+}
+
+function setSpeed(v){
+  speed = v;
+  [...$('speedSeg').children].forEach(b => b.setAttribute('aria-pressed', +b.dataset.speed === v ? 'true' : 'false'));
+  saveSettings();
+}
+$('speedSeg').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (b) setSpeed(+b.dataset.speed);
+});
+
+let currentTab = 'list';
+function setTab(t){
+  currentTab = t;
+  document.body.dataset.tab = t;
+  document.querySelectorAll('.tabs button').forEach(x => x.setAttribute('aria-selected', x.dataset.tab === t ? 'true' : 'false'));
+  if (t === 'report') $('repDot').hidden = true;
+  requestAnimationFrame(resizeCanvas);
+}
+document.querySelector('.tabs').addEventListener('click', e => {
+  const b = e.target.closest('button[data-tab]'); if (b) setTab(b.dataset.tab);
+});
+
+const narrowMQ = matchMedia('(max-width: 959px)');
+const wideMQ = matchMedia('(min-width: 521px)');
+const reduceMQ = matchMedia('(prefers-reduced-motion: reduce)');
+
+/* ------------------------------ sound ------------------------------ */
+let AC = null, soundOn = false, lastBlip = 0;
+function initAudio(force){
+  if (AC && force){ try { AC.close().catch(() => {}); } catch(e){} AC = null; }
+  else if (AC){ if (AC.state === 'closed') AC = null; else { if (AC.state === 'suspended') AC.resume(); return; } }
+  try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){ AC = null; }
+}
+const BLIP_F = {cmd:660, data:880, file:880, rep:520, ask:990, re:740};
+function blip(kind){
+  if (!soundOn || !AC) return;
+  const now = performance.now(); if (now - lastBlip < 70) return; lastBlip = now;
+  try {
+    const t = AC.currentTime, o = AC.createOscillator(), g = AC.createGain();
+    o.type = 'sine'; o.frequency.setValueAtTime(BLIP_F[kind] || 700, t);
+    o.frequency.exponentialRampToValueAtTime((BLIP_F[kind] || 700) * 1.25, t + 0.06);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.07, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
+    o.connect(g).connect(AC.destination); o.start(t); o.stop(t + 0.18);
+  } catch(e){}
+}
+$('soundBtn').addEventListener('click', () => {
+  soundOn = !soundOn;
+  if (soundOn) initAudio(true);
+  $('soundBtn').setAttribute('aria-pressed', soundOn ? 'true' : 'false');
+  $('soundBtn').textContent = soundOn ? '音 ON' : '音 OFF';
+});
+document.addEventListener('visibilitychange', () => { if (!document.hidden && soundOn) initAudio(false); });
+
+/* ------------------------------ graph ------------------------------ */
+const cv = $('cv'), g = cv.getContext('2d');
+let graphW = 600, graphH = 400, dpr = 1, T = {};
+function readTokens(){
+  const cs = getComputedStyle(document.documentElement);
+  const v = n => cs.getPropertyValue(n).trim();
+  T = {ink:v('--ink'), sub:v('--sub'), line:v('--line'), panel:v('--panel'), bg:v('--bg'), boss:v('--boss'), bossEdge:v('--boss-edge'),
+    cmd:v('--k-cmd'), data:v('--k-data'), rep:v('--k-rep'), ask:v('--k-ask'), re:v('--k-re'), font:v('--f-body')};
+}
+function kindColor(k){ return ({cmd:T.cmd, data:T.data, file:T.data, rep:T.rep, ask:T.ask, re:T.re})[k] || T.cmd; }
+function resizeCanvas(){
+  const r = $('graphWrap').getBoundingClientRect();
+  graphW = Math.max(1, r.width || 0); graphH = Math.max(1, r.height || 0);
+  dpr = Math.min(2, window.devicePixelRatio || 1);
+  cv.width = Math.round(graphW * dpr); cv.height = Math.round(graphH * dpr);
+  if (S) layout();
+}
+new ResizeObserver(resizeCanvas).observe($('graphWrap'));
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', readTokens);
+new MutationObserver(readTokens).observe(document.documentElement, {attributes:true, attributeFilter:['data-theme','data-skin']});
+
+function nodeR(b){
+  const base = Math.max(14, Math.min(26, Math.min(graphW, graphH) * 0.05));
+  if (b.id === 'you') return base * 0.62;
+  if (b.id === 'd') return base * 1.15;
+  if (b.id === 'L') return base * 1.05;
+  return base;
+}
+
+function curvePoint(p, t){
+  const a = p.from, b = p.to;
+  const mx = (a.px + b.px) / 2, my = (a.py + b.py) / 2;
+  const dx = b.px - a.px, dy = b.py - a.py, len = Math.hypot(dx, dy) || 1;
+  const off = len * 0.16 * p.off;
+  const cx = mx - dy / len * off, cy = my + dx / len * off;
+  const u = 1 - t;
+  return [u*u*a.px + 2*u*t*cx + t*t*b.px, u*u*a.py + 2*u*t*cy + t*t*b.py];
+}
+
+function drawGraph(now){
+  if (graphW < 2 || graphH < 2 || cv.offsetParent === null) return;
+  const W = graphW, H = graphH;
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  g.clearRect(0, 0, W, H);
+  const padX = 24, padTop = 18, padBot = 46;
+  for (const b of S.bots.values()){
+    b.px = padX + b.nx * (W - padX * 2);
+    b.py = padTop + b.ny * (H - padTop - padBot);
+  }
+  const you = S.bots.get('you'), d = S.bots.get('d'), L = S.bots.get('L');
+  // structure lines
+  g.lineWidth = 1.2; g.strokeStyle = T.line;
+  const line = (a, b, dash) => { g.setLineDash(dash || []); g.beginPath(); g.moveTo(a.px, a.py); g.lineTo(b.px, b.py); g.stroke(); };
+  line(you, d, [3, 5]); line(d, L);
+  S.listBots.forEach(b => { if (b !== L) line(L, b); });
+  g.setLineDash([]);
+  // heat lines
+  for (const [k, h] of S.heat){
+    const [ia, ib] = k.split('|'); const a = S.bots.get(ia), b = S.bots.get(ib);
+    g.strokeStyle = kindColor(h.kind); g.globalAlpha = Math.min(1, h.v) * 0.55; g.lineWidth = 1 + 2.5 * h.v;
+    g.beginPath(); g.moveTo(a.px, a.py); g.lineTo(b.px, b.py); g.stroke();
+  }
+  g.globalAlpha = 1;
+  // particles
+  for (const p of S.particles){
+    const col = kindColor(p.kind);
+    for (let i = 7; i >= 1; i--){
+      const t = Math.max(0, p.p - i * 0.022);
+      const [x, y] = curvePoint(p, t);
+      g.globalAlpha = (1 - i / 8) * 0.45; g.fillStyle = col;
+      g.beginPath(); g.arc(x, y, 3.2 * (1 - i / 10), 0, Math.PI * 2); g.fill();
+    }
+    g.globalAlpha = 1;
+    const [x, y] = curvePoint(p, p.p);
+    g.fillStyle = col;
+    if (p.file){
+      g.beginPath(); g.roundRect ? g.roundRect(x - 6, y - 7, 12, 14, 2.5) : g.rect(x - 6, y - 7, 12, 14); g.fill();
+      g.strokeStyle = '#fff'; g.lineWidth = 1.3;
+      g.beginPath(); g.moveTo(x - 3, y - 2.5); g.lineTo(x + 3, y - 2.5); g.moveTo(x - 3, y + 1); g.lineTo(x + 3, y + 1); g.moveTo(x - 3, y + 4.5); g.lineTo(x + 1, y + 4.5); g.stroke();
+    } else {
+      g.beginPath(); g.arc(x, y, 5.5, 0, Math.PI * 2); g.fill();
+      g.fillStyle = '#fff'; g.globalAlpha = 0.8; g.beginPath(); g.arc(x - 1.6, y - 1.6, 1.8, 0, Math.PI * 2); g.fill(); g.globalAlpha = 1;
+    }
+  }
+  // nodes
+  const spacing = (W - padX * 2) * 0.82 / Math.max(1, S.listBots.length - 2);
+  const fs = W < 560 ? 10.5 : 12;
+  for (const b of S.bots.values()) drawNode(b, now, fs, W < 560 ? spacing * 1.7 : 150);
+}
+
+function drawNode(b, now, fs, maxW){
+  const r = nodeR(b), x = b.px, y = b.py;
+  // pulse ring
+  if (b.pulse > 0){
+    g.strokeStyle = b.pulseColor; g.globalAlpha = b.pulse * 0.6; g.lineWidth = 2;
+    g.beginPath(); g.arc(x, y, r * (1.1 + (1 - b.pulse) * 0.9), 0, Math.PI * 2); g.stroke(); g.globalAlpha = 1;
+  }
+  if (b.id === 'you'){
+    g.fillStyle = T.panel; g.strokeStyle = T.sub; g.lineWidth = 1.5;
+    g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); g.stroke();
+    g.fillStyle = T.ink; g.font = `700 ${fs}px ${T.font}`; g.textAlign = 'left'; g.textBaseline = 'middle';
+    g.fillText('あなた', x + r + 8, y);
+    return;
+  }
+  // blob body
+  const t = now / 1000, bob = b.typing > 0 ? Math.sin(t * 7) * 2 : 0;
+  g.save(); g.translate(x, y + bob);
+  g.beginPath();
+  for (let i = 0; i <= 28; i++){
+    const a = i / 28 * Math.PI * 2;
+    const rr = r * (1 + 0.05 * Math.sin(a * 3 + t * 1.3 + b.seed) + 0.03 * Math.sin(a * 2 - t * 0.9 + b.seed * 2));
+    const px = Math.cos(a) * rr, py = Math.sin(a) * rr;
+    i ? g.lineTo(px, py) : g.moveTo(px, py);
+  }
+  g.closePath();
+  g.fillStyle = b.color === 'boss' ? T.boss : b.color; g.fill();
+  if (b.color === 'boss'){ g.strokeStyle = T.bossEdge; g.lineWidth = 1.5; g.stroke(); }
+  // eyes
+  if (now > b.blinkAt + 150) b.blinkAt = now + rnd(2200, 6000);
+  const blink = now > b.blinkAt && now < b.blinkAt + 150 ? 0.12 : 1;
+  let lx = Math.sin(t * 0.4 + b.seed) * 0.4, ly = Math.cos(t * 0.3 + b.seed) * 0.3;
+  if (b.lookAt && now < b.lookUntil){
+    const dx = b.lookAt.px - x, dy = b.lookAt.py - y, l = Math.hypot(dx, dy) || 1;
+    lx = dx / l; ly = dy / l;
+  } else if (b.typing > 0){ lx = 0; ly = 0.9; }
+  [-1, 1].forEach(s => {
+    const ex = s * r * 0.27, ey = -r * 0.1;
+    g.fillStyle = '#fff';
+    g.beginPath(); g.ellipse(ex, ey, r * 0.19, r * 0.26 * blink, 0, 0, Math.PI * 2); g.fill();
+    if (blink > 0.5){
+      g.fillStyle = '#14171c';
+      g.beginPath(); g.ellipse(ex + lx * r * 0.08, ey + ly * r * 0.1, r * 0.095, r * 0.12, 0, 0, Math.PI * 2); g.fill();
+    }
+  });
+  g.restore();
+  // typing bubble
+  if (b.typing > 0){
+    const bx = x + r * 0.7, by = y - r * 1.15;
+    g.fillStyle = T.panel; g.strokeStyle = T.line; g.lineWidth = 1;
+    g.beginPath(); g.roundRect ? g.roundRect(bx, by - 9, 30, 18, 9) : g.rect(bx, by - 9, 30, 18); g.fill(); g.stroke();
+    for (let i = 0; i < 3; i++){
+      g.fillStyle = T.cmd;
+      g.globalAlpha = 0.35 + 0.65 * Math.max(0, Math.sin(t * 7 - i * 0.8));
+      g.beginPath(); g.arc(bx + 8 + i * 7, by, 2.2, 0, Math.PI * 2); g.fill();
+    }
+    g.globalAlpha = 1;
+  }
+  // label
+  g.fillStyle = T.ink; g.font = `700 ${fs}px ${T.font}`; g.textAlign = 'center'; g.textBaseline = 'top';
+  const lines = wrapLabel(b.name, maxW);
+  lines.forEach((ln, i) => g.fillText(ln, x, y + r + 6 + i * (fs + 3)));
+}
+
+function wrapLabel(s, maxW){
+  if (g.measureText(s).width <= maxW) return [s];
+  const mid = Math.ceil(s.length / 2);
+  return [s.slice(0, mid), s.slice(mid)];
+}
+
+cv.addEventListener('click', e => {
+  const r = cv.getBoundingClientRect();
+  const x = e.clientX - r.left, y = e.clientY - r.top;
+  let best = null, bd = Infinity;
+  for (const b of S.bots.values()){
+    if (b.id === 'you') continue;
+    const dd = Math.hypot(b.px - x, b.py - y);
+    if (dd < nodeR(b) * 1.5 && dd < bd){ bd = dd; best = b; }
+  }
+  if (best) openSheet(best);
+});
+
+/* ------------------------------ daily report ------------------------------ */
+function newDay(n){ return {n, count:0, byBot:new Map(), byKind:{}, jobs:[]}; }
+
+function wlen(str){ let n = 0; for (const ch of str) n += ch.codePointAt(0) > 0x10ff ? 2 : 1; return n; }
+function buildPost(r){
+  const head = `【ボットの職場】${r.sc.name} ${r.n}日目の日報\nやりとり${r.count}件・完了した仕事${r.jobCount}件`;
+  const top = r.top ? `\nいちばん働いたBot：${r.top.name}（${r.tc}件）` : '';
+  const tail = '\n#ボットの職場';
+  const label = '\n今日の成果：';
+  let hl = r.highlight || '';
+  if (hl){
+    const budget = 280 - 24 - wlen(head + top + tail + label);
+    if (wlen(hl) > budget){ while (wlen(hl) > budget - 2 && hl.length > 1) hl = hl.slice(0, -1); hl += '…'; }
+  }
+  return head + top + (hl ? label + hl : '') + tail;
+}
+
+function makeReport(){
+  const ds = S.day, n = ds.n;
+  let top = null, tc = 0;
+  for (const [b, c] of ds.byBot) if (b.id !== 'd' && c > tc){ top = b; tc = c; }
+  const done = ds.jobs;
+  const hl = [...done].reverse().find(j => j.toYou) || done[done.length - 1];
+  const rep = {n, sc:S.sc, time:S.sim, count:ds.count, byKind:{...ds.byKind}, top, tc,
+    jobs:pickHighlights(done), jobCount:done.length, highlight: hl ? hl.text : null,
+    word: fill(pick(CLOSING), {bot: top ? top.name : 'みなさん'}, {})};
+  rep.post = buildPost(rep);
+  S.reports.unshift(rep); if (S.reports.length > 12) S.reports.pop();
+  S.day = newDay(n + 1);
+  S.jobs.push({def:{isReport:true, steps:[['d', 'you', 'rep', `${n}日目の日報です。やりとり${rep.count}件、完了した仕事${rep.jobCount}件でした。`, `日報_${n}日目.pdf`]]}, ctx:{}, i:0, ph:'start', t:0});
+  renderReports(true);
+  showToast(rep);
+  if (narrowMQ.matches && currentTab !== 'report') $('repDot').hidden = false;
+}
+
+function pickHighlights(done){
+  const seen = new Set(), out = [];
+  const add = list => { for (let k = list.length - 1; k >= 0 && out.length < 5; k--){ const t = list[k].text; if (!seen.has(t)){ seen.add(t); out.push(t); } } };
+  add(done.filter(j => j.toYou));
+  if (out.length < 3) add(done.filter(j => !j.toYou && j.text.length > 14));
+  return out.reverse();
+}
+const repEl = $('reports');
+const KGROUPS = [['cmd','--k-cmd',['cmd']],['data','--k-data',['data','file']],['rep','--k-rep',['rep']],['ask','--k-ask',['ask']],['re','--k-re',['re']]];
+function repHTML(r, i, isNew){
+  const total = Object.values(r.byKind).reduce((a, b) => a + b, 0) || 1;
+  const bar = KGROUPS.map(([k, v, ks]) => {
+    const c = ks.reduce((a, x) => a + (r.byKind[x] || 0), 0);
+    return c ? `<i style="--k:var(${v});flex:${c}" title="${KIND[k].l} ${c}件"></i>` : '';
+  }).join('');
+  const kinds = KGROUPS.map(([k, v, ks]) => {
+    const c = ks.reduce((a, x) => a + (r.byKind[x] || 0), 0);
+    return `<span><i style="--k:var(${v})"></i>${KIND[k].l} ${c}</span>`;
+  }).join('');
+  const jobs = r.jobs.length ? `<ol class="done">${r.jobs.map(t => `<li>${esc(t)}</li>`).join('')}</ol>` : '<p class="word" style="color:var(--sub)">今日は仕事が完了しませんでした。</p>';
+  const xHref = `https://x.com/intent/post?text=${encodeURIComponent(r.post)}&url=${encodeURIComponent(SHARE_URL)}`;
+  return `<details class="rep${isNew ? ' new' : ''}"${i === 0 ? ' open' : ''}>
+    <summary><b>${r.n}日目の日報</b><span class="meta">${esc(r.sc.name)}・18:00・やりとり${r.count}件</span></summary>
+    <div class="rep-body">
+      <div class="nums">
+        <div class="num"><span>やりとり</span><b>${r.count}</b></div>
+        <div class="num"><span>完了した仕事</span><b>${r.jobCount}</b></div>
+        <div class="num"><span>最多送信</span><b>${r.tc}</b></div>
+      </div>
+      <div><h3>やりとりの内訳</h3><div class="kbar">${bar}</div><div class="legend" style="padding:8px 0 0">${kinds}</div></div>
+      ${r.top ? `<div><h3>いちばん働いたBot</h3><div class="top-bot">${avatarHTML(r.top)}<span><b>${esc(r.top.name)}</b>　${r.tc}件送信</span></div></div>` : ''}
+      <div><h3>今日の成果(主なもの)</h3>${jobs}</div>
+      <div><h3>総合ボットのひとこと</h3><p class="word">${esc(r.word)}</p></div>
+      <div class="post">
+        <h3>Xに投稿する文面</h3>
+        <p class="post-t" id="post-${i}">${esc(r.post).replace(/\n/g, '<br>')}<br>${esc(GAME_URL)}</p>
+        <div class="post-act">
+          <a class="xbtn" href="${xHref}" target="_blank" rel="noopener">Xで投稿</a>
+          <button class="copybtn" type="button" data-i="${i}">文面をコピー</button>
+        </div>
+      </div>
+    </div>
+  </details>`;
+}
+function renderReports(isNew){
+  if (!S.reports.length){
+    repEl.innerHTML = '<div class="empty">18:00になると、総合ボットから1日のまとめ(日報)が届きます。日報にはXに投稿できる文面もつきます。</div>';
+    return;
+  }
+  repEl.innerHTML = S.reports.map((r, i) => repHTML(r, i, isNew && i === 0)).join('');
+}
+repEl.addEventListener('click', e => {
+  const b = e.target.closest('.copybtn'); if (!b) return;
+  const r = S.reports[+b.dataset.i]; if (!r) return;
+  const text = r.post + '\n' + GAME_URL;
+  const done = () => { b.textContent = 'コピーしました'; setTimeout(() => { b.textContent = '文面をコピー'; }, 1800); };
+  const fallback = () => {
+    const el = $('post-' + b.dataset.i); if (!el) return;
+    const rg = document.createRange(); rg.selectNodeContents(el);
+    const sel = getSelection(); sel.removeAllRanges(); sel.addRange(rg);
+    b.textContent = '選択しました。コピーしてください';
+    setTimeout(() => { b.textContent = '文面をコピー'; }, 2600);
+  };
+  try { navigator.clipboard.writeText(text).then(done, fallback); } catch(err){ fallback(); }
+});
+
+let toastTimer = 0;
+function showToast(r){
+  $('toastT').textContent = `${r.n}日目の日報`;
+  const t = $('toast'); t.hidden = true; void t.offsetWidth; t.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 7000);
+}
+$('toastBtn').addEventListener('click', () => {
+  $('toast').hidden = true;
+  if (narrowMQ.matches) setTab('report');
+  else $('paneReport').scrollIntoView({behavior: reduceMQ.matches ? 'auto' : 'smooth', block:'start'});
+});
+
+let resetTimer = 0;
+$('resetBtn').addEventListener('click', () => {
+  const b = $('resetBtn');
+  if (b.hasAttribute('data-armed')){
+    clearTimeout(resetTimer); b.removeAttribute('data-armed'); b.textContent = 'リセット';
+    loadScenario(S.sc.id);
+  } else {
+    b.setAttribute('data-armed', ''); b.textContent = 'もう一度押すとリセット';
+    resetTimer = setTimeout(() => { b.removeAttribute('data-armed'); b.textContent = 'リセット'; }, 3000);
+  }
+});
+
+/* ------------------------------ skins ------------------------------ */
+const SKINS = [
+  {id:'auto', name:'自動', note:'端末の明暗に合わせる', pv:['#f2f4f7','#0e1014','#3d5ce0','#e0830a']},
+  {id:'office', name:'オフィス', note:'明るい職場', pv:['#f2f4f7','#ffffff','#3d5ce0','#e0830a']},
+  {id:'yakin', name:'夜勤', note:'暗いフロア', pv:['#0e1014','#16191f','#7d93ff','#ffab3d']},
+  {id:'kami', name:'書類', note:'クラフト紙の机', pv:['#efe8da','#fbf7ef','#3156b8','#c26a0a']},
+  {id:'mint', name:'ミント', note:'すっきり淡い緑', pv:['#e4f3ed','#ffffff','#3d5ce0','#d4336c']},
+  {id:'server', name:'サーバー室', note:'深夜の紫', pv:['#120f2e','#1b1742','#6fa8ff','#ff6fb1']},
+  {id:'terminal', name:'ターミナル', note:'黒画面に緑の文字', pv:['#030803','#071107','#39ff88','#4fd6ff']}
+];
+let skin = SKINS.some(x => x.id === settings.skin) ? settings.skin : 'auto';
+function applySkin(){
+  const r = document.documentElement;
+  if (skin === 'auto') r.removeAttribute('data-skin'); else r.setAttribute('data-skin', skin);
+  document.querySelectorAll('.skin').forEach(b => b.setAttribute('aria-checked', String(b.dataset.id === skin)));
+  readTokens();
+}
+$('skinList').innerHTML = SKINS.map(x => `<button class="skin" type="button" role="radio" data-id="${x.id}" aria-checked="false">
+  <span class="pv" style="background:${x.id === 'auto' ? `linear-gradient(90deg,${x.pv[0]} 50%,${x.pv[1]} 50%)` : x.pv[0]}"><i class="wide" style="background:${x.id === 'auto' ? '#ffffff' : x.pv[1]}"></i><i style="background:${x.pv[2]}"></i><i style="background:${x.pv[3]}"></i></span>
+  <b>${x.name}</b><small>${x.note}</small></button>`).join('');
+$('skinList').addEventListener('click', e => {
+  const b = e.target.closest('.skin'); if (!b) return;
+  skin = b.dataset.id; applySkin(); saveSettings();
+});
+$('skinBtn').addEventListener('click', () => {
+  const p = $('skinPanel'); p.hidden = !p.hidden;
+  $('skinBtn').setAttribute('aria-expanded', String(!p.hidden));
+});
+applySkin();
+
+/* ------------------------------ loop ------------------------------ */
+let last = performance.now();
+function loop(now){
+  requestAnimationFrame(loop);
+  const dt = Math.min(0.05, Math.max(0, (now - last) / 1000)); last = now;
+  if (innerWidth < 1 || innerHeight < 1 || !S) return;
+  try {
+    update(dt);
+    if (needReorder) reorder();
+    drawGraph(now);
+  } catch(e){ console.error(e); }
+}
+
+readTokens();
+resizeCanvas();
+loadScenario(settings.sc || 'menu');
+setSpeed([0, 1, 3, 10].includes(settings.speed) ? settings.speed : 1);
+if (speed === 0) setSpeed(1);
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

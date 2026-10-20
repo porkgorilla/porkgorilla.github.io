@@ -59,6 +59,7 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 | [土下座スラッシュ](https://porkgorilla.com/works/dogeza-slash.html) | GAME | 土下座の勢いで、詰め寄る相手を真っ二つにするゲーム |
 | [バズラリー](https://porkgorilla.com/works/buzz-rally.html) | GAME | トスした瞬間からスパイクとレシーブが止まらない、疑似バズ体験 |
 | [ヤムねこ](https://porkgorilla.com/works/yamuneko.html) | GAME | 茹でたヤムイモを、ねこちゃんの口までドラッグしてあげる |
+| [ボットの職場 日報つき](https://porkgorilla.com/works/botoffice.html) | APP | 裏でBotたちが勝手に仕事を回すのを、ただ眺めるアプリ |
 
 ## 構成
 
@@ -121,7 +122,8 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
     ├── suzukuri-dragon.html
     ├── dogeza-slash.html
     ├── buzz-rally.html
-    └── yamuneko.html
+    ├── yamuneko.html
+    └── botoffice.html
 ```
 
 `theme.css` / `site.js` / `favicon.svg` はルート直下に置き、各作品ページからは絶対パス(`/theme.css` など)で読み込みます。404.html も GitHub Pages の仕様上ルート直下が必須です。
