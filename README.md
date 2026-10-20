@@ -58,6 +58,7 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 | [酢作りドラゴン](https://porkgorilla.com/works/suzukuri-dragon.html) | GAME | ドラゴンの火加減で壺の酢を育て、米酢から黒酢まで仕込むゲーム |
 | [土下座スラッシュ](https://porkgorilla.com/works/dogeza-slash.html) | GAME | 土下座の勢いで、詰め寄る相手を真っ二つにするゲーム |
 | [バズラリー](https://porkgorilla.com/works/buzz-rally.html) | GAME | トスした瞬間からスパイクとレシーブが止まらない、疑似バズ体験 |
+| [ヤムねこ](https://porkgorilla.com/works/yamuneko.html) | GAME | 茹でたヤムイモを、ねこちゃんの口までドラッグしてあげる |
 
 ## 構成
 
@@ -119,7 +120,8 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
     ├── kakin-koubou.html
     ├── suzukuri-dragon.html
     ├── dogeza-slash.html
-    └── buzz-rally.html
+    ├── buzz-rally.html
+    └── yamuneko.html
 ```
 
 `theme.css` / `site.js` / `favicon.svg` はルート直下に置き、各作品ページからは絶対パス(`/theme.css` など)で読み込みます。404.html も GitHub Pages の仕様上ルート直下が必須です。
