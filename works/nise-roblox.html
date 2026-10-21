@@ -61,6 +61,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(-
 .hello{margin:12px 0 4px;color:var(--muted);font-size:15px}
 .hello b{color:var(--ink)}
 .meta{margin:0 0 12px;color:var(--muted);font-size:13px}
+.actions.homeShare{margin:0 0 14px}
 .tabs{display:flex;gap:6px;margin-bottom:14px}
 .tabs button{flex:1;min-height:44px;border:2px solid var(--ink);background:var(--panel);border-radius:10px;font-weight:800}
 .tabs button[aria-selected="true"]{background:var(--ink);color:var(--panel)}
@@ -180,6 +181,7 @@ h2{font-size:17px;margin:20px 0 10px}
   </header>
   <p class="hello"><b id="helloName"></b> さん、きょうもボットたちが待っています。</p>
   <p class="meta" id="homeMeta"></p>
+  <div class="actions homeShare"><a class="go x sm" id="homeShare" target="_blank" rel="noopener">Xでシェア</a></div>
   <nav class="tabs" role="tablist">
     <button role="tab" data-tab="play" aria-selected="true">あそぶ</button>
     <button role="tab" data-tab="avatar" aria-selected="false">アバター</button>
@@ -236,7 +238,7 @@ h2{font-size:17px;margin:20px 0 10px}
     <button class="go" id="resumeBtn">続ける</button>
     <div class="row2"><button class="go ghost sm" id="resetBtn">キャラをリセット</button><button class="go ghost sm" id="sndMenu">音 ON</button></div>
     <div class="emotes" id="menuEmotes"></div>
-    <button class="go ghost sm" id="shotBtn">スクショを保存</button>
+    <div class="row2"><a class="go x sm" id="menuShare" target="_blank" rel="noopener">Xでシェア</a><button class="go ghost sm" id="shotBtn">スクショを保存</button></div>
     <button class="go ghost sm" id="leaveBtn">ホームへ戻る</button>
   </div>
 </div></div>
@@ -263,6 +265,8 @@ const GAME_URL='https://porkgorilla.com/works/nise-roblox.html';
 const OG_CACHE_VERSION=1;
 const SHARE_URL=GAME_URL+'?ogv='+OG_CACHE_VERSION;
 const HASHTAG='#ニセロブロックス';
+function shareHref(text){return 'https://x.com/intent/post?text='+encodeURIComponent(text+' '+HASHTAG)+'&url='+encodeURIComponent(SHARE_URL);}
+function setShare(el,text){el.href=shareHref(text);if(isTouch){el.removeAttribute('target');el.removeAttribute('rel');}}
 
 /* ================= save ================= */
 const KEY='nise-roblox-save';
@@ -835,7 +839,7 @@ function thumb(kind){return textCanvas(360,200,(x,w,h)=>{
 /* ================= home ================= */
 function renderHome(){
   $('#helloName').textContent=save.name;updBux();updSnd();
-  const nb=Object.keys(save.badges).length;$('#homeMeta').textContent=`バッジ ${nb} / ${BADGES.length}　フレンド ${save.friends.length}人（全員ボット）`;
+  const nb=Object.keys(save.badges).length;setShare($('#homeShare'),`ニセロブロックスで遊んでる。プレイヤーは全員ボット（バッジ ${nb}/${BADGES.length}）`);$('#homeMeta').textContent=`バッジ ${nb} / ${BADGES.length}　フレンド ${save.friends.length}人（全員ボット）`;
   const gm=$('#gridMain');gm.innerHTML='';
   for(const id of ORDER){const g=GAMES[id];const b=document.createElement('button');b.className='card'+(g.isNew?' wide':'');
     b.innerHTML=`<img alt=""><span class="t"></span><span class="m"></span>`;b.querySelector('img').src=thumb(id);const t=b.querySelector('.t');t.textContent=g.title;if(g.isNew){const n=document.createElement('span');n.className='new';n.textContent='NEW';t.append(n);}
@@ -869,7 +873,7 @@ function rebuildLobbyAv(){if(lobbyAv)world.remove(lobbyAv.group);lobbyAv=buildAv
 function buildLobby(){clearWorld();setSky('#8ec9ef','#e6f1f8');plat(0,0,0,4.5,4.5,'#c9d2dc',{grid:true});addBox(0,-6,0,120,1,120,'#b9c8d6',{grid:true});rebuildLobbyAv();}
 
 /* ================= overlays ================= */
-function openMenu(){if(mode!=='game')return;paused=true;disarm();$('#menuOv').hidden=false;$('#emoteTray').hidden=true;for(const k in keys)keys[k]=false;jumpHeld=false;$('#resumeBtn').focus();}
+function openMenu(){if(mode!=='game')return;setShare($('#menuShare'),`ニセロブロックスの「${game.title}」で遊んでる（${game.status().replace(/　/g,' ')}）`);paused=true;disarm();$('#menuOv').hidden=false;$('#emoteTray').hidden=true;for(const k in keys)keys[k]=false;jumpHeld=false;$('#resumeBtn').focus();}
 function closeMenu(){$('#menuOv').hidden=true;disarm();paused=!$('#resultOv').hidden;initAudio(false);}
 $('#menuBtn').onclick=()=>{sfx.click();openMenu();};
 $('#resumeBtn').onclick=()=>{sfx.click();closeMenu();};
