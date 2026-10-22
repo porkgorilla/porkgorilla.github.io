@@ -62,6 +62,7 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 | [ボットの職場 日報つき](https://porkgorilla.com/works/botoffice.html) | APP | 裏でBotたちが勝手に仕事を回すのを、ただ眺めるアプリ |
 | [ニセロブロックス](https://porkgorilla.com/works/nise-roblox.html) | GAME | プレイヤーが全員ボットの、ニセモノのブロックゲーム広場で遊ぶゲーム |
 | [おでんツンツン](https://porkgorilla.com/works/oden-tsuntsun.html) | GAME | おでんの具に指を近づけて、ツンツンされるゲーム |
+| [スシピアノ](https://porkgorilla.com/works/sushipiano.html) | GAME | 寿司の鍵盤を、お客さんが勝手に食べていくピアノ |
 
 ## 構成
 
@@ -127,7 +128,8 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
     ├── yamuneko.html
     ├── botoffice.html
     ├── nise-roblox.html
-    └── oden-tsuntsun.html
+    ├── oden-tsuntsun.html
+    └── sushipiano.html
 ```
 
 `theme.css` / `site.js` / `favicon.svg` はルート直下に置き、各作品ページからは絶対パス(`/theme.css` など)で読み込みます。404.html も GitHub Pages の仕様上ルート直下が必須です。
