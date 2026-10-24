@@ -65,6 +65,7 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 | [スシピアノ](https://porkgorilla.com/works/sushipiano.html) | GAME | 寿司の鍵盤を、お客さんが勝手に食べていくピアノ |
 | [まゆテツ](https://porkgorilla.com/works/mayutetsu.html) | GAME | 眉毛のないおじさんに蹄鉄を投げて、眉毛にするゲーム |
 | [近いの家](https://porkgorilla.com/works/chikainouchi.html) | GAME | 施主の話を覚えて、希望に近い間取りを作るゲーム |
+| [世紀末ダービー](https://porkgorilla.com/works/seikimatsu-derby.html) | GAME | 賭けた馬だけが変身して、絶対に勝つ競馬予想ゲーム |
 
 ## 構成
 
@@ -133,7 +134,8 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
     ├── oden-tsuntsun.html
     ├── sushipiano.html
     ├── mayutetsu.html
-    └── chikainouchi.html
+    ├── chikainouchi.html
+    └── seikimatsu-derby.html
 ```
 
 `theme.css` / `site.js` / `favicon.svg` はルート直下に置き、各作品ページからは絶対パス(`/theme.css` など)で読み込みます。404.html も GitHub Pages の仕様上ルート直下が必須です。
