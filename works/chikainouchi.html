@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>近いの家 | porkgorilla://</title>
+<meta name="description" content="施主の話を覚えて、希望に近い間取りを作るゲーム。途中でびっくりして忘れても、頼れるのは記憶だけ。">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-MBT4300J0L');
+</script>
+<meta property="og:type" content="website">
+<meta property="og:title" content="近いの家(チカイノウチ)">
+<meta property="og:description" content="施主の話を覚えて、希望に近い間取りを作るゲーム">
+<meta property="og:url" content="https://porkgorilla.com/works/chikainouchi.html">
+<meta property="og:image" content="https://porkgorilla.com/assets/og-chikainouchi.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="近いの家(チカイノウチ)">
+<meta name="twitter:description" content="施主の話を覚えて、希望に近い間取りを作るゲーム">
+<meta name="twitter:image" content="https://porkgorilla.com/assets/og-chikainouchi.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+:root{
+  --paper:#f5f0e4;--paper2:#ece4d2;--card:#fffdf7;--ink:#1f2a44;--sub:#7b7464;--line:rgba(31,42,68,.12);
+  --accent:#d9472b;--blue:#2f5d9e;--ok:#2e8b57;--ng:#c0392b;--memo:#fff1a8;
+  --f:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Hiragino Sans","Yu Gothic UI","Meiryo",sans-serif;
+}
+html{height:100%;box-sizing:border-box}
+body{height:100%;margin:0;background:var(--paper);color:var(--ink);font-family:var(--f);overflow:hidden;
+  -webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+button{font-family:inherit;color:inherit}
+#app{position:relative;height:100%;display:grid;grid-template-rows:auto minmax(0,1fr);grid-template-columns:minmax(0,1fr);
+  background-color:var(--paper);
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:24px 24px}
+#app>*{min-width:0}
+
+/* ---- top bar ---- */
+#bar{position:relative;z-index:50;display:flex;align-items:center;gap:8px;padding:2px max(10px,env(safe-area-inset-right)) 2px max(10px,env(safe-area-inset-left));
+  height:48px;background:rgba(245,240,228,.92);border-bottom:2px solid var(--ink)}
+.home{color:var(--sub);text-decoration:none;font-size:12px;letter-spacing:.04em;white-space:nowrap}
+.home:hover{color:var(--ink)}
+.bar-title{flex:1;min-width:0;text-align:center;font-weight:900;font-size:15px;letter-spacing:.1em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-right{display:flex;gap:4px}
+.icon{min-width:44px;min-height:44px;border:0;background:transparent;display:grid;place-items:center;cursor:pointer;border-radius:10px}
+.icon:hover{background:rgba(31,42,68,.08)}
+.icon svg{width:24px;height:24px}
+
+/* ---- screens ---- */
+#stage{position:relative;min-height:0;overflow:hidden}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;padding:10px max(12px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));gap:10px;overflow-y:auto}
+.phase{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--sub)}
+.tag{display:inline-block;padding:3px 10px;border-radius:999px;background:var(--accent);color:#fff;font-weight:900;letter-spacing:.08em;font-size:12px}
+.tag.blue{background:var(--blue)}
+.phase b{color:var(--ink)}
+.count{margin-left:auto;font-variant-numeric:tabular-nums}
+
+.btn{appearance:none;border:0;border-radius:14px;padding:12px 20px;min-height:48px;font-weight:900;font-size:16px;letter-spacing:.06em;cursor:pointer;
+  background:var(--accent);color:#fff;box-shadow:0 4px 0 #9e2f1a;transition:transform .06s}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #9e2f1a}
+.btn.ghost{background:transparent;color:var(--accent);box-shadow:none;border:2px solid rgba(217,71,43,.55)}
+.btn.ghost:hover{background:rgba(217,71,43,.08)}
+.btn.blue{background:var(--blue);box-shadow:0 4px 0 #1d3d6c}
+.btn.danger{background:#7a1010;box-shadow:0 4px 0 #3d0808;color:#fff}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.small{padding:8px 14px;min-height:44px;font-size:14px}
+
+/* ---- hearing ---- */
+#family{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;padding-top:6px}
+.person{display:flex;flex-direction:column;align-items:center;gap:2px;transition:transform .2s,opacity .2s;opacity:.55}
+.person .face{width:64px;height:64px;border-radius:50%;background:var(--card);border:2px solid var(--ink);display:grid;place-items:center;font-size:38px;line-height:1}
+.person .nm{font-size:11px;color:var(--sub);white-space:nowrap}
+.person.on{opacity:1;transform:translateY(-4px) scale(1.08)}
+.person.on .face{border-color:var(--accent);box-shadow:0 0 0 4px rgba(217,71,43,.18)}
+#bubble{position:relative;background:var(--card);border:2px solid var(--ink);border-radius:18px;padding:16px 18px 18px;min-height:132px;cursor:pointer;box-shadow:0 5px 0 rgba(31,42,68,.18)}
+#who{font-size:12px;color:var(--sub);margin-bottom:6px}
+#say{font-size:clamp(17px,4.6vw,22px);line-height:1.6;font-weight:700;word-break:break-word}
+#say .ch{opacity:0}
+#say .ch.v{opacity:1}
+#say .kw{color:var(--blue);font-weight:900}
+#tapHint{position:absolute;right:14px;bottom:8px;font-size:11px;color:var(--sub);animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+#hearCtl{display:flex;gap:10px;flex-wrap:wrap}
+#hearCtl .btn{flex:1;min-width:140px}
+.memos{display:flex;gap:8px;flex-wrap:wrap}
+.memo{flex:1 1 150px;min-width:0;max-width:100%;background:var(--memo);padding:8px 10px 9px;font-size:12.5px;line-height:1.45;border-radius:3px;box-shadow:0 3px 6px rgba(0,0,0,.12);transform:rotate(-.6deg)}
+.memo:nth-child(2){transform:rotate(.8deg)}
+.memo small{display:block;color:#8a7a2a;font-size:10.5px;margin-bottom:2px}
+.memo .kw{color:var(--blue);font-weight:900}
+.memo-h{font-size:12px;color:var(--sub)}
+.hint-box{font-size:12px;color:var(--sub);line-height:1.6}
+
+/* ---- placement ---- */
+#placeBody{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px}
+#boardWrap{flex:1;min-height:calc(var(--rows,3)*56px + 60px);display:grid;grid-template-columns:24px auto 24px;grid-template-rows:22px auto 26px;
+  justify-content:center;align-content:center;gap:4px;touch-action:none}
+.dir{display:grid;place-items:center;font-size:12px;font-weight:900;color:var(--sub)}
+.dir.n{grid-column:2;grid-row:1;color:var(--accent)}
+.dir.w{grid-column:1;grid-row:2}
+.dir.e{grid-column:3;grid-row:2}
+.road{grid-column:2;grid-row:3;display:grid;place-items:center;font-size:11px;font-weight:700;color:#fff;letter-spacing:.2em;
+  background:repeating-linear-gradient(90deg,#55586a 0 22px,#666a7d 22px 26px);border-radius:4px}
+#board{grid-column:2;grid-row:2;display:grid;grid-template-columns:repeat(var(--cols,3),var(--cell,100px));grid-auto-rows:var(--cell,100px);
+  border:3px solid var(--ink);background:#e4dccb;box-shadow:0 6px 0 rgba(31,42,68,.2)}
+.cell{position:relative;border:1px dashed rgba(31,42,68,.3);display:flex;align-items:stretch;justify-content:stretch;min-width:0;min-height:0}
+.cell.empty::after{content:"庭";position:absolute;inset:0;display:grid;place-items:center;font-size:11px;color:rgba(31,42,68,.25)}
+.cell.target{background:rgba(47,93,158,.14)}
+.room{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px;border:2px solid var(--ink);margin:-1px;
+  cursor:pointer;position:relative;overflow:hidden}
+.room .em{font-size:calc(var(--cell,100px)*.27);line-height:1}
+.room .rn{font-size:max(10px,calc(var(--cell,100px)*.12));font-weight:900;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.room.sel{outline:4px solid var(--accent);outline-offset:-4px;z-index:2}
+.fz{display:flex;gap:3px;flex-wrap:wrap;justify-content:center;max-width:100%}
+.fchip{display:inline-flex;align-items:center;gap:2px;background:rgba(255,255,255,.85);border:1px solid rgba(31,42,68,.4);border-radius:8px;
+  padding:1px 4px;font-size:max(9px,calc(var(--cell,100px)*.09));white-space:nowrap;cursor:pointer;max-width:100%;overflow:hidden}
+.fchip .fe{font-size:max(12px,calc(var(--cell,100px)*.14))}
+#side{display:flex;flex-direction:column;gap:8px;min-width:0}
+.pal-h{font-size:12px;color:var(--sub);font-weight:700}
+.pal{display:flex;gap:6px;flex-wrap:wrap;touch-action:none;min-height:40px}
+.tile{display:inline-flex;align-items:center;gap:4px;padding:6px 10px;min-height:40px;border:2px solid var(--ink);border-radius:10px;font-weight:900;font-size:14px;cursor:grab;background:var(--card)}
+.tile.f{border-radius:999px;font-weight:700;font-size:13px;border-style:dashed}
+.tile.sel{outline:3px solid var(--accent);outline-offset:2px}
+.pal .none{font-size:12px;color:var(--sub);align-self:center}
+#placeCtl{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+#placeCtl .btn{flex:1;min-width:130px}
+#selInfo{font-size:12px;color:var(--accent);min-height:1em}
+.ghostDrag{position:fixed;z-index:80;pointer-events:none;transform:translate(-50%,-60%) scale(1.1);opacity:.92;box-shadow:0 8px 18px rgba(0,0,0,.25)}
+
+#board.compact .fchip .fn{display:none}
+#board.compact .fz{position:absolute;right:2px;top:2px;flex-direction:column;gap:2px}
+#board.compact .fchip{padding:0 2px;border-radius:6px}
+#board.compact .fchip .fe{font-size:max(11px,calc(var(--cell,100px)*.16))}
+@media (min-width:900px){
+  #placeBody{flex-direction:row;max-width:1200px;width:100%;margin:0 auto;align-items:stretch}
+  #side{width:380px;flex:none;justify-content:center}
+  #hear>*{width:100%;max-width:760px;margin-left:auto;margin-right:auto}
+}
+@media (orientation:landscape) and (max-height:520px){
+  #placeBody{flex-direction:row}
+  #boardWrap{min-height:0}
+  #side{width:46%;overflow-y:auto}
+  #family .face{width:46px;height:46px;font-size:28px}
+  #bubble{min-height:96px}
+}
+
+/* ---- overlays ---- */
+.ov{position:absolute;inset:0;z-index:40;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;
+  padding:62px max(14px,env(safe-area-inset-right)) max(20px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(245,240,228,.96)}
+.card{width:100%;max-width:560px;margin:auto 0;background:var(--card);border:2px solid var(--ink);border-radius:20px;padding:22px 20px 20px;box-shadow:0 8px 0 rgba(31,42,68,.2)}
+.ttl{text-align:center}
+.ttl .ruby{font-size:13px;letter-spacing:.5em;color:var(--sub);margin-left:.5em}
+.ttl h1{margin:2px 0 4px;font-size:clamp(40px,12vw,64px);font-weight:900;letter-spacing:.06em;line-height:1.1}
+.ttl h1 .chika{color:var(--accent)}
+.ttl .lead{margin:0;font-weight:700;font-size:15px}
+.howto{margin:16px 0 12px;padding:0;list-style:none;display:grid;gap:8px}
+.howto li{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.55}
+.howto .no{flex:none;width:26px;height:26px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-size:13px;font-weight:900}
+.opt-h{font-size:12px;color:var(--sub);margin:12px 0 6px;font-weight:700}
+.seg{display:flex;gap:6px}
+.seg button{flex:1;min-height:52px;border:2px solid var(--ink);border-radius:12px;background:transparent;font-weight:900;font-size:15px;cursor:pointer;padding:4px;line-height:1.2}
+.seg button small{display:block;font-size:10.5px;font-weight:700;color:var(--sub)}
+.seg button.on{background:var(--ink);color:#fff}
+.seg button.on small{color:#cdd3e0}
+.actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:16px}
+.actions .btn{flex:1;min-width:140px}
+.share{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:12px;min-height:44px;color:var(--ink);text-decoration:none;font-weight:700;font-size:14px;border-radius:12px;border:2px solid rgba(31,42,68,.25)}
+.share:hover{background:rgba(31,42,68,.06)}
+.share svg{width:16px;height:16px}
+.credit{text-align:center;font-size:11px;color:#9a917e;margin-top:16px;letter-spacing:.05em}
+.pause-h{text-align:center;font-size:22px;font-weight:900;margin:0 0 4px}
+.pause-s{text-align:center;font-size:13px;color:var(--sub);margin:0}
+
+/* result */
+.res-top{display:flex;align-items:center;justify-content:center;gap:16px}
+.pct{font-size:clamp(54px,16vw,80px);font-weight:900;line-height:1;font-variant-numeric:tabular-nums}
+.pct small{font-size:.4em}
+.pct-l{font-size:12px;color:var(--sub);text-align:center}
+.stamp{width:84px;height:84px;border:4px solid var(--accent);border-radius:50%;color:var(--accent);display:grid;place-items:center;text-align:center;font-weight:900;
+  font-size:15px;line-height:1.15;transform:rotate(-12deg) scale(2);opacity:0;transition:transform .25s cubic-bezier(.3,1.6,.5,1),opacity .2s}
+.stamp.on{transform:rotate(-12deg) scale(1);opacity:.9}
+.react{display:flex;gap:10px;align-items:center;margin:14px 0 4px;background:var(--paper);border-radius:14px;padding:10px 12px}
+.react .face{font-size:34px;flex:none}
+.react p{margin:0;font-weight:700;font-size:15px}
+.react small{display:block;color:var(--sub);font-size:11px;font-weight:500}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.compare h3{margin:0 0 4px;font-size:12px;color:var(--sub);text-align:center}
+.mini{display:grid;border:2px solid var(--ink);background:#e4dccb;width:100%;aspect-ratio:var(--ar)}
+.mini div{border:1px solid rgba(31,42,68,.35);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:clamp(9px,2.3vw,12px);font-weight:900;overflow:hidden;line-height:1.15;text-align:center;padding:1px}
+.mini .me{font-size:clamp(13px,4vw,20px)}
+.mini .mf{font-size:clamp(9px,2.2vw,11px);font-weight:500}
+.reqs{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.reqs li{display:flex;gap:8px;align-items:flex-start;font-size:13px;line-height:1.45;padding:8px 10px;border-radius:10px;background:var(--paper)}
+.reqs .mk{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:900;font-size:12px}
+.reqs .ok .mk{background:var(--ok)}
+.reqs .ng .mk{background:var(--ng)}
+.reqs .ng{background:#f8e3df}
+.reqs small{display:block;color:var(--sub);font-size:11px}
+.reqs b{font-weight:900}
+.best{text-align:center;font-size:12px;color:var(--sub);margin-top:4px}
+
+/* scare */
+#scareOv{position:absolute;inset:0;z-index:90;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:20px;overflow:hidden}
+#scareEm{font-size:min(56vw,42vh);line-height:1;transform:scale(.2);will-change:transform}
+#scareTx{font-size:clamp(28px,8vw,56px);font-weight:900;letter-spacing:.04em;line-height:1.2;padding:0 10px}
+#scareOv.go #scareEm{animation:pop .35s cubic-bezier(.2,1.8,.4,1) forwards}
+#scareOv.go.shake{animation:shake .4s linear 2}
+#scareOv.after #scareEm,#scareOv.after #scareTx{opacity:0;transition:opacity .3s}
+#scareAfter{position:absolute;inset:0;display:grid;place-items:center;font-size:clamp(20px,5.5vw,30px);font-weight:900;opacity:0;transition:opacity .4s;padding:20px}
+#scareOv.after #scareAfter{opacity:1}
+@keyframes pop{0%{transform:scale(.2) rotate(-20deg)}100%{transform:scale(1) rotate(0)}}
+@keyframes shake{0%,100%{transform:translate(0,0)}20%{transform:translate(-14px,6px)}40%{transform:translate(12px,-8px)}60%{transform:translate(-8px,-4px)}80%{transform:translate(8px,8px)}}
+#scareOv.soft #scareEm{animation-duration:.6s}
+
+#toast{position:absolute;left:50%;bottom:max(24px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:95;background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;font-weight:700;
+  pointer-events:none;opacity:0;transition:opacity .2s;white-space:nowrap;max-width:92vw;overflow:hidden;text-overflow:ellipsis}
+#toast.on{opacity:1}
+</style>
+</head>
+<body>
+<div id="app">
+  <header id="bar">
+    <a class="home" href="/">&lt; porkgorilla</a>
+    <div class="bar-title">近いの家</div>
+    <div class="bar-right">
+      <button id="sndBtn" class="icon" aria-label="音のオン・オフ"></button>
+      <button id="pauseBtn" class="icon" aria-label="一時停止" hidden>
+        <svg viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="stage">
+    <!-- ヒアリング -->
+    <section id="hear" class="screen" hidden>
+      <div class="phase"><span class="tag">ヒアリング</span><b id="hearCase"></b><span id="hearCount" class="count"></span></div>
+      <div id="family"></div>
+      <div id="bubble"><div id="who"></div><div id="say"></div><div id="tapHint">タップで次へ</div></div>
+      <div id="hearCtl">
+        <button id="memoBtn" class="btn ghost">付箋に書く</button>
+        <button id="nextBtn" class="btn">つぎへ ▶</button>
+      </div>
+      <div class="memo-h" id="memoH1"></div>
+      <div id="memoList1" class="memos"></div>
+    </section>
+
+    <!-- 配置 -->
+    <section id="place" class="screen" hidden>
+      <div class="phase"><span class="tag blue">配置</span><b id="placeCase"></b><span id="placeCount" class="count"></span></div>
+      <div id="placeBody">
+        <div id="boardWrap">
+          <div class="dir n">北 ▲</div><div class="dir w">西</div><div class="dir e">東</div>
+          <div id="board"></div>
+          <div class="road">道路(南)</div>
+        </div>
+        <div id="side">
+          <div id="memoList2" class="memos"></div>
+          <div class="pal-h">部屋 — ドラッグか、タップしてからマスをタップ</div>
+          <div id="palRooms" class="pal"></div>
+          <div class="pal-h">家具 — 部屋の上に置く</div>
+          <div id="palFurn" class="pal"></div>
+          <div id="selInfo"></div>
+          <div id="placeCtl">
+            <button id="stowBtn" class="btn ghost small" hidden>しまう</button>
+            <button id="doneBtn" class="btn blue">引き渡す！</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- タイトル -->
+  <div id="titleOv" class="ov">
+    <div class="card">
+      <div class="ttl">
+        <div class="ruby">チカイノウチ</div>
+        <h1><span class="chika">近</span>いの家</h1>
+        <p class="lead">施主の希望に、いちばん近い家を。</p>
+      </div>
+      <ol class="howto">
+        <li><span class="no">1</span><span><b>ヒアリング</b>：施主の家族から、間取りの希望を聞きます。大事そうな話は付箋に書けますが、枚数はわずか。</span></li>
+        <li><span class="no">2</span><span><b>なにかが起きます</b>。びっくりしても、気をしっかり。</span></li>
+        <li><span class="no">3</span><span><b>配置</b>：記憶を頼りに、部屋と家具を並べて引き渡し。希望への「近さ」で採点されます。</span></li>
+      </ol>
+      <div class="hint-box">ヒント: 図面は上が北、下が道路(南)。朝日は東から、夕日は西へ。</div>
+      <div class="opt-h">むずかしさ</div>
+      <div class="seg" id="diffSeg">
+        <button data-d="easy">かんたん<small id="best-easy"></small></button>
+        <button data-d="normal">ふつう<small id="best-normal"></small></button>
+        <button data-d="hard">むずかしい<small id="best-hard"></small></button>
+      </div>
+      <div class="opt-h">びっくり</div>
+      <div class="seg" id="scareSeg">
+        <button data-s="full">ふつう<small>音も揺れも全力</small></button>
+        <button data-s="soft">ひかえめ<small>小さめ・揺れなし</small></button>
+      </div>
+      <div class="actions"><button class="btn" id="startBtn">打ち合わせをはじめる</button></div>
+      <a class="share" id="shareTitle" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M18.2 2.3h3.4l-7.4 8.4 8.7 11.5h-6.8l-5.3-7-6.1 7H1.3l7.9-9L.9 2.3h7l4.8 6.4 5.5-6.4Zm-1.2 17.9h1.9L7.1 4.2H5.1l11.9 16Z"/></svg>Xでシェア</a>
+      <div class="credit">porkgorilla — 2026</div>
+    </div>
+  </div>
+
+  <!-- 一時停止 -->
+  <div id="pauseOv" class="ov" hidden>
+    <div class="card">
+      <p class="pause-h">一時停止</p>
+      <p class="pause-s" id="pauseStatus"></p>
+      <div class="actions">
+        <button class="btn" id="resumeBtn">つづける</button>
+        <button class="btn ghost" id="quitBtn">タイトルへ</button>
+      </div>
+      <a class="share" id="sharePause" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M18.2 2.3h3.4l-7.4 8.4 8.7 11.5h-6.8l-5.3-7-6.1 7H1.3l7.9-9L.9 2.3h7l4.8 6.4 5.5-6.4Zm-1.2 17.9h1.9L7.1 4.2H5.1l11.9 16Z"/></svg>Xでシェア</a>
+    </div>
+  </div>
+
+  <!-- 結果 -->
+  <div id="resultOv" class="ov" hidden>
+    <div class="card">
+      <div class="pct-l" id="resCase"></div>
+      <div class="res-top">
+        <div><div class="pct"><span id="pctNum">0</span><small>%</small></div><div class="pct-l">希望への近さ</div></div>
+        <div class="stamp" id="stamp"></div>
+      </div>
+      <div class="best" id="resBest"></div>
+      <div class="react" id="react"></div>
+      <div class="compare">
+        <div><h3>あなたの間取り</h3><div id="miniMine"></div></div>
+        <div><h3>理想の一例</h3><div id="miniSol"></div></div>
+      </div>
+      <ul class="reqs" id="reqList"></ul>
+      <div class="actions">
+        <button class="btn" id="againBtn">もう一度</button>
+        <button class="btn ghost" id="titleBtn">タイトルへ</button>
+      </div>
+      <a class="share" id="shareResult" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M18.2 2.3h3.4l-7.4 8.4 8.7 11.5h-6.8l-5.3-7-6.1 7H1.3l7.9-9L.9 2.3h7l4.8 6.4 5.5-6.4Zm-1.2 17.9h1.9L7.1 4.2H5.1l11.9 16Z"/></svg>結果をXでシェア</a>
+    </div>
+  </div>
+
+  <!-- びっくり -->
+  <div id="scareOv" hidden>
+    <div id="scareEm"></div>
+    <div id="scareTx"></div>
+    <div id="scareAfter"></div>
+  </div>
+
+  <div id="toast"></div>
+</div>
+
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+
+/* ================= 定数 ================= */
+const GAME_NAME = '近いの家';
+const GAME_URL = 'https://porkgorilla.com/works/chikainouchi.html';
+const OG_CACHE_VERSION = 1;
+const SHARE_URL = GAME_URL + '?ogv=' + OG_CACHE_VERSION;
+const HASHTAG = '#チカイノウチ';
+const LS = 'chikainouchi-';
+const lsGet = (k, d) => { try { const v = localStorage.getItem(LS + k); return v == null ? d : v; } catch (e) { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(LS + k, v); } catch (e) {} };
+
+const ROOMS = {
+  living:   { n: 'リビング',   e: '🛋️', c: '#f6d58e' },
+  kitchen:  { n: 'キッチン',   e: '🍳', c: '#f4b183' },
+  bed:      { n: '寝室',       e: '🛏️', c: '#b9c8f0' },
+  bath:     { n: 'お風呂',     e: '🛁', c: '#a8dce6' },
+  entry:    { n: '玄関',       e: '🚪', c: '#d9c3a5' },
+  kids:     { n: '子ども部屋', e: '🧸', c: '#f5b5c8' },
+  washitsu: { n: '和室',       e: '🍵', c: '#bfd9a3' },
+  study:    { n: '書斎',       e: '📚', c: '#c9b6e4' },
+  toilet:   { n: 'トイレ',     e: '🚽', c: '#dfe3e8' },
+};
+const FURN = {
+  piano: { n: 'ピアノ', e: '🎹' }, fish: { n: '金魚鉢', e: '🐠' }, tv: { n: '大型テレビ', e: '📺' },
+  drum: { n: 'ドラム', e: '🥁' }, sandbag: { n: 'サンドバッグ', e: '🥊' }, maneki: { n: '招き猫', e: '🐱' },
+  bear: { n: '木彫りの熊', e: '🐻' }, globe: { n: '地球儀', e: '🌐' }, clock: { n: '柱時計', e: '🕰️' },
+  cactus: { n: 'サボテン', e: '🌵' }, armor: { n: 'よろい', e: '🛡️' }, guitar: { n: 'ギター', e: '🎸' },
+};
+const DIFF = {
+  easy:   { label: 'かんたん',   cols: 3, rows: 2, rooms: ['living','kitchen','bed','bath','entry'], req: 5, furn: 1, decoy: 1, memo: 2, fill: 1, people: 3, mid: false },
+  normal: { label: 'ふつう',     cols: 3, rows: 3, rooms: ['living','kitchen','bed','bath','entry','kids','washitsu'], req: 7, furn: 2, decoy: 1, memo: 2, fill: 2, people: 3, mid: false },
+  hard:   { label: 'むずかしい', cols: 3, rows: 3, rooms: ['living','kitchen','bed','bath','entry','kids','washitsu','study','toilet'], req: 9, furn: 3, decoy: 2, memo: 1, fill: 3, people: 4, mid: true },
+};
+const PEOPLE = [
+  { r: '夫', e: '👨', names: ['たけし','まさる','ひろし','けんじ'] },
+  { r: '妻', e: '👩', names: ['ゆかり','みどり','あけみ','さとこ'] },
+  { r: '娘', e: '👧', names: ['みく','ひなた','さき'] },
+  { r: '息子', e: '👦', names: ['そうた','れん','だいき'] },
+  { r: 'おじいちゃん', e: '👴', names: ['げんじろう','とめきち'] },
+  { r: 'おばあちゃん', e: '👵', names: ['ウメ','ハナ'] },
+];
+const SURNAMES = ['佐藤','鈴木','高橋','田中','山本','渡辺','中村','小林','近井'];
+const DIRW = { N: '北', S: '南', E: '東', W: '西' };
+
+// {A}{B}=部屋 {F}=家具
+const T = {
+  side: {
+    N: ['{A}は北側にお願いします。', '{A}は北向きで。涼しいのが好きなの。', '{A}は日の当たらない、北のほうでいいよ。'],
+    S: ['{A}は南側がいいなあ。', '{A}はとにかく日当たりのいい南に！', '{A}は道路側、南のほうに。'],
+    E: ['{A}は東側に。', '{A}には朝日がさしこんでほしいの。', '{A}は東、朝日の昇るほうがいい。'],
+    W: ['{A}は西側にね。', '{A}から夕日を眺めたいんだ。', '{A}は西のほうにお願いできますか。'],
+  },
+  corner: ['{A}は家の角っこがいい。窓が二つほしいから。', '{A}は隅っこのほうが落ち着くんだよね。', '{A}は、角の部屋で。'],
+  center: ['{A}は家のど真ん中に！', '{A}は真ん中。みんなが集まるように。'],
+  adj: ['{A}から{B}にすぐ行けるようにしたい。', '{A}と{B}は隣どうしで。', '{A}の隣に{B}があると便利よね。'],
+  far: ['{A}と{B}はなるべく離して。', '{A}の隣に{B}だけは絶対にイヤ。', '{A}と{B}はくっつけないでね。'],
+  furn: ['{F}は{A}に置きたい。', '{F}？ もちろん{A}ですよ。', '{A}に{F}があったら最高だな。', 'あ、{F}は{A}に置きます。ゆずれません。'],
+};
+const FILLERS = [
+  'そういえば最近、犬を飼い始めたんですよ。', '私、昔は大工になりたかったんです。', 'この前のお祭り、楽しかったなあ。',
+  'うちの猫、名前がダイフクっていうの。', 'カレーは甘口派です。', 'ローンは…まあ、なんとかなるでしょう！',
+  'あ、お茶のおかわりいいですか？', '最近、腰が痛くてねえ。', '屋根は…なんでもいいです。', '週末は家族で釣りに行くんです。',
+];
+const SCARES = [
+  { e: '👨‍💼', t: '進捗どうですかーッ！！', bg: '#1f2a44', fg: '#fff', snd: 'boss' },
+  { e: '🦷', t: 'フガッ!!（入れ歯が飛んできた）', bg: '#f5e6c8', fg: '#1f2a44', snd: 'pop' },
+  { e: '🐕', t: 'ワンワンワンッ！！', bg: '#ffd166', fg: '#1f2a44', snd: 'bark', dog: true },
+  { e: '💃', t: 'サンバ・デ・チカイノウチ！！', bg: '#e63946', fg: '#fff', snd: 'samba' },
+  { e: '🕊️', t: 'ポッポー！！ ポッポー！！', bg: '#8ecae6', fg: '#1f2a44', snd: 'cuckoo' },
+  { e: '👻', t: 'うらめしや〜〜！！', bg: '#111', fg: '#e8f0ff', snd: 'ghost' },
+  { e: '🎤', t: 'こぶしが きいている〜〜！！', bg: '#6a1b9a', fg: '#fff', snd: 'enka' },
+  { e: '🐓', t: 'コケコッコーーー！！', bg: '#fb8500', fg: '#fff', snd: 'cock' },
+  { e: '💡', t: 'バツン！！（停電）', bg: '#000', fg: '#ffeb99', snd: 'zap' },
+];
+
+/* ================= util ================= */
+const rnd = n => Math.floor(Math.random() * n);
+const pick = a => a[rnd(a.length)];
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = rnd(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+let toastT = null;
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 1600); }
+
+/* ================= 音 ================= */
+let AC = null, master = null;
+let soundOn = lsGet('sound', '1') === '1';
+let scareMode = lsGet('scare', 'full');
+function initAudio(force) {
+  if (AC && force) { try { AC.close().catch(() => {}); } catch (e) {} AC = null; }
+  else if (AC) { if (AC.state === 'closed') AC = null; else { if (AC.state === 'suspended') AC.resume().catch(() => {}); return; } }
+  try {
+    const C = window.AudioContext || window.webkitAudioContext; if (!C) return;
+    AC = new C(); master = AC.createGain(); master.gain.value = .5; master.connect(AC.destination);
+  } catch (e) { AC = null; }
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) initAudio(false); });
+function tone(f, dur, type = 'sine', vol = .2, t0 = 0, f2 = null) {
+  if (!soundOn || !AC) return;
+  try {
+    const t = AC.currentTime + t0, o = AC.createOscillator(), g = AC.createGain();
+    o.type = type; o.frequency.setValueAtTime(f, t); if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + dur);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + .008); g.gain.exponentialRampToValueAtTime(.0005, t + dur);
+    o.connect(g); g.connect(master); o.start(t); o.stop(t + dur + .05);
+  } catch (e) {}
+}
+function noise(dur, vol = .3, t0 = 0, freq = 1200) {
+  if (!soundOn || !AC) return;
+  try {
+    const t = AC.currentTime + t0, n = Math.max(1, Math.floor(AC.sampleRate * dur)), b = AC.createBuffer(1, n, AC.sampleRate), d = b.getChannelData(0);
+    for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+    const s = AC.createBufferSource(), fl = AC.createBiquadFilter(), g = AC.createGain();
+    s.buffer = b; fl.type = 'lowpass'; fl.frequency.value = freq; g.gain.value = vol;
+    s.connect(fl); fl.connect(g); g.connect(master); s.start(t);
+  } catch (e) {}
+}
+const sfx = {
+  blip() { tone(880 + rnd(120), .03, 'square', .025); },
+  pop() { tone(500, .08, 'sine', .2, 0, 900); },
+  drop() { tone(320, .09, 'triangle', .22, 0, 180); },
+  buzz() { tone(140, .18, 'square', .08); },
+  memo() { noise(.08, .12, 0, 3000); tone(1200, .05, 'sine', .08, .05); },
+  done() { [523, 659, 784, 1046].forEach((f, i) => tone(f, .25, 'triangle', .16, i * .09)); },
+  stamp() { noise(.12, .4, 0, 400); tone(90, .2, 'sine', .4); },
+  scare(kind, k) {
+    const v = k;
+    noise(.35, .55 * v, 0, 2500); tone(70, .5, 'sawtooth', .35 * v, 0, 40);
+    const P = {
+      boss: () => { tone(330, .25, 'square', .3 * v, .05); tone(440, .45, 'square', .3 * v, .3); },
+      pop: () => { tone(300, .2, 'sine', .4 * v, .05, 1600); },
+      bark: () => { for (let i = 0; i < 3; i++) tone(700, .12, 'sawtooth', .3 * v, .05 + i * .18, 260); },
+      samba: () => { for (let i = 0; i < 10; i++) noise(.05, .35 * v, .05 + i * .09, i % 2 ? 6000 : 900); for (let i = 0; i < 4; i++) tone(2400, .08, 'sine', .25 * v, .1 + i * .12, 2000); },
+      cuckoo: () => { for (let i = 0; i < 2; i++) { tone(880, .18, 'sine', .4 * v, .05 + i * .45); tone(698, .25, 'sine', .4 * v, .25 + i * .45); } },
+      ghost: () => { tone(600, 1.2, 'sine', .3 * v, .05, 180); tone(606, 1.2, 'sine', .2 * v, .05, 184); },
+      enka: () => { [392, 440, 392, 349, 392].forEach((f, i) => tone(f, .32, 'triangle', .35 * v, .05 + i * .22, f * (i % 2 ? 1.03 : .97))); },
+      cock: () => { tone(500, .15, 'sawtooth', .3 * v, .05, 900); tone(900, .5, 'sawtooth', .3 * v, .22, 600); },
+      zap: () => { noise(.5, .5 * v, 0, 300); tone(55, .6, 'square', .3 * v); },
+    };
+    (P[kind] || P.pop)();
+  },
+};
+function sndIcon() {
+  $('sndBtn').innerHTML = soundOn
+    ? '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>'
+    : '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 9.5l5 5M21.5 9.5l-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+  $('sndBtn').setAttribute('aria-label', soundOn ? '音: オン' : '音: オフ');
+}
+$('sndBtn').addEventListener('click', () => { soundOn = !soundOn; lsSet('sound', soundOn ? '1' : '0'); sndIcon(); if (soundOn) { initAudio(false); sfx.pop(); } });
+sndIcon();
+
+/* ================= 共有 ================= */
+function shareHref(text) { return 'https://x.com/intent/post?text=' + encodeURIComponent(text + ' ' + HASHTAG) + '&url=' + encodeURIComponent(SHARE_URL); }
+function setShare(el, text) { el.href = shareHref(text); if (matchMedia('(pointer: coarse)').matches) { el.removeAttribute('target'); el.removeAttribute('rel'); } }
+setShare($('shareTitle'), '近いの家(チカイノウチ)｜施主の話を覚えて、希望に近い間取りを作るゲーム。途中でなにかが起きて、だいたい忘れる。');
+
+/* ================= 状態 ================= */
+const S = { mode: 'title', dk: lsGet('diff', 'normal'), cs: null, li: 0, typing: false, memos: [], memoLeft: 0, layout: {}, lf: {}, sel: null, paused: false, midDone: false, lastScare: -1 };
+if (!DIFF[S.dk]) S.dk = 'normal';
+
+/* ================= 案件の生成 ================= */
+function segs(tpl, map) {
+  const out = []; const re = /\{([ABF])\}/g; let last = 0, m;
+  while ((m = re.exec(tpl))) { if (m.index > last) out.push({ s: tpl.slice(last, m.index) }); out.push({ s: map[m[1]], kw: true }); last = re.lastIndex; }
+  if (last < tpl.length) out.push({ s: tpl.slice(last) });
+  return out;
+}
+function genCase(dk) {
+  const D = DIFF[dk], cells = D.cols * D.rows;
+  const idx = shuffle([...Array(cells).keys()]);
+  const sol = {}; D.rooms.forEach((r, i) => sol[r] = idx[i]);
+  const pos = r => ({ r: Math.floor(sol[r] / D.cols), c: sol[r] % D.cols });
+  const fk = shuffle(Object.keys(FURN));
+  const reqF = fk.slice(0, D.furn), decoyF = fk.slice(D.furn, D.furn + D.decoy);
+  const solF = {}; reqF.forEach(f => solF[f] = pick(D.rooms));
+
+  // 解に対して正しい候補
+  const cand = [];
+  for (const R of D.rooms) {
+    const p = pos(R);
+    if (p.r === 0) cand.push({ t: 'side', a: R, d: 'N' });
+    if (p.r === D.rows - 1) cand.push({ t: 'side', a: R, d: 'S' });
+    if (p.c === 0) cand.push({ t: 'side', a: R, d: 'W' });
+    if (p.c === D.cols - 1) cand.push({ t: 'side', a: R, d: 'E' });
+    if ((p.r === 0 || p.r === D.rows - 1) && (p.c === 0 || p.c === D.cols - 1)) cand.push({ t: 'corner', a: R });
+    if (D.rows === 3 && D.cols === 3 && p.r === 1 && p.c === 1) cand.push({ t: 'center', a: R });
+  }
+  for (let i = 0; i < D.rooms.length; i++) for (let j = i + 1; j < D.rooms.length; j++) {
+    const a = D.rooms[i], b = D.rooms[j], pa = pos(a), pb = pos(b);
+    const dd = Math.abs(pa.r - pb.r) + Math.abs(pa.c - pb.c);
+    const [x, y] = Math.random() < .5 ? [a, b] : [b, a];
+    if (dd === 1) cand.push({ t: 'adj', a: x, b: y });
+    else if (dd >= 2) cand.push({ t: 'far', a: x, b: y });
+  }
+  const need = D.req - D.furn;
+  const quota = { side: Math.ceil(need * .45), adj: Math.ceil(need * .35), far: Math.ceil(need * .3), corner: 1, center: 1 };
+  const chosen = [], used = {}, cnt = {};
+  const tryPick = (strict) => {
+    for (const k of shuffle(cand.slice())) {
+      if (chosen.length >= need) return;
+      if (chosen.includes(k)) continue;
+      const rs = [k.a, k.b].filter(Boolean);
+      if (rs.some(r => (used[r] || 0) >= (strict ? 1 : 2))) continue;
+      if (strict && (cnt[k.t] || 0) >= quota[k.t]) continue;
+      if (chosen.some(c => c.t === k.t && c.a === k.a && c.b === k.b)) continue;
+      chosen.push(k); rs.forEach(r => used[r] = (used[r] || 0) + 1); cnt[k.t] = (cnt[k.t] || 0) + 1;
+    }
+  };
+  tryPick(true); tryPick(false);
+  reqF.forEach(f => chosen.push({ t: 'furn', a: solF[f], f }));
+
+  // 家族
+  const fam = [];
+  const pool = PEOPLE.slice(2);
+  const parents = shuffle([PEOPLE[0], PEOPLE[1]]);
+  fam.push(parents[0], parents[1]);
+  shuffle(pool).slice(0, D.people - 2).forEach(p => fam.push(p));
+  const members = fam.map(p => ({ r: p.r, e: p.e, n: pick(p.names) }));
+  const surname = pick(SURNAMES);
+
+  // 文
+  const reqs = chosen.map(k => {
+    const map = { A: ROOMS[k.a].n, B: k.b ? ROOMS[k.b].n : '', F: k.f ? FURN[k.f].n : '' };
+    const tpl = k.t === 'side' ? pick(T.side[k.d]) : pick(T[k.t]);
+    let plain;
+    switch (k.t) {
+      case 'side': plain = `${map.A}を${DIRW[k.d]}側に`; break;
+      case 'corner': plain = `${map.A}を家の角に`; break;
+      case 'center': plain = `${map.A}を真ん中に`; break;
+      case 'adj': plain = `${map.A}と${map.B}をとなりに`; break;
+      case 'far': plain = `${map.A}と${map.B}を離す`; break;
+      case 'furn': plain = `${map.F}を${map.A}に`; break;
+    }
+    return { ...k, seg: segs(tpl, map), plain, sp: rnd(members.length), memo: true };
+  });
+  const fills = shuffle(FILLERS.slice()).slice(0, D.fill).map(t => ({ t: 'fill', seg: [{ s: t }], sp: rnd(members.length), memo: true }));
+  const body = shuffle(reqs.concat(fills));
+  const lines = [
+    { t: 'intro', seg: [{ s: `はじめまして、${surname}です。今日はよろしくお願いします。` }], sp: 0, memo: false },
+    { t: 'intro', seg: [{ s: '近いうちに、家を建てたいんです。家族みんなの希望、覚えてくださいね。' }], sp: 1, memo: false },
+    ...body,
+    { t: 'outro', seg: [{ s: '…と、まあ、そんなところです。じゃあ、お願いしますね！' }], sp: 0, memo: false },
+  ];
+  return { dk, D, sol, solF, reqs, lines, members, surname, decoyF, reqF };
+}
+
+/* ================= 画面切り替え ================= */
+function show(mode) {
+  S.mode = mode;
+  $('hear').hidden = mode !== 'hear';
+  $('place').hidden = mode !== 'place';
+  $('pauseBtn').hidden = !(mode === 'hear' || mode === 'place');
+}
+
+/* ================= タイトル ================= */
+function refreshTitle() {
+  document.querySelectorAll('#diffSeg button').forEach(b => b.classList.toggle('on', b.dataset.d === S.dk));
+  document.querySelectorAll('#scareSeg button').forEach(b => b.classList.toggle('on', b.dataset.s === scareMode));
+  for (const d of Object.keys(DIFF)) { const v = lsGet('best-' + d, null); $('best-' + d).textContent = v != null ? `最高 ${v}%` : '未挑戦'; }
+}
+$('diffSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.dk = b.dataset.d; lsSet('diff', S.dk); refreshTitle(); });
+$('scareSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; scareMode = b.dataset.s; lsSet('scare', scareMode); refreshTitle(); });
+$('startBtn').addEventListener('click', () => { initAudio(true); sfx.pop(); startCase(); });
+function backToTitle() {
+  S.paused = false; clearTimers();
+  $('pauseOv').hidden = true; $('resultOv').hidden = true; $('scareOv').hidden = true;
+  show('title'); refreshTitle(); $('titleOv').hidden = false;
+}
+$('titleBtn').addEventListener('click', backToTitle);
+$('againBtn').addEventListener('click', () => { initAudio(true); sfx.pop(); $('resultOv').hidden = true; startCase(); });
+
+/* ================= ヒアリング ================= */
+let typeT = null, scareT = [];
+function clearTimers() { clearInterval(typeT); typeT = null; scareT.forEach(clearTimeout); scareT = []; S.typing = false; }
+function startCase() {
+  S.cs = genCase(S.dk); S.li = 0; S.memos = []; S.memoLeft = S.cs.D.memo; S.layout = {}; S.lf = {}; S.sel = null; S.midDone = false; S.paused = false;
+  $('titleOv').hidden = true;
+  $('hearCase').textContent = `${S.cs.surname}さんの家（${S.cs.D.label}）`;
+  $('family').innerHTML = S.cs.members.map((m, i) => `<div class="person" data-i="${i}"><div class="face">${m.e}</div><div class="nm">${m.r}・${m.n}</div></div>`).join('');
+  renderMemos();
+  show('hear');
+  showLine(0);
+}
+function showLine(i) {
+  const L = S.cs.lines[i], m = S.cs.members[L.sp];
+  document.querySelectorAll('.person').forEach(p => p.classList.toggle('on', +p.dataset.i === L.sp));
+  $('who').textContent = `${m.r}の${m.n}さん`;
+  $('hearCount').textContent = `${i + 1} / ${S.cs.lines.length}`;
+  const say = $('say'); say.innerHTML = '';
+  const chars = [];
+  L.seg.forEach(sg => {
+    const wrap = sg.kw ? document.createElement('span') : say;
+    if (sg.kw) { wrap.className = 'kw'; say.appendChild(wrap); }
+    Array.from(sg.s).forEach(ch => { const sp = document.createElement('span'); sp.className = 'ch'; sp.textContent = ch; wrap.appendChild(sp); chars.push(sp); });
+  });
+  S.typing = true; $('tapHint').hidden = true;
+  let k = 0;
+  clearInterval(typeT);
+  typeT = setInterval(() => {
+    if (S.paused) return;
+    for (let n = 0; n < 2 && k < chars.length; n++) chars[k++].classList.add('v');
+    if (k % 4 < 2) sfx.blip();
+    if (k >= chars.length) finishType();
+  }, 34);
+  updateMemoBtn();
+  $('nextBtn').textContent = i === S.cs.lines.length - 1 ? '打ち合わせ終了 ▶' : 'つぎへ ▶';
+}
+function finishType() {
+  clearInterval(typeT); typeT = null; S.typing = false;
+  document.querySelectorAll('#say .ch').forEach(c => c.classList.add('v'));
+  $('tapHint').hidden = false;
+}
+function nextLine() {
+  if (S.mode !== 'hear' || S.paused) return;
+  if (S.typing) { finishType(); return; }
+  S.li++;
+  const n = S.cs.lines.length;
+  if (S.cs.D.mid && !S.midDone && S.li === Math.floor(n * .55)) { S.midDone = true; doScare(true); return; }
+  if (S.li >= n) { doScare(false); return; }
+  showLine(S.li);
+}
+$('nextBtn').addEventListener('click', nextLine);
+$('bubble').addEventListener('click', nextLine);
+function updateMemoBtn() {
+  const L = S.cs.lines[S.li];
+  const already = S.memos.some(m => m.line === L);
+  const b = $('memoBtn');
+  b.textContent = already ? '付箋に書いた ✓' : `付箋に書く（${S.memoLeft}枚）`;
+  b.disabled = !L.memo || already || S.memoLeft <= 0;
+}
+$('memoBtn').addEventListener('click', () => {
+  if (S.mode !== 'hear' || S.paused) return;
+  const L = S.cs.lines[S.li];
+  if (!L.memo || S.memoLeft <= 0 || S.memos.some(m => m.line === L)) return;
+  if (S.typing) finishType();
+  S.memos.push({ line: L }); S.memoLeft--; sfx.memo(); updateMemoBtn(); renderMemos();
+});
+function memoHTML() {
+  return S.memos.map(m => {
+    const p = S.cs.members[m.line.sp];
+    return `<div class="memo"><small>${p.r}・${p.n}さん</small>${m.line.seg.map(s => s.kw ? `<span class="kw">${s.s}</span>` : s.s).join('')}</div>`;
+  }).join('');
+}
+function renderMemos() {
+  $('memoList1').innerHTML = memoHTML();
+  $('memoList2').innerHTML = memoHTML();
+  $('memoH1').textContent = S.memos.length ? '付箋' : '';
+}
+
+/* ================= びっくり ================= */
+function doScare(mid) {
+  S.mode = 'scare'; $('pauseBtn').hidden = true;
+  let i; do { i = rnd(SCARES.length); } while (i === S.lastScare && SCARES.length > 1);
+  S.lastScare = i;
+  const sc = SCARES[i], soft = scareMode === 'soft';
+  const ov = $('scareOv');
+  ov.className = ''; ov.style.background = sc.bg; ov.style.color = sc.fg;
+  $('scareEm').textContent = sc.e; $('scareTx').textContent = sc.t;
+  let after = mid ? '…し、失礼しました。えーと、続きですが…' : '……えっと、なんの話だっけ？';
+  if (sc.dog && S.memos.length) {
+    const k = rnd(S.memos.length); S.memos.splice(k, 1); renderMemos();
+    after = '犬が付箋を1枚くわえていった！\n' + after;
+  }
+  $('scareAfter').textContent = '';
+  after.split('\n').forEach((t, n) => { if (n) $('scareAfter').appendChild(document.createElement('br')); $('scareAfter').appendChild(document.createTextNode(t)); });
+  ov.hidden = false;
+  void ov.offsetWidth;
+  ov.classList.add('go'); if (!soft) ov.classList.add('shake'); else ov.classList.add('soft');
+  if (navigator.vibrate && !soft) { try { navigator.vibrate([120, 60, 120]); } catch (e) {} }
+  sfx.scare(sc.snd, soft ? .3 : 1);
+  scareT.push(setTimeout(() => ov.classList.add('after'), 1700));
+  scareT.push(setTimeout(() => {
+    ov.hidden = true; ov.className = '';
+    if (mid) { show('hear'); showLine(S.li); }
+    else startPlace();
+  }, 3300));
+}
+
+/* ================= 配置 ================= */
+function startPlace() {
+  show('place');
+  const D = S.cs.D;
+  $('placeCase').textContent = `${S.cs.surname}さんの家（${D.label}）`;
+  const bd = $('board');
+  bd.style.setProperty('--cols', D.cols);
+  $('boardWrap').style.setProperty('--rows', D.rows);
+  renderPlace();
+  requestAnimationFrame(layoutBoard);
+}
+function roomAt(ci) { for (const r in S.layout) if (S.layout[r] === ci) return r; return null; }
+function furnOf(r) { return Object.keys(S.lf).filter(f => S.lf[f] === r); }
+function renderPlace() {
+  const D = S.cs.D, n = D.cols * D.rows;
+  let h = '';
+  for (let i = 0; i < n; i++) {
+    const r = roomAt(i);
+    if (!r) { h += `<div class="cell empty" data-ci="${i}"></div>`; continue; }
+    const R = ROOMS[r], sel = S.sel && S.sel.kind === 'room' && S.sel.id === r;
+    const fz = furnOf(r).map(f => `<span class="fchip" data-f="${f}" data-from="board"><span class="fe">${FURN[f].e}</span><span class="fn">${FURN[f].n}</span></span>`).join('');
+    h += `<div class="cell" data-ci="${i}"><div class="room${sel ? ' sel' : ''}" data-room="${r}" data-from="board" style="background:${R.c}"><span class="em">${R.e}</span><span class="rn">${R.n}</span>${fz ? `<span class="fz">${fz}</span>` : ''}</div></div>`;
+  }
+  $('board').innerHTML = h;
+  layoutBoard();
+  const unR = D.rooms.filter(r => S.layout[r] == null);
+  $('palRooms').innerHTML = unR.length ? unR.map(r => `<span class="tile${S.sel && S.sel.id === r ? ' sel' : ''}" data-room="${r}" data-from="pal" style="background:${ROOMS[r].c}">${ROOMS[r].e} ${ROOMS[r].n}</span>`).join('') : '<span class="none">ぜんぶ置きました</span>';
+  const allF = shuffledFurn();
+  const unF = allF.filter(f => S.lf[f] == null);
+  $('palFurn').innerHTML = unF.length ? unF.map(f => `<span class="tile f${S.sel && S.sel.id === f ? ' sel' : ''}" data-f="${f}" data-from="pal">${FURN[f].e} ${FURN[f].n}</span>`).join('') : '<span class="none">ぜんぶ置きました</span>';
+  $('placeCount').textContent = `部屋 ${D.rooms.length - unR.length}/${D.rooms.length}`;
+  const boardSel = S.sel && S.sel.kind === 'room' && S.sel.from === 'board';
+  $('stowBtn').hidden = !boardSel;
+  $('selInfo').textContent = S.sel ? (S.sel.kind === 'room' ? `「${ROOMS[S.sel.id].n}」を置くマスをタップ` : `「${FURN[S.sel.id].n}」を置く部屋をタップ`) : '';
+  disarmDone();
+}
+function shuffledFurn() {
+  if (!S.cs.furnOrder) S.cs.furnOrder = shuffle(S.cs.reqF.concat(S.cs.decoyF));
+  return S.cs.furnOrder;
+}
+function layoutBoard() {
+  if (S.mode !== 'place') return;
+  const D = S.cs.D, w = $('boardWrap');
+  const W = Math.max(1, w.clientWidth - 64), H = Math.max(1, w.clientHeight - 60);
+  const cell = Math.floor(Math.max(44, Math.min(W / D.cols, H / D.rows, 150)));
+  $('board').style.setProperty('--cell', cell + 'px');
+  $('board').classList.toggle('compact', cell < 112);
+  document.documentElement.style.setProperty('--cell', cell + 'px');
+}
+addEventListener('resize', layoutBoard);
+
+function dropOn(src, ci) {
+  if (src.kind === 'room') {
+    const prev = S.layout[src.id], occ = roomAt(ci);
+    if (occ === src.id) return;
+    if (occ) { if (prev != null) S.layout[occ] = prev; else { delete S.layout[occ]; furnOf(occ).forEach(f => delete S.lf[f]); } }
+    S.layout[src.id] = ci; sfx.drop();
+  } else {
+    const occ = roomAt(ci);
+    if (!occ) { toast('先に部屋を置いてね'); sfx.buzz(); return; }
+    if (S.lf[src.id] !== occ && furnOf(occ).length >= 2) { toast('この部屋は家具でいっぱい'); sfx.buzz(); return; }
+    S.lf[src.id] = occ; sfx.pop();
+  }
+}
+function stow(src) {
+  if (src.kind === 'room') { delete S.layout[src.id]; furnOf(src.id).forEach(f => delete S.lf[f]); }
+  else delete S.lf[src.id];
+  sfx.pop();
+}
+function srcOf(el) {
+  if (!el) return null;
+  if (el.dataset.f) return { kind: 'furn', id: el.dataset.f, from: el.dataset.from };
+  if (el.dataset.room) return { kind: 'room', id: el.dataset.room, from: el.dataset.from };
+  return null;
+}
+let drag = null;
+$('place').addEventListener('pointerdown', e => {
+  if (S.mode !== 'place' || S.paused) return;
+  if (e.target.closest('button')) return;
+  const el = e.target.closest('[data-f],[data-room]');
+  const cell = e.target.closest('.cell');
+  if (!el && !cell) return;
+  drag = { id: e.pointerId, x: e.clientX, y: e.clientY, el, src: srcOf(el), cell, moved: false, ghost: null, over: null };
+});
+addEventListener('pointermove', e => {
+  if (!drag || e.pointerId !== drag.id) return;
+  const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+  if (!drag.moved && drag.src && dx * dx + dy * dy > 64) {
+    drag.moved = true;
+    const g = drag.el.cloneNode(true); g.classList.add('ghostDrag'); g.classList.remove('sel');
+    if (drag.el.classList.contains('room')) { g.style.width = drag.el.offsetWidth + 'px'; g.style.height = drag.el.offsetHeight + 'px'; }
+    document.body.appendChild(g); drag.ghost = g;
+  }
+  if (drag.moved) {
+    drag.ghost.style.left = e.clientX + 'px'; drag.ghost.style.top = e.clientY + 'px';
+    const over = document.elementFromPoint(e.clientX, e.clientY);
+    const c = over && over.closest('.cell');
+    if (drag.over !== c) { if (drag.over) drag.over.classList.remove('target'); if (c) c.classList.add('target'); drag.over = c; }
+    e.preventDefault();
+  }
+}, { passive: false });
+function endDrag(e, cancel) {
+  if (!drag || e.pointerId !== drag.id) return;
+  const d = drag; drag = null;
+  if (d.ghost) d.ghost.remove();
+  if (d.over) d.over.classList.remove('target');
+  if (cancel) return;
+  if (d.moved) {
+    const over = document.elementFromPoint(e.clientX, e.clientY);
+    const c = over && over.closest('.cell');
+    if (c) dropOn(d.src, +c.dataset.ci);
+    else if (d.src.from === 'board') stow(d.src);
+    S.sel = null; renderPlace(); return;
+  }
+  tap(d.src, d.cell);
+}
+addEventListener('pointerup', e => endDrag(e, false));
+addEventListener('pointercancel', e => endDrag(e, true));
+function tap(src, cell) {
+  if (src && src.kind === 'furn' && src.from === 'board' && !S.sel) { stow(src); renderPlace(); return; }
+  if (src && src.from === 'pal') {
+    S.sel = (S.sel && S.sel.id === src.id) ? null : src; sfx.blip(); renderPlace(); return;
+  }
+  if (cell) {
+    const ci = +cell.dataset.ci;
+    if (S.sel) {
+      if (S.sel.kind === 'room' && S.sel.from === 'board' && roomAt(ci) === S.sel.id) { S.sel = null; renderPlace(); return; }
+      dropOn(S.sel, ci); S.sel = null; renderPlace(); return;
+    }
+    const r = roomAt(ci);
+    if (r) { S.sel = { kind: 'room', id: r, from: 'board' }; sfx.blip(); renderPlace(); }
+  }
+}
+$('stowBtn').addEventListener('click', () => { if (S.sel) { stow(S.sel); S.sel = null; renderPlace(); } });
+
+// 引き渡し(置いてない部屋があれば2回押し)
+let doneArmed = false, doneT = null;
+function disarmDone() { doneArmed = false; clearTimeout(doneT); const b = $('doneBtn'); b.textContent = '引き渡す！'; b.classList.remove('danger'); }
+$('doneBtn').addEventListener('click', () => {
+  if (S.mode !== 'place' || S.paused) return;
+  const un = S.cs.D.rooms.filter(r => S.layout[r] == null).length;
+  if (un && !doneArmed) {
+    doneArmed = true; const b = $('doneBtn');
+    b.textContent = `未配置が${un}部屋。それでも引き渡す？`; b.classList.add('danger');
+    clearTimeout(doneT); doneT = setTimeout(disarmDone, 3000); return;
+  }
+  disarmDone(); finish();
+});
+
+/* ================= 採点 ================= */
+function check(k, L, LF, D) {
+  const p = r => L[r] == null ? null : { r: Math.floor(L[r] / D.cols), c: L[r] % D.cols };
+  const a = p(k.a), b = k.b ? p(k.b) : null;
+  switch (k.t) {
+    case 'side': if (!a) return false; return k.d === 'N' ? a.r === 0 : k.d === 'S' ? a.r === D.rows - 1 : k.d === 'W' ? a.c === 0 : a.c === D.cols - 1;
+    case 'corner': return !!a && (a.r === 0 || a.r === D.rows - 1) && (a.c === 0 || a.c === D.cols - 1);
+    case 'center': return !!a && a.r === 1 && a.c === 1;
+    case 'adj': return !!a && !!b && Math.abs(a.r - b.r) + Math.abs(a.c - b.c) === 1;
+    case 'far': return !!a && !!b && Math.abs(a.r - b.r) + Math.abs(a.c - b.c) >= 2;
+    case 'furn': return !!a && LF[k.f] === k.a;
+  }
+  return false;
+}
+function miniHTML(L, LF, D) {
+  let h = `<div class="mini" style="grid-template-columns:repeat(${D.cols},1fr);--ar:${D.cols}/${D.rows}">`;
+  for (let i = 0; i < D.cols * D.rows; i++) {
+    let r = null; for (const k in L) if (L[k] === i) r = k;
+    if (!r) { h += '<div></div>'; continue; }
+    const fs = Object.keys(LF).filter(f => LF[f] === r).map(f => FURN[f].e).join('');
+    h += `<div style="background:${ROOMS[r].c}"><span class="me">${ROOMS[r].e}</span>${ROOMS[r].n}${fs ? `<span class="mf">${fs}</span>` : ''}</div>`;
+  }
+  return h + '</div>';
+}
+const REACT = [
+  [100, '誓います、ここに住みます！！', '誓いの家'],
+  [80, 'ほぼ理想どおり！ ありがとうございます！', '近い家'],
+  [60, 'うん…まあ、住めなくはないかな。', 'まあまあ'],
+  [40, 'ちょっと…話、聞いてました？', '遠い家'],
+  [0, '……これ、どなたの家ですか？', '他人の家'],
+];
+function finish() {
+  S.mode = 'result'; $('pauseBtn').hidden = true; S.sel = null;
+  const cs = S.cs, D = cs.D;
+  const res = cs.reqs.map(k => ({ k, ok: check(k, S.layout, S.lf, D) }));
+  const ok = res.filter(r => r.ok).length;
+  const pct = Math.round(ok / res.length * 100);
+  const prevBest = +lsGet('best-' + cs.dk, -1);
+  const isBest = pct > prevBest;
+  if (isBest) lsSet('best-' + cs.dk, pct);
+  const R = REACT.find(r => pct >= r[0]);
+  const m = cs.members[pct >= 60 ? 0 : 1];
+  $('resCase').textContent = `${cs.surname}さんの家（${D.label}）・守れた希望 ${ok}/${res.length}`;
+  $('react').innerHTML = `<span class="face">${m.e}</span><p><small>${m.r}の${m.n}さん</small>${R[1]}</p>`;
+  $('stamp').textContent = R[2]; $('stamp').classList.remove('on');
+  $('resBest').textContent = isBest && prevBest >= 0 ? '自己ベスト更新！' : `自己ベスト ${Math.max(pct, prevBest)}%`;
+  $('miniMine').innerHTML = miniHTML(S.layout, S.lf, D);
+  $('miniSol').innerHTML = miniHTML(cs.sol, cs.solF, D);
+  $('reqList').innerHTML = res.map(({ k, ok }) => {
+    const p = cs.members[k.sp];
+    const said = k.seg.map(s => s.kw ? `<b>${s.s}</b>` : s.s).join('');
+    return `<li class="${ok ? 'ok' : 'ng'}"><span class="mk">${ok ? '✓' : '✕'}</span><span>${said}<small>${p.r}・${p.n}さん ／ ${k.plain}</small></span></li>`;
+  }).join('');
+  setShare($('shareResult'), `近いの家【${D.label}】で、${cs.surname}さんの希望への近さ${pct}%（${R[2]}）！`);
+  $('resultOv').hidden = false; $('resultOv').scrollTop = 0;
+  sfx.done();
+  // 数字カウントアップ
+  const t0 = performance.now();
+  const tick = now => { const t = Math.min(1, (now - t0) / 900); $('pctNum').textContent = Math.round(pct * (1 - Math.pow(1 - t, 3))); if (t < 1 && S.mode === 'result') requestAnimationFrame(tick); else { $('pctNum').textContent = pct; } };
+  requestAnimationFrame(tick);
+  scareT.push(setTimeout(() => { $('stamp').classList.add('on'); sfx.stamp(); }, 950));
+}
+
+/* ================= 一時停止 ================= */
+let quitArmed = false, quitT = null;
+function disarmQuit() { quitArmed = false; clearTimeout(quitT); $('quitBtn').textContent = 'タイトルへ'; $('quitBtn').classList.remove('danger'); }
+$('pauseBtn').addEventListener('click', () => {
+  if (!(S.mode === 'hear' || S.mode === 'place')) return;
+  S.paused = true; disarmQuit();
+  const st = S.mode === 'hear' ? `ヒアリング中（${S.li + 1}/${S.cs.lines.length}）` : `配置中（部屋 ${Object.keys(S.layout).length}/${S.cs.D.rooms.length}）`;
+  $('pauseStatus').textContent = `${S.cs.surname}さんの家・${S.cs.D.label}・${st}`;
+  setShare($('sharePause'), `近いの家【${S.cs.D.label}】で${S.cs.surname}さんの家を設計中。${st}`);
+  $('pauseOv').hidden = false;
+});
+$('resumeBtn').addEventListener('click', () => { S.paused = false; disarmQuit(); $('pauseOv').hidden = true; });
+$('quitBtn').addEventListener('click', () => {
+  if (!quitArmed) { quitArmed = true; $('quitBtn').textContent = '本当に？(もう一度タップ)'; $('quitBtn').classList.add('danger'); clearTimeout(quitT); quitT = setTimeout(disarmQuit, 3000); return; }
+  disarmQuit(); backToTitle();
+});
+
+addEventListener('keydown', e => {
+  if (e.target && e.target.closest && e.target.closest('button,a')) return;   // ボタン上のEnterはclickで処理される
+  if (S.mode === 'hear' && !S.paused && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); nextLine(); }
+});
+
+refreshTitle();
+show('title');
+})();
+</script>
+</body>
+</html>

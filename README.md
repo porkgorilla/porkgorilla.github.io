@@ -64,6 +64,7 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 | [おでんツンツン](https://porkgorilla.com/works/oden-tsuntsun.html) | GAME | おでんの具に指を近づけて、ツンツンされるゲーム |
 | [スシピアノ](https://porkgorilla.com/works/sushipiano.html) | GAME | 寿司の鍵盤を、お客さんが勝手に食べていくピアノ |
 | [まゆテツ](https://porkgorilla.com/works/mayutetsu.html) | GAME | 眉毛のないおじさんに蹄鉄を投げて、眉毛にするゲーム |
+| [近いの家](https://porkgorilla.com/works/chikainouchi.html) | GAME | 施主の話を覚えて、希望に近い間取りを作るゲーム |
 
 ## 構成
 
@@ -131,7 +132,8 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
     ├── nise-roblox.html
     ├── oden-tsuntsun.html
     ├── sushipiano.html
-    └── mayutetsu.html
+    ├── mayutetsu.html
+    └── chikainouchi.html
 ```
 
 `theme.css` / `site.js` / `favicon.svg` はルート直下に置き、各作品ページからは絶対パス(`/theme.css` など)で読み込みます。404.html も GitHub Pages の仕様上ルート直下が必須です。
