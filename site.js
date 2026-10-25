@@ -261,6 +261,7 @@ window.renderWorkCards = function (container, works) {
       '<a href="/tools/">TOOLS</a>' +
       '<a href="/language/">LANGUAGE</a>' +
       '<a href="/apps/">APPS</a>' +
+      '<a href="/#links">LINKS</a>' +
       '<a href="/#about">ABOUT</a>' +
       '<a href="/#log">LOG</a>' +
     '</nav>';
