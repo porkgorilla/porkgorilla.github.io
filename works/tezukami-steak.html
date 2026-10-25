@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>てづかみステーキ | porkgorilla://</title>
+<meta name="description" content="座布団サイズの肉を素手で掴んで、ビタンと叩きつけて焼く。コンボでFEVER、味付けはミルでお好みで、最後は両手で掴んで貪る豪快ステーキ調理シミュレーター。">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-MBT4300J0L');
+</script>
+<meta property="og:type" content="website">
+<meta property="og:title" content="てづかみステーキ">
+<meta property="og:description" content="座布団サイズの肉を素手で掴んで、ビタンと叩きつけて焼く豪快ステーキ調理シミュレーター">
+<meta property="og:url" content="https://porkgorilla.com/works/tezukami-steak.html">
+<meta property="og:image" content="https://porkgorilla.com/assets/og-tezukami-steak.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="てづかみステーキ">
+<meta name="twitter:description" content="座布団サイズの肉を素手で掴んで、ビタンと叩きつけて焼く豪快ステーキ調理シミュレーター">
+<meta name="twitter:image" content="https://porkgorilla.com/assets/og-tezukami-steak.jpg">
+<style>
+[hidden]{display:none!important}
+:root{
+  --bg:#120b07; --panel:rgba(24,15,10,.86); --ink:#fff1de; --sub:#b89b80; --line:rgba(255,190,130,.22);
+  --acc:#ff8a2a; --acc2:#ffcc4d; --red:#e0432b; --ok:#7fd36b;
+  --f:"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic","Meiryo",system-ui,sans-serif;
+}
+html{height:100%;box-sizing:border-box;background:var(--bg)}
+*,*::before,*::after{box-sizing:inherit}
+body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--f);
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+#stage{position:relative;width:100%;height:100%;overflow:hidden}
+#cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+button{font-family:inherit;-webkit-tap-highlight-color:transparent}
+
+/* top bar */
+#top{position:absolute;left:0;right:0;top:0;z-index:30;display:flex;align-items:center;gap:8px;
+  padding:max(8px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) 8px max(10px,env(safe-area-inset-left));
+  pointer-events:none;background:linear-gradient(rgba(10,6,4,.7),rgba(10,6,4,0))}
+.home{color:var(--sub);text-decoration:none;font-size:12px;letter-spacing:.04em;white-space:nowrap;pointer-events:auto;padding:12px 4px}
+.home:hover{color:var(--ink)}
+#chip{font-size:12px;font-weight:800;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
+#chip b{color:var(--acc2)}
+.ibtn{pointer-events:auto;min-width:44px;min-height:44px;border-radius:12px;border:1px solid var(--line);background:rgba(30,18,12,.7);
+  color:var(--ink);display:grid;place-items:center;cursor:pointer;padding:0}
+.ibtn:hover{background:rgba(60,34,20,.8)}
+.ibtn svg{width:22px;height:22px;display:block}
+.pz{display:flex;gap:5px}.pz i{display:block;width:5px;height:16px;border-radius:2px;background:currentColor}
+
+/* score */
+#scoreBox{position:absolute;z-index:6;left:50%;top:calc(max(8px,env(safe-area-inset-top)) + 50px);transform:translateX(-50%);text-align:center;pointer-events:none;white-space:nowrap}
+#scoreNum{font-size:clamp(26px,7vw,40px);font-weight:900;color:#ffe08a;-webkit-text-stroke:1.5px #3a1606;paint-order:stroke fill;text-shadow:0 3px 0 #3a1606;font-variant-numeric:tabular-nums;line-height:1}
+#scoreNum small{font-size:.45em;color:var(--sub);-webkit-text-stroke:0;text-shadow:none;margin-left:3px}
+#comboTxt{font-size:15px;font-weight:900;color:#9ff08a;margin-top:4px;-webkit-text-stroke:1px #102a08;paint-order:stroke fill;min-height:18px}
+#comboTxt.bump{animation:bump .25s ease-out}
+@keyframes bump{0%{transform:scale(1.6)}100%{transform:scale(1)}}
+#feverBan{position:absolute;z-index:6;left:50%;top:calc(max(8px,env(safe-area-inset-top)) + 118px);transform:translateX(-50%);pointer-events:none;
+  font-size:clamp(20px,6vw,30px);font-weight:900;letter-spacing:.08em;color:#fff;white-space:nowrap;
+  background:linear-gradient(90deg,#ff3d6e,#ff9a2a,#ffe14d,#ff9a2a,#ff3d6e);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 3px 0 #3a1606);animation:fever 1s linear infinite}
+#feverBan i{display:block;height:4px;border-radius:2px;background:rgba(255,255,255,.2);margin-top:2px;overflow:hidden;-webkit-text-fill-color:initial}
+#feverBan i b{display:block;height:100%;background:#ffd84d}
+@keyframes fever{to{background-position:-200% 0}}
+#glow{position:absolute;inset:0;z-index:3;pointer-events:none;box-shadow:inset 0 0 90px 20px rgba(255,120,30,.55);opacity:0;transition:opacity .4s}
+#glow.on{opacity:1;animation:glow .9s ease-in-out infinite alternate}
+@keyframes glow{from{box-shadow:inset 0 0 70px 10px rgba(255,90,40,.35)}to{box-shadow:inset 0 0 120px 30px rgba(255,190,60,.6)}}
+
+/* HUD panels */
+.panel{position:absolute;left:0;right:0;bottom:0;z-index:5;pointer-events:none;
+  padding:10px max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));
+  background:linear-gradient(rgba(10,6,4,0),rgba(10,6,4,.78) 30%)}
+.pin{max-width:760px;margin-left:auto;margin-right:auto}
+.hint{font-size:13px;font-weight:700;text-align:center;color:var(--ink);text-shadow:0 2px 6px #000;margin-bottom:8px}
+.hint em{font-style:normal;color:var(--acc2)}
+.row{display:flex;gap:10px;align-items:stretch}
+.bars{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.bar{display:grid;grid-template-columns:44px minmax(0,1fr) 46px;align-items:center;gap:6px;font-size:12px;font-weight:800}
+.bar .lab{white-space:nowrap}
+.bar .lab.fire{color:var(--acc)}
+.track{position:relative;height:14px;border-radius:7px;background:rgba(255,255,255,.08);border:1px solid var(--line);overflow:hidden}
+.track .zone{position:absolute;top:0;bottom:0;background:rgba(127,211,107,.28);border-left:2px solid var(--ok);border-right:2px solid var(--ok)}
+.track .burn{position:absolute;top:0;bottom:0;right:0;background:repeating-linear-gradient(45deg,rgba(224,67,43,.35) 0 5px,rgba(0,0,0,.2) 5px 10px)}
+.track .fill{position:absolute;left:0;top:0;bottom:0;border-radius:7px}
+.track .nx{position:absolute;top:0;bottom:0;width:3px;margin-left:-1px;background:#fff;box-shadow:0 0 6px #fff;display:none}
+.bar .val{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.juice .fill{background:linear-gradient(90deg,#c0392b,#ff7a59)}
+.free .zone,.free .burn{display:none}
+.bigbtn{pointer-events:auto;border:0;border-radius:14px;background:linear-gradient(#ff9a3a,#e0602b);color:#fff;font-weight:900;font-size:16px;
+  padding:0 16px;min-height:52px;cursor:pointer;box-shadow:0 4px 0 #8a3414,0 6px 18px rgba(0,0,0,.4);white-space:nowrap;letter-spacing:.04em}
+.bigbtn:active{transform:translateY(2px);box-shadow:0 2px 0 #8a3414}
+.bigbtn:disabled{filter:grayscale(.85) brightness(.6);cursor:default}
+#finBtn{align-self:center}
+
+#powerWrap{position:absolute;z-index:6;right:max(10px,env(safe-area-inset-right));top:50%;transform:translateY(-60%);pointer-events:none}
+#powerWrap .cap{font-size:11px;font-weight:900;text-align:center;margin-bottom:4px;text-shadow:0 1px 4px #000}
+#power{position:relative;width:30px;height:200px;border-radius:15px;background:rgba(0,0,0,.55);border:2px solid rgba(255,220,170,.4);overflow:hidden}
+#power .pf{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(0deg,#ff6b2a,#ffd34d)}
+#power .pp{position:absolute;left:0;right:0;top:0;height:14%;border-bottom:2px dashed #fff;background:rgba(255,255,255,.15)}
+#power.fv{border-color:#ffd84d;box-shadow:0 0 14px rgba(255,200,60,.7)}
+
+.mills{display:flex;gap:10px}
+.mill{flex:1;min-width:0;pointer-events:auto;position:relative;border-radius:16px;border:2px solid var(--line);background:rgba(30,18,12,.85);color:var(--ink);
+  min-height:64px;cursor:pointer;font-weight:900;font-size:15px;padding:8px 10px 18px;overflow:hidden;touch-action:none}
+.mill.on{border-color:var(--acc2);background:rgba(70,40,18,.92)}
+.mill small{display:block;font-size:11px;font-weight:700;color:var(--sub)}
+.mill .g{position:absolute;left:10px;right:10px;bottom:8px;height:6px;border-radius:3px;background:rgba(255,255,255,.1);overflow:hidden}
+.mill .g i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--acc2)}
+.mill .g u{position:absolute;top:0;bottom:0;border-left:1px solid rgba(127,211,107,.9);border-right:1px solid rgba(127,211,107,.9);background:rgba(127,211,107,.2)}
+#eatBtn{width:100%;margin-top:10px}
+.tog{pointer-events:auto;min-height:44px;padding:0 14px;border-radius:12px;border:2px solid var(--line);background:rgba(30,18,12,.85);color:var(--ink);font-weight:900;font-size:13px;cursor:pointer;white-space:nowrap}
+.tog.on{border-color:var(--acc2);background:rgba(255,138,42,.3);color:#fff}
+
+#pops{position:absolute;inset:0;pointer-events:none;z-index:8;overflow:hidden}
+.pop{position:absolute;transform:translate(-50%,-50%);font-weight:900;white-space:nowrap;color:#ffd84d;
+  -webkit-text-stroke:2px #3a1606;paint-order:stroke fill;text-shadow:0 4px 0 #3a1606,0 8px 18px rgba(0,0,0,.5);animation:pop .95s ease-out forwards}
+.pop.big{font-size:min(15vw,92px);color:#fff1a8}
+.pop.huge{font-size:min(13vw,110px);color:#fff;-webkit-text-stroke:3px #7a1606;text-shadow:0 5px 0 #7a1606,0 0 30px rgba(255,160,40,.8)}
+.pop.mid{font-size:min(10vw,54px)}
+.pop.sm{font-size:min(7vw,30px);color:#fff}
+.pop.bad{color:#ffb3a3}
+.pop.tag{font-size:min(5.5vw,22px);color:#9ff08a;-webkit-text-stroke:1.5px #102a08}
+.pop.pts{font-size:min(6.5vw,30px);color:#fff;-webkit-text-stroke:1.5px #3a1606;animation:pts .9s ease-out forwards}
+@keyframes pop{0%{opacity:0;transform:translate(-50%,-50%) scale(.3) rotate(-8deg)}
+  14%{opacity:1;transform:translate(-50%,-50%) scale(1.15) rotate(-4deg)}
+  30%{transform:translate(-50%,-55%) scale(1) rotate(-3deg)}
+  100%{opacity:0;transform:translate(-50%,-120%) scale(1) rotate(-3deg)}}
+@keyframes pts{0%{opacity:0;transform:translate(-50%,-30%) scale(.6)}20%{opacity:1;transform:translate(-50%,-60%) scale(1.1)}100%{opacity:0;transform:translate(-50%,-200%) scale(1)}}
+
+.ov{position:absolute;inset:0;z-index:20;display:grid;place-items:center;overflow:auto;
+  padding:calc(max(8px,env(safe-area-inset-top)) + 56px) 14px max(16px,env(safe-area-inset-bottom));
+  background:radial-gradient(ellipse at 50% 40%,rgba(30,14,6,.35),rgba(8,4,2,.82))}
+.card{width:100%;max-width:520px;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:22px 20px 18px;
+  box-shadow:0 20px 60px rgba(0,0,0,.6);text-align:center;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.logo{font-size:clamp(40px,12vw,68px);font-weight:900;line-height:1.02;letter-spacing:.02em;margin:0 0 6px;
+  background:linear-gradient(180deg,#fff3c4 0%,#ffb347 45%,#e0432b 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 4px 0 #3a1606) drop-shadow(0 10px 20px rgba(0,0,0,.6));transform:rotate(-3deg)}
+.logo small{display:block;font-size:.3em;letter-spacing:.3em;margin-top:4px}
+.lead{font-size:14px;font-weight:700;margin:12px 0 14px;line-height:1.6}
+.steps{text-align:left;font-size:13px;line-height:1.55;margin:0 auto 14px;padding:0;list-style:none;max-width:400px}
+.steps li{display:flex;gap:10px;margin-bottom:7px}
+.steps b{flex:none;width:24px;height:24px;border-radius:50%;background:var(--acc);color:#2a1006;display:grid;place-items:center;font-size:13px}
+.steps em{font-style:normal;color:var(--acc2);font-weight:800}
+.seg{display:flex;gap:6px;justify-content:center;margin:4px 0 14px;flex-wrap:wrap}
+.seg button{min-height:44px;padding:0 14px;border-radius:12px;border:2px solid var(--line);background:rgba(255,255,255,.04);color:var(--ink);font-weight:800;font-size:14px;cursor:pointer}
+.seg button.on{border-color:var(--acc);background:rgba(255,138,42,.18);color:#fff}
+.seglab{font-size:12px;color:var(--sub);font-weight:700}
+.actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;margin-top:6px}
+.go{border:0;border-radius:14px;background:linear-gradient(#ff9a3a,#e0602b);color:#fff;font-weight:900;font-size:17px;min-height:52px;padding:0 26px;cursor:pointer;
+  box-shadow:0 4px 0 #8a3414;letter-spacing:.05em}
+.go:active{transform:translateY(2px);box-shadow:0 2px 0 #8a3414}
+.go.ghost{background:transparent;color:#ffb066;box-shadow:none;border:2px solid rgba(255,138,42,.55)}
+.go.ghost:hover{background:rgba(255,138,42,.12)}
+.go.danger{background:#a5281a;color:#fff;border-color:#a5281a}
+.go small{display:block;font-size:11px;font-weight:700;opacity:.85;letter-spacing:0}
+.xbtn{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:12px;background:#000;color:#fff;text-decoration:none;font-weight:800;font-size:14px;border:1px solid #444}
+.xbtn svg{width:16px;height:16px}
+.share{margin-top:12px}
+.credit{font-size:11px;color:#8c7560;margin-top:14px;letter-spacing:.05em}
+.best{font-size:12px;color:var(--sub);margin-top:8px}
+h2{margin:0 0 8px;font-size:24px}
+.score{font-size:58px;font-weight:900;line-height:1;margin:4px 0;color:#ffd84d;text-shadow:0 4px 0 #3a1606;font-variant-numeric:tabular-nums}
+.score small{font-size:20px;color:var(--sub)}
+.rank{font-size:22px;font-weight:900;margin-bottom:4px}
+.done{font-size:13px;color:var(--sub);margin-bottom:12px}
+.brk{text-align:left;font-size:13px;margin:0 auto 10px;max-width:420px;border-top:1px solid var(--line)}
+.brk div{display:flex;justify-content:space-between;gap:10px;padding:7px 2px;border-bottom:1px solid var(--line)}
+.brk span:last-child{font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums}
+.brk small{color:var(--sub);font-weight:600}
+.comment{font-size:14px;font-weight:700;line-height:1.6;margin:10px 0 12px;color:#ffe2bd}
+@media (max-height:560px) and (orientation:landscape){
+  .logo{font-size:40px}.lead{margin:6px 0 8px}.steps{font-size:12px;margin-bottom:8px}.steps li{margin-bottom:3px}
+  .card{padding:14px 16px 12px}.score{font-size:42px}
+  .hint{margin-bottom:4px;font-size:11px}
+  #powerWrap{transform:translateY(-40%) scale(.7);transform-origin:right center}
+  .panel{padding-top:4px}
+  .bars{gap:3px}.track{height:10px}.bar{font-size:11px}
+  .bigbtn{min-height:44px;font-size:14px}
+  .mill{min-height:48px;padding:5px 10px 14px;font-size:13px}.mill .g{bottom:5px}
+  #eatBtn{margin-top:6px}
+  .brk div{padding:4px 2px}.comment{margin:6px 0 8px;font-size:13px}h2{font-size:20px;margin-bottom:4px}
+  #scoreBox{top:6px}#scoreNum{font-size:26px}#feverBan{top:60px;font-size:20px}
+}
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="cv"></canvas>
+  <div id="glow"></div>
+  <div id="pops"></div>
+
+  <div id="top">
+    <a class="home" href="/">&lt; porkgorilla</a>
+    <div id="chip"></div>
+    <button class="ibtn" id="sndBtn" aria-label="音のオン・オフ"></button>
+    <button class="ibtn" id="pauseBtn" aria-label="一時停止" hidden><span class="pz"><i></i><i></i></span></button>
+  </div>
+  <div id="scoreBox" hidden><div id="scoreNum">0</div><div id="comboTxt"></div></div>
+  <div id="feverBan" hidden>FEVER ×2<i><b id="feverBar"></b></i></div>
+
+  <div class="panel" id="cookPanel" hidden>
+    <div class="pin">
+      <div class="hint" id="cookHint"></div>
+      <div class="row">
+        <div class="bars" id="cookBars">
+          <div class="bar" id="barA"><span class="lab">表</span><div class="track"><div class="zone"></div><div class="burn"></div><div class="fill"></div><div class="nx"></div></div><span class="val"></span></div>
+          <div class="bar" id="barB"><span class="lab">裏</span><div class="track"><div class="zone"></div><div class="burn"></div><div class="fill"></div><div class="nx"></div></div><span class="val"></span></div>
+          <div class="bar juice" id="barJ"><span class="lab">肉汁</span><div class="track"><div class="fill"></div></div><span class="val"></span></div>
+        </div>
+        <button class="bigbtn" id="finBtn" disabled>焼き上げ！</button>
+      </div>
+    </div>
+  </div>
+  <div id="powerWrap" hidden><div class="cap">パワー</div><div id="power"><div class="pp"></div><div class="pf"></div></div></div>
+
+  <div class="panel" id="seasonPanel" hidden>
+    <div class="pin">
+      <div class="hint">ボタンを<em>押している間</em>ミルが挽ける。量は<em>お好み</em>で</div>
+      <div class="mills">
+        <button class="mill" id="saltBtn">🧂 ソルト<small id="saltTxt">なし</small><span class="g"><u id="saltZone"></u><i id="saltG"></i></span></button>
+        <button class="mill" id="pepBtn">⚫ ペッパー<small id="pepTxt">なし</small><span class="g"><u id="pepZone"></u><i id="pepG"></i></span></button>
+      </div>
+      <button class="bigbtn" id="eatBtn">いただきます！</button>
+    </div>
+  </div>
+
+  <div class="panel" id="eatPanel" hidden>
+    <div class="pin">
+      <div class="hint" id="eatHint"></div>
+      <div class="row" style="align-items:center">
+        <div class="bars"><div class="bar juice" id="barE"><span class="lab">残り</span><div class="track"><div class="fill"></div></div><span class="val"></span></div></div>
+        <button class="tog" id="autoBtn">オートで貪る</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="ov" id="titleOv">
+    <div class="card">
+      <div class="logo">てづかみ<br>ステーキ<small>TEZUKAMI STEAK</small></div>
+      <p class="lead">熱々の鉄板。座布団みたいな肉。素手。<br>道具なんていらない。</p>
+      <ul class="steps">
+        <li><b>1</b><span>画面を<em>長押し</em>で肉を掴んで持ち上げる。手が<em>一番上</em>に来た瞬間に離すと渾身の<em>ビタン！</em> PERFECTを続けるとコンボで点数が跳ね上がり、5連続で<em>FEVER</em></span></li>
+        <li><b>2</b><span>肉は<em>ビタンで焼ける</em>（叩きつけた面が焼ける）。叩くほど点が伸びるけど、<em>叩きすぎると焦げる</em>。表と裏を狙った焼き加減で焼き上げると、得点に<em>倍率</em>がかかる</span></li>
+        <li><b>3</b><span>ミルで<em>お好み</em>に味付けしたら、<em>両手で掴んで</em>貪る</span></li>
+      </ul>
+      <div class="seglab">焼き加減</div>
+      <div class="seg" id="donSeg">
+        <button data-k="rare">レア</button><button data-k="medium">ミディアム</button><button data-k="well">ウェルダン</button>
+      </div>
+      <div class="actions">
+        <button class="go" id="startBtn">鉄板に肉を置く</button>
+        <button class="go ghost" id="freeBtn">ひたすらビタン<small>焦げない・終わらない</small></button>
+      </div>
+      <div class="best" id="bestTxt"></div>
+      <div class="share"><a class="xbtn" id="shareTitle" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>Xでシェア</a></div>
+      <div class="credit">porkgorilla — 2026</div>
+    </div>
+  </div>
+
+  <div class="ov" id="pauseOv" hidden>
+    <div class="card">
+      <h2>一時停止</h2>
+      <p class="lead" id="pauseInfo"></p>
+      <div class="actions">
+        <button class="go" id="resumeBtn">再開</button>
+        <button class="go ghost" id="quitBtn">タイトルへ</button>
+      </div>
+      <div class="share"><a class="xbtn" id="sharePause" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>Xでシェア</a></div>
+    </div>
+  </div>
+
+  <div class="ov" id="resultOv" hidden>
+    <div class="card">
+      <h2 id="rHead">ごちそうさまでした</h2>
+      <div class="score" id="rScore">0</div>
+      <div class="rank" id="rRank"></div>
+      <div class="done" id="rDone"></div>
+      <div class="brk" id="rBrk"></div>
+      <div class="comment" id="rComment"></div>
+      <div class="actions">
+        <button class="go" id="againBtn">もう一度</button>
+        <button class="go ghost" id="titleBtn">タイトルへ</button>
+      </div>
+      <div class="share"><a class="xbtn" id="shareResult" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>結果をXでシェア</a></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+const GAME_NAME = 'てづかみステーキ';
+const GAME_URL = 'https://porkgorilla.com/works/tezukami-steak.html';
+const OG_CACHE_VERSION = 1;
+const SHARE_URL = GAME_URL + '?ogv=' + OG_CACHE_VERSION;
+const HASHTAG = '#てづかみステーキ';
+const KEY = 'tezukami-steak-';
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem(KEY + k); return v === null ? d : JSON.parse(v); }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(KEY + k, JSON.stringify(v)); }catch(e){} }
+};
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+const rnd = (a, b) => a + Math.random() * (b - a);
+const easeOut = t => 1 - Math.pow(1 - t, 3);
+const easeIO = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const fmt = n => Math.round(n).toLocaleString('ja-JP');
+
+function shareHref(text){ return 'https://x.com/intent/post?text=' + encodeURIComponent(text + ' ' + HASHTAG) + '&url=' + encodeURIComponent(SHARE_URL); }
+function setShare(el, text){ el.href = shareHref(text); if (matchMedia('(pointer: coarse)').matches){ el.removeAttribute('target'); el.removeAttribute('rel'); } }
+setShare($('shareTitle'), '座布団みたいな肉を素手で掴んで、ビタンと叩きつけて焼く。最後は両手で掴んで貪る。「' + GAME_NAME + '」');
+
+const ZONES = { rare:[38,54], medium:[56,72], well:[76,92] };
+const DLABEL = { rare:'レア', medium:'ミディアム', well:'ウェルダン' };
+function donLabel(c){ if (c < 30) return 'ほぼ生'; if (c < 55) return 'レア'; if (c < 74) return 'ミディアム'; if (c < 93) return 'ウェルダン'; if (c < 106) return '焼きすぎ'; return '炭'; }
+
+/* ===================== audio ===================== */
+let AC = null, master = null, sizzleG = null, noiseBuf = null, soundOn = store.get('sound', true);
+function initAudio(force){
+  if (AC && force){ try { AC.close().catch(() => {}); } catch(e){} AC = null; bgm.next = 0; }
+  else if (AC){ if (AC.state === 'closed'){ AC = null; } else { if (AC.state === 'suspended') AC.resume(); return; } }
+  try{
+    const C = window.AudioContext || window.webkitAudioContext; if (!C) return;
+    AC = new C();
+    master = AC.createGain(); master.gain.value = soundOn ? .9 : 0; master.connect(AC.destination);
+    noiseBuf = AC.createBuffer(1, AC.sampleRate * 2, AC.sampleRate);
+    const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    const src = AC.createBufferSource(); src.buffer = noiseBuf; src.loop = true;
+    const hp = AC.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 2600;
+    const pk = AC.createBiquadFilter(); pk.type = 'peaking'; pk.frequency.value = 6000; pk.gain.value = 6;
+    sizzleG = AC.createGain(); sizzleG.gain.value = 0;
+    src.connect(hp); hp.connect(pk); pk.connect(sizzleG); sizzleG.connect(master); src.start();
+  }catch(e){ AC = null; }
+}
+function noiseHit(t0, dur, type, freq, q, gain){
+  if (!AC) return;
+  const s = AC.createBufferSource(); s.buffer = noiseBuf;
+  const f = AC.createBiquadFilter(); f.type = type; f.frequency.value = freq; f.Q.value = q;
+  const g = AC.createGain(); g.gain.setValueAtTime(gain, t0); g.gain.exponentialRampToValueAtTime(.0005, t0 + dur);
+  s.connect(f); f.connect(g); g.connect(master); s.start(t0, Math.random() * 1.5); s.stop(t0 + dur + .02);
+}
+function tone(t0, f0, f1, dur, type, gain, lp){
+  if (!AC) return;
+  const o = AC.createOscillator(); o.type = type; o.frequency.setValueAtTime(f0, t0); o.frequency.exponentialRampToValueAtTime(Math.max(20, f1), t0 + dur);
+  const g = AC.createGain(); g.gain.setValueAtTime(gain, t0); g.gain.exponentialRampToValueAtTime(.0005, t0 + dur);
+  if (lp){ const f = AC.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = lp; o.connect(f); f.connect(g); } else o.connect(g);
+  g.connect(master); o.start(t0); o.stop(t0 + dur + .02);
+}
+const SFX = {
+  slam(p, combo){ if (!AC) return; const t = AC.currentTime;
+    tone(t, 150, 38, .34, 'sine', .6 + .4 * p); noiseHit(t, .18, 'lowpass', 1300, .7, .55 + .4 * p); noiseHit(t + .01, .6 + p * .6, 'highpass', 3000, .5, .25 + .25 * p);
+    noiseHit(t + .09, .12, 'lowpass', 900, .8, .35 * p);   // second slap (ベチャ)
+    if (p > .9){ const base = 523 * Math.pow(2, Math.min(combo, 14) / 12);
+      [1, 1.26, 1.5, 2].forEach((m, i) => tone(t + .03 + i * .045, base * m, base * m, .22, 'triangle', .13)); } },
+  plop(){ if (!AC) return; const t = AC.currentTime; tone(t, 260, 120, .08, 'sine', .25); noiseHit(t, .06, 'bandpass', 900, 1.2, .2); },
+  fever(){ if (!AC) return; const t = AC.currentTime; tone(t, 200, 1600, .5, 'sawtooth', .12, 3000); [659, 784, 988, 1319].forEach((f, i) => tone(t + .1 + i * .07, f, f, .3, 'square', .07, 2500)); },
+  fire(){ if (!AC) return; noiseHit(AC.currentTime, .7, 'lowpass', 700, .5, .5); },
+  grind(salt){ if (!AC) return; noiseHit(AC.currentTime, .035, 'bandpass', salt ? 4200 : 2400, 4, .22); },
+  bite(){ if (!AC) return; const t = AC.currentTime; noiseHit(t, .09, 'bandpass', 800, 1.5, .7); tone(t, 110, 55, .12, 'sine', .4);
+    noiseHit(t + .18, .1, 'lowpass', 600, 1, .22); },
+  blip(){ if (!AC) return; tone(AC.currentTime, 880, 660, .07, 'triangle', .15); },
+  tick(){ if (!AC) return; tone(AC.currentTime, 1400, 1400, .03, 'square', .04, 4000); },
+  fanfare(){ if (!AC) return; const t = AC.currentTime; [523, 659, 784, 1046].forEach((f, i) => tone(t + i * .11, f, f, .35, 'triangle', .22)); },
+  crackle(){ if (!AC) return; noiseHit(AC.currentTime, .012, 'bandpass', rnd(2500, 7000), 3, rnd(.05, .18)); }
+};
+// FEVER BGM
+const bgm = { on: false, next: 0, step: 0 };
+const BASS = [55, 55, 110, 55, 65.4, 55, 73.4, 82.4];
+function bgmTick(){
+  if (!AC || !bgm.on) return;
+  const st = 60 / 140 / 4;
+  if (bgm.next < AC.currentTime) bgm.next = AC.currentTime + .05;
+  while (bgm.next < AC.currentTime + .15){
+    const s = bgm.step % 16, t = bgm.next;
+    if (s % 4 === 0) tone(t, 160, 45, .2, 'sine', .55);
+    if (s === 4 || s === 12) noiseHit(t, .14, 'bandpass', 1800, .9, .35);
+    if (s % 2 === 0) noiseHit(t, .03, 'highpass', 8000, .7, .1); else noiseHit(t, .02, 'highpass', 9000, .7, .05);
+    if (s % 2 === 0){ const f = BASS[(s / 2) | 0]; tone(t, f, f, st * 1.8, 'sawtooth', .16, 700); }
+    if (s === 2 || s === 10){ [440, 523, 659].forEach(f => tone(t, f, f, .12, 'square', .03, 2200)); }
+    bgm.next += st; bgm.step++;
+  }
+}
+function setSizzle(v){ if (AC && sizzleG) sizzleG.gain.setTargetAtTime(v, AC.currentTime, .08); }
+const ICON_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
+const ICON_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M17 9l5 6M22 9l-5 6"/></svg>';
+function drawSnd(){ $('sndBtn').innerHTML = soundOn ? ICON_ON : ICON_OFF; }
+drawSnd();
+$('sndBtn').addEventListener('click', () => {
+  soundOn = !soundOn; store.set('sound', soundOn); drawSnd(); initAudio(false);
+  if (master) master.gain.setTargetAtTime(soundOn ? .9 : 0, AC.currentTime, .03);
+});
+document.addEventListener('visibilitychange', () => { if (!document.hidden) initAudio(false); });
+const vib = ms => { try{ if (navigator.vibrate) navigator.vibrate(ms); }catch(e){} };
+
+/* ===================== three setup ===================== */
+const cv = $('cv');
+const renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true });
+renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0d0705);
+scene.fog = new THREE.Fog(0x0d0705, 16, 42);
+const camera = new THREE.PerspectiveCamera(45, 1, .05, 90);
+const col = h => new THREE.Color(h).convertSRGBToLinear();
+function canvasTex(w, h, draw){
+  const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d'); draw(x, w, h);
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.anisotropy = 4; return t;
+}
+scene.add(new THREE.HemisphereLight(col('#ffdcb8'), col('#24140b'), .55));
+const spot = new THREE.SpotLight(col('#fff0dc'), 1.5, 40, .66, .55, 1);
+spot.position.set(1, 12, 5); spot.castShadow = true; spot.shadow.mapSize.set(1024, 1024); spot.shadow.bias = -.0004;
+spot.shadow.camera.near = 4; spot.shadow.camera.far = 26;
+scene.add(spot); scene.add(spot.target);
+const heat = new THREE.PointLight(col('#ff7a2a'), .6, 6, 2); heat.position.set(0, .4, 0); scene.add(heat);
+const rim = new THREE.DirectionalLight(col('#9fb8ff'), .35); rim.position.set(-3, 3, -6); scene.add(rim);
+const fill = new THREE.DirectionalLight(col('#ffb070'), .35); fill.position.set(5, 2, 4); scene.add(fill);
+
+let wallMat;
+{
+  const t = canvasTex(1024, 512, (x, w, h) => {
+    const g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#1a0e08'); g.addColorStop(1, '#2b170c'); x.fillStyle = g; x.fillRect(0, 0, w, h);
+    for (let i = 0; i < 70; i++){
+      const cx = Math.random() * w, cy = Math.random() * h * .75, r = rnd(8, 46);
+      const hue = Math.random() < .75 ? `${rnd(25, 45)|0},90%,${rnd(55, 70)|0}%` : `${rnd(190, 220)|0},60%,65%`;
+      const rg = x.createRadialGradient(cx, cy, 0, cx, cy, r);
+      rg.addColorStop(0, `hsla(${hue},.55)`); rg.addColorStop(.7, `hsla(${hue},.25)`); rg.addColorStop(1, `hsla(${hue},0)`);
+      x.fillStyle = rg; x.beginPath(); x.arc(cx, cy, r, 0, 7); x.fill();
+    }
+    x.fillStyle = 'rgba(0,0,0,.35)'; x.fillRect(0, h * .78, w, h * .22);
+  });
+  wallMat = new THREE.MeshBasicMaterial({ map: t, fog: false });
+  const wall = new THREE.Mesh(new THREE.PlaneGeometry(76, 38), wallMat); wall.position.set(2, 8, -18); scene.add(wall);
+}
+const woodTex = canvasTex(1024, 512, (x, w, h) => {
+  x.fillStyle = '#5a341c'; x.fillRect(0, 0, w, h);
+  for (let i = 0; i < 260; i++){
+    const y = Math.random() * h; x.strokeStyle = `rgba(${Math.random() < .5 ? '30,14,6' : '140,86,48'},${rnd(.08, .3)})`; x.lineWidth = rnd(1, 4);
+    x.beginPath(); x.moveTo(0, y); for (let X = 0; X <= w; X += 64) x.lineTo(X, y + Math.sin(X * .01 + i) * rnd(2, 6)); x.stroke();
+  }
+});
+woodTex.wrapS = woodTex.wrapT = THREE.RepeatWrapping; woodTex.repeat.set(3, 1);
+const counter = new THREE.Mesh(new THREE.BoxGeometry(28, 1.2, 11), new THREE.MeshStandardMaterial({ map: woodTex, roughness: .55, color: col('#c9a07c') }));
+counter.position.set(2, -.72, 1.4); counter.receiveShadow = true; scene.add(counter);
+const TEP_TOP = 0, TEP_W = 7.8, TEP_D = 4.8;
+const tepTex = canvasTex(1024, 640, (x, w, h) => {
+  x.fillStyle = '#4a4b50'; x.fillRect(0, 0, w, h);
+  for (let i = 0; i < 1400; i++){ const y = Math.random() * h; x.strokeStyle = `rgba(${Math.random() < .5 ? '0,0,0' : '255,255,255'},${rnd(.02, .07)})`; x.lineWidth = 1; x.beginPath(); x.moveTo(Math.random() * w, y); x.lineTo(Math.random() * w, y + rnd(-2, 2)); x.stroke(); }
+  for (let i = 0; i < 26; i++){ const cx = rnd(.2, .8) * w, cy = rnd(.2, .8) * h, r = rnd(30, 120); const rg = x.createRadialGradient(cx, cy, 0, cx, cy, r); rg.addColorStop(0, 'rgba(30,18,10,.35)'); rg.addColorStop(1, 'rgba(30,18,10,0)'); x.fillStyle = rg; x.fillRect(cx - r, cy - r, r * 2, r * 2); }
+});
+const tepGlow = canvasTex(256, 160, (x, w, h) => { x.fillStyle = '#000'; x.fillRect(0, 0, w, h); const rg = x.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w * .4); rg.addColorStop(0, '#ff6a1a'); rg.addColorStop(1, '#000'); x.fillStyle = rg; x.fillRect(0, 0, w, h); });
+const tepMat = new THREE.MeshStandardMaterial({ map: tepTex, roughness: .38, metalness: .45, emissive: col('#ff5a14'), emissiveMap: tepGlow, emissiveIntensity: .12 });
+const darkSteel = new THREE.MeshStandardMaterial({ color: col('#2b2b2e'), metalness: .6, roughness: .4 });
+const teppan = new THREE.Mesh(new THREE.BoxGeometry(TEP_W, .16, TEP_D), [darkSteel, darkSteel, tepMat, darkSteel, darkSteel, darkSteel]);
+teppan.position.set(0, TEP_TOP - .08, 0); teppan.receiveShadow = true; scene.add(teppan);
+const steel = new THREE.MeshStandardMaterial({ color: col('#b9bcc2'), metalness: .75, roughness: .28 });
+{ const guard = new THREE.Mesh(new THREE.BoxGeometry(TEP_W + .3, .7, .1), steel); guard.position.set(0, .28, -TEP_D / 2 - .06); guard.castShadow = guard.receiveShadow = true; scene.add(guard);
+  const gut = new THREE.Mesh(new THREE.BoxGeometry(TEP_W, .06, .16), new THREE.MeshStandardMaterial({ color: col('#1a1a1c'), metalness: .5, roughness: .5 })); gut.position.set(0, -.04, TEP_D / 2 + .08); scene.add(gut);
+  for (let i = 0; i < 2; i++){
+    const sp = new THREE.Group();
+    const blade = new THREE.Mesh(new THREE.BoxGeometry(.42, .02, .3), steel); blade.position.set(0, .01, 0); sp.add(blade);
+    const neck = new THREE.Mesh(new THREE.BoxGeometry(.05, .02, .3), steel); neck.position.set(0, .05, .28); neck.rotation.x = -.3; sp.add(neck);
+    const hdl = new THREE.Mesh(new THREE.CylinderGeometry(.045, .05, .5, 10), new THREE.MeshStandardMaterial({ color: col('#2a1a10'), roughness: .5 }));
+    hdl.rotation.x = Math.PI / 2; hdl.position.set(0, .1, .66); sp.add(hdl);
+    sp.position.set(-3.3 + i * .55, 0, 1.6); sp.rotation.y = .25 - i * .1; sp.scale.setScalar(1.4); sp.traverse(o => { if (o.isMesh) o.castShadow = true; }); scene.add(sp);
+  }
+}
+const PLATE = new THREE.Vector3(6.9, -.01, .6);
+{
+  const board = new THREE.Mesh(new THREE.BoxGeometry(5.0, .06, 3.9), new THREE.MeshStandardMaterial({ map: woodTex, color: col('#8a5a36'), roughness: .6 }));
+  board.position.set(PLATE.x, -.09, PLATE.z); board.receiveShadow = board.castShadow = true; scene.add(board);
+  const iron = new THREE.MeshStandardMaterial({ color: col('#1c1b1c'), metalness: .55, roughness: .45 });
+  const pl = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, .05, 64), iron); pl.scale.set(2.15, 1, 1.62); pl.position.set(PLATE.x, -.045, PLATE.z); pl.receiveShadow = true; scene.add(pl);
+  const rimM = new THREE.Mesh(new THREE.TorusGeometry(1, .03, 8, 96), iron); rimM.rotation.x = Math.PI / 2; rimM.scale.set(2.15, 1.62, 1.6); rimM.position.set(PLATE.x, -.02, PLATE.z); scene.add(rimM);
+}
+
+/* ===================== steak (deformable mesh) ===================== */
+const SC = 1.9, HALF = .18, BULGE = .05, TEX = 1024, TK = TEX / 512;
+let bounds0 = null;
+function makeOutline(){
+  const pts = [], N = 220, ph = rnd(0, 6.28);
+  for (let i = 0; i < N; i++){
+    const t = i / N * Math.PI * 2;
+    const r = 1 + .06 * Math.sin(2 * t + ph) + .045 * Math.sin(3 * t + 1.3 + ph) + .03 * Math.sin(5 * t + ph * 2);
+    pts.push({ x: Math.cos(t) * .84 * SC * r, z: Math.sin(t) * .6 * SC * r * (1 - .12 * Math.cos(t)) });
+  }
+  return pts;
+}
+function polyBounds(p){ let a = 1e9, b = -1e9, c = 1e9, d = -1e9; for (const q of p){ a = Math.min(a, q.x); b = Math.max(b, q.x); c = Math.min(c, q.z); d = Math.max(d, q.z); } return { minX: a, maxX: b, minZ: c, maxZ: d }; }
+function polyArea(p){ let s = 0; for (let i = 0; i < p.length; i++){ const a = p[i], b = p[(i + 1) % p.length]; s += a.x * b.z - b.x * a.z; } return s / 2; }
+function inPoly(p, x, z){ let c = false; for (let i = 0, j = p.length - 1; i < p.length; j = i++){ const a = p[i], b = p[j]; if ((a.z > z) !== (b.z > z) && x < (b.x - a.x) * (z - a.z) / (b.z - a.z) + a.x) c = !c; } return c; }
+function resample(p, n){
+  const L = [0]; for (let i = 1; i <= p.length; i++){ const a = p[i - 1], b = p[i % p.length]; L.push(L[i - 1] + Math.hypot(b.x - a.x, b.z - a.z)); }
+  const tot = L[L.length - 1], out = []; let j = 0;
+  for (let k = 0; k < n; k++){ const s = k / n * tot; while (L[j + 1] < s) j++; const a = p[j], b = p[(j + 1) % p.length]; const u = (s - L[j]) / Math.max(1e-6, L[j + 1] - L[j]); out.push({ x: lerp(a.x, b.x, u), z: lerp(a.z, b.z, u) }); }
+  return out;
+}
+function centroid(p){ let x = 0, z = 0; for (const q of p){ x += q.x; z += q.z; } return { x: x / p.length, z: z / p.length }; }
+// split long edges (red-green refinement) so the caps can bend smoothly
+function refine(V, T, maxLen){
+  const key = (a, b) => a < b ? a * 1000003 + b : b * 1000003 + a;
+  const m2 = maxLen * maxLen;
+  for (let pass = 0; pass < 14; pass++){
+    const mid = new Map(); let any = false;
+    for (const t of T) for (let e = 0; e < 3; e++){
+      const a = t[e], b = t[(e + 1) % 3], dx = V[a][0] - V[b][0], dz = V[a][1] - V[b][1];
+      if (dx * dx + dz * dz > m2){ const k = key(a, b); if (!mid.has(k)){ V.push([(V[a][0] + V[b][0]) / 2, (V[a][1] + V[b][1]) / 2]); mid.set(k, V.length - 1); any = true; } }
+    }
+    if (!any) break;
+    const NT = [];
+    for (const t of T){
+      const m = [0, 1, 2].map(e => { const k = key(t[e], t[(e + 1) % 3]); return mid.has(k) ? mid.get(k) : -1; });
+      const c = (m[0] >= 0) + (m[1] >= 0) + (m[2] >= 0);
+      if (c === 0) NT.push(t);
+      else if (c === 3){ const [a, b, cc] = t; NT.push([a, m[0], m[2]], [m[0], b, m[1]], [m[2], m[1], cc], [m[0], m[1], m[2]]); }
+      else if (c === 1){ const e = m.findIndex(x => x >= 0); const a = t[e], b = t[(e + 1) % 3], cc = t[(e + 2) % 3], mm = m[e]; NT.push([a, mm, cc], [mm, b, cc]); }
+      else { const e = m.findIndex(x => x < 0); const a = t[e], b = t[(e + 1) % 3], cc = t[(e + 2) % 3]; const mbc = m[(e + 1) % 3], mca = m[(e + 2) % 3];
+        NT.push([mca, mbc, cc], [a, b, mbc], [a, mbc, mca]); }
+    }
+    T.length = 0; for (const t of NT) T.push(t);
+  }
+}
+
+let layers = null;
+function fatArc(x, pts, b, color, width){
+  const w = b.maxX - b.minX, h = b.maxZ - b.minZ, n = pts.length; x.strokeStyle = color; x.lineWidth = width; x.lineCap = 'round'; x.beginPath();
+  const i0 = Math.floor(n * .05), i1 = Math.floor(n * .42);
+  for (let i = i0; i < i1; i++){ const p = pts[i]; const X = (p.x - b.minX) / w * TEX, Y = (p.z - b.minZ) / h * TEX; i === i0 ? x.moveTo(X, Y) : x.lineTo(X, Y); }
+  x.stroke();
+}
+function mkCanvas(){ const c = document.createElement('canvas'); c.width = c.height = TEX; return c; }
+function buildLayers(pts, b){
+  const raw = mkCanvas(), rx = raw.getContext('2d');
+  const g = rx.createRadialGradient(TEX * .5, TEX * .5, 20, TEX * .5, TEX * .5, TEX * .7); g.addColorStop(0, '#b53c44'); g.addColorStop(1, '#8a2630');
+  rx.fillStyle = g; rx.fillRect(0, 0, TEX, TEX);
+  for (let i = 0; i < 300; i++){ const cx = rnd(0, TEX), cy = rnd(0, TEX), r = rnd(10, 40) * TK; const rg = rx.createRadialGradient(cx, cy, 0, cx, cy, r);
+    const dk = Math.random() < .5; rg.addColorStop(0, dk ? 'rgba(110,20,30,.25)' : 'rgba(205,90,98,.22)'); rg.addColorStop(1, 'rgba(0,0,0,0)'); rx.fillStyle = rg; rx.fillRect(cx - r, cy - r, r * 2, r * 2); }
+  rx.lineCap = 'round'; rx.lineJoin = 'round';
+  for (let i = 0; i < 70; i++){
+    let X = rnd(0, TEX), Y = rnd(0, TEX), ang = rnd(0, 6.28); const path = [[X, Y]];
+    for (let k = 0; k < 8; k++){ ang += rnd(-.9, .9); X += Math.cos(ang) * rnd(10, 26) * TK; Y += Math.sin(ang) * rnd(10, 26) * TK; path.push([X, Y]); }
+    [[9, .07], [5, .14], [2.2, .35]].forEach(([w, al]) => { rx.strokeStyle = `rgba(255,232,224,${al})`; rx.lineWidth = w * TK * rnd(.7, 1.3); rx.beginPath(); path.forEach((q, n) => n ? rx.lineTo(q[0], q[1]) : rx.moveTo(q[0], q[1])); rx.stroke(); });
+  }
+  for (let i = 0; i < 1400; i++){ rx.fillStyle = `rgba(250,225,215,${rnd(.15, .5)})`; rx.beginPath(); rx.ellipse(rnd(0, TEX), rnd(0, TEX), rnd(.6, 2.6) * TK, rnd(.5, 1.4) * TK, rnd(0, 3), 0, 7); rx.fill(); }
+  fatArc(rx, pts, b, '#f4dfcf', 44 * TK);
+  const pat = mkCanvas(), px = pat.getContext('2d');
+  for (let i = 0; i < 90; i++){ const cx = rnd(0, TEX), cy = rnd(0, TEX), r = rnd(25, 80) * TK; const rg = px.createRadialGradient(cx, cy, 0, cx, cy, r);
+    rg.addColorStop(0, 'rgba(120,58,22,.95)'); rg.addColorStop(1, 'rgba(120,58,22,0)'); px.fillStyle = rg; px.fillRect(cx - r, cy - r, r * 2, r * 2); }
+  const sr = mkCanvas(), sx = sr.getContext('2d');
+  sx.fillStyle = '#5c2a12'; sx.fillRect(0, 0, TEX, TEX);
+  for (let i = 0; i < 4000; i++){ sx.fillStyle = Math.random() < .5 ? `rgba(150,82,34,${rnd(.2, .6)})` : `rgba(60,26,10,${rnd(.2, .6)})`; sx.beginPath(); sx.arc(rnd(0, TEX), rnd(0, TEX), rnd(1, 5) * TK, 0, 7); sx.fill(); }
+  for (let i = 0; i < 50; i++){ const cx = rnd(0, TEX), cy = rnd(0, TEX), r = rnd(30, 90) * TK; const rg = sx.createRadialGradient(cx, cy, 0, cx, cy, r);
+    rg.addColorStop(0, 'rgba(170,96,40,.45)'); rg.addColorStop(1, 'rgba(170,96,40,0)'); sx.fillStyle = rg; sx.fillRect(cx - r, cy - r, r * 2, r * 2); }
+  fatArc(sx, pts, b, 'rgba(214,150,70,.9)', 44 * TK);
+  const bu = mkCanvas(), bx = bu.getContext('2d');
+  bx.fillStyle = '#1d0f08'; bx.fillRect(0, 0, TEX, TEX);
+  for (let i = 0; i < 1800; i++){ bx.fillStyle = Math.random() < .6 ? `rgba(90,80,72,${rnd(.1, .5)})` : `rgba(0,0,0,${rnd(.2, .6)})`; bx.beginPath(); bx.arc(rnd(0, TEX), rnd(0, TEX), rnd(1, 6) * TK, 0, 7); bx.fill(); }
+  layers = { raw, pat, sr, bu };
+}
+function makeFaceTex(){ const c = mkCanvas(); const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.anisotropy = 4; return { c, x: c.getContext('2d'), t, last: -99 }; }
+const faceA = makeFaceTex(), faceB = makeFaceTex();
+function drawFace(f, d){
+  const x = f.x; x.globalAlpha = 1; x.drawImage(layers.raw, 0, 0);
+  x.globalAlpha = smooth(4, 48, d) * .95; x.drawImage(layers.pat, 0, 0);
+  x.globalAlpha = smooth(26, 72, d); x.drawImage(layers.sr, 0, 0);
+  x.globalAlpha = smooth(92, 130, d) * .95; x.drawImage(layers.bu, 0, 0);
+  x.globalAlpha = 1; f.t.needsUpdate = true; f.last = d;
+}
+const edgeC = document.createElement('canvas'); edgeC.width = 8; edgeC.height = 128;
+const edgeX = edgeC.getContext('2d'); const edgeTex = new THREE.CanvasTexture(edgeC); edgeTex.encoding = THREE.sRGBEncoding; edgeTex.wrapS = THREE.RepeatWrapping;
+const ramp = (stops, v) => { for (let i = 1; i < stops.length; i++){ if (v <= stops[i][0]){ const a = stops[i - 1], b = stops[i]; const t = clamp((v - a[0]) / (b[0] - a[0]), 0, 1); return [0, 1, 2].map(k => Math.round(lerp(a[1][k], b[1][k], t))); } } return stops[stops.length - 1][1]; };
+const CRUST = [[0, [176, 48, 58]], [40, [140, 74, 44]], [80, [94, 45, 20]], [125, [26, 13, 6]]];
+const CORE = [[0, [160, 30, 42]], [30, [168, 34, 46]], [50, [200, 80, 90]], [66, [217, 138, 140]], [82, [184, 144, 124]], [100, [138, 106, 85]], [130, [90, 64, 50]]];
+const rgb = a => `rgb(${a[0]},${a[1]},${a[2]})`;
+function drawEdge(dA, dB){
+  const H = 128, c = (dA + dB) / 2, x = edgeX;
+  x.globalAlpha = 1; x.fillStyle = rgb(ramp(CORE, c)); x.fillRect(0, 0, 8, H);
+  const tA = clamp(dA / 100, 0, 1.2) * .3 * H, tB = clamp(dB / 100, 0, 1.2) * .3 * H;
+  x.fillStyle = rgb(ramp(CRUST, dA)); x.fillRect(0, 0, 8, tA * .6); x.globalAlpha = .5; x.fillRect(0, tA * .6, 8, tA * .4);
+  x.globalAlpha = 1; x.fillStyle = rgb(ramp(CRUST, dB)); x.fillRect(0, H - tB * .6, 8, tB * .6); x.globalAlpha = .5; x.fillRect(0, H - tB, 8, tB * .4); x.globalAlpha = 1;
+  edgeTex.needsUpdate = true;
+}
+const sideMat = new THREE.MeshStandardMaterial({ map: edgeTex, roughness: .55 });
+const topMat = new THREE.MeshStandardMaterial({ map: faceA.t, roughness: .5 });
+const botMat = new THREE.MeshStandardMaterial({ map: faceB.t, roughness: .5 });
+const steak = { outer: new THREE.Group(), pivot: new THREE.Group(), inner: new THREE.Group(), side: null, top: null, bot: null, outline: [], area0: 1, L: 2 };
+steak.outer.add(steak.pivot); steak.pivot.add(steak.inner); scene.add(steak.outer);
+steak.side = new THREE.Mesh(new THREE.BufferGeometry(), sideMat);
+steak.top = new THREE.Mesh(new THREE.BufferGeometry(), topMat);
+steak.bot = new THREE.Mesh(new THREE.BufferGeometry(), botMat);
+[steak.side, steak.top, steak.bot].forEach(m => { m.castShadow = true; m.receiveShadow = true; m.frustumCulled = false; steak.inner.add(m); });
+function finishGeo(mesh, pos, uv, idx){
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(pos), 3));
+  g.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(uv), 2));
+  g.setIndex(idx); g.computeVertexNormals();
+  mesh.geometry.dispose(); mesh.geometry = g;
+  mesh.userData.rest = g.attributes.position.array.slice(); mesh.userData.restN = g.attributes.normal.array.slice();
+}
+function buildSteakGeo(){
+  const o = steak.outline, b = bounds0, w = b.maxX - b.minX, h = b.maxZ - b.minZ;
+  const faces = THREE.ShapeUtils.triangulateShape(o.map(p => new THREE.Vector2(p.x, p.z)), []);
+  const V = o.map(p => [p.x, p.z]), Tr = faces.map(f => [f[0], f[1], f[2]]);
+  refine(V, Tr, .17);
+  // winding: top normal must point +y
+  let sgn = 1; for (const t of Tr){ const a = V[t[0]], bb = V[t[1]], c = V[t[2]]; const cr = (bb[1] - a[1]) * (c[0] - a[0]) - (bb[0] - a[0]) * (c[1] - a[1]); if (Math.abs(cr) > 1e-9){ sgn = cr > 0 ? 1 : -1; break; } }
+  const capUV = []; V.forEach(v => capUV.push((v[0] - b.minX) / w, 1 - (v[1] - b.minZ) / h));
+  const topI = [], botI = [];
+  Tr.forEach(t => { if (sgn > 0){ topI.push(t[0], t[1], t[2]); botI.push(t[0], t[2], t[1]); } else { topI.push(t[0], t[2], t[1]); botI.push(t[0], t[1], t[2]); } });
+  const tp = [], bp = []; V.forEach(v => { tp.push(v[0], HALF, v[1]); bp.push(v[0], -HALF, v[1]); });
+  finishGeo(steak.top, tp, capUV, topI); finishGeo(steak.bot, bp, capUV.slice(), botI);
+  // side ring with a rounded bulge
+  const N = o.length, K = 7, sp = [], suv = [], si = [];
+  const ccw = polyArea(o) > 0;
+  let acc = 0;
+  for (let i = 0; i <= N; i++){
+    const p = o[i % N], pr = o[(i - 1 + N) % N], nx = o[(i + 1) % N];
+    if (i > 0) acc += Math.hypot(p.x - pr.x, p.z - pr.z);
+    let tx = nx.x - pr.x, tz = nx.z - pr.z; const tl = Math.hypot(tx, tz) || 1; tx /= tl; tz /= tl;
+    let ox = tz, oz = -tx; if (!ccw){ ox = -ox; oz = -oz; }
+    for (let k = 0; k < K; k++){
+      const a = Math.PI / 2 - k / (K - 1) * Math.PI, y = HALF * Math.sin(a), off = BULGE * Math.cos(a);
+      sp.push(p.x + ox * off, y, p.z + oz * off); suv.push(acc * 1.5, (y + HALF) / (2 * HALF));
+    }
+  }
+  for (let i = 0; i < N; i++) for (let k = 0; k < K - 1; k++){
+    const a = i * K + k, bb = (i + 1) * K + k, c = i * K + k + 1, d = (i + 1) * K + k + 1;
+    if (ccw) si.push(a, c, bb, bb, c, d); else si.push(a, bb, c, bb, d, c);
+  }
+  finishGeo(steak.side, sp, suv, si);
+  // check side winding once (outward normal) and flip if needed
+  const g = steak.side.geometry, nrm = g.attributes.normal.array, P = g.attributes.position.array;
+  const i0 = 3 * K, cx = P[i0 * 3] + nrm[i0 * 3] * .1, cz = P[i0 * 3 + 2] + nrm[i0 * 3 + 2] * .1;
+  if (inPoly(o, cx, cz)){ for (let i = 0; i < si.length; i += 3){ const t = si[i + 1]; si[i + 1] = si[i + 2]; si[i + 2] = t; } finishGeo(steak.side, sp, suv, si); }
+  steak.dirty = true;
+}
+
+// seasoning specks
+const SPK = 1400;
+const pepGeo = new THREE.DodecahedronGeometry(.014, 0), saltGeo = new THREE.BoxGeometry(.019, .014, .019);
+const pepMat = new THREE.MeshStandardMaterial({ color: col('#121010'), roughness: .8 });
+const saltMat = new THREE.MeshStandardMaterial({ color: col('#ffffff'), roughness: .25, emissive: col('#ffffff'), emissiveIntensity: .25 });
+const pepStuck = new THREE.InstancedMesh(pepGeo, pepMat, SPK), saltStuck = new THREE.InstancedMesh(saltGeo, saltMat, SPK);
+pepStuck.count = saltStuck.count = 0; pepStuck.frustumCulled = saltStuck.frustumCulled = false; steak.inner.add(pepStuck, saltStuck);
+const specks = { pep: [], salt: [] };
+const dummy = new THREE.Object3D();
+function writeSpecks(){
+  [['pep', pepStuck], ['salt', saltStuck]].forEach(([k, m]) => {
+    const a = specks[k]; m.count = Math.min(SPK, a.length);
+    for (let i = 0; i < m.count; i++){ const s = a[i]; dummy.position.set(s.x, s.y, s.z); dummy.rotation.set(s.r, s.r * 2, s.r * 3); dummy.scale.setScalar(s.s); dummy.updateMatrix(); m.setMatrixAt(i, dummy.matrix); }
+    m.instanceMatrix.needsUpdate = true;
+  });
+}
+
+/* ---------- bending ---------- */
+const S = { B: 0, Bv: 0, Bs: 0, lag: 0, prevTh: 0, wobT: 9, wobA: 0, wcx: 0, wcz: 0 };
+let zN = 1;
+function farY(B, th, py){
+  // centre-line points (far end and middle) in the outer frame -> lowest y
+  const L = steak.L; let lo = 1e9;
+  for (const f of [.5, 1]){
+    const s = L * f; let yp, zp;
+    if (Math.abs(B) < 1e-4){ yp = 0; zp = -s; } else { const a = B * f, k = L / B; yp = -k * (1 - Math.cos(a)); zp = -k * Math.sin(a); }
+    lo = Math.min(lo, py + yp * Math.cos(th) - zp * Math.sin(th));
+  }
+  return lo;
+}
+function clampBend(B, th, py){
+  const floor = HALF * .95;
+  if (farY(B, th, py) >= floor) return B;
+  let lo = 0, hi = 1;
+  if (farY(0, th, py) < floor) return 0;
+  for (let i = 0; i < 12; i++){ const m = (lo + hi) / 2; if (farY(B * m, th, py) >= floor) lo = m; else hi = m; }
+  return B * lo;
+}
+function deform(){
+  const wob = S.wobT < 1.4;
+  const bend = Math.abs(S.B) > 1e-3;
+  if (!wob && !bend){
+    if (steak.dirty){ [steak.top, steak.bot, steak.side].forEach(m => { const g = m.geometry; g.attributes.position.array.set(m.userData.rest); g.attributes.normal.array.set(m.userData.restN); g.attributes.position.needsUpdate = true; g.attributes.normal.needsUpdate = true; }); steak.dirty = false; }
+    steak.inner.scale.set(1, 1, 1);
+    return;
+  }
+  steak.dirty = true;
+  const fl = G.flipped, L = steak.L, B = S.B, k = bend ? L / B : 0;
+  const wa = wob ? S.wobA * Math.exp(-S.wobT * 4.2) : 0, wt = S.wobT;
+  for (const m of [steak.top, steak.bot, steak.side]){
+    const r = m.userData.rest, g = m.geometry, p = g.attributes.position.array;
+    for (let i = 0; i < r.length; i += 3){
+      const x = r[i], y = r[i + 1], z = r[i + 2];
+      let ny = y, nz = z;
+      if (bend){
+        const py = fl ? -y : y, pz = (fl ? -z : z) - zN;
+        const s = -pz, a = B * s / L, ca = Math.cos(a), sa = Math.sin(a);
+        const qy = -k * (1 - ca) + py * ca, qz = -k * sa - py * sa;
+        ny = fl ? -qy : qy; nz = fl ? -(qz + zN) : qz + zN;
+      }
+      if (wob){ const rr = Math.hypot(x - S.wcx, z - S.wcz); ny += wa * Math.sin(rr * 2.6 - wt * 24) * Math.min(1, rr * .8) * (fl ? -1 : 1); }
+      p[i] = x; p[i + 1] = ny; p[i + 2] = nz;
+    }
+    g.attributes.position.needsUpdate = true; g.computeVertexNormals();
+  }
+  if (wob){ const q = Math.exp(-S.wobT * 7) * Math.cos(S.wobT * 26); steak.inner.scale.set(1 + .05 * q * S.wobA * 4, 1 - .3 * q * S.wobA * 4, 1 + .05 * q * S.wobA * 4); }
+  else steak.inner.scale.set(1, 1, 1);
+}
+function startWobble(amp){ S.wobT = 0; S.wobA = amp; S.wcx = rnd(-.4, .4); S.wcz = rnd(-.3, .3); }
+function bendUpdate(dt, active, slamming){
+  const th = steak.pivot.rotation.x, py = steak.pivot.position.y;
+  const om = dt > 0 ? (th - S.prevTh) / dt : 0, vy = dt > 0 ? (py - (S.prevPy ?? py)) / dt : 0; S.prevTh = th; S.prevPy = py;
+  if (!active){ S.B = 0; S.Bv = 0; S.Bs = 0; S.lag = 0; return; }
+  // slow part: gravity droop on a wobbly spring / fast part: the far half trails the swing
+  const tgt = slamming ? 0 : 1.5 * Math.cos(th);
+  S.Bv += ((tgt - S.Bs) * 150 - S.Bv * 6.5) * dt; S.Bs += S.Bv * dt;
+  const lagT = clamp(.2 * om, -1.8, 1.8) + clamp(-.12 * vy, 0, 1.9) * Math.max(0, -Math.cos(th));
+  S.lag += (lagT - S.lag) * Math.min(1, dt * 25);
+  S.B = clamp(S.Bs + S.lag, -2.4, 2.4);
+  const c = clampBend(S.B, th, py); if (c !== S.B){ S.B = c; S.Bs = c - S.lag; S.Bv *= .3; }
+}
+
+/* ===================== hands ===================== */
+const skinMat = new THREE.MeshStandardMaterial({ color: col('#e8b088'), roughness: .6 });
+const nailMat = new THREE.MeshStandardMaterial({ color: col('#f4d2c0'), roughness: .3 });
+const sleeveMat = new THREE.MeshStandardMaterial({ color: col('#f2f0ea'), roughness: .8 });
+function seg(len, r){
+  const g = new THREE.Group();
+  const c = new THREE.Mesh(new THREE.CylinderGeometry(r, r * 1.04, len, 10), skinMat); c.rotation.x = Math.PI / 2; c.position.z = -len / 2; g.add(c);
+  const s = new THREE.Mesh(new THREE.SphereGeometry(r, 10, 8), skinMat); s.position.z = -len; g.add(s);
+  g.traverse(o => { if (o.isMesh) o.castShadow = true; });
+  return g;
+}
+function makeHand(armDir){
+  const g = new THREE.Group();
+  const add = (m, parent) => { m.castShadow = true; (parent || g).add(m); return m; };
+  const back = add(new THREE.Mesh(new THREE.SphereGeometry(.25, 18, 12), skinMat)); back.scale.set(.92, .4, 1.0); back.position.set(0, .5, .2);
+  const heel = add(new THREE.Mesh(new THREE.SphereGeometry(.2, 14, 10), skinMat)); heel.scale.set(1, .5, .8); heel.position.set(-.02, .46, .34);
+  const fingers = [];
+  [[-.155, .19, .16], [-.052, .21, .17], [.052, .2, .16], [.15, .15, .13]].forEach(([x, l1, l2]) => {
+    const kn = add(new THREE.Mesh(new THREE.SphereGeometry(.062, 10, 8), skinMat)); kn.position.set(x, .5, .02 + Math.abs(x) * .12);
+    const f = new THREE.Group(); f.position.set(x, .49, .02 + Math.abs(x) * .12); g.add(f);
+    f.add(seg(l1, .056));
+    const j = new THREE.Group(); j.position.z = -l1; f.add(j);
+    j.add(seg(l2, .05));
+    const nail = new THREE.Mesh(new THREE.SphereGeometry(.036, 8, 6), nailMat); nail.scale.set(1, .35, 1.25); nail.position.set(0, .036, -l2 + .015); j.add(nail);
+    fingers.push({ f, j });
+  });
+  const th = new THREE.Group(); th.position.set(-.21, .43, .3); th.rotation.y = -.6; g.add(th);
+  th.add(seg(.18, .066)); const tj = new THREE.Group(); tj.position.z = -.18; th.add(tj); tj.add(seg(.14, .06));
+  const tn = new THREE.Mesh(new THREE.SphereGeometry(.04, 8, 6), nailMat); tn.scale.set(1, .35, 1.2); tn.position.set(0, .04, -.125); tj.add(tn);
+  const dir = (armDir || new THREE.Vector3(1, .62, .42)).clone().normalize(), wrist = new THREE.Vector3(0, .49, .4), up = new THREE.Vector3(0, 1, 0);
+  const wr = add(new THREE.Mesh(new THREE.SphereGeometry(.16, 14, 10), skinMat)); wr.scale.set(1.05, .75, 1); wr.position.copy(wrist);
+  const arm = add(new THREE.Mesh(new THREE.CylinderGeometry(.17, .14, 1.6, 16), skinMat));
+  arm.quaternion.setFromUnitVectors(up, dir); arm.position.copy(wrist).addScaledVector(dir, .78);
+  const cuff = add(new THREE.Mesh(new THREE.CylinderGeometry(.24, .22, 2.6, 16), sleeveMat));
+  cuff.quaternion.setFromUnitVectors(up, dir); cuff.position.copy(wrist).addScaledVector(dir, 2.8);
+  const h = { g, fingers, th, tj, grip: 0 };
+  h.set = c => { h.grip = c; fingers.forEach((q, i) => { q.f.rotation.x = -.3 - .85 * c - i * .04; q.j.rotation.x = -.35 - 1.0 * c; }); th.rotation.x = -.3 - .5 * c; tj.rotation.x = -.2 - .5 * c; };
+  h.set(0);
+  return h;
+}
+const handR = makeHand(); handR.g.scale.setScalar(1.25); scene.add(handR.g);
+const eatRig = new THREE.Group(); scene.add(eatRig);
+const EAT_ARM = new THREE.Vector3(-.8, -.35, 1);
+const eatR = makeHand(EAT_ARM), eatL = makeHand(EAT_ARM);
+eatR.g.scale.setScalar(1.3); eatL.g.scale.set(-1.3, 1.3, 1.3);
+eatRig.add(eatR.g, eatL.g); eatRig.visible = false;
+
+/* ===================== mills ===================== */
+function makeMill(salt){
+  const g = new THREE.Group(), head = new THREE.Group();
+  const V = (r, y) => new THREE.Vector2(r, y);
+  const bodyMat = salt ? new THREE.MeshStandardMaterial({ color: col('#e8f2f8'), transparent: true, opacity: .38, roughness: .08, metalness: 0, depthWrite: false })
+                       : new THREE.MeshStandardMaterial({ color: col('#5a321c'), roughness: .45, map: woodTex });
+  const body = new THREE.Mesh(new THREE.LatheGeometry([V(.0, .04), V(.13, .04), V(.15, .1), V(.12, .26), V(.105, .5), V(.13, .66), V(.14, .74), V(0, .74)], 28), bodyMat);
+  body.castShadow = !salt; g.add(body);
+  if (salt){ const cr = new THREE.Mesh(new THREE.CylinderGeometry(.085, .095, .5, 16), new THREE.MeshStandardMaterial({ color: col('#f7f7f2'), roughness: .9 })); cr.position.y = .32; g.add(cr); }
+  const ring = new THREE.Mesh(new THREE.CylinderGeometry(.11, .12, .05, 24), steel); ring.position.y = .025; g.add(ring);
+  const hm = salt ? steel : new THREE.MeshStandardMaterial({ color: col('#4a2814'), roughness: .45, map: woodTex });
+  const hd = new THREE.Mesh(new THREE.LatheGeometry([V(0, 0), V(.14, 0), V(.13, .08), V(.09, .16), V(.05, .2), V(0, .21)], 24), hm); head.add(hd);
+  const knob = new THREE.Mesh(new THREE.SphereGeometry(.045, 12, 8), steel); knob.position.y = .22; head.add(knob);
+  head.position.y = .74; g.add(head); g.scale.setScalar(1.7);
+  return { g, head, home: new THREE.Vector3(), on: false, w: 0 };
+}
+const millP = makeMill(false), millS = makeMill(true);
+millP.home.set(PLATE.x - 2.05, -.06, PLATE.z - 1.45); millS.home.set(PLATE.x + 2.05, -.06, PLATE.z - 1.45);
+millP.g.position.copy(millP.home); millS.g.position.copy(millS.home); scene.add(millP.g, millS.g);
+
+/* ===================== particles ===================== */
+const smokeTex = canvasTex(128, 128, (x, w) => { const g = x.createRadialGradient(w / 2, w / 2, 0, w / 2, w / 2, w / 2); g.addColorStop(0, 'rgba(255,255,255,.9)'); g.addColorStop(.4, 'rgba(255,255,255,.35)'); g.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(0, 0, w, w); });
+const smokes = [];
+for (let i = 0; i < 70; i++){ const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: smokeTex, transparent: true, depthWrite: false, opacity: 0 })); s.visible = false; scene.add(s); smokes.push({ s, life: 0, max: 1, v: new THREE.Vector3(), sz: 1 }); }
+let smokeI = 0;
+function puff(p, dark, big){
+  const o = smokes[smokeI++ % smokes.length]; o.s.visible = true; o.s.position.copy(p); o.life = 0; o.max = rnd(1.4, 2.4) * (big ? 1.2 : 1);
+  o.v.set(rnd(-.2, .2), rnd(.5, .9), rnd(-.2, .2)); o.sz = rnd(.6, 1.0) * (big ? 1.6 : 1);
+  o.s.material.color.set(dark ? 0x3a332e : 0xd8d2cc); o.base = dark ? .5 : .3;
+}
+// flames
+const flameTex = canvasTex(128, 128, (x, w) => { const g = x.createRadialGradient(w / 2, w * .6, 0, w / 2, w * .6, w / 2); g.addColorStop(0, 'rgba(255,255,220,1)'); g.addColorStop(.25, 'rgba(255,200,80,.9)'); g.addColorStop(.6, 'rgba(255,90,20,.45)'); g.addColorStop(1, 'rgba(255,40,0,0)'); x.fillStyle = g; x.fillRect(0, 0, w, w); });
+const flames = [];
+for (let i = 0; i < 90; i++){ const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: flameTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0 })); s.visible = false; scene.add(s); flames.push({ s, life: 0, max: 1, v: new THREE.Vector3(), sz: 1 }); }
+let flameI = 0;
+function flame(p, power){
+  const o = flames[flameI++ % flames.length]; o.s.visible = true; o.s.position.copy(p); o.life = 0; o.max = rnd(.45, .8);
+  o.v.set(rnd(-.4, .4), rnd(3, 5.5) * power, rnd(-.4, .4)); o.sz = rnd(.6, 1.1) * (.7 + power * .5);
+}
+// shock rings
+const rings = [];
+for (let i = 0; i < 4; i++){ const m = new THREE.Mesh(new THREE.RingGeometry(.9, 1, 72), new THREE.MeshBasicMaterial({ color: col('#ffb347'), transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
+  m.rotation.x = -Math.PI / 2; m.visible = false; scene.add(m); rings.push({ m, t: 9, s: 1 }); }
+let ringI = 0;
+function shock(p, size){ const r = rings[ringI++ % rings.length]; r.m.position.set(p.x, TEP_TOP + .02, p.z); r.t = 0; r.s = size; r.m.visible = true; }
+const NP = 700, pPos = new Float32Array(NP * 3), pCol = new Float32Array(NP * 3), parts = [];
+for (let i = 0; i < NP; i++){ parts.push({ a: false, v: new THREE.Vector3(), life: 0, g: 1 }); pPos[i * 3 + 1] = -99; }
+const pGeo = new THREE.BufferGeometry(); pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3)); pGeo.setAttribute('color', new THREE.BufferAttribute(pCol, 3));
+const dotTex = canvasTex(32, 32, (x, w) => { x.fillStyle = '#fff'; x.beginPath(); x.arc(w / 2, w / 2, w / 2 - 1, 0, 7); x.fill(); });
+const pts = new THREE.Points(pGeo, new THREE.PointsMaterial({ size: .07, map: dotTex, alphaTest: .5, vertexColors: true, transparent: true, depthWrite: false }));
+pts.frustumCulled = false; scene.add(pts);
+let partI = 0;
+function spray(p, n, color, spd, up, gscale, spread){
+  const c = col(color), sp = spread || 1;
+  for (let k = 0; k < n; k++){
+    const i = partI++ % NP, q = parts[i]; q.a = true; q.life = rnd(.4, .9); q.g = gscale || 1;
+    const a = rnd(0, 6.283), s = rnd(.3, 1) * spd;
+    q.v.set(Math.cos(a) * s, rnd(.4, 1) * up, Math.sin(a) * s);
+    pPos[i * 3] = p.x + rnd(-1, 1) * sp; pPos[i * 3 + 1] = p.y; pPos[i * 3 + 2] = p.z + rnd(-.7, .7) * sp;
+    const f = rnd(.75, 1.1); pCol[i * 3] = c.r * f; pCol[i * 3 + 1] = c.g * f; pCol[i * 3 + 2] = c.b * f;
+  }
+  pGeo.attributes.color.needsUpdate = true;
+}
+const FALL = 360;
+const pepFall = new THREE.InstancedMesh(pepGeo, pepMat, FALL), saltFall = new THREE.InstancedMesh(saltGeo, saltMat, FALL);
+pepFall.frustumCulled = saltFall.frustumCulled = false; pepFall.count = saltFall.count = 0; scene.add(pepFall, saltFall);
+const falls = { pep: [], salt: [] };
+
+const popsEl = $('pops'), tmpV = new THREE.Vector3();
+function pop(text, wp, cls, dy){
+  tmpV.copy(wp).project(camera);
+  const el = document.createElement('div'); el.className = 'pop ' + (cls || 'mid'); el.textContent = text;
+  el.style.left = clamp((tmpV.x * .5 + .5) * 100, 14, 86) + '%'; el.style.top = clamp((-tmpV.y * .5 + .5) * 100 + (dy || 0), 16, 78) + '%';
+  popsEl.appendChild(el); setTimeout(() => el.remove(), 1000);
+}
+
+/* ===================== game state ===================== */
+const G = {
+  mode: 'title', free: false, paused: false, don: store.get('doneness', 'medium'),
+  d: [0, 0], flipped: false, juice: 65, slams: [], combo: 0, maxCombo: 0, pts: 0, shown: 0, fever: 0, feverN: 0,
+  ph: 'rest', phT: 0, held: false, queued: false, pend: false, meter: 0,
+  salt: 0, pepper: 0, bites: 0, eatT0: 0, eatT1: 0, biteAnim: -1, area: 1, burned: false, auto: false, autoUsed: false, autoT: 0,
+  t: 0, shake: 0, hit: 0, punch: 0, tr: null, hintH: ''
+};
+if (!ZONES[G.don]) G.don = 'medium';
+const Y0 = HALF;
+function downIdx(){ return G.flipped ? 0 : 1; }
+function resetPivot(){
+  const b = polyBounds(steak.outline);
+  zN = G.flipped ? -b.minZ : b.maxZ; steak.L = b.maxZ - b.minZ;
+  steak.inner.rotation.set(G.flipped ? Math.PI : 0, 0, 0);
+  steak.pivot.rotation.set(0, 0, 0); S.prevTh = 0; S.prevPy = Y0; S.Bs = 0; S.lag = 0; S.Bv = 0;
+  steak.pivot.position.set(0, Y0, zN); steak.inner.position.set(0, 0, -zN);
+}
+function newSteak(){
+  steak.outline = makeOutline(); bounds0 = polyBounds(steak.outline); steak.area0 = Math.abs(polyArea(steak.outline));
+  buildLayers(steak.outline, bounds0); buildSteakGeo();
+  G.d = [0, 0]; G.flipped = false; drawFace(faceA, 0); drawFace(faceB, 0); drawEdge(0, 0);
+  specks.pep = []; specks.salt = []; writeSpecks(); falls.pep = []; falls.salt = []; pepFall.count = saltFall.count = 0;
+  if (steak.outer.parent !== scene) scene.add(steak.outer);
+  steak.outer.position.set(0, TEP_TOP, 0); steak.outer.rotation.set(0, rnd(-.12, .12), 0); steak.outer.visible = true;
+  S.B = 0; S.Bv = 0; S.wobT = 9; resetPivot(); deform();
+}
+newSteak();
+
+const donSeg = $('donSeg');
+function drawSeg(){ [...donSeg.children].forEach(b => b.classList.toggle('on', b.dataset.k === G.don)); }
+donSeg.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; G.don = b.dataset.k; store.set('doneness', G.don); drawSeg(); SFX.blip(); });
+drawSeg();
+function drawBest(){
+  const b = store.get('best2', 0), f = store.get('free-best', 0);
+  $('bestTxt').textContent = [b ? `自己ベスト ${fmt(b)}点` : '', f ? `ひたすらビタン 最大${f}コンボ` : ''].filter(Boolean).join('　／　');
+}
+drawBest();
+
+function show(id, on){ $(id).hidden = !on; }
+function setMode(m){
+  G.mode = m;
+  show('cookPanel', m === 'cook' || m === 'intro');
+  show('seasonPanel', m === 'season');
+  show('eatPanel', m === 'eat' || m === 'toEat');
+  show('scoreBox', m === 'cook' || m === 'intro');
+  show('pauseBtn', ['intro', 'cook', 'transfer', 'season', 'toEat', 'eat'].includes(m));
+  if (m !== 'cook') show('powerWrap', false);
+  $('chip').innerHTML = m === 'title' ? '' : G.free ? '<b>ひたすらビタン</b>' : `目標 <b>${DLABEL[G.don]}</b>`;
+}
+function setFever(on){
+  if (!on) G.fever = 0;
+  show('feverBan', on); $('glow').classList.toggle('on', on); $('power').classList.toggle('fv', on);
+  $('power').querySelector('.pp').style.height = on ? '24%' : '14%';
+  bgm.on = on && soundOn !== null; if (on){ bgm.step = 0; if (AC) bgm.next = AC.currentTime + .05; }
+}
+
+function startGame(free){
+  initAudio(true); SFX.blip();
+  G.free = !!free;
+  newSteak();
+  Object.assign(G, { juice: 65, slams: [], combo: 0, maxCombo: 0, pts: 0, shown: 0, fever: 0, feverN: 0, salt: 0, pepper: 0, bites: 0, eatT0: 0, eatT1: 0,
+    burned: false, auto: false, autoUsed: false, ph: 'drop', phT: 0, held: false, queued: false, pend: false, paused: false, biteAnim: -1, hit: 0, hintH: '' });
+  setFever(false); $('autoBtn').classList.remove('on');
+  handR.g.visible = true; eatRig.visible = false;
+  millP.g.position.copy(millP.home); millS.g.position.copy(millS.home); millP.g.rotation.set(0, 0, 0); millS.g.rotation.set(0, 0, 0);
+  const z = ZONES[G.don];
+  ['barA', 'barB'].forEach(id => { const zo = $(id).querySelector('.zone'); zo.style.left = (z[0] / 120 * 100) + '%'; zo.style.width = ((z[1] - z[0]) / 120 * 100) + '%'; $(id).querySelector('.burn').style.left = (100 / 120 * 100) + '%'; });
+  $('cookBars').classList.toggle('free', G.free); show('barJ', !G.free);
+  $('finBtn').textContent = G.free ? 'おわる' : '焼き上げ！';
+  $('cookHint').innerHTML = '';
+  show('titleOv', false); show('resultOv', false); show('pauseOv', false);
+  steak.outer.position.y = TEP_TOP + 4;
+  setMode('intro');
+}
+$('startBtn').addEventListener('click', () => startGame(false));
+$('freeBtn').addEventListener('click', () => startGame(true));
+$('againBtn').addEventListener('click', () => startGame(G.free));
+function backToTitle(){
+  G.paused = false; show('resultOv', false); show('pauseOv', false);
+  setFever(false); newSteak(); handR.g.visible = true; eatRig.visible = false;
+  millP.g.position.copy(millP.home); millS.g.position.copy(millS.home);
+  setMode('title'); show('titleOv', true); drawBest();
+}
+$('titleBtn').addEventListener('click', backToTitle);
+
+function openPause(){
+  if (G.paused || $('pauseBtn').hidden) return;
+  G.paused = true; G.held = false;
+  const n = G.slams.length;
+  const info = G.mode === 'eat' || G.mode === 'toEat' ? `かぶりつき中（${G.bites}口）` : G.mode === 'season' ? '味付け中'
+    : G.free ? `ひたすらビタン中（${n}回・最大${G.maxCombo}コンボ）` : `焼いている途中（ビタン${n}回・${fmt(G.pts)}点）`;
+  $('pauseInfo').textContent = info;
+  setShare($('sharePause'), `「${GAME_NAME}」で座布団みたいな肉を素手で${info}`);
+  disarm(); show('pauseOv', true);
+}
+$('pauseBtn').addEventListener('click', openPause);
+$('resumeBtn').addEventListener('click', () => { G.paused = false; show('pauseOv', false); initAudio(false); });
+let armed = false, armTimer = null;
+const quitBtn = $('quitBtn');
+function disarm(){ armed = false; clearTimeout(armTimer); quitBtn.textContent = 'タイトルへ'; quitBtn.classList.remove('danger'); }
+quitBtn.addEventListener('click', () => {
+  if (!armed){ armed = true; quitBtn.textContent = '本当に？(もう一度タップ)'; quitBtn.classList.add('danger'); clearTimeout(armTimer); armTimer = setTimeout(disarm, 3000); return; }
+  disarm(); backToTitle();
+});
+
+/* ---------- input ---------- */
+function grab(){ G.ph = 'grab'; G.phT = 0; G.queued = false; SFX.plop(); }
+function press(){
+  if (G.paused) return;
+  if (G.mode === 'cook'){
+    G.held = true; initAudio(false);
+    if (G.ph === 'rest') grab(); else if (G.ph === 'splat' || G.ph === 'slam') G.pend = true;
+  } else if (G.mode === 'eat'){ bite(); }
+}
+function release(){
+  if (!G.held) return; G.held = false; G.pend = false;
+  if (G.mode !== 'cook') return;
+  if (G.ph === 'hold') startSlam();
+  else if (G.ph === 'grab' || G.ph === 'lift') G.queued = true;
+}
+cv.addEventListener('pointerdown', e => { e.preventDefault(); press(); });
+window.addEventListener('pointerup', release);
+window.addEventListener('pointercancel', release);
+window.addEventListener('blur', release);
+window.addEventListener('keydown', e => {
+  if (e.repeat) return;
+  if (e.code === 'Space' || e.code === 'Enter'){ if (!$('titleOv').hidden || !$('resultOv').hidden || !$('pauseOv').hidden) return; e.preventDefault(); press(); }
+  if (e.code === 'Escape' || e.code === 'KeyP'){ if (G.paused){ $('resumeBtn').click(); } else openPause(); }
+});
+window.addEventListener('keyup', e => { if (e.code === 'Space' || e.code === 'Enter') release(); });
+
+/* ---------- cooking ---------- */
+const REST_HEAT = 1.3, SEAR = { PERFECT: 9, GOOD: 5, WEAK: 2 };   // the meat cooks mainly by being slammed
+const H_LIFT = 3.1, H_TOP = 1.1, T_LIFT = .38, PERIOD = 1.05, T_SLAM = .2;
+let slamFrom = null;
+function startSlam(){
+  G.slamPow = G.ph === 'hold' ? G.meter : .15; G.ph = 'slam'; G.phT = 0;
+  slamFrom = { y: steak.pivot.position.y, th: steak.pivot.rotation.x, z: steak.pivot.position.z };
+}
+// swing over first (fast rotation), then drop hard (late fall) so the far end never digs into the teppan
+function slamPose(pv, f, t){
+  const r = 1 - (1 - t) * (1 - t), y = t * t * t;
+  pv.rotation.x = lerp(f.th, -Math.PI, r); pv.position.y = lerp(f.y, Y0, y); pv.position.z = lerp(f.z, -zN, r);
+}
+function worldOf(x, y, z){ return steak.outer.localToWorld(new THREE.Vector3(x, y, z)); }
+function cookUpdate(dt){
+  const pv = steak.pivot;
+  G.phT += dt;
+  if (G.ph === 'drop'){
+    const k = G.phT * G.phT * 5;
+    steak.outer.position.y = TEP_TOP + 4 - 4 * Math.min(1, k);
+    if (k >= 1){ steak.outer.position.y = TEP_TOP; impactFx(.7, 0, false); startWobble(.16); pop('ドスンッ', worldOf(0, 0, 0), 'mid'); G.ph = 'rest'; G.phT = 0; setMode('cook'); }
+  } else if (G.ph === 'grab'){
+    if (G.phT > .12){ G.ph = 'lift'; G.phT = 0; }
+  } else if (G.ph === 'lift'){
+    const e = easeOut(Math.min(1, G.phT / T_LIFT));
+    pv.position.y = Y0 + (H_LIFT - Y0) * e; pv.rotation.x = -Math.PI / 2 * Math.pow(e, 1.6);
+    if (G.phT >= T_LIFT){ G.ph = 'hold'; G.phT = 0; if (G.queued){ G.queued = false; startSlam(); } }
+  } else if (G.ph === 'hold'){
+    const m = (1 - Math.cos(G.phT * Math.PI * 2 / PERIOD)) / 2; G.meter = m;
+    pv.position.y = H_LIFT + H_TOP * m; pv.rotation.x = -Math.PI / 2 + .42 * m;
+    if (G.phT > 2.8){ pop('アチチッ！', handR.g.position, 'sm bad'); startSlam(); G.slamPow = .1; }
+  } else if (G.ph === 'slam'){
+    const t = Math.min(1, G.phT / T_SLAM);
+    slamPose(pv, slamFrom, t);
+    if (t >= 1) contact();
+  } else if (G.ph === 'splat'){
+    if (splatStep(dt)) land();
+  } else if (G.ph === 'rest'){
+    const di = downIdx(), ui = 1 - di;
+    G.d[di] += REST_HEAT * dt; G.d[ui] += .15 * dt; if (!G.free) G.juice -= .25 * dt;
+    if (G.pend && G.held){ G.pend = false; grab(); }
+  }
+  if (G.free){ G.d[0] = Math.min(G.d[0], 86); G.d[1] = Math.min(G.d[1], 86); }
+  else {
+    const z = ZONES[G.don];
+    for (let i = 0; i < 2; i++){ if (G.d[i] > z[1] + 4) G.juice -= (G.d[i] - z[1] - 4) * .035 * dt; if (G.d[i] > 102){ G.juice -= 1.2 * dt; G.burned = true; } }
+    G.juice = clamp(G.juice, 0, 100);
+  }
+  if (G.fever > 0){ G.fever -= dt; $('feverBar').style.width = clamp(G.fever / 8 * 100, 0, 100) + '%'; if (G.fever <= 0){ G.fever = 0; setFever(false); } }
+  const showP = G.ph === 'hold' || G.ph === 'lift';
+  show('powerWrap', showP);
+  if (showP) $('power').querySelector('.pf').style.height = (G.ph === 'hold' ? G.meter * 100 : 0) + '%';
+  $('finBtn').disabled = !(G.ph === 'rest' && G.slams.length >= (G.free ? 1 : 2));
+  if (G.ph === 'rest' && G.mode === 'cook'){
+    const z = ZONES[G.don], hi = Math.max(G.d[0], G.d[1]), nm = G.d[0] >= G.d[1] ? '表' : '裏';
+    const inZ = G.d.every(d => d >= z[0] && d <= z[1]);
+    let h = G.slams.length === 0 ? '<em>長押し</em>で掴んで、一番上で<em>離して</em>ビタン！ 肉は<em>ビタンで焼ける</em>'
+          : G.free ? 'PERFECTを<em>つなげて</em>コンボ。5連続で<em>FEVER</em>'
+          : G.slams.length < 4 ? '叩きつけた面が焼ける。<em>白い線</em>は次のPERFECTでの焼け具合'
+          : '叩くほど点が伸びる。でも<em>叩きすぎると焦げる</em>';
+    if (!G.free){
+      if (hi > 100) h = `<em style="color:#ff6b5a">${nm}が焦げてる！</em> もう焼き上げて！`;
+      else if (hi > z[1]) h = `<em style="color:#ff9a6a">${nm}が焼けすぎ…</em> そろそろ焼き上げを`;
+      else if (inZ) h = '両面が<em>ゾーン</em>に！ <em>焼き上げ</em>るか、もう少し攻めるか';
+    }
+    if (h !== G.hintH){ G.hintH = h; $('cookHint').innerHTML = h; }
+  }
+}
+// first contact of the slap: score, effects, hit-stop. The far half then slaps down (splat).
+function contact(){
+  const p = G.slamPow, th = G.fever > 0 ? .78 : .86;
+  const q = p >= th ? 'PERFECT' : p >= .55 ? 'GOOD' : 'WEAK';
+  G.lastQ = q;
+  if (q === 'PERFECT'){ G.combo++; G.maxCombo = Math.max(G.maxCombo, G.combo); }
+  else if (q === 'WEAK') G.combo = 0;
+  const base = q === 'PERFECT' ? 100 : q === 'GOOD' ? 40 : 5;
+  const mult = (1 + .25 * G.combo) * (G.fever > 0 ? 2 : 1);
+  const gain = Math.round(base * mult);
+  G.pts += gain; G.slams.push(q);
+  const pw = q === 'PERFECT' ? 1 : q === 'GOOD' ? .6 : .3;
+  impactFx(pw, q === 'PERFECT' ? G.combo : 0, true);
+  if (q === 'PERFECT'){ G.hit = .07 + Math.min(.09, G.combo * .008); G.punch = 1; }
+  const c = worldOf(0, .4, 0);
+  const words = ['ビタン!!', 'ビタン!!', 'ビタァン!!', 'ビタァァン!!!', 'ビッタァァン!!!', 'ビッッッタァァァン!!!!'];
+  if (q === 'PERFECT'){
+    pop(words[Math.min(G.combo, words.length - 1)], c, G.combo >= 5 ? 'huge' : 'big');
+    pop(G.combo > 1 ? `PERFECT ×${G.combo}` : 'PERFECT', c, 'tag', 10);
+  } else if (q === 'GOOD'){ pop('ビタン！', c, 'mid'); pop('GOOD', c, 'tag', 8); }
+  else pop('ペチッ…', c, 'sm bad');
+  pop('+' + fmt(gain), c, 'pts', -14);
+  const ct = $('comboTxt'); ct.textContent = G.combo > 1 ? `${G.combo} COMBO　×${(1 + .25 * G.combo).toFixed(2)}${G.fever > 0 ? '×2' : ''}` : '';
+  ct.classList.remove('bump'); void ct.offsetWidth; ct.classList.add('bump');
+  if (q === 'PERFECT' && G.combo > 0 && G.combo % 5 === 0){
+    if (G.fever <= 0){ G.feverN++; setFever(true); SFX.fever(); pop('FEVER!!', c, 'huge', -22); }
+    G.fever = Math.min(14, (G.fever > 0 ? G.fever : 0) + 8);
+  }
+  G.ph = 'splat'; G.phT = 0;
+}
+function splatStep(dt){
+  // the lagging half falls flat quickly
+  S.B += (0 - S.B) * Math.min(1, dt * 26);
+  return G.phT > .1;
+}
+function land(){
+  const q = G.lastQ;
+  G.flipped = !G.flipped; S.B = 0; S.Bv = 0;
+  resetPivot();
+  const di = downIdx();
+  G.d[di] += SEAR[q]; G.d[1 - di] += 1;
+  if (q === 'PERFECT'){ if (!G.free) G.juice += 3.5; }
+  else if (q === 'GOOD'){ if (!G.free) G.juice += 1; }
+  else { if (!G.free) G.juice -= 8;
+    steak.outer.rotation.y += rnd(-.3, .3);
+    steak.outer.position.x = clamp(steak.outer.position.x + rnd(-.4, .4), -1.6, 1.6);
+    steak.outer.position.z = clamp(steak.outer.position.z + rnd(-.25, .25), -.5, .5); resetPivot(); }
+  G.juice = clamp(G.juice, 0, 100);
+  startWobble(q === 'PERFECT' ? .2 : q === 'GOOD' ? .13 : .07);
+  noiseHit2();
+  G.ph = 'rest'; G.phT = 0;
+  if (G.pend && G.held){ G.pend = false; grab(); }
+}
+function noiseHit2(){ if (AC) noiseHit(AC.currentTime, .1, 'lowpass', 1100, .8, .3); }
+function impactFx(p, combo, slam){
+  SFX.slam(p, combo); vib(p > .9 ? 60 : 25);
+  G.shake = Math.max(G.shake, .07 + .18 * p + Math.min(.15, combo * .015));
+  const c = worldOf(0, .05, 0);
+  spray(c, Math.round(20 + 90 * p + combo * 6), '#ffcf6a', 2.2 + 2.4 * p, 2.6 + 2.8 * p, 1, 1.5);
+  for (let i = 0; i < 4 + 6 * p; i++) puff(c.clone().add(new THREE.Vector3(rnd(-1.4, 1.4), .15, rnd(-.9, .9))), false, true);
+  if (AC && sizzleG){ sizzleG.gain.cancelScheduledValues(AC.currentTime); sizzleG.gain.setValueAtTime(.45 + .4 * p, AC.currentTime); }
+  if (p > .9 || !slam){ shock(c, 1 + Math.min(1.5, combo * .12)); }
+  if (combo >= 3){
+    const n = Math.min(60, 10 + combo * 4), pw = Math.min(1.6, .7 + combo * .07);
+    const o = steak.outline;
+    for (let i = 0; i < n; i++){ const q = o[(Math.random() * o.length) | 0]; const w = steak.inner.localToWorld(new THREE.Vector3(q.x * 1.05, 0, q.z * 1.05)); w.y = TEP_TOP + .1; flame(w, pw); }
+    SFX.fire(); G.heatFlash = 1;
+  } else if (p > .9) G.heatFlash = .45;
+}
+
+$('finBtn').addEventListener('click', () => {
+  if (G.mode !== 'cook' || G.ph !== 'rest' || G.paused) return;
+  SFX.blip(); show('powerWrap', false);
+  if (G.free){ setFever(false); showFreeResult(); return; }
+  setFever(false);
+  G.tr = { t: 0, from: steak.outer.position.clone(), yaw0: steak.outer.rotation.y, s: null, ph: 0 };
+  setMode('transfer');
+});
+function transferUpdate(dt){
+  const tr = G.tr, pv = steak.pivot; tr.t += dt; const t = tr.t;
+  if (tr.ph === 2){ G.phT += dt; if (splatStep(dt)){ G.flipped = !G.flipped; S.B = 0; S.Bv = 0; resetPivot(); startWobble(.15); G.tr = null; setMode('season'); drawMills(); } return; }
+  if (t < T_LIFT){ const e = easeOut(t / T_LIFT); pv.position.y = Y0 + (H_LIFT - Y0) * e; pv.rotation.x = -Math.PI / 2 * Math.pow(e, 1.6); }
+  else if (t < T_LIFT + .7){
+    const e = easeIO((t - T_LIFT) / .7);
+    steak.outer.position.set(lerp(tr.from.x, PLATE.x, e), lerp(tr.from.y, PLATE.y, e) + Math.sin(e * Math.PI) * .6, lerp(tr.from.z, PLATE.z, e));
+    steak.outer.rotation.y = lerp(tr.yaw0, 0, e);
+    if (!tr.s) tr.s = { y: pv.position.y, th: pv.rotation.x, z: pv.position.z };
+  } else {
+    const k = Math.min(1, (t - T_LIFT - .7) / T_SLAM);
+    slamPose(pv, tr.s, k);
+    if (k >= 1){ impactFx(.8, 0, false); pop('ジュワッ！', worldOf(0, .4, 0), 'mid'); tr.ph = 2; G.phT = 0; }
+  }
+}
+
+/* ---------- seasoning ---------- */
+const SALT_Z = [.3, .7], PEP_Z = [.2, .9];
+$('saltZone').style.left = SALT_Z[0] / 1.25 * 100 + '%'; $('saltZone').style.width = (SALT_Z[1] - SALT_Z[0]) / 1.25 * 100 + '%';
+$('pepZone').style.left = PEP_Z[0] / 1.25 * 100 + '%'; $('pepZone').style.width = (PEP_Z[1] - PEP_Z[0]) / 1.25 * 100 + '%';
+function holdBtn(el, mill){
+  const on = e => { if (e) e.preventDefault(); if (G.mode !== 'season' || G.paused) return; mill.on = true; el.classList.add('on'); initAudio(false); try{ el.setPointerCapture(e.pointerId); }catch(_){} };
+  const off = () => { mill.on = false; el.classList.remove('on'); };
+  el.addEventListener('pointerdown', on); el.addEventListener('pointerup', off); el.addEventListener('pointercancel', off); el.addEventListener('lostpointercapture', off);
+  el.addEventListener('contextmenu', e => e.preventDefault());
+}
+holdBtn($('saltBtn'), millS); holdBtn($('pepBtn'), millP);
+window.addEventListener('keydown', e => { if (G.mode !== 'season' || e.repeat) return; if (e.code === 'KeyS'){ millS.on = true; $('saltBtn').classList.add('on'); } if (e.code === 'KeyA'){ millP.on = true; $('pepBtn').classList.add('on'); } });
+window.addEventListener('keyup', e => { if (e.code === 'KeyS'){ millS.on = false; $('saltBtn').classList.remove('on'); } if (e.code === 'KeyA'){ millP.on = false; $('pepBtn').classList.remove('on'); } });
+function drawMills(){
+  $('saltG').style.width = Math.min(100, G.salt / 1.25 * 100) + '%'; $('pepG').style.width = Math.min(100, G.pepper / 1.25 * 100) + '%';
+  $('saltTxt').textContent = seasonWord(G.salt, true); $('pepTxt').textContent = seasonWord(G.pepper, false);
+}
+function seasonWord(v, salt){
+  if (v < .02) return 'なし';
+  const z = salt ? SALT_Z : PEP_Z;
+  if (v < z[0]) return 'ひかえめ'; if (v <= z[1]) return 'ちょうどいい'; if (v < 1.05) return 'たっぷり'; return salt ? 'しょっぱい！' : 'むせる！';
+}
+let grindT = 0;
+function seasonUpdate(dt){
+  const topY = PLATE.y + HALF * 2;
+  [[millP, 'pep', false], [millS, 'salt', true]].forEach(([m, k, salt], idx) => {
+    m.w = clamp(m.w + (m.on ? dt * 5 : -dt * 4), 0, 1);
+    const sw = Math.sin(G.t * 2.1 + idx * 2) * 1.15, sz = Math.cos(G.t * 1.6 + idx) * .7;
+    const tgt = new THREE.Vector3(PLATE.x + sw, topY + .9, PLATE.z + sz);
+    const e = easeIO(m.w);
+    m.g.position.lerpVectors(m.home, tgt, e);
+    m.g.rotation.z = (idx ? -.18 : .18) * e; m.g.rotation.x = .1 * e;
+    if (m.on){
+      m.head.rotation.y += dt * 9 * (idx ? -1 : 1);
+      if (salt) G.salt = Math.min(1.25, G.salt + dt / 3); else G.pepper = Math.min(1.25, G.pepper + dt / 3);
+      if (m.w > .8){
+        const n = (Math.random() < dt * 140 ? 2 : 0) + (Math.random() < dt * 90 ? 1 : 0);
+        for (let i = 0; i < n; i++) if (falls[k].length < FALL) falls[k].push({ p: m.g.position.clone().add(new THREE.Vector3(rnd(-.08, .08), .03, rnd(-.08, .08))), v: new THREE.Vector3(rnd(-.9, .9), rnd(-.3, 0), rnd(-.7, .7)), r: rnd(0, 6), s: rnd(.7, 1.4) });
+      }
+      grindT -= dt; if (grindT <= 0){ grindT = .055; SFX.grind(salt); }
+    }
+  });
+  let changed = false;
+  [['pep', pepFall], ['salt', saltFall]].forEach(([k, mesh]) => {
+    const a = falls[k];
+    for (let i = a.length - 1; i >= 0; i--){
+      const f = a[i]; f.v.y -= 9 * dt; f.p.addScaledVector(f.v, dt);
+      if (f.p.y <= topY){
+        const lp = steak.inner.worldToLocal(f.p.clone());
+        if (inPoly(steak.outline, lp.x, lp.z)){ if (specks[k].length < SPK){ specks[k].push({ x: lp.x, y: (G.flipped ? -1 : 1) * (HALF + .008), z: lp.z, r: f.r, s: f.s }); changed = true; } a.splice(i, 1); }
+        else if (f.p.y <= PLATE.y) a.splice(i, 1);
+      }
+    }
+    mesh.count = a.length;
+    for (let i = 0; i < a.length; i++){ const f = a[i]; dummy.position.copy(f.p); dummy.rotation.set(f.r, f.r, f.r); dummy.scale.setScalar(f.s); dummy.updateMatrix(); mesh.setMatrixAt(i, dummy.matrix); }
+    mesh.instanceMatrix.needsUpdate = true;
+  });
+  if (changed) writeSpecks();
+  drawMills();
+}
+$('eatBtn').addEventListener('click', () => {
+  if (G.mode !== 'season' || G.paused) return;
+  millP.on = millS.on = false; $('saltBtn').classList.remove('on'); $('pepBtn').classList.remove('on');
+  SFX.blip(); startEat();
+});
+
+/* ---------- eating ---------- */
+const EAT_CAM = { pos: new THREE.Vector3(), look: new THREE.Vector3() };
+let W = 1, H = 1;
+function eatCam(){
+  if (camera.aspect < .8){ EAT_CAM.pos.set(PLATE.x, 5.0, PLATE.z + 8.2); EAT_CAM.look.set(PLATE.x, 1.2, PLATE.z); }
+  else { EAT_CAM.pos.set(PLATE.x, 3.0, PLATE.z + 4.2); EAT_CAM.look.set(PLATE.x, .9, PLATE.z); }
+  return EAT_CAM;
+}
+function eatRigLocal(){ return camera.aspect < .8 ? new THREE.Vector3(0, -.2, -7.6) : H < 500 ? new THREE.Vector3(0, -.15, -4.3) : new THREE.Vector3(0, -.6, -3.9); }
+const rigFrom = { p: new THREE.Vector3(), q: new THREE.Quaternion() }, rigTo = { p: new THREE.Vector3(), q: new THREE.Quaternion() };
+let eatT = 0;
+function placeEatHands(){
+  let r = null, l = null;
+  for (const q of steak.outline){ if (!r || q.x > r.x) r = q; if (!l || q.x < l.x) l = q; }
+  const zs = G.flipped ? -1 : 1;   // hands live in the rig frame; the meat may be upside down (inner rotated about x)
+  eatHand.r.set(r.x + .03, 0, r.z * zs); eatHand.l.set(l.x - .03, 0, l.z * zs);
+}
+const eatHand = { r: new THREE.Vector3(), l: new THREE.Vector3() };
+function startEat(){
+  steak.outer.updateMatrixWorld(true);
+  steak.inner.getWorldPosition(rigFrom.p); rigFrom.q.setFromEuler(new THREE.Euler(0, steak.outer.rotation.y, 0));
+  eatRig.position.copy(rigFrom.p); eatRig.quaternion.copy(rigFrom.q);
+  eatRig.add(steak.outer); steak.outer.position.set(0, 0, 0); steak.outer.rotation.set(0, 0, 0);
+  steak.pivot.position.set(0, 0, 0); steak.pivot.rotation.set(0, 0, 0); steak.inner.position.set(0, 0, 0);
+  eatR.g.rotation.set(0, Math.PI / 2, 0); eatL.g.rotation.set(0, -Math.PI / 2, 0);
+  eatR.set(.85); eatL.set(.85); eatGridInit(); placeEatHands(); eatR.g.position.copy(eatHand.r); eatL.g.position.copy(eatHand.l);
+  eatRig.visible = true; handR.g.visible = false;
+  eatCam(); const cam = new THREE.PerspectiveCamera(); cam.position.copy(EAT_CAM.pos); cam.lookAt(EAT_CAM.look); cam.updateMatrixWorld(true);
+  rigTo.p.copy(cam.localToWorld(eatRigLocal()));
+  rigTo.q.copy(cam.quaternion).multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(.62, 0, 0)));
+  eatT = 0; G.bites = 0; G.area = 1; G.biteAnim = -1; G.autoT = .4;
+  $('eatHint').innerHTML = '画面を<em>タップ</em>してかぶりつけ！';
+  setMode('toEat');
+}
+$('autoBtn').addEventListener('click', () => { G.auto = !G.auto; if (G.auto) G.autoUsed = true; $('autoBtn').classList.toggle('on', G.auto); SFX.blip(); });
+function bite(){
+  if (G.biteAnim >= 0 && G.biteAnim < .16) return;
+  G.biteAnim = 0; G.bitePending = true; initAudio(false);
+  if (!G.eatT0) G.eatT0 = G.t;
+}
+// The steak that remains = (original outline) minus (all bites). Kept as a signed-distance grid,
+// so bites can never make the outline cross itself; the outline is re-traced with marching squares.
+const EG = { h: .035, nx: 0, nz: 0, x0: 0, z0: 0, f: null };
+function segDist(px, pz, a, b){ const vx = b.x - a.x, vz = b.z - a.z, wx = px - a.x, wz = pz - a.z; const t = clamp((wx * vx + wz * vz) / (vx * vx + vz * vz || 1), 0, 1); return Math.hypot(wx - vx * t, wz - vz * t); }
+function eatGridInit(){
+  const o = steak.outline, b = polyBounds(o), pad = .15;
+  EG.x0 = b.minX - pad; EG.z0 = b.minZ - pad;
+  EG.nx = Math.ceil((b.maxX - b.minX + pad * 2) / EG.h) + 1; EG.nz = Math.ceil((b.maxZ - b.minZ + pad * 2) / EG.h) + 1;
+  EG.f = new Float32Array(EG.nx * EG.nz);
+  for (let j = 0; j < EG.nz; j++) for (let i = 0; i < EG.nx; i++){
+    const x = EG.x0 + i * EG.h, z = EG.z0 + j * EG.h;
+    let d = 1e9; for (let k = 0; k < o.length; k++) d = Math.min(d, segDist(x, z, o[k], o[(k + 1) % o.length]));
+    EG.f[j * EG.nx + i] = inPoly(o, x, z) ? d : -d;
+  }
+}
+function eatGridBite(cx, cz, R, teeth, ph0){
+  for (let j = 0; j < EG.nz; j++) for (let i = 0; i < EG.nx; i++){
+    const x = EG.x0 + i * EG.h - cx, z = EG.z0 + j * EG.h - cz, d = Math.hypot(x, z);
+    if (d > R * 1.2) continue;
+    const v = d - R * (1 + .05 * Math.cos(Math.atan2(z, x) * teeth + ph0)), k = j * EG.nx + i;
+    if (v < EG.f[k]) EG.f[k] = v;
+  }
+}
+function eatGridContour(){
+  const { nx, nz, f, h, x0, z0 } = EG;
+  const pts = new Map(), adj = new Map();
+  const ept = (id) => {   // point where the field crosses 0 on edge id
+    if (pts.has(id)) return id;
+    const k = id >> 1, i = k % nx, j = (k / nx) | 0, i2 = (id & 1) ? i : i + 1, j2 = (id & 1) ? j + 1 : j;
+    const f1 = f[j * nx + i], f2 = f[j2 * nx + i2], t = f1 / (f1 - f2);
+    pts.set(id, { x: x0 + (i + (i2 - i) * t) * h, z: z0 + (j + (j2 - j) * t) * h }); return id;
+  };
+  const link = (e1, e2) => { ept(e1); ept(e2); if (!adj.has(e1)) adj.set(e1, []); if (!adj.has(e2)) adj.set(e2, []); adj.get(e1).push(e2); adj.get(e2).push(e1); };
+  for (let j = 0; j < nz - 1; j++) for (let i = 0; i < nx - 1; i++){
+    const a = f[j * nx + i] > 0, bb = f[j * nx + i + 1] > 0, c = f[(j + 1) * nx + i + 1] > 0, d = f[(j + 1) * nx + i] > 0;
+    const code = a | bb << 1 | c << 2 | d << 3; if (code === 0 || code === 15) continue;
+    const B = (j * nx + i) * 2, T = ((j + 1) * nx + i) * 2, L = (j * nx + i) * 2 + 1, Rt = (j * nx + i + 1) * 2 + 1;
+    const mid = (f[j * nx + i] + f[j * nx + i + 1] + f[(j + 1) * nx + i + 1] + f[(j + 1) * nx + i]) > 0;
+    switch (code){
+      case 1: case 14: link(L, B); break;
+      case 2: case 13: link(B, Rt); break;
+      case 3: case 12: link(L, Rt); break;
+      case 4: case 11: link(Rt, T); break;
+      case 6: case 9: link(B, T); break;
+      case 7: case 8: link(L, T); break;
+      case 5: if (mid){ link(B, Rt); link(T, L); } else { link(L, B); link(Rt, T); } break;
+      case 10: if (mid){ link(L, B); link(Rt, T); } else { link(B, Rt); link(T, L); } break;
+    }
+  }
+  // chain into loops, keep the biggest
+  const seen = new Set(); let best = null, bestA = 0;
+  for (const start of adj.keys()){
+    if (seen.has(start)) continue;
+    const loop = []; let prev = -1, cur = start;
+    while (cur !== undefined && !seen.has(cur)){ seen.add(cur); loop.push(pts.get(cur)); const nb = adj.get(cur); const nxt = nb[0] !== prev ? nb[0] : nb[1]; prev = cur; cur = nxt; }
+    if (loop.length > 8){ const A = Math.abs(polyArea(loop)); if (A > bestA){ bestA = A; best = loop; } }
+  }
+  if (!best) return null;
+  let out = resample(best, 200);
+  out = out.map((q, i) => { const a = out[(i + 199) % 200], c = out[(i + 1) % 200]; return { x: (a.x + q.x * 2 + c.x) / 4, z: (a.z + q.z * 2 + c.z) / 4 }; });
+  return out;
+}
+function doBite(){
+  const mouth = camera.position.clone().add(new THREE.Vector3(0, -.3, 0));
+  const o = steak.outline, v = new THREE.Vector3(), cands = [];
+  for (let i = 0; i < o.length; i++){ v.set(o[i].x, 0, o[i].z); steak.inner.localToWorld(v); cands.push([v.distanceTo(mouth), i]); }
+  cands.sort((a, b) => a[0] - b[0]);
+  const pick = cands[Math.floor(Math.random() * Math.min(24, cands.length))][1];
+  const p = o[pick], cen = centroid(o);
+  const R = clamp(Math.sqrt(steak.area0) * .36, .25, .95) * rnd(.9, 1.1), teeth = Math.round(R * 26);
+  const dx = p.x - cen.x, dz = p.z - cen.z, dl = Math.hypot(dx, dz) || 1;
+  eatGridBite(p.x + dx / dl * R * .38, p.z + dz / dl * R * .38, R, teeth, rnd(0, 6.28));
+  const out = eatGridContour(), na = out ? Math.abs(polyArea(out)) : 0;
+  G.bites++;
+  const wp = new THREE.Vector3(p.x, 0, p.z); steak.inner.localToWorld(wp);
+  SFX.bite(); vib(30); G.shake = Math.max(G.shake, .08);
+  spray(wp, Math.round(10 + G.juice * .4), G.juice > 70 ? '#b5452e' : '#8a4a2a', 1.2, 1.4, .6, .4);
+  pop(G.bites % 3 === 0 ? 'ムシャァ！' : G.bites % 2 ? 'ガブッ！' : 'モグッ！', wp, 'mid', -6);
+  if (!out || na / steak.area0 < .08 || G.bites >= 40){
+    steak.outer.visible = false; G.area = 0; G.eatT1 = G.t;
+    pop('完食！', wp, 'big', -12); SFX.fanfare(); eatR.set(.2); eatL.set(.2);
+    G.mode = 'eaten'; setTimeout(showResult, 1300);
+    return;
+  }
+  steak.outline = out; G.area = na / steak.area0; buildSteakGeo();
+  specks.pep = specks.pep.filter(s => inPoly(out, s.x, s.z)); specks.salt = specks.salt.filter(s => inPoly(out, s.x, s.z)); writeSpecks();
+  placeEatHands();
+}
+function eatUpdate(dt){
+  if (G.mode === 'toEat'){
+    eatT += dt; const e = easeIO(Math.min(1, eatT / .9));
+    eatRig.position.lerpVectors(rigFrom.p, rigTo.p, e); eatRig.position.y += Math.sin(e * Math.PI) * .35;
+    eatRig.quaternion.copy(rigFrom.q).slerp(rigTo.q, e);
+    if (eatT >= .9) setMode('eat');
+  } else {
+    if (G.auto && dt > 0){ G.autoT -= dt; if (G.autoT <= 0){ G.autoT = .34; bite(); } }
+    let k = 0;
+    if (G.biteAnim >= 0){
+      G.biteAnim += dt; const t = G.biteAnim;
+      k = t < .09 ? easeOut(t / .09) : Math.max(0, 1 - (t - .09) / .22);
+      if (G.bitePending && t >= .09){ G.bitePending = false; doBite(); }
+      if (t > .31) G.biteAnim = -1;
+    }
+    const toCam = camera.position.clone().sub(rigTo.p).normalize();
+    eatRig.position.copy(rigTo.p).addScaledVector(toCam, .6 * k * eatRigLocal().length() / 3.9);
+    eatR.g.position.lerp(eatHand.r, 1 - Math.exp(-dt * 12)); eatL.g.position.lerp(eatHand.l, 1 - Math.exp(-dt * 12));
+    eatRig.position.y += Math.sin(G.t * 3) * .02;
+    eatRig.quaternion.copy(rigTo.q);
+    const f = $('barE'); f.querySelector('.fill').style.width = (G.area * 100) + '%'; f.querySelector('.val').textContent = Math.round(G.area * 100) + '%';
+    if (G.bites > 0) $('eatHint').innerHTML = G.auto ? `オートで貪り中… <em>${G.bites}</em>口目` : `<em>${G.bites}</em>口目。もっと貪れ！`;
+  }
+}
+
+/* ---------- result ---------- */
+function calcScore(){
+  const z = ZONES[G.don];
+  const sideS = d => { if (d > 105) return 0; const dist = d < z[0] ? z[0] - d : d > z[1] ? d - z[1] : 0; return Math.max(0, 1 - dist / 22); };
+  const sA = sideS(G.d[0]), sB = sideS(G.d[1]);
+  let mult = 1 + (sA + sB) / 2; if (G.burned) mult = .5;
+  const juice = Math.round(G.juice * 20);
+  const sc = (v, zz) => v < .02 ? 0 : v < zz[0] ? 5 * (.4 + .6 * v / zz[0]) : v <= zz[1] ? 5 : v < 1.05 ? 3.5 : 1;
+  const aji = (G.salt < .02 && G.pepper < .02) ? 400 : Math.round((sc(G.salt, SALT_Z) + sc(G.pepper, PEP_Z)) * 100);
+  const sec = Math.max(0, G.eatT1 - G.eatT0);
+  const tabe = G.autoUsed ? 300 : Math.round(clamp(1500 - (sec - 4) * 110, 200, 1500));
+  const total = Math.round(G.pts * mult) + juice + aji + tabe;
+  return { mult, juice, aji, tabe, total, sec, sA, sB };
+}
+function rankOf(s){
+  if (G.burned && s.total < 10000) return '炭焼き職人（物理）';
+  if (s.total >= 40000) return '鉄板の神';
+  if (s.total >= 20000) return 'ビタンの化身';
+  if (s.total >= 10000) return 'ビタン名人';
+  if (s.total >= 5000) return '素手の肉職人';
+  if (s.total >= 2000) return '見習い鉄板焼き師';
+  return 'ただ肉を叩いた人';
+}
+function countUp(el, target, suffix){
+  const t0 = performance.now(), dur = 1300; let lastTick = 0;
+  function step(now){
+    const k = Math.min(1, (now - t0) / dur), v = target * easeOut(k);
+    el.innerHTML = fmt(v) + (suffix || '');
+    if (now - lastTick > 70 && k < 1){ lastTick = now; SFX.tick(); }
+    if (k < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+function showResult(){
+  const s = calcScore(), rank = rankOf(s);
+  const core = (G.d[0] + G.d[1]) / 2, label = donLabel(core);
+  const nP = G.slams.filter(q => q === 'PERFECT').length;
+  $('rHead').textContent = 'ごちそうさまでした';
+  countUp($('rScore'), s.total, '<small> 点</small>');
+  $('rRank').textContent = `「${rank}」`;
+  $('rDone').textContent = `目標 ${DLABEL[G.don]} → 仕上がり ${label}（表${Math.round(G.d[0])}・裏${Math.round(G.d[1])}）`;
+  const salt = seasonWord(G.salt, true), pep = seasonWord(G.pepper, false);
+  $('rBrk').innerHTML = [
+    ['ビタン得点', `${G.slams.length}回・PERFECT ${nP}・最大${G.maxCombo}コンボ・FEVER ${G.feverN}回`, fmt(G.pts)],
+    ['焼き加減', G.burned ? '焦げた…' : `表${Math.round(s.sA * 100)}%・裏${Math.round(s.sB * 100)}%`, '×' + s.mult.toFixed(2)],
+    ['肉汁ボーナス', `${Math.round(G.juice)}%`, '+' + fmt(s.juice)],
+    ['味付けボーナス', `塩 ${salt}・胡椒 ${pep}`, '+' + fmt(s.aji)],
+    ['完食ボーナス', G.autoUsed ? `オートで完食（${G.bites}口）` : `${G.bites}口・${s.sec.toFixed(1)}秒`, '+' + fmt(s.tabe)]
+  ].map(r => `<div><span>${r[0]} <small>${r[1]}</small></span><span>${r[2]}</span></div>`).join('');
+  let cm;
+  if (G.burned) cm = '鉄板の上に、座布団サイズの炭が一枚。それでも素手で食べきった根性は本物。';
+  else if (G.maxCombo >= 15) cm = `${G.maxCombo}連続ビタン。店中が揺れ、隣の客は箸を落とした。`;
+  else if (s.mult >= 1.9 && G.maxCombo >= 5) cm = `完璧な${DLABEL[G.don]}。ビタンの音が店中に響き渡り、他の客まで拍手している。`;
+  else if (s.mult < 1.4) cm = core < ZONES[G.don][0] ? 'まだ中が冷たい。ビタンは気合いだけでは焼けない。' : '火が入りすぎて、肉汁が鉄板に逃げていった。';
+  else if (G.maxCombo < 3) cm = 'ペチペチと優しすぎる。手が一番上に来た瞬間を狙え。';
+  else if (G.salt >= 1.05) cm = '肉の味より塩の味がする。ソルトミルは、ほどほどに。';
+  else if (G.pepper >= 1.05) cm = 'ペッパーで目が開かない。でも豪快で嫌いじゃない。';
+  else cm = 'いい焼き上がり。座布団サイズを両手で貪る姿は、まさに野生。';
+  $('rComment').textContent = cm;
+  const best = store.get('best2', 0); if (s.total > best) store.set('best2', s.total);
+  setShare($('shareResult'), `「${GAME_NAME}」で${fmt(s.total)}点、称号は「${rank}」！ 座布団サイズの肉を素手でビタン${G.slams.length}回（最大${G.maxCombo}コンボ）、${label}に焼いて${G.bites}口で完食`);
+  setMode('result'); show('resultOv', true); SFX.fanfare();
+}
+function showFreeResult(){
+  const nP = G.slams.filter(q => q === 'PERFECT').length, n = G.slams.length;
+  $('rHead').textContent = 'おつかれさまでした';
+  countUp($('rScore'), G.pts, '<small> 点</small>');
+  const rank = G.maxCombo >= 30 ? 'ビタンの化身' : G.maxCombo >= 15 ? 'ビタン名人' : G.maxCombo >= 5 ? 'FEVERの使い手' : n >= 20 ? 'ひたすら叩く人' : 'ビタン見習い';
+  $('rRank').textContent = `「${rank}」`;
+  $('rDone').textContent = 'ひたすらビタン（焦げない）';
+  $('rBrk').innerHTML = [
+    ['ビタン', `${n}回`], ['PERFECT', `${nP}回（${n ? Math.round(nP / n * 100) : 0}%）`], ['最大コンボ', `${G.maxCombo}`], ['FEVER', `${G.feverN}回`]
+  ].map(r => `<div><span>${r[0]}</span><span>${r[1]}</span></div>`).join('');
+  $('rComment').textContent = G.maxCombo >= 15 ? 'その手首、もはや楽器。' : G.maxCombo >= 5 ? 'FEVERの向こう側が見えてきた。' : '一番上で離す。それだけ。それが難しい。';
+  const fb = store.get('free-best', 0); if (G.maxCombo > fb) store.set('free-best', G.maxCombo);
+  setShare($('shareResult'), `「${GAME_NAME}」のひたすらビタンで${n}回叩いて最大${G.maxCombo}コンボ、${fmt(G.pts)}点！ 称号は「${rank}」`);
+  setMode('result'); show('resultOv', true); SFX.fanfare();
+}
+
+/* ===================== HUD ===================== */
+function drawCookHud(){
+  const di = downIdx();
+  [['barA', 0], ['barB', 1]].forEach(([id, i]) => {
+    const el = $(id), d = G.d[i];
+    const fl = el.querySelector('.fill'); fl.style.width = clamp(d / 120 * 100, 0, 100) + '%';
+    fl.style.background = rgb(ramp(CRUST, Math.min(d, 110))); fl.style.boxShadow = d > 100 ? 'inset 0 0 0 2px #ff4a2a' : 'inset 0 0 0 1px rgba(255,255,255,.15)';
+    const lab = el.querySelector('.lab'); const next = i !== di;
+    lab.textContent = (i ? '裏' : '表') + (next ? '👊' : ''); lab.classList.toggle('fire', next);
+    const nx = el.querySelector('.nx'); nx.style.display = next && !G.free ? 'block' : 'none';
+    if (next) nx.style.left = clamp((d + SEAR.PERFECT) / 120 * 100, 0, 100) + '%';
+    el.querySelector('.val').textContent = Math.round(d);
+  });
+  const j = $('barJ'); j.querySelector('.fill').style.width = G.juice + '%'; j.querySelector('.val').textContent = Math.round(G.juice) + '%';
+  if (Math.abs(G.shown - G.pts) > .5){ G.shown += (G.pts - G.shown) * .18; if (Math.abs(G.shown - G.pts) < 1) G.shown = G.pts; $('scoreNum').innerHTML = fmt(G.shown) + '<small>点</small>'; }
+  else if (G.shown === 0) $('scoreNum').innerHTML = '0<small>点</small>';
+}
+
+/* ===================== camera ===================== */
+const camPos = new THREE.Vector3(0, 6, 9), camLook = new THREE.Vector3(0, .5, 0);
+const tgtPos = new THREE.Vector3(), tgtLook = new THREE.Vector3();
+let baseFov = 45;
+function resize(){
+  W = Math.max(1, innerWidth || 0); H = Math.max(1, innerHeight || 0);
+  renderer.setSize(W, H, false); camera.aspect = W / H;
+  baseFov = camera.aspect < .8 ? 56 : camera.aspect < 1.3 ? 50 : 42;
+  camera.fov = baseFov; camera.updateProjectionMatrix();
+}
+window.addEventListener('resize', resize); resize();
+function camTarget(){
+  const port = camera.aspect < .8, short = H < 500 && camera.aspect > 1.3;
+  const m = G.mode;
+  if (m === 'title'){
+    const a = G.t * .12, r = port ? 6 : 5;
+    tgtPos.set(Math.sin(a) * r, port ? 8.6 : 6.4, Math.cos(a) * r + (port ? 8 : 5.5)); tgtLook.set(0, .4, 0);
+  } else if (m === 'intro' || m === 'cook'){
+    const lift = m === 'cook' ? Math.max(0, steak.pivot.position.y - Y0) * (short ? .7 : .4) : 0;
+    const x = steak.outer.position.x * .4;
+    tgtPos.set(x - (port ? 1.4 : 2.2), (port ? 9.0 : short ? 7.4 : 6.6) + lift * .5, port ? 10.8 : short ? 8.2 : 8.2);
+    tgtLook.set(x, (port ? 1.2 : short ? -.4 : 1.4) + lift, short ? .9 : .3);
+  } else if (m === 'transfer'){
+    const x = steak.outer.position.x; tgtPos.set(x, port ? 9 : 6.8, port ? 11.2 : 8.6); tgtLook.set(x, 1.0, .5);
+  } else if (m === 'season'){
+    tgtPos.set(PLATE.x, port ? 7.6 : short ? 6.2 : 5.6, PLATE.z + (port ? 7.6 : 5.4)); tgtLook.set(PLATE.x, port ? .7 : short ? -.7 : .9, PLATE.z + (short ? .5 : -.2));
+  } else {
+    eatCam(); tgtPos.copy(EAT_CAM.pos); tgtLook.copy(EAT_CAM.look);
+  }
+}
+
+/* ===================== loop ===================== */
+let last = performance.now(), crackT = 0;
+const handTmp = new THREE.Vector3();
+function loop(now){
+  requestAnimationFrame(loop);
+  const rdt = Math.min(.033, Math.max(0, (now - last) / 1000)); last = now;
+  if (innerWidth < 1 || innerHeight < 1) return;
+  try { update(rdt); render(rdt); } catch(e){ console.error(e); }
+}
+function update(rdt){
+  const frozen = G.hit > 0;
+  if (frozen) G.hit -= rdt;
+  const dt = G.paused || frozen ? 0 : rdt;
+  G.t += dt;
+  const m = G.mode;
+  if (m === 'intro' || m === 'cook') cookUpdate(dt);
+  else if (m === 'transfer') transferUpdate(dt);
+  else if (m === 'season') seasonUpdate(dt);
+  else if (m === 'toEat' || m === 'eat') eatUpdate(dt);
+  if (m === 'title'){ G.d[1] = Math.min(G.d[1] + dt * 1.5, 30); }
+
+  // bending & wobble
+  const lifted = (m === 'cook' && ['lift', 'hold', 'slam'].includes(G.ph)) || (m === 'transfer' && G.tr && G.tr.ph !== 2);
+  if (m === 'cook' && G.ph === 'splat' || m === 'transfer' && G.tr && G.tr.ph === 2){ /* splat handled in step */ }
+  else if (dt > 0) bendUpdate(dt, lifted, (m === 'cook' && G.ph === 'slam') || (m === 'transfer' && G.tr && G.tr.t > T_LIFT + .7));
+  if (dt > 0) S.wobT += dt;
+  deform();
+
+  if (Math.abs(G.d[0] - faceA.last) > 1.5){ drawFace(faceA, G.d[0]); drawEdge(G.d[0], G.d[1]); }
+  if (Math.abs(G.d[1] - faceB.last) > 1.5){ drawFace(faceB, G.d[1]); drawEdge(G.d[0], G.d[1]); }
+  if (m === 'cook' || m === 'intro') drawCookHud();
+
+  if (handR.g.visible){
+    const pv = steak.pivot;
+    steak.outer.updateMatrixWorld(true);
+    pv.getWorldPosition(handTmp);
+    const grabbing = (m === 'cook' && ['grab', 'lift', 'hold', 'slam'].includes(G.ph)) || (m === 'transfer' && G.tr && G.tr.ph !== 2);
+    let grip;
+    if (grabbing){
+      const k = m === 'cook' && G.ph === 'grab' ? easeOut(Math.min(1, G.phT / .12)) : 1;
+      const tgt = handTmp.clone().add(new THREE.Vector3(0, -.03, .03)); grip = k;
+      if (k < 1) tgt.lerp(handTmp.clone().add(new THREE.Vector3(0, .7, .3)), 1 - k);
+      handR.g.position.copy(tgt);
+    } else {
+      const away = ['season', 'toEat', 'eat', 'eaten', 'result'].includes(m);
+      const off = away ? new THREE.Vector3(4, 4, 4) : new THREE.Vector3(1.9, .55 + Math.sin(G.t * 3) * .06, 1.2);
+      grip = 0; handR.g.position.lerp(handTmp.clone().add(off), 1 - Math.exp(-rdt * 10));
+    }
+    handR.g.rotation.y = steak.outer.rotation.y;
+    handR.set(lerp(handR.grip, grip, 1 - Math.exp(-rdt * 18)));
+  }
+
+  const onHeat = (m === 'cook' && G.ph === 'rest') || m === 'title';
+  const onPlate = m === 'season';
+  if (!G.paused){
+    const down = G.d[downIdx()];
+    const rate = onHeat ? 4 + down * .09 : onPlate ? 3 : (m === 'eat' || m === 'toEat') ? 1.5 : 0;
+    if (Math.random() < rate * rdt){
+      const p = m === 'eat' || m === 'toEat' ? eatRig.position.clone().add(new THREE.Vector3(rnd(-.8, .8), .3, rnd(-.4, .4))) : worldOf(rnd(-1.2, 1.2), .05, rnd(-.8, .8));
+      puff(p, down > 100 && onHeat, false);
+    }
+    crackT -= rdt; if (onHeat && crackT <= 0 && m !== 'title'){ crackT = rnd(.02, .1); SFX.crackle(); }
+  }
+  const playing = !G.paused && ['intro', 'cook', 'transfer', 'season', 'toEat', 'eat'].includes(m);
+  setSizzle(playing ? (onHeat ? .2 + Math.min(.15, G.d[downIdx()] * .002) : onPlate ? .09 : .04) : 0);
+  if (!playing && bgm.on && m !== 'cook') setFever(false);
+  if (G.paused) bgm.on = false; else if (G.fever > 0 && m === 'cook') bgm.on = true;
+  bgmTick();
+  G.heatFlash = Math.max(0, (G.heatFlash || 0) - rdt * 2.2);
+  const fv = G.fever > 0;
+  tepMat.emissiveIntensity = .1 + .04 * Math.sin(G.t * 2) + G.heatFlash * .5 + (fv ? .08 + .06 * Math.sin(G.t * 9) : 0);
+  heat.intensity = (onHeat ? .6 + Math.random() * .08 : .35) + G.heatFlash * 3.5;
+  rim.color.setHSL(fv ? (.96 + .12 * (.5 + .5 * Math.sin(G.t * 3))) % 1 : .62, fv ? .85 : .5, fv ? .6 : .75); rim.intensity = fv ? .7 : .35;
+  wallMat.color.setScalar(fv ? 1 + .35 * Math.max(0, Math.sin(G.t * Math.PI * 140 / 60)) : 1);
+
+  smokes.forEach(o => { if (!o.s.visible) return; o.life += rdt; const t = o.life / o.max; if (t >= 1){ o.s.visible = false; return; }
+    o.s.position.addScaledVector(o.v, rdt); o.v.x += Math.sin(o.life * 3 + o.max) * rdt * .2; const sz = o.sz * (1 + t * 2.2); o.s.scale.set(sz, sz, 1);
+    o.s.material.opacity = o.base * Math.sin(t * Math.PI) * (1 - t * .3); });
+  flames.forEach(o => { if (!o.s.visible) return; o.life += rdt; const t = o.life / o.max; if (t >= 1){ o.s.visible = false; return; }
+    o.s.position.addScaledVector(o.v, rdt); o.v.multiplyScalar(1 - rdt * 1.5); const sz = o.sz * (1 + t * 1.4) * (1 - t * .5); o.s.scale.set(sz, sz * 1.5, 1);
+    o.s.material.opacity = Math.min(1, (1 - t) * 1.4); o.s.material.color.setRGB(1, 1 - t * .5, 1 - t); });
+  rings.forEach(r => { if (!r.m.visible) return; r.t += rdt; const t = r.t / .5; if (t >= 1){ r.m.visible = false; return; }
+    const s = (1.2 + easeOut(t) * 3.6) * r.s; r.m.scale.set(s, s, 1); r.m.material.opacity = .9 * (1 - t); });
+  let any = false;
+  for (let i = 0; i < NP; i++){ const q = parts[i]; if (!q.a) continue; any = true; q.life -= rdt; if (q.life <= 0){ q.a = false; pPos[i * 3 + 1] = -99; continue; }
+    q.v.y -= 9 * q.g * rdt; pPos[i * 3] += q.v.x * rdt; pPos[i * 3 + 1] += q.v.y * rdt; pPos[i * 3 + 2] += q.v.z * rdt; if (pPos[i * 3 + 1] < -.05 && q.v.y < 0){ q.v.y *= -.2; q.v.x *= .5; q.v.z *= .5; } }
+  if (any) pGeo.attributes.position.needsUpdate = true;
+
+  const fx = ['season', 'toEat', 'eat', 'eaten', 'result'].includes(m) ? PLATE.x : (m === 'transfer' ? steak.outer.position.x : 0);
+  spot.target.position.x = lerp(spot.target.position.x, fx, 1 - Math.exp(-rdt * 3));
+  spot.position.x = spot.target.position.x + 1;
+}
+function render(rdt){
+  camTarget();
+  const k = 1 - Math.exp(-rdt * (G.mode === 'title' ? 2 : 3.5));
+  camPos.lerp(tgtPos, k); camLook.lerp(tgtLook, k);
+  camera.position.copy(camPos);
+  if (G.shake > 0){ G.shake = Math.max(0, G.shake - rdt * .7); camera.position.add(new THREE.Vector3(rnd(-1, 1), rnd(-1, 1), rnd(-1, 1)).multiplyScalar(G.shake)); }
+  if (G.mode === 'eat' && G.biteAnim >= 0) camera.position.y -= Math.sin(G.biteAnim * 20) * .03;
+  camera.lookAt(camLook);
+  G.punch = Math.max(0, G.punch - rdt * 4);
+  const f = baseFov - 5 * Math.sin(Math.min(1, G.punch) * Math.PI * .5);
+  if (Math.abs(camera.fov - f) > .01){ camera.fov = f; camera.updateProjectionMatrix(); }
+  renderer.render(scene, camera);
+}
+camTarget(); camPos.copy(tgtPos); camLook.copy(tgtLook);
+setMode('title');
+requestAnimationFrame(loop);
+
+})();
+</script>
+</body>
+</html>
