@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>逆ケチャップ | porkgorilla://</title>
+<meta name="description" content="空っぽのケチャップボトルで、オムライスを吸い込むアプリ。">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:title" content="逆ケチャップ">
+<meta property="og:description" content="空っぽのケチャップボトルで、オムライスを吸い込むアプリ。">
+<meta property="og:url" content="https://porkgorilla.com/works/gyaku-ketchup.html">
+<meta property="og:image" content="https://porkgorilla.com/assets/og-gyaku-ketchup.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="逆ケチャップ">
+<meta name="twitter:description" content="空っぽのケチャップボトルで、オムライスを吸い込むアプリ。">
+<meta name="twitter:image" content="https://porkgorilla.com/assets/og-gyaku-ketchup.jpg">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-MBT4300J0L');
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Maru+Gothic:wght@500;700;900&display=swap">
+<style>
+/* 洋食屋のテーブル。木の卓上に3Dの皿、UIはクリーム色の伝票カードとケチャップ赤 */
+:root{
+  --wood:#3a2216;
+  --cream:#fbf4e4;
+  --paper:#fffaf0;
+  --ink:#2b1a10;
+  --sub:#8d7a66;
+  --ketchup:#c42a1c;
+  --ketchup-deep:#9a1d12;
+  --egg:#f2c21a;
+  --hud:#f7ead2;
+  --hud-sub:rgba(247,234,210,.62);
+  --f-display:"Dela Gothic One","Hiragino Sans","Yu Gothic",sans-serif;
+  --f-body:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Hiragino Sans","Yu Gothic",sans-serif;
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--wood);color:var(--ink)}
+body{font-family:var(--f-body);-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+#app{position:relative;height:100%;overflow:hidden}
+#stage{position:absolute;inset:0;touch-action:none}
+#stage canvas{display:block;width:100%;height:100%}
+
+/* 上部HUD(ポップアップより前面。リンクとボタンだけ押せる) */
+.hud{position:absolute;left:0;right:0;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:10px 16px;pointer-events:none;color:var(--hud);
+  background:linear-gradient(rgba(20,10,5,.55),rgba(20,10,5,0))}
+.home{color:var(--hud-sub);text-decoration:none;font-size:12px;letter-spacing:.04em;white-space:nowrap;pointer-events:auto;padding:12px 4px}
+.home:hover{color:var(--hud)}
+.stats{display:flex;gap:16px;align-items:baseline;font-variant-numeric:tabular-nums;font-weight:700;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.stats .lbl{font-size:11px;color:var(--hud-sub);letter-spacing:.06em;margin-right:4px}
+.stats .val{font-size:18px}
+.icon-btn{pointer-events:auto;min-width:44px;min-height:44px;display:grid;place-items:center;border-radius:50%;
+  border:none;background:rgba(255,250,240,.12);color:var(--hud);cursor:pointer}
+.icon-btn:hover{background:rgba(255,250,240,.22)}
+.icon-btn:focus-visible,.btn:focus-visible,.home:focus-visible{outline:3px solid var(--egg);outline-offset:2px}
+.icon-btn svg{width:22px;height:22px}
+
+/* 下部の操作バー(プレイ中のみ) */
+.bottombar{position:absolute;left:0;right:0;bottom:0;z-index:15;display:flex;justify-content:center;gap:14px;
+  padding:12px 16px max(16px,env(safe-area-inset-bottom))}
+.btn{font-family:var(--f-body);font-weight:900;font-size:17px;border-radius:999px;cursor:pointer;
+  min-height:48px;padding:0 26px;border:2.5px solid var(--ink);background:var(--paper);color:var(--ink);
+  box-shadow:0 3px 0 var(--ink);transition:transform .08s,box-shadow .08s,background .15s}
+.btn:active{transform:translateY(3px);box-shadow:0 0 0 var(--ink)}
+.btn.primary{background:var(--ketchup);color:var(--paper);border-color:var(--ketchup-deep);box-shadow:0 3px 0 var(--ketchup-deep)}
+.btn.ghost{background:transparent;color:var(--ketchup);border-color:rgba(196,42,28,.55);box-shadow:none}
+.btn.ghost:hover{background:rgba(196,42,28,.08)}
+.btn.danger{background:var(--ketchup);color:var(--paper);border-color:var(--ketchup-deep)}
+.btn.small{font-size:14px;padding:0 18px}
+#resetBtn{display:flex;align-items:center;gap:6px}
+#resetBtn svg{width:18px;height:18px}
+
+/* ポップアップ */
+.ov{position:absolute;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;
+  padding:76px 16px max(20px,env(safe-area-inset-bottom));background:rgba(28,14,6,.42)}
+.ov.result{align-items:flex-end;background:linear-gradient(rgba(28,14,6,0) 35%,rgba(28,14,6,.55))}
+.card{box-sizing:border-box;width:100%;max-width:400px;background:var(--cream);border-radius:20px;padding:26px 24px 20px;
+  box-shadow:0 18px 40px rgba(0,0,0,.35);display:flex;flex-direction:column;gap:14px;max-height:100%;overflow:auto}
+.eyebrow{font-size:11px;letter-spacing:.22em;color:var(--sub);font-weight:700}
+h1{font-family:var(--f-display);font-weight:400;font-size:clamp(40px,12vw,54px);line-height:1.05;margin:0;color:var(--ketchup);
+  text-wrap:balance;letter-spacing:.02em}
+h1 .flip{display:inline-block;transform:scaleX(-1)}
+.lead{margin:0;font-size:15px;font-weight:700;line-height:1.6}
+.how{margin:0;padding:12px 14px;border-radius:12px;background:rgba(43,26,16,.06);font-size:13px;line-height:1.7;color:#4b3828}
+.how b{color:var(--ketchup)}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+.best{font-size:12px;color:var(--sub);font-variant-numeric:tabular-nums}
+.credit{font-size:11px;color:var(--sub);letter-spacing:.05em;margin-top:2px}
+h2{font-family:var(--f-display);font-weight:400;font-size:34px;margin:0;color:var(--ketchup);line-height:1.1}
+.big{font-family:var(--f-display);font-size:44px;line-height:1;font-variant-numeric:tabular-nums}
+.big small{font-family:var(--f-body);font-size:15px;font-weight:700;margin-left:4px;color:var(--sub)}
+.res-sub{margin:0;font-size:13px;line-height:1.7;color:#4b3828}
+.newrec{display:inline-block;margin-left:8px;font-size:12px;font-weight:900;color:var(--paper);background:var(--ketchup);
+  padding:2px 8px;border-radius:999px;vertical-align:middle}
+.share{display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;
+  min-height:44px;border-radius:999px;background:var(--ink);color:var(--paper);font-weight:900;font-size:14px;padding:0 18px;align-self:flex-start}
+.share svg{width:16px;height:16px}
+@media (prefers-reduced-motion:reduce){.btn{transition:none}}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div id="stage"></div>
+
+  <div class="hud">
+    <a class="home" href="/">&lt; porkgorilla</a>
+    <div class="stats" id="stats" hidden>
+      <span><span class="lbl">のこり</span><span class="val" id="remainVal">100%</span></span>
+      <span><span class="lbl">タイム</span><span class="val" id="timeVal">0.0</span></span>
+    </div>
+    <button class="icon-btn" id="soundBtn" aria-label="音のオン・オフ"></button>
+  </div>
+
+  <div class="bottombar" id="bottombar" hidden>
+    <button class="btn small" id="resetBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.5-5.8"/><path d="M4 4v5h5"/></svg><span>やり直す</span></button>
+    <button class="btn" id="doneBtn">ごちそうさま</button>
+  </div>
+
+  <div class="ov" id="titleOv">
+    <div class="card">
+      <div class="eyebrow">OMURICE IN REVERSE</div>
+      <h1>逆ケチャップ</h1>
+      <p class="lead">空っぽのケチャップボトルで、<br>オムライスを吸い込む。</p>
+      <p class="how">押したままオムライスの上をなぞると、ボトルが<b>卵</b>→<b>チキンライス</b>の順に吸い込みます。パセリも吸えます。ボトルが満タンになったら完食。</p>
+      <div class="row">
+        <button class="btn primary" id="startBtn">いただきます</button>
+        <span class="best" id="bestTitle"></span>
+      </div>
+      <div class="credit">porkgorilla — 2026</div>
+    </div>
+  </div>
+
+  <div class="ov result" id="resultOv" hidden>
+    <div class="card">
+      <h2 id="resHead">完食！</h2>
+      <div class="big" id="resBig"></div>
+      <p class="res-sub" id="resSub"></p>
+      <a class="share" id="shareBtn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>Xでシェア</a>
+      <div class="row">
+        <button class="btn primary" id="againBtn">もう一度</button>
+        <button class="btn ghost" id="titleBtn">タイトルへ</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+const GAME_URL = 'https://porkgorilla.com/works/gyaku-ketchup.html';
+const OG_CACHE_VERSION = 1;
+const SHARE_URL = GAME_URL + '?ogv=' + OG_CACHE_VERSION;
+const LS_BEST = 'gyaku-ketchup-best', LS_SOUND = 'gyaku-ketchup-sound';
+function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
+function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
+const C = h => new THREE.Color(h).convertSRGBToLinear();
+
+// ---------- renderer / scene ----------
+const stage = $('stage');
+const renderer = new THREE.WebGLRenderer({ antialias:true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+stage.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = C('#2e1a10');
+const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+const LOOK = new THREE.Vector3(0, 0.15, 0.1);
+
+scene.add(new THREE.HemisphereLight(C('#fff3dc'), C('#5a3420'), 0.75));
+const sun = new THREE.DirectionalLight(C('#fff6e8'), 1.05);
+sun.position.set(2.2, 6.5, 3.2);
+sun.castShadow = true;
+sun.shadow.mapSize.set(1024, 1024);
+Object.assign(sun.shadow.camera, { left:-4, right:4, top:4, bottom:-4, near:1, far:15 });
+sun.shadow.bias = -0.0008;
+scene.add(sun);
+const fill = new THREE.DirectionalLight(C('#ffd9b0'), 0.35);
+fill.position.set(-3, 2.5, -2);
+scene.add(fill);
+
+// ---------- textures ----------
+function canvasTex(w, h, draw, rep){
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  draw(c.getContext('2d'), w, h);
+  const t = new THREE.CanvasTexture(c);
+  t.encoding = THREE.sRGBEncoding;
+  t.anisotropy = 4;
+  if (rep){ t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(rep[0], rep[1]); }
+  return t;
+}
+const rnd = (a,b) => a + Math.random()*(b-a);
+const woodTex = canvasTex(512, 512, (g,w,h) => {
+  g.fillStyle = '#6a3e24'; g.fillRect(0,0,w,h);
+  for (let i=0;i<170;i++){
+    const y = Math.random()*h, dark = Math.random() < .6;
+    g.strokeStyle = dark ? `rgba(40,20,10,${rnd(.08,.3)})` : `rgba(160,100,60,${rnd(.06,.2)})`;
+    g.lineWidth = rnd(1, 6);
+    g.beginPath();
+    const a = rnd(1,4), f = rnd(.004,.012), ph = rnd(0,6);
+    for (let x=0;x<=w;x+=8){ const yy = y + Math.sin(x*f+ph)*a; x ? g.lineTo(x,yy) : g.moveTo(x,yy); }
+    g.stroke();
+  }
+}, [3, 3]);
+const eggTex = canvasTex(512, 256, (g,w,h) => {
+  g.fillStyle = '#f4c21c'; g.fillRect(0,0,w,h);
+  for (let i=0;i<420;i++){
+    g.fillStyle = Math.random()<.55 ? `rgba(255,228,110,${rnd(.08,.25)})` : `rgba(222,150,10,${rnd(.06,.16)})`;
+    g.beginPath(); g.ellipse(rnd(0,w), rnd(0,h), rnd(6,30), rnd(4,14), rnd(0,3), 0, 7); g.fill();
+  }
+  for (let i=0;i<260;i++){ g.fillStyle = `rgba(190,120,20,${rnd(.1,.3)})`; g.fillRect(rnd(0,w), rnd(0,h), rnd(1,3), rnd(1,3)); }
+}, [2, 1]);
+const riceTex = canvasTex(512, 512, (g,w,h) => {
+  g.fillStyle = '#c64a22'; g.fillRect(0,0,w,h);
+  const cols = ['#de612c','#d0532a','#ee7c44','#b43b1b','#f29a66'];
+  for (let i=0;i<3200;i++){
+    g.fillStyle = cols[i % cols.length];
+    g.beginPath(); g.ellipse(rnd(0,w), rnd(0,h), rnd(5,8), rnd(2.4,3.4), rnd(0,3.2), 0, 7); g.fill();
+  }
+  for (let i=0;i<40;i++){ g.fillStyle = '#6f9b2a'; g.beginPath(); g.arc(rnd(0,w), rnd(0,h), rnd(4,6), 0, 7); g.fill(); }
+  for (let i=0;i<50;i++){ g.fillStyle = '#efd6aa'; g.fillRect(rnd(0,w), rnd(0,h), rnd(8,14), rnd(7,11)); }
+}, [3, 2]);
+
+// ---------- table & plate ----------
+const table = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.MeshStandardMaterial({ map:woodTex, roughness:.75 }));
+woodTex.repeat.set(10, 10);
+table.rotation.x = -Math.PI/2; table.position.y = -0.01; table.receiveShadow = true;
+scene.add(table);
+
+const platePts = [[0,0.02],[0.72,0.02],[0.8,0.03],[0.9,0.065],[0.975,0.105],[1.0,0.112],[1.005,0.1],[0.93,0.01],[0.6,0.0],[0,0.0]]
+  .map(p => new THREE.Vector2(p[0], p[1]));
+const plate = new THREE.Mesh(new THREE.LatheGeometry(platePts, 120),
+  new THREE.MeshStandardMaterial({ color:C('#f7efe0'), roughness:.32, metalness:0 }));
+plate.scale.set(2.7, 1, 1.9);
+plate.receiveShadow = true; plate.castShadow = true;
+scene.add(plate);
+
+// ---------- food (heightfield: rice height R + egg thickness E per point) ----------
+const GX = 200, GZ = 112, SX = 3.6, SZ = 2.0;
+const FL = 1.62, FW = 0.86;            // omelette half length / half width
+const CELL = (SX/GX) * (SZ/GZ);
+function makeGrid(){ const g = new THREE.PlaneGeometry(SX, SZ, GX, GZ); g.rotateX(-Math.PI/2); return g; }
+const eggGeo = makeGrid(), riceGeo = makeGrid();
+const NV = eggGeo.attributes.position.count;
+const VX = new Float32Array(NV), VZ = new Float32Array(NV);
+const E0 = new Float32Array(NV), R0 = new Float32Array(NV), E = new Float32Array(NV), Rh = new Float32Array(NV);
+let FOOD_VOL = 0;
+for (let i=0;i<NV;i++){
+  const x = eggGeo.attributes.position.getX(i), z = eggGeo.attributes.position.getZ(i);
+  VX[i] = x; VZ[i] = z;
+  let t0 = 0, r0 = 0;
+  const u = x / FL;
+  if (Math.abs(u) < 1){
+    const w = FW * (1 - u*u), v = z / w;
+    if (Math.abs(v) < 1){
+      const env = Math.pow(1 - u*u, 0.55) * Math.pow(1 - v*v, 0.62);
+      t0 = 0.6 * env;
+      t0 += 0.014 * env * (Math.sin(x*7.3 + 1.3) * Math.sin(z*9.1 + 2.6) + 0.5*Math.sin(x*15 + z*11));
+    }
+  }
+  const ur = x / (FL*0.9);
+  if (Math.abs(ur) < 1){
+    const w = FW * 0.84 * (1 - ur*ur), v = z / w;
+    if (Math.abs(v) < 1){
+      r0 = 0.5 * Math.pow(1 - ur*ur, 0.55) * Math.pow(1 - v*v, 0.62);
+      r0 += 0.012 * Math.sin(x*41) * Math.sin(z*37) * Math.min(1, r0*8);
+      r0 = Math.max(0, r0);
+    }
+  }
+  const e0 = t0 > 0 ? Math.max(0.012, t0 - r0) : 0;
+  E0[i] = e0; R0[i] = r0;
+  FOOD_VOL += (e0 + r0) * CELL;
+}
+const PARS_FRAC = 0.05;                          // parsley share of the whole plate
+const TOTAL_VOL = FOOD_VOL / (1 - PARS_FRAC);
+const W_PARS = PARS_FRAC;
+
+const eggMesh = new THREE.Mesh(eggGeo, new THREE.MeshStandardMaterial({ map:eggTex, roughness:.5, metalness:0 }));
+const riceMesh = new THREE.Mesh(riceGeo, new THREE.MeshStandardMaterial({ map:riceTex, roughness:.85, metalness:0 }));
+[eggMesh, riceMesh].forEach(m => { m.castShadow = true; m.receiveShadow = true; scene.add(m); });
+let foodDirty = true;
+function applyFood(){
+  if (!foodDirty) return;
+  const pe = eggGeo.attributes.position, pr = riceGeo.attributes.position;
+  for (let i=0;i<NV;i++){
+    const r = Rh[i], e = E[i];
+    const hasR = r > 0.0008;
+    pr.setY(i, hasR ? 0.02 + r : -0.07);
+    pe.setY(i, e > 0.002 ? 0.02 + r + e : (hasR ? 0.008 + r : -0.07));
+  }
+  pe.needsUpdate = true; pr.needsUpdate = true;
+  eggGeo.computeVertexNormals(); riceGeo.computeVertexNormals();
+  foodDirty = false;
+}
+function resetFood(){ E.set(E0); Rh.set(R0); foodDirty = true; applyFood(); }
+resetFood();
+
+// parsley
+const parsley = new THREE.Group();
+const parsMat = new THREE.MeshStandardMaterial({ color:C('#3c8a24'), roughness:.8 });
+const parsMat2 = new THREE.MeshStandardMaterial({ color:C('#2f6e1a'), roughness:.8 });
+const sprigs = [];
+{
+  const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.022, 0.5, 6), new THREE.MeshStandardMaterial({ color:C('#7aa83a'), roughness:.8 }));
+  stem.rotation.z = Math.PI/2.3; stem.rotation.y = 0.5; stem.position.set(0.18, 0.05, 0.08);
+  stem.castShadow = true;
+  parsley.add(stem); parsley.userData.stem = stem;
+  const pos = [[0,0.12,0],[0.09,0.1,0.06],[-0.08,0.11,0.05],[0.05,0.16,-0.05],[-0.06,0.15,-0.07],[0.12,0.07,-0.06],
+               [-0.12,0.07,-0.01],[0.02,0.08,0.11],[0.0,0.2,0.0],[0.1,0.15,0.02],[-0.1,0.14,0.08],[0.06,0.06,-0.12]];
+  pos.forEach((q,i) => {
+    const r = rnd(0.055, 0.075);
+    const sp = new THREE.Mesh(new THREE.IcosahedronGeometry(r, 1), i%3 ? parsMat : parsMat2);
+    sp.position.set(q[0], q[1], q[2]);
+    sp.castShadow = true;
+    sp.userData = { s:1, w:W_PARS/pos.length, isParsley:true };
+    parsley.add(sp); sprigs.push(sp);
+  });
+}
+parsley.position.set(1.95, 0.02, -0.55);
+scene.add(parsley);
+parsley.updateMatrixWorld(true);
+function resetParsley(){ sprigs.forEach(s => { s.userData.s = 1; s.scale.setScalar(1); s.visible = true; }); parsley.userData.stem.visible = true; }
+
+// ---------- bottle ----------
+const bottle = new THREE.Group();
+const inner = new THREE.Group();
+bottle.add(inner);
+const BOTTLE_ROT = new THREE.Euler(-0.2, 0, -0.62);
+inner.rotation.copy(BOTTLE_ROT);
+{
+  const nozzle = new THREE.Mesh(new THREE.LatheGeometry(
+    [[0.0,0],[0.028,0],[0.045,0.04],[0.07,0.22],[0.085,0.25],[0,0.25]].map(p=>new THREE.Vector2(p[0],p[1])), 32),
+    new THREE.MeshStandardMaterial({ color:C('#f4f1ea'), roughness:.4 }));
+  const capMat = new THREE.MeshStandardMaterial({ color:C('#c42a1c'), roughness:.35 });
+  const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.13, 0.22, 36), capMat);
+  cap.position.y = 0.35;
+  const collar = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.06, 36), capMat);
+  collar.position.y = 0.47;
+  const bodyPts = [[0.2,0.46],[0.3,0.53],[0.36,0.66],[0.375,0.9],[0.375,1.92],[0.355,2.02],[0.28,2.08],[0,2.1]]
+    .map(p=>new THREE.Vector2(p[0],p[1]));
+  const body = new THREE.Mesh(new THREE.LatheGeometry(bodyPts, 48),
+    new THREE.MeshStandardMaterial({ color:C('#f3f0ea'), roughness:.12, transparent:true, opacity:.26, side:THREE.DoubleSide, depthWrite:false }));
+  body.renderOrder = 5;
+  const shine = new THREE.Mesh(new THREE.CylinderGeometry(0.382, 0.382, 1.15, 12, 1, true, -1.05, 0.28),
+    new THREE.MeshBasicMaterial({ color:0xffffff, transparent:true, opacity:.42, side:THREE.DoubleSide, depthWrite:false }));
+  shine.position.y = 1.35; shine.renderOrder = 6;
+  const bottomRing = new THREE.Mesh(new THREE.TorusGeometry(0.36, 0.012, 8, 48), new THREE.MeshStandardMaterial({ color:C('#d9d2c4'), roughness:.3 }));
+  bottomRing.rotation.x = Math.PI/2; bottomRing.position.y = 1.96;
+  [nozzle, cap, collar, bottomRing].forEach(o => { o.castShadow = true; inner.add(o); });
+  inner.add(body); inner.add(shine);
+}
+bottle.scale.setScalar(0.92);
+scene.add(bottle);
+
+// fill layers inside the bottle
+const FILL_Y0 = 0.66, FILL_H = 1.3, FILL_R = 0.345;
+const fillGeo = new THREE.CylinderGeometry(FILL_R, FILL_R, 1, 40);
+fillGeo.translate(0, 0.5, 0);
+const TYPE_COL = { egg:'#f2c21a', rice:'#cf4f26', pars:'#3f8f2a' };
+const fillMats = {};
+for (const k in TYPE_COL) fillMats[k] = new THREE.MeshStandardMaterial({ color:C(TYPE_COL[k]), roughness:.55 });
+let layers = [];
+function addFill(type, amt){
+  if (amt <= 0) return;
+  // layers[0] is the newest, sitting at the mouth; older layers are pushed toward the bottle's base
+  let L = layers[0];
+  if (!L || L.type !== type){
+    if (L && L.amt < 0.004 && layers.length > 1 && layers[1].type === type){
+      // tiny interruption: fold it into the layer behind it
+      inner.remove(L.mesh);
+      layers.shift();
+      layers[0].amt += L.amt;
+      L = layers[0];
+    } else {
+      const mesh = new THREE.Mesh(fillGeo, fillMats[type]);
+      inner.add(mesh);
+      L = { type, amt:0, mesh };
+      layers.unshift(L);
+    }
+  }
+  L.amt += amt;
+  let y = FILL_Y0;
+  for (const l of layers){
+    const h = Math.max(0.0001, l.amt * FILL_H);
+    l.mesh.position.y = y; l.mesh.scale.y = h; y += h;
+  }
+}
+function clearFill(){ layers.forEach(l => inner.remove(l.mesh)); layers = []; }
+
+// ---------- suction particles ----------
+const PN = 110;
+const pMesh = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(0.032, 0), new THREE.MeshStandardMaterial({ roughness:.6 }), PN);
+pMesh.frustumCulled = false;
+const parts = [];
+const dummy = new THREE.Object3D();
+for (let i=0;i<PN;i++){
+  parts.push({ alive:false, t:0, dur:.3, from:new THREE.Vector3(), sw:0 });
+  dummy.scale.setScalar(0); dummy.updateMatrix(); pMesh.setMatrixAt(i, dummy.matrix);
+  pMesh.setColorAt(i, C('#ffffff'));
+}
+scene.add(pMesh);
+const PCOL = { egg:C('#f2c21a'), rice:C('#d0532a'), pars:C('#3f8f2a') };
+let pNext = 0;
+function spawn(pt, type){
+  const idx = pNext, p = parts[idx]; pNext = (pNext + 1) % PN;
+  p.alive = true; p.t = 0; p.dur = rnd(.22, .4); p.sw = rnd(-1, 1);
+  p.from.set(pt.x + rnd(-.13,.13), pt.y + rnd(0,.05), pt.z + rnd(-.13,.13));
+  pMesh.setColorAt(idx, PCOL[type]);
+  pMesh.instanceColor.needsUpdate = true;
+}
+const nozzleWorld = new THREE.Vector3();
+function updateParts(dt){
+  inner.localToWorld(nozzleWorld.set(0, 0.02, 0));
+  for (let i=0;i<PN;i++){
+    const p = parts[i];
+    if (!p.alive) continue;
+    p.t += dt / p.dur;
+    if (p.t >= 1){ p.alive = false; dummy.scale.setScalar(0); }
+    else {
+      const e = p.t * p.t;
+      dummy.position.lerpVectors(p.from, nozzleWorld, e);
+      dummy.position.x += Math.sin(p.t * 9) * 0.04 * p.sw * (1 - p.t);
+      dummy.scale.setScalar(1 - e * 0.7);
+    }
+    dummy.updateMatrix(); pMesh.setMatrixAt(i, dummy.matrix);
+  }
+  pMesh.instanceMatrix.needsUpdate = true;
+}
+
+// ---------- audio ----------
+let AC = null, master = null, suckGain = null, bp = null, soundOn = lsGet(LS_SOUND) !== '0';
+function initAudio(force){
+  if (AC && force){
+    try { AC.close().catch(() => {}); } catch(e){}
+    AC = null;
+  } else if (AC){
+    if (AC.state === 'closed') AC = null;
+    else { if (AC.state === 'suspended') AC.resume(); return; }
+  }
+  const Ctor = window.AudioContext || window.webkitAudioContext;
+  if (!Ctor) return;
+  try { AC = new Ctor(); } catch(e){ AC = null; return; }
+  master = AC.createGain(); master.gain.value = soundOn ? 1 : 0; master.connect(AC.destination);
+  const len = AC.sampleRate * 2, buf = AC.createBuffer(1, len, AC.sampleRate), d = buf.getChannelData(0);
+  let last = 0;
+  for (let i=0;i<len;i++){ last = last*0.6 + (Math.random()*2-1)*0.4; d[i] = last; }
+  const src = AC.createBufferSource(); src.buffer = buf; src.loop = true;
+  bp = AC.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 600; bp.Q.value = 1.4;
+  suckGain = AC.createGain(); suckGain.gain.value = 0;
+  // gurgle: LFO on the filter
+  const lfo = AC.createOscillator(); lfo.frequency.value = 13;
+  const lfoAmt = AC.createGain(); lfoAmt.gain.value = 260;
+  lfo.connect(lfoAmt); lfoAmt.connect(bp.frequency); lfo.start();
+  src.connect(bp); bp.connect(suckGain); suckGain.connect(master); src.start();
+}
+function setSuckSound(level){
+  if (!AC || !suckGain) return;
+  const t = AC.currentTime;
+  suckGain.gain.setTargetAtTime(level * 0.55, t, 0.05);
+  bp.frequency.setTargetAtTime(420 + level * 900, t, 0.08);
+}
+function blip(f0, f1, dur, vol, type){
+  if (!AC || !master || !soundOn) return;
+  const t = AC.currentTime, o = AC.createOscillator(), g = AC.createGain();
+  o.type = type || 'sine'; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + dur);
+  g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g); g.connect(master); o.start(t); o.stop(t + dur + 0.02);
+}
+function fanfare(){
+  [523, 659, 784, 1047].forEach((f,i) => setTimeout(() => blip(f, f*1.01, .22, .16, 'triangle'), i*110));
+}
+const SOUND_ON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
+const SOUND_OFF_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M17 9l5 6M22 9l-5 6"/></svg>';
+function renderSoundBtn(){
+  $('soundBtn').innerHTML = soundOn ? SOUND_ON_SVG : SOUND_OFF_SVG;
+  $('soundBtn').setAttribute('aria-pressed', soundOn ? 'true' : 'false');
+}
+$('soundBtn').addEventListener('click', () => {
+  soundOn = !soundOn; lsSet(LS_SOUND, soundOn ? '1' : '0');
+  initAudio(false);
+  if (master) master.gain.value = soundOn ? 1 : 0;
+  renderSoundBtn();
+});
+renderSoundBtn();
+document.addEventListener('visibilitychange', () => { if (!document.hidden && AC) initAudio(false); });
+
+// ---------- layout ----------
+function resize(){
+  const w = stage.clientWidth, h = stage.clientHeight;
+  if (!w || !h) return;   // 0サイズ時はスキップ(縦横比NaN防止)
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  const vf = camera.fov * Math.PI / 180;
+  const hf = 2 * Math.atan(Math.tan(vf/2) * camera.aspect);
+  const d = Math.min(17, Math.max(7.6, 2.35 / Math.tan(hf/2)));
+  const dir = new THREE.Vector3(0, 0.8, 0.6).normalize();
+  camera.position.copy(LOOK).addScaledVector(dir, d);
+  camera.lookAt(LOOK);
+  camera.updateProjectionMatrix();
+}
+window.addEventListener('resize', resize);
+resize();
+
+// ---------- state ----------
+const S = { mode:'title', collected:0, startT:0, elapsed:0, started:false, finishing:false, sucking:0 };
+const ndc = new THREE.Vector2(0, -0.3);
+let pointerDown = false, pointerSeen = false;
+const ray = new THREE.Raycaster();
+const hoverPlane = new THREE.Plane(new THREE.Vector3(0,1,0), -0.75);
+const tmpV = new THREE.Vector3();
+const bottleTarget = new THREE.Vector3(1.2, 0.9, 0.9);
+const REST_POS = new THREE.Vector3(1.25, 0.95, 0.9);
+bottle.position.copy(REST_POS);
+
+function setNdc(e){
+  const r = stage.getBoundingClientRect();
+  ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+  pointerSeen = true;
+}
+stage.addEventListener('pointerdown', e => {
+  if (S.mode !== 'play') return;
+  setNdc(e); pointerDown = true;
+  try { stage.setPointerCapture(e.pointerId); } catch(err){}
+  initAudio(false);
+});
+stage.addEventListener('pointermove', e => { if (S.mode === 'play') setNdc(e); });
+const up = () => { pointerDown = false; };
+stage.addEventListener('pointerup', up);
+stage.addEventListener('pointercancel', up);
+stage.addEventListener('lostpointercapture', up);
+
+const R = 0.32, R2 = R*R, SUCK_RATE = 0.95;
+function brushFood(px, pz, dt){
+  let gE = 0, gR = 0;
+  for (let i=0;i<NV;i++){
+    const dx = VX[i] - px; if (dx > R || dx < -R) continue;
+    const dz = VZ[i] - pz, d2 = dx*dx + dz*dz;
+    if (d2 >= R2) continue;
+    const f = 1 - d2 / R2;
+    let amt = SUCK_RATE * dt * f * f;
+    if (E[i] > 0){
+      const d = Math.min(E[i], amt); E[i] -= d; gE += d; amt -= d;
+      if (E[i] < 0.0005){ gE += E[i]; E[i] = 0; }
+    }
+    if (E[i] === 0 && Rh[i] > 0 && amt > 0){
+      const d = Math.min(Rh[i], amt * 0.85); Rh[i] -= d; gR += d;
+      if (Rh[i] < 0.0005){ gR += Rh[i]; Rh[i] = 0; }
+    }
+  }
+  if (gE + gR > 0) foodDirty = true;
+  return [gE * CELL / TOTAL_VOL, gR * CELL / TOTAL_VOL];
+}
+
+function suckAt(hit, dt){
+  const P = hit.point;
+  let gEgg = 0, gRice = 0, gPars = 0;
+  if (hit.object.userData.isParsley){
+    for (const sp of sprigs){
+      if (!sp.visible) continue;
+      sp.getWorldPosition(tmpV);
+      const d = tmpV.distanceTo(P);
+      if (d > 0.32) continue;
+      const f = 1 - d / 0.32;
+      const ds = Math.min(sp.userData.s, 2.6 * dt * (0.4 + f));
+      sp.userData.s -= ds; gPars += ds * sp.userData.w;
+      if (sp.userData.s < 0.12){ gPars += sp.userData.s * sp.userData.w; sp.userData.s = 0; sp.visible = false; blip(900, 260, .12, .18, 'square'); }
+      else sp.scale.setScalar(sp.userData.s);
+    }
+    if (sprigs.every(s => !s.visible)) parsley.userData.stem.visible = false;
+  } else {
+    const g = brushFood(P.x, P.z, dt);
+    gEgg = g[0]; gRice = g[1];
+  }
+  const total = gEgg + gRice + gPars;
+  if (total > 0){
+    const type = gPars >= gEgg && gPars >= gRice ? 'pars' : (gEgg >= gRice ? 'egg' : 'rice');
+    addFill(type, total);
+    S.collected += total;
+    const nSp = Math.min(4, 1 + Math.floor(total * 900));
+    for (let k=0;k<nSp;k++){
+      const r = Math.random() * total;
+      spawn(P, r < gEgg ? 'egg' : (r < gEgg + gRice ? 'rice' : 'pars'));
+    }
+  }
+  return total / Math.max(dt, 1e-4);
+}
+
+// 残り3%を切ったら、皿に残った分を自動で吸い切ってから結果へ
+function sweepRest(dt){
+  S.sweepT += dt;
+  const k = Math.exp(-dt * 7);
+  let gE = 0, gR = 0, gP = 0;
+  const live = [];
+  for (let i=0;i<NV;i++){
+    if (E[i] > 0){ const ne = E[i] < 0.002 ? 0 : E[i]*k; gE += E[i]-ne; E[i] = ne; live.push(i); }
+    if (Rh[i] > 0){ const nr = Rh[i] < 0.002 ? 0 : Rh[i]*k; gR += Rh[i]-nr; Rh[i] = nr; if (E[i] === 0) live.push(i); }
+  }
+  for (const sp of sprigs){
+    if (!sp.visible) continue;
+    const ns = sp.userData.s < 0.12 ? 0 : sp.userData.s * k;
+    gP += (sp.userData.s - ns) * sp.userData.w; sp.userData.s = ns;
+    if (ns === 0) sp.visible = false; else sp.scale.setScalar(ns);
+  }
+  if (sprigs.every(s => !s.visible)) parsley.userData.stem.visible = false;
+  foodDirty = true;
+  const add = (gE + gR) * CELL / TOTAL_VOL + gP;
+  const total = gE*CELL + gR*CELL + gP*TOTAL_VOL;
+  if (add > 0){
+    const type = gP*TOTAL_VOL >= gE*CELL && gP*TOTAL_VOL >= gR*CELL ? 'pars' : (gE >= gR ? 'egg' : 'rice');
+    addFill(type, add); S.collected += add;
+  }
+  for (let n=0; n<3 && live.length; n++){
+    const i = live[(Math.random()*live.length)|0];
+    tmpV.set(VX[i], 0.02 + Rh[i] + E[i], VZ[i]);
+    spawn(tmpV, E[i] > 0 ? 'egg' : 'rice');
+  }
+  bottleTarget.set(0, 0.45, 0);
+  if (S.sweepT > 1.1 || (!live.length && sprigs.every(s => !s.visible))){
+    E.fill(0); Rh.fill(0); foodDirty = true; applyFood();
+    sprigs.forEach(sp => { sp.visible = false; }); parsley.userData.stem.visible = false;
+    if (S.collected < 1) addFill(layers[0] ? layers[0].type : 'rice', 1 - S.collected);
+    S.collected = 1;
+    finish();
+    return 0;
+  }
+  return total > 0 ? 1 : 0.3;
+}
+
+// ---------- flow ----------
+function fmtT(t){ return t.toFixed(1); }
+function getBest(){ const v = parseFloat(lsGet(LS_BEST)); return isFinite(v) && v > 0 ? v : null; }
+function renderBestTitle(){
+  const b = getBest();
+  $('bestTitle').textContent = b ? `最速完食 ${fmtT(b)} 秒` : '';
+}
+function resetRound(){
+  resetFood(); resetParsley(); clearFill();
+  parts.forEach(p => p.alive = false);
+  S.collected = 0; S.started = false; S.elapsed = 0; S.finishing = false;
+  $('remainVal').textContent = '100%'; $('timeVal').textContent = '0.0';
+}
+function startGame(){
+  initAudio(true);
+  resetRound();
+  S.mode = 'play';
+  $('titleOv').hidden = true; $('resultOv').hidden = true;
+  $('stats').hidden = false; $('bottombar').hidden = false;
+  disarm();
+}
+function backToTitle(){
+  S.mode = 'title';
+  pointerDown = false;
+  resetRound();
+  $('resultOv').hidden = true; $('titleOv').hidden = false;
+  $('stats').hidden = true; $('bottombar').hidden = true;
+  renderBestTitle();
+}
+function finish(){
+  if (S.mode !== 'play') return;
+  S.mode = 'result';
+  pointerDown = false;
+  $('stats').hidden = true; $('bottombar').hidden = true;
+  const remain = Math.max(0, 1 - S.collected);
+  const complete = remain < 0.03;
+  const t = S.elapsed;
+  let text;
+  if (complete){
+    const prev = getBest();
+    const isNew = !prev || t < prev;
+    if (isNew) lsSet(LS_BEST, String(t));
+    $('resHead').textContent = '完食！';
+    $('resBig').innerHTML = `${fmtT(t)}<small>秒</small>` + (isNew ? '<span class="newrec">最速</span>' : '');
+    $('resSub').textContent = `お皿の上はすっかり空っぽ。オムライスは全部ボトルの中です。` + (!isNew && prev ? `最速は ${fmtT(prev)} 秒。` : '');
+    text = `空っぽのケチャップボトルで、オムライスを${fmtT(t)}秒で吸い尽くした。 #逆ケチャップ`;
+    fanfare();
+  } else {
+    const pct = Math.floor((1 - remain) * 100);
+    $('resHead').textContent = 'ごちそうさま';
+    $('resBig').innerHTML = `${pct}<small>% 吸い込んだ</small>`;
+    $('resSub').textContent = S.started ? `タイム ${fmtT(t)} 秒。残り ${Math.ceil(remain*100)}% はお皿の上。` : 'まだ一口も吸っていません。';
+    text = `ケチャップボトルでオムライスを${pct}%吸い込んだ。 #逆ケチャップ`;
+    blip(520, 390, .25, .14, 'triangle');
+  }
+  $('shareBtn').href = 'https://x.com/intent/post?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(SHARE_URL);
+  $('resultOv').hidden = false;
+}
+$('startBtn').addEventListener('click', startGame);
+$('againBtn').addEventListener('click', startGame);
+$('titleBtn').addEventListener('click', backToTitle);
+$('doneBtn').addEventListener('click', () => { if (!S.finishing) finish(); });
+if (matchMedia('(pointer: coarse)').matches){
+  $('shareBtn').removeAttribute('target');
+  $('shareBtn').removeAttribute('rel');
+}
+
+// やり直す: 2回押しで確定
+const resetBtn = $('resetBtn');
+let armed = false, armTimer = null;
+resetBtn.addEventListener('click', () => {
+  if (!armed){
+    armed = true;
+    resetBtn.querySelector('span').textContent = '本当に？(もう一度)';
+    resetBtn.classList.add('danger');
+    clearTimeout(armTimer);
+    armTimer = setTimeout(disarm, 3000);
+    return;
+  }
+  disarm();
+  initAudio(true);
+  resetRound();
+});
+function disarm(){
+  armed = false; clearTimeout(armTimer);
+  resetBtn.querySelector('span').textContent = 'やり直す';
+  resetBtn.classList.remove('danger');
+}
+
+// ---------- loop ----------
+const clock = new THREE.Clock();
+let suckLevel = 0;
+function tick(){
+  requestAnimationFrame(tick);   // 先に次フレームを予約(途中で例外が出てもループを止めない)
+  const dt = Math.min(clock.getDelta(), 0.05);
+  const now = performance.now() / 1000;
+  let rateNow = 0;
+
+  if (S.mode === 'play'){
+    if (S.finishing){
+      rateNow = sweepRest(dt);
+    } else if (pointerSeen){
+      ray.setFromCamera(ndc, camera);
+      const targets = [eggMesh, riceMesh, plate];
+      sprigs.forEach(s => { if (s.visible) targets.push(s); });
+      const hits = ray.intersectObjects(targets, false);
+      if (hits.length){
+        const h = hits[0];
+        bottleTarget.copy(h.point); bottleTarget.y += pointerDown ? 0.02 : 0.22;
+        if (pointerDown && h.object !== plate){
+          rateNow = suckAt(h, dt);
+          if (rateNow > 0 && !S.started){ S.started = true; S.startT = now; }
+        }
+      } else if (ray.ray.intersectPlane(hoverPlane, tmpV)){
+        bottleTarget.copy(tmpV);
+      }
+    }
+    if (S.started && !S.finishing) S.elapsed = now - S.startT;
+    applyFood();
+    const remain = Math.max(0, 1 - S.collected);
+    $('remainVal').textContent = Math.ceil(remain * 100) + '%';
+    $('timeVal').textContent = fmtT(S.elapsed);
+    if (remain < 0.03 && !S.finishing){
+      S.finishing = true; S.sweepT = 0;
+      pointerDown = false;
+    }
+  } else if (S.mode === 'result'){
+    bottleTarget.set(-0.9, 0.75, 0.15);
+  } else {
+    bottleTarget.copy(REST_POS);
+  }
+
+  // bottle motion (squeeze + shake while sucking)
+  const active = rateNow > 0.001;
+  suckLevel += ((active ? Math.min(1, 0.45 + rateNow * 4) : 0) - suckLevel) * Math.min(1, dt * 10);
+  bottle.position.lerp(bottleTarget, Math.min(1, dt * (S.mode === 'play' ? 18 : 4)));
+  if (active){ bottle.position.x += rnd(-.008,.008); bottle.position.z += rnd(-.008,.008); }
+  const sq = 1 - suckLevel * 0.07;
+  inner.scale.x += (sq - inner.scale.x) * Math.min(1, dt*12);
+  inner.scale.z = inner.scale.x;
+  const res = S.mode === 'result';
+  const k = Math.min(1, dt * 4);
+  inner.rotation.z += ((res ? -1.45 : BOTTLE_ROT.z) - inner.rotation.z) * k;
+  inner.rotation.x += ((res ? -0.35 : BOTTLE_ROT.x) - inner.rotation.x) * k;
+  if (S.mode === 'title') bottle.position.y += Math.sin(now * 1.6) * 0.0015;
+
+  // sound runs outside game logic: anything not sucking fades to 0
+  setSuckSound(S.mode === 'play' ? suckLevel : 0);
+
+  updateParts(dt);
+  renderer.render(scene, camera);
+}
+renderBestTitle();
+requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>

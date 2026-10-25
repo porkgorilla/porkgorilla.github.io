@@ -71,6 +71,7 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 | [横バーガー](https://porkgorilla.com/works/yoko-burger.html) | GAME | 傾いた具を垂直で止めて、両手でバチンと挟むゲーム |
 | [目指せアメリカ！](https://porkgorilla.com/works/mezase-america.html) | GAME | 1人から仲間を増やして、アメリカの州に刺さるゲーム |
 | [ハゲチャップ](https://porkgorilla.com/works/hagechap.html) | GAME | オムライスじゃなくて、おじさんの頭にケチャップで絵を描くゲーム |
+| [逆ケチャップ](https://porkgorilla.com/works/gyaku-ketchup.html) | GAME | 空っぽのケチャップボトルで、オムライスを吸い込むゲーム |
 
 ## 構成
 
@@ -145,7 +146,8 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
     ├── double-murakami.html
     ├── yoko-burger.html
     ├── mezase-america.html
-    └── hagechap.html
+    ├── hagechap.html
+    └── gyaku-ketchup.html
 ```
 
 `theme.css` / `site.js` / `favicon.svg` はルート直下に置き、各作品ページからは絶対パス(`/theme.css` など)で読み込みます。404.html も GitHub Pages の仕様上ルート直下が必須です。
