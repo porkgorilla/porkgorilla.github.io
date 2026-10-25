@@ -98,6 +98,29 @@
     .card:hover .open { color: var(--cyber-green); }
     .card-og { width: 100%; height: auto; aspect-ratio: 1200 / 630; object-fit: cover; display: block; margin: -6px 0 4px; border: 1px solid var(--cyber-green-dim); }
 
+    /* ---------- LINKS ---------- */
+    .links { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+    .link-card {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--cyber-green-dim);
+      color: var(--cyber-text);
+      transition: transform .15s, border-color .15s, box-shadow .15s;
+    }
+    .link-card:hover {
+      color: var(--cyber-text);
+      text-shadow: none;
+      border-color: var(--cyber-green);
+      border-bottom-style: solid;
+      box-shadow: 0 0 18px rgba(57, 255, 106, 0.25);
+      transform: translateY(-3px);
+    }
+    .link-card b { font-size: 1rem; color: var(--cyber-green); }
+    .link-card span { font-size: .82rem; line-height: 1.6; }
+    .link-card:hover b { text-shadow: 0 0 6px var(--cyber-green); }
+
     /* ---------- ABOUT ---------- */
     .about { padding: 22px 20px; line-height: 1.9; }
     .about p { margin: 0; }
@@ -135,6 +158,28 @@
     <section id="works" class="section">
       <h2>WORKS</h2>
       <div class="grid" id="grid"></div>
+    </section>
+
+    <section id="links" class="section">
+      <h2>LINKS</h2>
+      <div class="links">
+        <a class="link-card panel" href="https://apps.porkgorilla.com/" target="_blank" rel="noopener">
+          <b>ブログ「アプリ百景」 &gt;</b>
+          <span>アプリの紹介記事</span>
+        </a>
+        <a class="link-card panel" href="https://note.com/porkgorilla" target="_blank" rel="noopener">
+          <b>note &gt;</b>
+          <span>アプリの紹介文など</span>
+        </a>
+        <a class="link-card panel" href="https://www.youtube.com/@porkgorilla" target="_blank" rel="noopener">
+          <b>YouTube &gt;</b>
+          <span>アプリの紹介動画</span>
+        </a>
+        <a class="link-card panel" href="https://www.tiktok.com/@porkgorilla" target="_blank" rel="noopener">
+          <b>TikTok &gt;</b>
+          <span>アプリの紹介ショート動画</span>
+        </a>
+      </div>
     </section>
 
     <section id="about" class="section">
