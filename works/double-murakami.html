@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="ja" data-mode="retro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ダブル村上ルーレット | porkgorilla://</title>
+<meta name="description" content="村上春樹と村上龍の著作タイトルを切り分けて、ルーレットで架空の村上文学を生み出す">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-MBT4300J0L');
+</script>
+<meta property="og:type" content="website">
+<meta property="og:title" content="ダブル村上ルーレット">
+<meta property="og:description" content="村上春樹と村上龍の著作タイトルを切り分けて、ルーレットで架空の村上文学を生み出す">
+<meta property="og:url" content="https://porkgorilla.com/works/double-murakami.html">
+<meta property="og:image" content="https://porkgorilla.com/assets/og-double-murakami.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ダブル村上ルーレット">
+<meta name="twitter:description" content="村上春樹と村上龍の著作タイトルを切り分けて、ルーレットで架空の村上文学を生み出す">
+<meta name="twitter:image" content="https://porkgorilla.com/assets/og-double-murakami.jpg">
+<style>
+[hidden]{display:none!important}
+html[data-mode="retro"] #modern,html[data-mode="modern"] #retro{display:none!important}
+html[data-mode="modern"] #modern{height:100%}
+/* ===== 2026年版 ===== */
+html[data-mode="modern"]{
+  --bg:#efe8da; --paper:#f8f3e8; --ink:#1f1b16; --sub:#7d7365; --line:#d4c8b2;
+  --haruki:#2f6f8f; --ryu:#b23a2a; --accent:#1f1b16;
+  --serif:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP","Noto Serif CJK JP",serif;
+  --sans:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP",sans-serif;
+}
+#modern *{box-sizing:border-box}
+html[data-mode="modern"]{height:100%;box-sizing:border-box;background:var(--bg)}
+html[data-mode="modern"] body{height:100%;margin:0;overflow:hidden;color:var(--ink);font-family:var(--sans);
+  -webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+#modern button{font:inherit;color:inherit;cursor:pointer}
+#modern #app{height:100%;display:flex;flex-direction:column;max-width:720px;margin:0 auto;
+  padding:0 max(12px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
+
+#modern /* top bar */
+.top{flex:none;display:flex;align-items:center;gap:6px;height:52px;padding-top:env(safe-area-inset-top)}
+#modern .home{color:var(--sub);text-decoration:none;font-size:12px;letter-spacing:.04em;white-space:nowrap;position:relative;z-index:30}
+#modern .home:hover{color:var(--ink)}
+#modern .top .name{flex:1;min-width:0;text-align:center;font-family:var(--serif);font-weight:700;font-size:15px;letter-spacing:.12em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#modern .icon-btn{min-width:44px;min-height:44px;display:grid;place-items:center;border:0;background:transparent;border-radius:10px;position:relative}
+#modern .icon-btn:hover{background:rgba(0,0,0,.05)}
+#modern .icon-btn svg{width:22px;height:22px}
+#modern .badge{position:absolute;top:6px;right:4px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--ink);color:var(--paper);font-size:10px;line-height:16px;text-align:center}
+
+#modern /* stage */
+.stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;gap:18px;position:relative}
+#modern .cover{position:relative;flex:none;border-radius:3px 6px 6px 3px;overflow:hidden;
+  box-shadow:0 1px 0 rgba(0,0,0,.08),0 14px 30px -12px rgba(40,30,15,.45),inset 6px 0 8px -6px rgba(0,0,0,.35);
+  background:var(--c1);transition:background .6s}
+#modern .cover .band{position:absolute;left:0;right:0;top:0;height:13%;background:var(--c2);transition:background .6s}
+#modern .cover .lbl{position:absolute;left:8%;top:3.5%;font-size:calc(var(--h)*.026);letter-spacing:.2em;color:var(--c3);font-family:var(--serif)}
+#modern .cover .yr{position:absolute;right:8%;top:3.5%;font-size:calc(var(--h)*.026);color:var(--c3);font-family:var(--serif);letter-spacing:.1em}
+#modern .cover .t{position:absolute;right:9%;top:17%;bottom:22%;writing-mode:vertical-rl;font-family:var(--serif);font-weight:700;
+  color:var(--c3);line-height:1.25;letter-spacing:.06em;font-size:var(--fs);word-break:break-all}
+#modern .cover .t .tcy{text-combine-upright:all;-webkit-text-combine:horizontal}
+#modern .cover .au{position:absolute;left:10%;top:17%;writing-mode:vertical-rl;font-family:var(--serif);color:var(--c3);
+  font-size:calc(var(--h)*.042);letter-spacing:.3em}
+#modern .cover .mark{position:absolute;left:9%;bottom:24%;width:calc(var(--h)*.11);height:calc(var(--h)*.11);opacity:.9}
+#modern .cover .obi{position:absolute;left:0;right:0;bottom:0;height:20%;background:var(--obi);color:#fff;
+  display:flex;flex-direction:column;justify-content:center;padding:0 8%;gap:.3em;transition:background .6s}
+#modern .cover .obi .k{font-family:var(--serif);font-weight:700;font-size:calc(var(--h)*.036);line-height:1.35}
+#modern .cover .obi .s{font-size:calc(var(--h)*.022);opacity:.85;letter-spacing:.06em}
+#modern .cover .real{position:absolute;right:-30%;top:9%;transform:rotate(35deg);background:#e0b400;color:#1f1b16;font-weight:700;
+  width:90%;text-align:center;font-size:calc(var(--h)*.03);padding:.3em 0;letter-spacing:.1em;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+#modern .cover{z-index:2;transition:filter .3s,transform .3s}
+#modern .cover.dim{filter:saturate(.4) brightness(.8);transform:scale(.96)}
+#modern .cover.flip{animation:flipin .75s cubic-bezier(.2,.9,.3,1.15)}
+@keyframes flipin{0%{transform:perspective(900px) rotateY(-95deg) scale(.85);filter:brightness(1.6)}55%{transform:perspective(900px) rotateY(10deg) scale(1.04)}100%{transform:none;filter:none}}
+#modern .rays{position:absolute;left:50%;top:50%;width:170vmax;height:170vmax;margin:-85vmax 0 0 -85vmax;z-index:0;pointer-events:none;opacity:0;transition:opacity .5s;
+  background:repeating-conic-gradient(from 0deg,rgba(255,200,60,.6) 0deg 9deg,transparent 9deg 18deg);
+  -webkit-mask-image:radial-gradient(circle,#000 0,transparent 38%);mask-image:radial-gradient(circle,#000 0,transparent 38%);animation:spinR 14s linear infinite}
+#modern .rays.on{opacity:1}
+#modern .rays.rainbow{background:repeating-conic-gradient(from 0deg,rgba(255,80,80,.45) 0deg 9deg,transparent 9deg 18deg,rgba(255,200,40,.45) 18deg 27deg,transparent 27deg 36deg,rgba(60,190,120,.45) 36deg 45deg,transparent 45deg 54deg,rgba(60,140,255,.45) 54deg 63deg,transparent 63deg 72deg,rgba(190,90,255,.45) 72deg 81deg,transparent 81deg 90deg)}
+@keyframes spinR{to{transform:rotate(360deg)}}
+#modern .stamp{position:absolute;left:50%;top:46%;z-index:4;pointer-events:none;transform:translate(-50%,-50%);font-family:"Arial Black","Helvetica Neue",Arial,sans-serif;
+  font-weight:900;font-size:clamp(54px,17vw,110px);letter-spacing:.02em;line-height:1;opacity:0;white-space:nowrap;
+  -webkit-text-stroke:3px #1f1b16;paint-order:stroke fill;filter:drop-shadow(0 6px 0 rgba(0,0,0,.25))}
+#modern .stamp.show{animation:stampIn 1.9s cubic-bezier(.2,1.4,.4,1) forwards}
+@keyframes stampIn{0%{opacity:0;transform:translate(-50%,-50%) scale(3) rotate(-12deg)}14%{opacity:1;transform:translate(-50%,-50%) scale(.92) rotate(-8deg)}
+  22%{transform:translate(-50%,-50%) scale(1.05) rotate(-8deg)}80%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(-8deg)}100%{opacity:0;transform:translate(-50%,-62%) scale(1) rotate(-8deg)}}
+#modern .stamp.SR{color:#b06cff}#modern .stamp.SSR{color:#ffc928}
+#modern .stamp.UR{background:linear-gradient(90deg,#ff5a5a,#ffc928,#43d17a,#3d8bff,#c25bff);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-stroke:3px #1f1b16}
+#modern .reachban{position:absolute;left:50%;bottom:8px;z-index:5;transform:translateX(-50%);pointer-events:none;font-family:var(--serif);font-weight:900;
+  font-size:clamp(34px,10vw,56px);color:#ffcc00;-webkit-text-stroke:2px #b23a2a;paint-order:stroke fill;letter-spacing:.1em;white-space:nowrap;
+  text-shadow:0 0 18px rgba(255,190,0,.9);animation:reachBan .5s ease-in-out infinite alternate}
+@keyframes reachBan{from{transform:translateX(-50%) scale(1)}to{transform:translateX(-50%) scale(1.12)}}
+#modern #app.shake{animation:shake .45s cubic-bezier(.36,.07,.19,.97)}
+@keyframes shake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translate(4px,1px)}30%,50%,70%{transform:translate(-7px,-2px)}40%,60%{transform:translate(7px,2px)}}
+#modern #fx{position:fixed;inset:0;width:100%;height:100%;z-index:15;pointer-events:none}
+#modern .rk{display:inline-block;min-width:34px;padding:0 6px;margin-right:6px;border-radius:5px;font-family:"Arial Black",Arial,sans-serif;font-weight:900;font-size:11px;
+  line-height:18px;letter-spacing:.04em;color:#fff;vertical-align:1px;text-align:center}
+#modern .rk-N{background:#9a917f}#modern .rk-R{background:#3d8bff}#modern .rk-SR{background:#9b52f0}#modern .rk-SSR{background:linear-gradient(135deg,#c9940a,#ffd84d,#c9940a);color:#3a2a00}
+#modern .rk-UR{background:linear-gradient(90deg,#ff5a5a,#ffc928,#43d17a,#3d8bff,#c25bff)}
+#modern .streak{display:inline-block;margin-left:6px;padding:0 7px;border-radius:9px;background:#ff5a2a;color:#fff;font-size:11px;font-weight:700;line-height:18px;animation:stk .4s ease-in-out infinite alternate}
+@keyframes stk{from{transform:scale(1)}to{transform:scale(1.1)}}
+#modern .mode-pill{min-height:44px;border:0;background:transparent;padding:0 2px;display:grid;place-items:center;flex:none}
+#modern .mode-pill span{display:flex;align-items:center;gap:5px;height:32px;padding:0 10px 0 8px;border:1.5px solid var(--ink);border-radius:16px;background:var(--paper);
+  font-size:12px;font-weight:700;white-space:nowrap;letter-spacing:.02em}
+#modern .mode-pill:hover span{background:#fff}
+#modern .mode-pill svg{width:16px;height:16px}
+#modern .stage{overflow:hidden}
+@media (max-width:440px){ #modern .top .name{visibility:hidden} }
+@media (prefers-reduced-motion:reduce){ #modern .rays{animation:none} #modern .reachban,#modern .streak,#modern #spinBtn:not(:disabled){animation:none} }
+
+#modern .side{display:none;width:220px;font-size:13px;line-height:1.7;color:var(--sub)}
+#modern .side h3{margin:0 0 6px;font-size:12px;letter-spacing:.15em;color:var(--ink)}
+
+#modern /* verdict */
+.verdict{flex:none;text-align:center;font-size:13px;height:26px;line-height:26px;letter-spacing:.06em;white-space:nowrap;overflow:hidden}
+#modern .verdict b{font-family:var(--serif)}
+#modern .meter{flex:none;height:4px;border-radius:2px;overflow:hidden;display:flex;margin:0 auto 8px;width:min(320px,80%);background:var(--line)}
+#modern .meter i{display:block;height:100%;transition:width .5s}
+#modern .meter .h{background:var(--haruki)} #modern .meter .r{background:var(--ryu)}
+
+#modern /* reels */
+.reels{flex:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#modern .reel{--rh:78px;position:relative;min-width:0;height:var(--rh);border:1.5px solid var(--line);border-radius:10px;background:var(--paper);
+  overflow:hidden;transition:border-color .25s,box-shadow .25s,background .25s}
+#modern .reel .win{position:absolute;inset:0;overflow:hidden;-webkit-mask-image:linear-gradient(transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(transparent,#000 12%,#000 88%,transparent)}
+#modern .reel .strip{position:absolute;left:0;right:0;top:0;will-change:transform}
+#modern .reel .it{height:var(--rh);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 6px 4px;text-align:center}
+#modern .reel .cap{position:absolute;z-index:2;top:4px;left:7px;font-size:10px;color:var(--sub);letter-spacing:.1em}
+#modern .reel .chunk{font-family:var(--serif);font-weight:700;font-size:15px;line-height:1.25;max-width:100%;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-all}
+#modern .reel .src{margin-top:3px;font-size:10px;line-height:1.3;color:var(--sub);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#modern .reel .src .H{color:var(--haruki)} #modern .reel .src .R{color:var(--ryu)}
+#modern .reel.spin{border-color:var(--ink)}
+#modern .reel.stop{animation:thunk .32s cubic-bezier(.3,1.6,.5,1)}
+@keyframes thunk{0%{transform:translateY(-6px) scale(1.04)}100%{transform:none}}
+#modern .reel.gH{border-color:var(--haruki);box-shadow:0 0 0 2px var(--haruki),0 0 16px rgba(47,111,143,.45)}
+#modern .reel.gR{border-color:var(--ryu);box-shadow:0 0 0 2px var(--ryu),0 0 16px rgba(178,58,42,.45)}
+#modern .reel.reach{border-color:#e0b400;background:#fff8dc;animation:reachPulse .45s ease-in-out infinite alternate}
+@keyframes reachPulse{from{box-shadow:0 0 0 2px #e0b400,0 0 6px rgba(224,180,0,.4)}to{box-shadow:0 0 0 3px #ffcc00,0 0 26px 6px rgba(255,190,0,.85)}}
+#modern .reel.lock{border-color:var(--ink);background:#fffdf6}
+#modern .reel .lk{position:absolute;z-index:2;top:3px;right:5px;width:14px;height:14px;opacity:0;transition:opacity .2s}
+#modern .reel.lock .lk{opacity:1}
+#modern .hint{flex:none;font-size:11px;color:var(--sub);text-align:center;margin:5px 0 8px}
+
+#modern /* actions */
+.acts{flex:none;display:flex;gap:8px}
+#modern .go{flex:1;min-height:52px;border:0;border-radius:12px;background:var(--ink);color:var(--paper);
+  font-family:var(--serif);font-weight:700;font-size:18px;letter-spacing:.3em;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+#modern .go:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.25)}
+#modern .go:disabled{opacity:.55}
+#modern #spinBtn:not(:disabled){animation:goPulse 1.8s ease-in-out infinite}
+@keyframes goPulse{0%,100%{box-shadow:0 3px 0 rgba(0,0,0,.25),0 0 0 0 rgba(224,180,0,0)}50%{box-shadow:0 3px 0 rgba(0,0,0,.25),0 0 0 5px rgba(224,180,0,.35)}}
+#modern .sub-btn{min-width:52px;min-height:52px;border:1.5px solid var(--line);border-radius:12px;background:var(--paper);display:grid;place-items:center;text-decoration:none;color:var(--ink)}
+#modern .sub-btn svg{width:22px;height:22px}
+#modern .sub-btn.on{border-color:#e0b400;background:#fff7d6}
+
+#modern /* overlays */
+.ov{position:fixed;inset:0;z-index:20;background:rgba(239,232,218,.96);display:flex;align-items:center;justify-content:center;
+  padding:max(56px,env(safe-area-inset-top)) 18px max(18px,env(safe-area-inset-bottom));overflow:auto}
+#modern .card{width:min(440px,100%);margin:auto;text-align:center}
+#modern .card h1{font-family:var(--serif);font-size:32px;letter-spacing:.14em;margin:0 0 4px;line-height:1.3}
+#modern .card h1 .h{color:var(--haruki)} #modern .card h1 .r{color:var(--ryu)}
+#modern .card .lead{font-family:var(--serif);font-size:14px;color:var(--sub);margin:0 0 20px;letter-spacing:.08em}
+#modern .card .how{text-align:left;font-size:13.5px;line-height:1.85;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:0 0 20px}
+#modern .card .how b{font-family:var(--serif)}
+#modern .card .row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+#modern .card .go{flex:1 1 180px}
+#modern .ghost{flex:1 1 140px;min-height:52px;border:1.5px solid var(--ink);border-radius:12px;background:transparent;font-weight:700;font-size:14px;
+  display:grid;place-items:center;text-decoration:none;color:var(--ink);letter-spacing:.06em}
+#modern .ghost:hover{background:rgba(0,0,0,.05)}
+#modern .credit{font-size:11px;color:#9a8f7e;margin-top:18px;letter-spacing:.05em}
+#modern .stats{font-size:12px;color:var(--sub);margin-top:12px}
+
+#modern .shelf .card{text-align:left}
+#modern .shelf h2{font-family:var(--serif);font-size:20px;letter-spacing:.2em;margin:0 0 4px;text-align:center}
+#modern .shelf .note{font-size:12px;color:var(--sub);text-align:center;margin:0 0 12px}
+#modern .tabs{display:flex;gap:6px;justify-content:center;margin-bottom:10px}
+#modern .tabs button{min-height:36px;padding:0 14px;border-radius:18px;border:1.5px solid var(--line);background:var(--paper);font-size:13px}
+#modern .tabs button.on{border-color:var(--ink);background:var(--ink);color:var(--paper)}
+#modern .list{display:flex;flex-direction:column;gap:6px;max-height:min(56vh,480px);overflow:auto;padding:2px}
+#modern .item{display:flex;align-items:center;gap:8px;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-height:48px;text-align:left;width:100%}
+#modern .item .sw{flex:none;width:10px;align-self:stretch;border-radius:3px}
+#modern .item .tt{flex:1;min-width:0}
+#modern .item .tt b{display:block;font-family:var(--serif);font-size:14px;line-height:1.4;word-break:break-all}
+#modern .item .tt small{font-size:11px;color:var(--sub)}
+#modern .item .st{flex:none;font-size:18px;color:#d4a800}
+#modern .empty{text-align:center;color:var(--sub);font-size:13px;padding:24px 0}
+
+#modern .toast{position:fixed;left:50%;bottom:max(90px,calc(env(safe-area-inset-bottom) + 80px));transform:translateX(-50%);z-index:40;
+  background:var(--ink);color:var(--paper);padding:9px 16px;border-radius:20px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+#modern .toast.show{opacity:1}
+
+@media (min-width:720px) and (min-height:620px){
+  #modern .side{display:block}
+  #modern .reel{--rh:86px}
+  #modern .reel .chunk{font-size:17px}
+}
+@media (max-height:600px){
+  #modern .reel{--rh:64px}
+  #modern .reel .chunk{font-size:13px;-webkit-line-clamp:1}
+  #modern .reel .it{padding-top:12px}
+  #modern .hint{display:none}
+  #modern .top{height:44px}
+  #modern .acts .go,#modern .acts .sub-btn{min-height:46px}
+}
+
+/* ===== 2000年版 ===== */
+html[data-mode="retro"]{box-sizing:border-box}
+#retro *,#retro *::before,#retro *::after{box-sizing:inherit}
+html[data-mode="retro"] body{margin:0;color:#000;font-family:"ＭＳ Ｐゴシック","MS PGothic",Osaka,"Hiragino Kaku Gothic ProN",sans-serif;font-size:14px;line-height:1.6;
+  background-color:#c0c0c0;
+  background-image:linear-gradient(45deg,#b8b8b8 25%,transparent 25%,transparent 75%,#b8b8b8 75%),linear-gradient(45deg,#b8b8b8 25%,transparent 25%,transparent 75%,#b8b8b8 75%);
+  background-size:8px 8px;background-position:0 0,4px 4px;
+  padding:max(8px,env(safe-area-inset-top)) max(6px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left))}
+#retro a{color:#0000ee}
+#retro a:visited{color:#551a8b}
+#retro a:hover{color:#ff0000}
+#retro .home{font-size:12px;color:#0000ee}
+#retro #page{width:100%;max-width:640px;margin:6px auto 0;background:#fff;border:2px outset #e0e0e0}
+#retro .in{padding:10px 12px}
+#retro .logo{text-align:center;padding:14px 6px 6px;background:#000080;color:#fff;border-bottom:3px double #fff}
+#retro .logo .t{font-family:"ＭＳ Ｐ明朝","MS PMincho","Hiragino Mincho ProN",serif;font-size:30px;font-weight:bold;letter-spacing:.06em;line-height:1.25;
+  color:#ffff00;text-shadow:3px 3px 0 #ff0000,4px 4px 0 #000}
+#retro .logo .s{font-size:12px;color:#ccccff;margin-top:6px}
+#retro .mq{overflow:hidden;white-space:nowrap;background:#000;color:#00ff00;font-size:13px;padding:3px 0;border-top:1px solid #808080;border-bottom:1px solid #808080}
+#retro .mq span{display:inline-block;padding-left:100%;animation:mq 22s linear infinite}
+@keyframes mq{to{transform:translateX(-100%)}}
+@media (prefers-reduced-motion:reduce){#retro .mq span{animation:none;padding-left:8px}#retro .blink{animation:none!important}}
+#retro .blink{animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{visibility:hidden}}
+#retro .new{color:#ff0000;font-weight:bold;font-size:11px}
+#retro .center{text-align:center}
+#retro hr{border:0;border-top:2px groove #c0c0c0;margin:12px 0}
+#retro h2{font-size:15px;margin:14px 0 6px;padding:2px 6px;background:#000080;color:#fff;font-weight:bold}
+#retro h2::before{content:"■ "}
+#retro table.box{border-collapse:separate;border-spacing:2px;width:100%;border:2px outset #ddd;background:#eeeeee}
+#retro table.box td,#retro table.box th{border:1px inset #ddd;padding:5px 6px;vertical-align:middle;background:#fff}
+#retro table.box th{background:#ccccff;font-weight:bold;white-space:nowrap;font-size:13px}
+#retro .part{font-family:"ＭＳ Ｐ明朝","MS PMincho","Hiragino Mincho ProN",serif;font-weight:bold;font-size:16px;word-break:break-all}
+#retro .src{font-size:11px;color:#666;word-break:break-all}
+#retro .H{color:#006699}#retro .R{color:#cc0000}
+#retro label.lk{display:inline-flex;align-items:center;gap:3px;font-size:12px;white-space:nowrap;cursor:pointer;min-height:32px}
+#retro label.lk input{width:16px;height:16px;margin:0}
+#retro .btns{text-align:center;margin:12px 0 4px}
+#retro .btns button{font-family:inherit;font-size:16px;padding:6px 26px;min-height:44px;background:#d4d0c8;color:#000;
+  border:2px outset #fff;border-radius:0;cursor:pointer}
+#retro .btns button:active{border-style:inset}
+#retro .btns button.sm{font-size:13px;padding:4px 12px;min-height:44px}
+#retro #result{margin-top:10px;border:3px ridge #ff9900;background:#ffffcc;padding:12px 10px;text-align:center}
+#retro #result .lbl{font-size:12px;color:#996600}
+#retro #result .ttl{font-family:"ＭＳ Ｐ明朝","MS PMincho","Hiragino Mincho ProN",serif;font-size:26px;font-weight:bold;color:#cc0000;line-height:1.35;margin:6px 0;word-break:break-all}
+#retro #result .au{font-size:14px}
+#retro #result .obi{font-size:13px;color:#333;margin-top:6px}
+#retro #result .real{color:#ff0000;font-weight:bold;font-size:16px;margin-top:6px}
+#retro .bar{font-family:monospace;letter-spacing:-.05em}
+#retro .counter{display:inline-block;background:#000;color:#00ff00;font-family:"Courier New",monospace;font-weight:bold;letter-spacing:.15em;padding:1px 4px;border:2px inset #808080}
+#retro .foot{font-size:12px;color:#333;text-align:center}
+#retro .small{font-size:12px}
+#retro ul.log{margin:4px 0;padding-left:20px;font-size:13px}
+#retro ul.log li{margin:2px 0;word-break:break-all}
+#retro details{margin:6px 0}
+#retro summary{cursor:pointer;color:#0000ee;text-decoration:underline;min-height:32px;line-height:32px}
+#retro .list{font-size:12px;columns:2;column-gap:14px}
+#retro .list div{break-inside:avoid;word-break:break-all}
+#retro .credit{font-size:11px;color:#808080;margin-top:6px}
+#retro .kiri{color:#ff00ff;font-weight:bold}
+@media (max-width:420px){
+  #retro .logo .t{font-size:24px}
+  #retro #result .ttl{font-size:21px}
+  #retro .list{columns:1}
+  #retro table.box th{font-size:12px;padding:4px}
+}
+
+#retro .modebtn{font:inherit;font-size:12px;background:none;border:0;padding:0 2px;color:#0000ee;text-decoration:underline;cursor:pointer;min-height:32px}
+#retro .topline{display:flex;justify-content:space-between;align-items:center;max-width:640px;margin:0 auto}
+</style>
+</head>
+<body>
+<div id="retro">
+<div class="topline"><a class="home" href="/">&lt; porkgorilla</a><button class="modebtn" id="modeBtn3">≫ 2026年版に切り替え</button></div>
+<div id="page">
+  <div class="logo">
+    <div class="t">ダブル村上<br>ルーレット</div>
+    <div class="s">～ 春樹と龍の書名をまぜまぜ ～</div>
+  </div>
+  <div class="mq"><span>ようこそ！ダブル村上ルーレットへ♪　村上春樹と村上龍の書名をバラバラにして、架空の村上文学を作っちゃうページです☆　キリ番を踏んだ人はぜひ報告してね！　実在する書名を引き当てたらラッキー！！</span></div>
+  <div class="in">
+    <p class="center small">
+      あなたは <span class="counter" id="counter">0000000</span> 人目のお客様です。<br>
+      <span id="kiri" class="kiri" hidden>☆★ キリ番ゲット！おめでとうございます！ ★☆</span>
+    </p>
+    <hr>
+
+    <h2>あそびかた</h2>
+    <p class="small">
+      下の「生成」ボタンを押すと、村上春樹と村上龍の書名を「上・中・下」に切り分けた言葉が組み合わさって、<b>架空の村上文学</b>のタイトルができあがります。<br>
+      気に入った言葉は「固定」にチェックを入れると、次も同じ言葉のままになります。<br>
+      <span class="new blink">NEW!</span> 実在する書名を引き当てるとお知らせが出るようになりました。
+    </p>
+
+    <h2>ルーレット</h2>
+    <table class="box">
+      <tr><th>上の句</th><td><span class="part" id="p0">？</span><br><span class="src" id="s0"></span></td><td style="width:1%"><label class="lk"><input type="checkbox" id="l0">固定</label></td></tr>
+      <tr><th>中の句</th><td><span class="part" id="p1">？</span><br><span class="src" id="s1"></span></td><td><label class="lk"><input type="checkbox" id="l1">固定</label></td></tr>
+      <tr><th>下の句</th><td><span class="part" id="p2">？</span><br><span class="src" id="s2"></span></td><td><label class="lk"><input type="checkbox" id="l2">固定</label></td></tr>
+    </table>
+    <div class="btns"><button id="gen">　生　成　</button></div>
+
+    <div id="result" hidden>
+      <div class="lbl">― 本日の架空村上文学 ―</div>
+      <div class="ttl" id="rTitle"></div>
+      <div class="au">著：<b id="rAuthor"></b>　／　<span id="rKind"></span></div>
+      <div class="obi" id="rObi"></div>
+      <div class="small" style="margin-top:8px">
+        春樹度 <span class="bar H" id="rBarH"></span><span class="bar R" id="rBarR"></span> 龍度<br>
+        判定：<b id="rVerdict"></b><br>
+        レア度：<b id="rRar" style="color:#ff6600"></b>
+      </div>
+      <div class="real blink" id="rReal" hidden>★☆ おめでとう！実在する書名です！！ ☆★</div>
+      <div class="btns" style="margin-bottom:0">
+        <button class="sm" id="again">もう一回</button>
+        <button class="sm" id="fav">お気に入りに追加</button>
+      </div>
+      <p class="small" style="margin:8px 0 0"><a id="share" href="#" target="_blank" rel="noopener">≫ この結果をXでつぶやく</a></p>
+    </div>
+
+    <h2>過去ログ</h2>
+    <p class="small" style="margin:2px 0">これまでに生成したタイトルです（新しい順・最大30件。2026年版の本棚と共通）　<a href="#" id="clearLog">[ログを消す]</a></p>
+    <ul class="log" id="log"><li>まだありません。</li></ul>
+
+    <h2>お気に入り</h2>
+    <ul class="log" id="favs"><li>まだありません。</li></ul>
+
+    <h2>収録作品一覧</h2>
+    <details>
+      <summary>村上春樹（<span id="cntH"></span>作品）を見る</summary>
+      <div class="list" id="listH"></div>
+    </details>
+    <details>
+      <summary>村上龍（<span id="cntR"></span>作品）を見る</summary>
+      <div class="list" id="listR"></div>
+    </details>
+    <p class="small">※「｜」の位置で切り分けています。収録もれはご容赦ください。</p>
+
+    <h2>更新履歴</h2>
+    <ul class="log small">
+      <li>2026/10/25　ホームページ風リニューアル！ <span class="new">NEW!</span></li>
+      <li>2026/10/25　ダブル村上ルーレット開設</li>
+    </ul>
+
+    <hr>
+    <div class="foot">
+      このページはリンクフリーです。<br>
+      推奨環境：IE5.0以上・画面サイズ800×600以上（ウソ。スマホでも見られます）<br>
+      <a id="share2" href="#" target="_blank" rel="noopener">≫ このページをXで紹介する</a>　｜　<a href="/">porkgorilla トップへ戻る</a>
+      <button class="modebtn" id="modeBtn4">≫ 2026年版（アニメーションあり）で見る</button>
+      <div class="credit">porkgorilla — 2026</div>
+    </div>
+  </div>
+</div>
+
+</div>
+<div id="modern">
+<div id="app">
+  <div class="top">
+    <a class="home" href="/">&lt; porkgorilla</a>
+    <div class="name">ダブル村上ルーレット</div>
+    <button class="mode-pill" id="modeBtn1" aria-label="2000年版に切り替え"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="3" width="18" height="13" rx="1.5"/><rect x="6" y="6" width="12" height="7"/><path d="M8 20h8M12 16v4"/></svg>2000年版</span></button>
+    <button class="icon-btn" id="shelfBtn" aria-label="本棚">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 4v16M8 4v16M12 6l4 14M18 4v16M3 20h18"/></svg>
+      <span class="badge" id="shelfCount" hidden>0</span>
+    </button>
+    <button class="icon-btn" id="sndBtn" aria-label="音">
+      <svg id="sndIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></svg>
+    </button>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="rays" id="rays"></div>
+    <div class="stamp" id="stamp"></div>
+    <div class="reachban" id="reachBan" hidden>リーチ！</div>
+    <div class="cover" id="cover">
+      <div class="band"></div>
+      <div class="lbl" id="cvLbl">架空文庫</div>
+      <div class="yr" id="cvYr"></div>
+      <div class="t" id="cvTitle"></div>
+      <div class="au" id="cvAu"></div>
+      <svg class="mark" id="cvMark" viewBox="0 0 40 40"></svg>
+      <div class="obi"><div class="k" id="cvObi"></div><div class="s" id="cvGenre"></div></div>
+      <div class="real" id="cvReal" hidden>実在します</div>
+    </div>
+    <div class="side" id="side"></div>
+  </div>
+
+  <div class="verdict" id="verdict">&nbsp;</div>
+  <div class="meter"><i class="h" id="mH" style="width:50%"></i><i class="r" id="mR" style="width:50%"></i></div>
+
+  <div class="reels" id="reels">
+    <div class="reel" data-i="0"><span class="cap">上</span><svg class="lk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><div class="win"><div class="strip"></div></div></div>
+    <div class="reel" data-i="1"><span class="cap">中</span><svg class="lk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><div class="win"><div class="strip"></div></div></div>
+    <div class="reel" data-i="2"><span class="cap">下</span><svg class="lk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><div class="win"><div class="strip"></div></div></div>
+  </div>
+  <div class="hint">リールをタップすると固定できます</div>
+
+  <div class="acts">
+    <button class="sub-btn" id="favBtn" aria-label="お気に入り">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>
+    </button>
+    <button class="go" id="spinBtn">回す</button>
+    <a class="sub-btn" id="shareBtn" href="#" target="_blank" rel="noopener" aria-label="Xでシェア">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.8 3h3.1l-6.8 7.8L22 21h-6.2l-4.9-6.4L5.3 21H2.2l7.3-8.3L2 3h6.4l4.4 5.8zm-1.1 16.2h1.7L7.4 4.7H5.6z"/></svg>
+    </a>
+  </div>
+</div>
+
+<!-- タイトル -->
+<div class="ov" id="titleOv">
+  <div class="card">
+    <h1><span class="h">ダブル</span><span class="r">村上</span><br>ルーレット</h1>
+    <p class="lead">村上春樹と村上龍、ふたりの書名をばらして、まぜる。</p>
+    <div class="how">
+      ・<b>上・中・下</b>の3つのリールに、ふたりの著作タイトルを切り分けた言葉が入っています。<br>
+      ・<b>回す</b>を押すと、架空の村上文学が一冊できあがります。<br>
+      ・気に入った言葉はリールをタップして<b>固定</b>。残りだけ回し直せます。<br>
+      ・<b>★</b>で本棚にお気に入り登録。たまに<b>実在する本</b>を引き当てることも。
+    </div>
+    <div class="row">
+      <button class="go" id="startBtn">はじめる</button>
+      <button class="ghost" id="modeBtn2">2000年版で見る</button>
+      <a class="ghost" id="titleShare" href="#" target="_blank" rel="noopener">Xでシェア</a>
+    </div>
+    <div class="stats" id="titleStats"></div>
+    <div class="credit">porkgorilla — 2026</div>
+  </div>
+</div>
+
+<!-- 本棚 -->
+<div class="ov shelf" id="shelfOv" hidden>
+  <div class="card">
+    <h2>本棚</h2>
+    <p class="note">これまでに生まれた架空の村上文学（最新100冊）</p>
+    <p class="note" id="rkStats"></p>
+    <div class="tabs"><button id="tabAll" class="on">すべて</button><button id="tabFav">★ お気に入り</button></div>
+    <div class="list" id="list"></div>
+    <div class="row" style="margin-top:14px">
+      <button class="go" id="shelfClose">ルーレットへ</button>
+      <button class="ghost" id="toTitle">タイトルへ</button>
+    </div>
+  </div>
+</div>
+
+<canvas id="fx"></canvas>
+<div class="toast" id="toast"></div>
+
+</div>
+<script>
+/* ===== 共有データ ===== */
+
+/* ===== 著作タイトル（| で切り分け。種別 N=長編 S=短編・短編集 E=エッセイ等） ===== */
+const HARUKI = `
+N 風の|歌を|聴け
+N 1973年の|ピンボール
+N 羊を|めぐる|冒険
+N 世界の終りと|ハードボイルド・|ワンダーランド
+N ノルウェイの|森
+N ダンス・|ダンス・|ダンス
+N 国境の南、|太陽の|西
+N ねじまき鳥|クロニクル
+N スプートニクの|恋人
+N 海辺の|カフカ
+N アフター|ダーク
+N |1Q84
+N 色彩を持たない|多崎つくると、|彼の巡礼の年
+N 騎士団長|殺し
+N 街と|その不確かな|壁
+S 中国行きの|スロウ・|ボート
+S カンガルー|日和
+S 納屋を|焼く
+S 回転木馬の|デッド・|ヒート
+S パン屋|再襲撃
+S TV|ピープル
+S レキシントンの|幽霊
+S 神の子どもたちは|みな|踊る
+S 東京|奇譚集
+S 女のいない|男たち
+S 一人称|単数
+S 午後の最後の|芝生
+S 4月のある晴れた朝に|100パーセントの女の子に|出会うことについて
+S 象の|消滅
+S 品川|猿
+S 品川猿の|告白
+S ドライブ・|マイ・|カー
+S 踊る|小人
+S 我らの時代の|フォークロア
+S かえるくん、|東京を|救う
+S UFOが|釧路に|降りる
+S 蜂蜜|パイ
+S アイロンの|ある|風景
+S ハナレイ・|ベイ
+S 偶然の|旅人
+S 日々移動する|腎臓のかたちをした|石
+S 石の|まくらに
+S チャーリー・パーカー・|プレイズ・|ボサノヴァ
+S ヤクルト・スワローズ|詩集
+S ウィズ・ザ・|ビートルズ
+S トニー|滝谷
+S 七番目の|男
+S 氷|男
+S 緑色の|獣
+S 人喰い|猫
+S 貧乏な叔母さんの|話
+S ニューヨーク炭鉱の|悲劇
+S カンガルー|通信
+S 図書館|奇譚
+S 双子と|沈んだ|大陸
+S 32歳の|デイトリッパー
+S 加納|クレタ
+S 夜の|くもざる
+S 羊男の|クリスマス
+S ふしぎな|図書館
+E 走ることについて|語るときに|僕の語ること
+E 職業としての|小説家
+E 村上|朝日堂
+E やがて哀しき|外国語
+E 遠い|太鼓
+E 雨天|炎天
+E 辺境・|近境
+E うずまき猫の|みつけかた
+E もし僕らのことばが|ウィスキーで|あったなら
+E 村上|ラヂオ
+E 猫を|棄てる
+E アンダー|グラウンド
+E 約束された|場所で
+E 意味がなければ|スイングは|ない
+E ポートレイト・|イン・|ジャズ
+E 古くて素敵な|クラシック・|レコードたち
+E みみずくは|黄昏に|飛びたつ
+E ラオスに|いったい何が|あるというんですか？
+E 夢を見るために|毎朝僕は|目覚めるのです
+E 使いみちのない|風景
+E 日出る国の|工場
+E ランゲルハンス島の|午後
+E 象工場の|ハッピー|エンド
+E 波の絵、|波の話
+E 東京|するめ|クラブ
+E おおきなかぶ、|むずかしい|アボカド
+E サラダ好きの|ライオン
+E 小澤征爾さんと、|音楽について|話をする
+E 村上|T
+`;
+const RYU = `
+N 限りなく|透明に近い|ブルー
+N 海の向こうで|戦争が|始まる
+N コインロッカー・|ベイビーズ
+N |69 sixty nine
+N テニスボーイの|憂鬱
+N 愛と幻想の|ファシズム
+N 走れ！|タカハシ
+N ラッフルズ|ホテル
+N 長崎|オランダ村
+N 五分後の|世界
+N 昭和歌謡|大全集
+N |イビサ
+N |ピアッシング
+N ヒュウガ・|ウイルス
+N ラブ＆|ポップ
+N イン ザ・|ミソスープ
+N |ライン
+N 共生|虫
+N 希望の国の|エクソダス
+N 最後の|家族
+N 半島を|出よ
+N 歌う|クジラ
+N オールド・|テロリスト
+N 55歳からの|ハロー|ライフ
+N 心は|あなたの|もとに
+N 恋は|いつも未知な|もの
+N |エクスタシー
+N |メランコリア
+N |タナトス
+N |KYOKO
+N |ユーチューバー
+N MISSING|失われている|もの
+N ストレンジ・|デイズ
+N 星に願いを、|いつでも|夢を
+S 空港|にて
+S 悲しき|熱帯
+S |トパーズ
+S フィジーの|小人
+S 368Y Par4|第2打
+S ニューヨーク・シティ・|マラソン
+S ポップアートの|ある|部屋
+S 超電導|ナイト|クラブ
+S ワイン一杯だけの|真実
+S どこにでもある場所と|どこにもいない|わたし
+S はじめての夜|二度目の夜|最後の夜
+S 村上龍|料理小説集
+S 村上龍|映画小説集
+E 13歳の|ハロー|ワーク
+E あの金で|何が|買えたか
+E すべての男は|消耗品で|ある
+E 無趣味の|すすめ
+E 収縮する世界、|閉塞する|日本
+E 憂鬱な希望としての|インター|ネット
+E 寂しい国の|殺人
+E 音楽の|海岸
+E アメリカン★|ドリーム
+E ハバナ・|モード
+E おしゃれと無縁に|生きる
+E 2days|4girls
+`;
+const KIND = {N:'長編小説', S:'短編集', E:'エッセイ'};
+const NAME = {H:'春樹', R:'龍'};
+
+const BOOKS = [];
+function parse(txt, a){
+  txt.trim().split('\n').forEach(line => {
+    line = line.trim(); if (!line) return;
+    const k = line[0], body = line.slice(2);
+    const parts = body.split('|');
+    BOOKS.push({a, k, parts, full: joinParts(parts)});
+  });
+}
+function joinParts(arr){
+  let s = '';
+  for (const p of arr){
+    if (!p) continue;
+    if (s && /[A-Za-z0-9]$/.test(s) && /^[A-Za-z0-9]/.test(p)) s += ' ';
+    s += p;
+  }
+  return s;
+}
+parse(HARUKI, 'H'); parse(RYU, 'R');
+const REAL = new Set(BOOKS.map(b => b.full));
+const POOL = [[], [], []];
+BOOKS.forEach(b => {
+  const p = b.parts, n = p.length;
+  if (p[0]) POOL[0].push({t:p[0], b});
+  for (let i = 1; i < n - 1; i++) if (p[i]) POOL[1].push({t:p[i], b});
+  POOL[2].push({t:p[n-1], b});
+});
+const BLANK = {t:'', b:null};
+
+/* ===== 帯のコピー（オリジナル） ===== */
+const OBI = {
+  H: ['井戸の底から、世界の向こう側へ。','パスタを茹でているあいだに、電話が鳴った。','猫はまだ、帰ってこない。','冷えたビールと、失われた何か。',
+      'もうひとつの月が、空に浮かんでいた。','ジャズと羊と、二十歳の夏。','壁を抜けると、そこは静かな街だった。','喪失と再生の、長い長い物語。'],
+  R: ['破壊せよ、そして踊れ。','基地の街、ロック、そして暴力。','欲望はいつも、システムの外にある。','この国の閉塞を、撃ち抜け。',
+      'ハバナの夜は、まだ終わらない。','五分後、世界は変わっていた。','コインロッカーから始まる、革命。','快楽の果てに、希望はあるか。'],
+  M: ['ふたりの村上が、ついに出会った（架空）。','井戸の底で、テロリストがパスタを茹でる。','羊と暴力と、少しのビール。',
+      'やれやれ、と僕は世界を破壊した。','春樹と龍、夢の合作（架空）。','静かな喪失と、激しい欲望のあいだで。']
+};
+
+
+/* ===== 表示の切り替え（2000年版 / 2026年版） ===== */
+const MODE_KEY = 'double-murakami-mode';
+/* 2つの版で共有する: 直前の結果と本棚（過去ログ） */
+const SHARED = {
+  cur: null, ref: null,
+  shelf: (() => { try { return JSON.parse(localStorage.getItem('double-murakami-shelf')) || []; } catch(e){ return []; } })(),
+  save(){ try { localStorage.setItem('double-murakami-shelf', JSON.stringify(this.shelf)); } catch(e){} }
+};
+function rarityOf(cur, real){
+  if (real) return 'UR';
+  const used = cur.filter(x => x && x.b);
+  const same = used.every(x => x.b.a === used[0].b.a);
+  if (!same) return 'N';
+  if (used.length < 3) return 'R';
+  return used.every(x => x.b.k === used[0].b.k) ? 'SSR' : 'SR';
+}
+function addEntry(e){
+  SHARED.shelf.unshift(e);
+  let n = 0; SHARED.shelf = SHARED.shelf.filter(x => x.fav || ++n <= 100);
+  SHARED.save(); return SHARED.shelf[0];
+}
+function setMode(m, first){
+  document.documentElement.dataset.mode = m;
+  try { localStorage.setItem(MODE_KEY, m); } catch(e){}
+  scrollTo(0, 0);
+  if (m === 'modern' && window.MODERN) window.MODERN.enter(!!first);
+  if (m === 'retro' && window.RETRO) window.RETRO.enter();
+}
+</script>
+<script>
+/* ===== 2026年版 ===== */
+(function(){
+/* ===== 状態 ===== */
+const $ = id => document.getElementById(id);
+const reels = [...document.querySelectorAll('.reel')];
+const LS = {shelf:'double-murakami-shelf', snd:'double-murakami-sound', spins:'double-murakami-spins'};
+function lsGet(k, d){ try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch(e){ return d; } }
+function lsSet(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
+
+const S = {
+  cur: [null, null, null], locked: [false, false, false], spinning: false,
+  sound: lsGet(LS.snd, true), spins: lsGet(LS.spins, 0),
+  realHits: 0, current: null, tab: 'all'
+};
+// 本棚は2000年版と共通（SHARED.shelf）
+Object.defineProperty(S, 'shelf', {get(){ return SHARED.shelf; }, set(v){ SHARED.shelf = v; }});
+let shownShared = null;
+
+const pick = a => a[Math.floor(Math.random() * a.length)];
+function pickFor(i){
+  if (i === 1 && Math.random() < 0.3) return BLANK;
+  return pick(POOL[i]);
+}
+function hash(s){ let h = 2166136261; for (const c of s){ h ^= c.codePointAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
+
+/* ===== 音 ===== */
+let AC = null;
+function initAudio(force){
+  if (AC && force){ try { AC.close().catch(()=>{}); } catch(e){} AC = null; }
+  else if (AC){ if (AC.state === 'closed') AC = null; else { if (AC.state === 'suspended') AC.resume(); return; } }
+  try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){ AC = null; }
+}
+function tone(f, d, type, vol, when){
+  if (!S.sound || !AC) return;
+  try {
+    const t = AC.currentTime + (when || 0);
+    const o = AC.createOscillator(), g = AC.createGain();
+    o.type = type || 'sine'; o.frequency.setValueAtTime(f, t);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol || 0.1, t + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+    o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t + d + 0.02);
+  } catch(e){}
+}
+const sfx = {
+  tick(hi){ tone(hi ? 1900 : 1400 + Math.random()*300, 0.03, 'square', hi ? 0.04 : 0.025); },
+  stop(i){ tone(220 - i*20, 0.12, 'triangle', 0.18); tone(660, 0.05, 'square', 0.03); },
+  done(){ [523, 659, 784].forEach((f,i) => tone(f, 0.35, 'sine', 0.09, i*0.07)); },
+  real(){ [523,659,784,1047,784,1047].forEach((f,i) => tone(f, 0.25, 'triangle', 0.1, i*0.09)); },
+  lock(){ tone(880, 0.06, 'square', 0.04); },
+  reach(){ [392, 523, 659, 784].forEach((f,i) => tone(f, 0.16, 'square', 0.05, i*0.05)); },
+  beat(){ tone(70, 0.14, 'sine', 0.45); tone(62, 0.12, 'sine', 0.35, 0.13); },
+  win(lv){
+    const seqs = [[523,659,784], [523,659,784,1047], [523,659,784,1047,1319], [392,523,659,784,1047,1319,1568], [523,659,784,1047,784,1047,1319,1568,2093]];
+    const s = seqs[lv], gap = lv >= 3 ? 0.075 : 0.07;
+    s.forEach((f,i) => tone(f, 0.3, lv >= 2 ? 'triangle' : 'sine', 0.09, i*gap));
+    if (lv >= 3){ const end = s.length * gap; [523,659,784].forEach(f => tone(f * (lv >= 4 ? 2 : 1), 0.9, 'triangle', 0.06, end)); tone(130, 0.5, 'sawtooth', 0.05, end); }
+    if (lv >= 2) for (let k = 0; k < 8 + lv*4; k++) tone(2000 + Math.random()*2500, 0.06, 'sine', 0.025, 0.1 + k*0.045);
+  }
+};
+function drawSnd(){
+  $('sndIcon').innerHTML = S.sound
+    ? '<path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/>'
+    : '<path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9l5 6M22 9l-5 6"/>';
+}
+$('sndBtn').addEventListener('click', () => { S.sound = !S.sound; lsSet(LS.snd, S.sound); drawSnd(); if (S.sound){ initAudio(); sfx.lock(); } });
+
+/* ===== 表示 ===== */
+function srcHTML(c){
+  if (!c || !c.b) return '（なし）';
+  return `<span class="${c.b.a}">${NAME[c.b.a]}</span>『${c.b.full}』`;
+}
+function itemHTML(c){ return `<div class="it"><div class="chunk">${esc(c && c.t ? c.t : '—')}</div><div class="src">${srcHTML(c)}</div></div>`; }
+function showReel(i, c){
+  const st = reels[i].querySelector('.strip');
+  st.innerHTML = itemHTML(c); st.style.transform = 'translateY(0)'; st.style.filter = '';
+}
+
+function build(){
+  const [a, b, c] = S.cur;
+  const title = joinParts([a.t, b.t, c.t]);
+  const used = S.cur.filter(x => x.b);
+  const h = used.filter(x => x.b.a === 'H').length, r = used.length - h;
+  let author, dom;
+  if (r === 0){ author = '村上春樹'; dom = 'H'; }
+  else if (h === 0){ author = '村上龍'; dom = 'R'; }
+  else { author = h > r ? '村上春龍' : '村上龍樹'; dom = 'M'; }
+  const real = REAL.has(title);
+  const sd = hash(title);
+  return {title, author, dom, h, r, n: used.length, real, kind: c.b.k, seed: sd,
+    year: 1979 + (sd % 48), obi: OBI[dom][(sd >>> 5) % OBI[dom].length],
+    parts: S.cur.map(x => x.b ? {t:x.t, a:x.b.a, src:x.b.full} : null)};
+}
+
+function palette(book){
+  const s = book.seed;
+  const hue = book.dom === 'H' ? 180 + (s % 60) : book.dom === 'R' ? (350 + (s % 40)) % 360 : (s % 360);
+  const light = (s >>> 8) % 3 !== 0;
+  return {
+    c1: light ? `hsl(${hue} 22% 90%)` : `hsl(${hue} 30% 22%)`,
+    c2: `hsl(${(hue + 25) % 360} 35% ${light ? 40 : 55}%)`,
+    c3: light ? '#1f1b16' : '#f4ede0',
+    obi: book.dom === 'H' ? 'var(--haruki)' : book.dom === 'R' ? 'var(--ryu)' : '#3a3229'
+  };
+}
+function markSVG(book){
+  const s = book.seed, k = (s >>> 3) % 4, col = 'currentColor';
+  if (k === 0) return `<circle cx="20" cy="20" r="14" fill="none" stroke="${col}" stroke-width="2.5"/><circle cx="20" cy="20" r="5" fill="${col}"/>`;
+  if (k === 1) return `<path d="M6 30 L20 8 L34 30 Z" fill="none" stroke="${col}" stroke-width="2.5"/>`;
+  if (k === 2) return `<path d="M8 20 Q14 8 20 20 T32 20" fill="none" stroke="${col}" stroke-width="2.5"/><path d="M8 28 Q14 16 20 28 T32 28" fill="none" stroke="${col}" stroke-width="2.5"/>`;
+  return `<rect x="8" y="8" width="24" height="24" fill="none" stroke="${col}" stroke-width="2.5" transform="rotate(45 20 20)"/>`;
+}
+
+function renderCover(book, flash){
+  const cv = $('cover'), p = palette(book);
+  cv.style.setProperty('--c1', p.c1); cv.style.setProperty('--c2', p.c2);
+  cv.style.setProperty('--c3', p.c3); cv.style.setProperty('--obi', p.obi);
+  $('cvTitle').innerHTML = tate(book.title);
+  $('cvAu').textContent = book.author + (book.real ? '' : '（架空）');
+  $('cvYr').textContent = book.year;
+  $('cvObi').textContent = book.obi;
+  $('cvGenre').textContent = KIND[book.kind] + ' ／ 架空文庫';
+  $('cvMark').innerHTML = markSVG(book); $('cvMark').style.color = p.c3;
+  $('cvReal').hidden = !book.real;
+  fitCover();
+  cv.classList.remove('dim');
+  if (flash){ cv.classList.remove('flip'); void cv.offsetWidth; cv.classList.add('flip'); }
+
+  // 判定
+  let v;
+  if (book.real) v = '<b>本物を引き当てた！</b> 実在する書名です';
+  else if (book.r === 0) v = `<b style="color:var(--haruki)">純度100％ 春樹</b>`;
+  else if (book.h === 0) v = `<b style="color:var(--ryu)">純度100％ 龍</b>`;
+  else v = `<b>ダブル村上</b> 春${book.h}:龍${book.r}`;
+  const rk = book.rar ? `<span class="rk rk-${book.rar}">${book.rar}</span>` : '';
+  const stk = S.streak >= 2 ? `<span class="streak">${S.streak}連続！</span>` : '';
+  $('verdict').innerHTML = rk + v + stk;
+  const hp = book.n ? book.h / book.n * 100 : 50;
+  $('mH').style.width = hp + '%'; $('mR').style.width = (100 - hp) + '%';
+
+  // 横のメモ（PC）
+  $('side').innerHTML = '<h3>元ネタ</h3>' + book.parts.map((x, i) =>
+    x ? `<div>${['上','中','下'][i]}：<b style="color:var(--ink)">${esc(x.t)}</b><br><span style="color:${x.a==='H'?'var(--haruki)':'var(--ryu)'}">${NAME[x.a]}</span>『${esc(x.src)}』</div>`
+      : `<div>${['上','中','下'][i]}：（なし）</div>`).join('<div style="height:8px"></div>');
+
+  updateFav(); updateShare();
+}
+/* 縦書き用: 1〜2桁の数字は縦中横、それ以外の半角英数字は全角にして立てる */
+function tate(s){
+  return s.split(/(\d+)/).map(seg => {
+    if (/^\d{1,2}$/.test(seg)) return `<span class="tcy">${seg}</span>`;
+    return esc(seg.replace(/[A-Za-z0-9]/g, c => String.fromCharCode(c.charCodeAt(0) + 0xFEE0)).replace(/ /g, '　'));
+  }).join('');
+}
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function fitCover(){
+  const st = $('stage'), cv = $('cover');
+  const W = Math.max(1, st.clientWidth), H = Math.max(1, st.clientHeight);
+  const sideW = getComputedStyle($('side')).display === 'none' ? 0 : 238;
+  let h = Math.min(H - 16, 480), w = h * 105 / 148;
+  if (w > W - 24 - sideW){ w = W - 24 - sideW; h = w * 148 / 105; }
+  h = Math.max(60, h); w = h * 105 / 148;
+  cv.style.width = w + 'px'; cv.style.height = h + 'px';
+  cv.style.setProperty('--h', h + 'px');
+  const len = [...($('cvTitle').textContent || '')].length || 1;
+  const col = h * 0.61;                         // タイトル1列の長さ
+  let fs = h * 0.085;
+  const cols = len * fs * 1.06 / col;           // 何列になるか
+  const maxCols = Math.max(1, Math.floor((w * 0.62) / (fs * 1.25)));
+  if (cols > maxCols) fs = Math.sqrt(col * w * 0.62 / (len * 1.06 * 1.25));
+  cv.style.setProperty('--fs', Math.max(9, Math.min(fs, h * 0.085)) + 'px');
+}
+addEventListener('resize', () => fitCover());
+
+/* ===== レア度 ===== */
+const RANK = ['N','R','SR','SSR','UR'];
+function rarity(book){ return rarityOf(S.cur, book.real); }
+
+/* ===== 紙吹雪 ===== */
+const fx = $('fx'), fctx = fx.getContext('2d');
+let parts = [], fxOn = false;
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function sizeFx(){
+  const d = Math.min(2, devicePixelRatio || 1);
+  fx.width = Math.max(1, Math.round(innerWidth * d)); fx.height = Math.max(1, Math.round(innerHeight * d));
+  fctx.setTransform(d, 0, 0, d, 0, 0);
+}
+sizeFx(); addEventListener('resize', sizeFx);
+function burst(n, colors, x, y, spread, up){
+  if (RM) n = Math.ceil(n / 4);
+  for (let k = 0; k < n; k++){
+    parts.push({x, y, vx:(Math.random() - .5) * (spread || 16), vy:-(Math.random() * (up || 13) + 3), w:5 + Math.random()*7, h:3 + Math.random()*5,
+      r:Math.random()*6, vr:(Math.random() - .5) * .45, c:colors[k % colors.length], wob:Math.random()*6});
+  }
+  if (!fxOn){ fxOn = true; requestAnimationFrame(fxLoop); }
+}
+function fxLoop(){
+  fctx.clearRect(0, 0, innerWidth, innerHeight);
+  if (!parts.length){ fxOn = false; return; }
+  requestAnimationFrame(fxLoop);
+  try {
+    const H = innerHeight;
+    parts = parts.filter(p => p.y < H + 30);
+    for (const p of parts){
+      p.vy += .3; p.vx *= .985; p.vy = Math.min(p.vy, 7); p.x += p.vx + Math.sin(p.wob += .12) * .8; p.y += p.vy; p.r += p.vr;
+      fctx.save(); fctx.translate(p.x, p.y); fctx.rotate(p.r); fctx.scale(1, Math.abs(Math.cos(p.wob)) + .2);
+      fctx.fillStyle = p.c; fctx.fillRect(-p.w/2, -p.h/2, p.w, p.h); fctx.restore();
+    }
+  } catch(e){ parts = []; }
+}
+
+/* ===== 演出 ===== */
+let stampT = null;
+function clearFx(){
+  $('rays').className = 'rays'; const s = $('stamp'); s.className = 'stamp';
+  $('cover').classList.add('dim');
+}
+function celebrate(rar, book){
+  const lv = RANK.indexOf(rar);
+  const cr = $('cover').getBoundingClientRect(), cx = cr.left + cr.width/2, cy = cr.top + cr.height*.4;
+  const base = book.dom === 'H' ? ['#2f6f8f','#7fb6d1','#f8f3e8'] : book.dom === 'R' ? ['#b23a2a','#e8846f','#f8f3e8'] : ['#2f6f8f','#b23a2a','#f8f3e8','#7fb6d1','#e8846f'];
+  const gold = ['#ffc928','#ffe58a','#e0a800'], rainbow = ['#ff5a5a','#ffc928','#43d17a','#3d8bff','#c25bff','#ffffff'];
+  const cols = lv >= 4 ? rainbow : lv >= 3 ? gold.concat(base) : lv >= 2 ? base.concat(['#b06cff','#ffc928']) : base;
+  burst([14, 40, 90, 150, 260][lv], cols, cx, cy, 10 + lv*4, 9 + lv*2);
+  if (lv >= 3){
+    burst(60 + (lv-3)*60, cols, 0, innerHeight * .75, 0, 16);
+    parts.slice(-(60 + (lv-3)*60)).forEach(p => { p.vx = Math.random()*9 + 3; });
+    burst(60 + (lv-3)*60, cols, innerWidth, innerHeight * .75, 0, 16);
+    parts.slice(-(60 + (lv-3)*60)).forEach(p => { p.vx = -(Math.random()*9 + 3); });
+  }
+  if (lv >= 2){
+    const s = $('stamp'); s.textContent = rar; s.className = 'stamp ' + rar; void s.offsetWidth; s.classList.add('show');
+  }
+  if (lv >= 3){
+    $('rays').className = 'rays on' + (lv >= 4 ? ' rainbow' : '');
+    if (!RM){ const a = $('app'); a.classList.remove('shake'); void a.offsetWidth; a.classList.add('shake'); }
+    try { navigator.vibrate && navigator.vibrate(lv >= 4 ? [60, 40, 60, 40, 120] : [50, 30, 80]); } catch(e){}
+  }
+  sfx.win(lv);
+}
+
+/* ===== 回す ===== */
+let beatT = null;
+function spin(){
+  if (S.spinning) return;
+  if (S.locked.every(Boolean)){ toast('全部固定されています。どれかをタップで解除'); return; }
+  initAudio();
+  S.spinning = true; $('spinBtn').disabled = true;
+  S.spins++; lsSet(LS.spins, S.spins);
+  clearFx();
+  const order = [0,1,2].filter(i => !S.locked[i]);
+  const finals = S.cur.slice();
+  order.forEach(i => finals[i] = pickFor(i));
+  // リーチ判定: 最後のリール以外が全部同じ作家ならリーチ
+  const last = order[order.length - 1];
+  const known = [0,1,2].filter(i => i !== last).map(i => finals[i]).filter(c => c && c.b);
+  const reach = known.length >= 2 && known.every(c => c.b.a === known[0].b.a);
+  if (reach && Math.random() < 0.5){
+    const pool = POOL[last].filter(c => c.b.a === known[0].b.a); finals[last] = pick(pool);
+  }
+  const R = {};
+  order.forEach((i, k) => {
+    const rh = reels[i].clientHeight || 78;
+    let dur = 850 + k * 430 + Math.random() * 60;
+    if (reach && i === last) dur += 1700;
+    const n = Math.max(8, Math.round(dur / 42));
+    const items = [S.cur[i] || pickFor(i)];
+    for (let m = 1; m < n - 1; m++) items.push(pickFor(i));
+    items.push(finals[i]);
+    const st = reels[i].querySelector('.strip');
+    st.innerHTML = items.map(itemHTML).join('');
+    reels[i].classList.remove('gH', 'gR', 'stop'); reels[i].classList.add('spin');
+    R[i] = {st, rh, dur, n, prevIdx:0, prevY:0, slow: reach && i === last};
+  });
+  let stopped = 0, lastTick = 0;
+  const start = performance.now();
+  if (reach && order.length === 1) showReach(last);
+  function frame(now){
+    const t = now - start;
+    let running = false;
+    for (const i of order){
+      const r = R[i]; if (!r) continue;
+      if (t >= r.dur){
+        S.cur[i] = finals[i]; showReel(i, finals[i]);
+        const el = reels[i]; el.classList.remove('spin', 'reach'); void el.offsetWidth; el.classList.add('stop');
+        if (finals[i] && finals[i].b) el.classList.add('g' + finals[i].b.a);
+        sfx.stop(i); delete R[i]; stopped++;
+        if (reach && stopped === order.length - 1) showReach(last);
+        continue;
+      }
+      running = true;
+      const x = t / r.dur;
+      const e = r.slow ? 1 - Math.pow(1 - x, 5) : 1 - Math.pow(1 - x, 3);
+      const pos = e * (r.n - 1), y = -pos * r.rh;
+      r.st.style.transform = `translateY(${y}px)`;
+      const v = Math.abs(y - r.prevY); r.prevY = y;
+      r.st.style.filter = v > 6 ? `blur(${Math.min(2.4, v / 14).toFixed(2)}px)` : '';
+      const idx = Math.floor(pos + .5);
+      if (idx !== r.prevIdx){ r.prevIdx = idx; if (now - lastTick > 38){ lastTick = now; sfx.tick(r.slow && x > .5); } }
+    }
+    if (running) requestAnimationFrame(frame);
+    else { hideReach(); finish(); }
+  }
+  requestAnimationFrame(frame);
+}
+function showReach(i){
+  $('reachBan').hidden = false; reels[i].classList.add('reach');
+  sfx.reach();
+  clearInterval(beatT); beatT = setInterval(() => sfx.beat(), 430); sfx.beat();
+}
+function hideReach(){ $('reachBan').hidden = true; clearInterval(beatT); beatT = null; reels.forEach(r => r.classList.remove('reach')); }
+function finish(){
+  S.spinning = false; $('spinBtn').disabled = false;
+  const book = build();
+  book.rar = rarity(book);
+  S.streak = RANK.indexOf(book.rar) >= 2 ? (S.streak || 0) + 1 : 0;
+  S.current = book;
+  addShelf(book);
+  SHARED.cur = S.cur.slice(); SHARED.ref = book.ref; shownShared = SHARED.cur;
+  renderCover(book, true);
+  celebrate(book.rar, book);
+  if (book.real) toast('実在する書名を引き当てました！');
+}
+$('spinBtn').addEventListener('click', spin);
+addEventListener('keydown', e => {
+  if (document.documentElement.dataset.mode === 'modern' && (e.key === ' ' || e.key === 'Enter') && $('titleOv').hidden && $('shelfOv').hidden && document.activeElement.tagName !== 'A'){ e.preventDefault(); spin(); }
+});
+
+reels.forEach((r, i) => r.addEventListener('click', () => {
+  if (S.spinning) return;
+  S.locked[i] = !S.locked[i]; r.classList.toggle('lock', S.locked[i]);
+  initAudio(); sfx.lock();
+  $('spinBtn').textContent = S.locked.some(Boolean) ? '回し直す' : '回す';
+}));
+
+/* ===== 本棚 ===== */
+function addShelf(book){
+  S.shelf.unshift({title: book.title, author: book.author, dom: book.dom, kind: book.kind, real: book.real, rar: book.rar,
+    parts: book.parts, fav: false, at: Date.now()});
+  // お気に入りは残し、それ以外を100件までに
+  let n = 0; S.shelf = S.shelf.filter(x => x.fav || ++n <= 100);
+  book.ref = S.shelf[0];
+  lsSet(LS.shelf, S.shelf); updateCount();
+}
+function updateCount(){
+  const el = $('shelfCount'); el.textContent = S.shelf.length; el.hidden = !S.shelf.length;
+}
+function updateFav(){ $('favBtn').classList.toggle('on', !!(S.current && S.current.ref && S.current.ref.fav)); }
+$('favBtn').addEventListener('click', () => {
+  if (!S.current || !S.current.ref) return;
+  S.current.ref.fav = !S.current.ref.fav; lsSet(LS.shelf, S.shelf); updateFav();
+  initAudio(); sfx.lock();
+  toast(S.current.ref.fav ? '本棚のお気に入りに入れました' : 'お気に入りから外しました');
+});
+function renderList(){
+  const cnt = {}; S.shelf.forEach(x => { if (x.rar) cnt[x.rar] = (cnt[x.rar] || 0) + 1; });
+  $('rkStats').innerHTML = RANK.slice().reverse().map(r => `<span class="rk rk-${r}">${r}</span>${cnt[r] || 0}`).join(' ');
+  const items = S.tab === 'fav' ? S.shelf.filter(x => x.fav) : S.shelf;
+  const L = $('list');
+  if (!items.length){ L.innerHTML = `<div class="empty">${S.tab === 'fav' ? '★を押した本がここに並びます' : 'まだ一冊もありません'}</div>`; return; }
+  L.innerHTML = items.map((x, i) => {
+    const col = x.dom === 'H' ? 'var(--haruki)' : x.dom === 'R' ? 'var(--ryu)' : 'linear-gradient(var(--haruki),var(--ryu))';
+    return `<button class="item" data-i="${S.shelf.indexOf(x)}"><span class="sw" style="background:${col}"></span>
+      <span class="tt"><b>${x.rar ? `<span class="rk rk-${x.rar}">${x.rar}</span>` : ''}${esc(x.title)}</b><small>${esc(x.author)}${x.real ? '（実在）' : '（架空）'}・${KIND[x.kind]}</small></span>
+      <span class="st">${x.fav ? '★' : ''}</span></button>`;
+  }).join('');
+}
+$('list').addEventListener('click', e => {
+  const it = e.target.closest('.item'); if (!it) return;
+  const x = S.shelf[+it.dataset.i]; if (!x) return;
+  // 本棚の一冊を表紙に戻す
+  S.cur = x.parts.map((p, i) => p ? {t:p.t, b: BOOKS.find(b => b.full === p.src && b.a === p.a) || {a:p.a, k:'N', full:p.src}} : BLANK);
+  if (!S.cur[2].b) S.cur[2] = {t: x.title, b:{a:'H', k:x.kind, full:''}};
+  S.cur.forEach((c, i) => showReel(i, c));
+  const book = build(); book.ref = x; book.rar = x.rar; S.current = book;
+  SHARED.cur = S.cur.slice(); SHARED.ref = x; shownShared = SHARED.cur;
+  closeShelf(); renderCover(book, true);
+});
+function openShelf(){ renderList(); $('shelfOv').hidden = false; }
+function closeShelf(){ $('shelfOv').hidden = true; }
+$('shelfBtn').addEventListener('click', openShelf);
+$('shelfClose').addEventListener('click', closeShelf);
+$('tabAll').addEventListener('click', () => { S.tab = 'all'; $('tabAll').classList.add('on'); $('tabFav').classList.remove('on'); renderList(); });
+$('tabFav').addEventListener('click', () => { S.tab = 'fav'; $('tabFav').classList.add('on'); $('tabAll').classList.remove('on'); renderList(); });
+$('toTitle').addEventListener('click', () => { closeShelf(); showTitle(); });
+
+/* ===== シェア ===== */
+const GAME_URL = 'https://porkgorilla.com/works/double-murakami.html';
+const OG_CACHE_VERSION = 1;
+const SHARE_URL = GAME_URL + '?ogv=' + OG_CACHE_VERSION;
+const HASHTAG = '#ダブル村上ルーレット';
+function shareHref(text){
+  return 'https://x.com/intent/post?text=' + encodeURIComponent(text + '\n' + HASHTAG) + '&url=' + encodeURIComponent(SHARE_URL);
+}
+function setShare(el, text){
+  el.href = shareHref(text);
+  if (matchMedia('(pointer: coarse)').matches){ el.removeAttribute('target'); el.removeAttribute('rel'); }
+}
+function updateShare(){
+  const b = S.current;
+  if (!b){ setShare($('shareBtn'), '村上春樹と村上龍の書名をまぜて、架空の村上文学をつくるルーレット'); return; }
+  const tag = b.real ? '実在する本を引き当てた！' : b.dom === 'M' ? `ダブル村上（春樹${b.h}:龍${b.r}）` : b.dom === 'H' ? '純度100％春樹' : '純度100％龍';
+  setShare($('shareBtn'), `『${b.title}』\n著・${b.author}${b.real ? '' : '（架空）'}／${KIND[b.kind]}\n${tag}`);
+}
+
+/* ===== タイトル画面 ===== */
+function showTitle(){
+  $('titleOv').hidden = false;
+  const favs = S.shelf.filter(x => x.fav).length;
+  $('titleStats').textContent = S.spins ? `これまでに ${S.spins} 回まわしました・お気に入り ${favs} 冊` : `収録：春樹 ${BOOKS.filter(b=>b.a==='H').length} 作 ／ 龍 ${BOOKS.filter(b=>b.a==='R').length} 作`;
+}
+$('startBtn').addEventListener('click', () => {
+  initAudio(true);
+  $('titleOv').hidden = true;
+  if (!S.current) spin();
+});
+setShare($('titleShare'), '村上春樹と村上龍の書名をばらして、まぜる。架空の村上文学をつくるルーレット');
+
+/* ===== トースト ===== */
+let toastT = null;
+function toast(m){ const t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1900); }
+
+/* ===== 初期化 ===== */
+drawSnd(); updateCount();
+// 起動時の表紙（実在の一冊を飾っておく）
+(function(){
+  const seedBook = BOOKS.find(b => b.full === '羊をめぐる冒険');
+  S.cur = [{t:'羊を', b:seedBook}, {t:'めぐる', b:seedBook}, {t:'冒険', b:seedBook}];
+  S.cur.forEach((c, i) => showReel(i, c));
+  const b = build(); renderCover(b, false);
+  S.current = null; updateShare(); updateFav();
+  $('verdict').innerHTML = '&nbsp;';
+})();
+window.MODERN = {
+  enter(first){
+    if (first) showTitle(); else { $('titleOv').hidden = true; $('shelfOv').hidden = true; }
+    if (SHARED.cur && SHARED.cur !== shownShared){
+      shownShared = SHARED.cur; S.cur = SHARED.cur.slice();
+      S.cur.forEach((c, i) => showReel(i, c));
+      const b = build(); b.ref = SHARED.ref; b.rar = (SHARED.ref && SHARED.ref.rar) || rarity(b);
+      S.current = b; renderCover(b, false);
+    }
+    updateCount();
+    requestAnimationFrame(() => fitCover());
+  }
+};
+$('modeBtn1').addEventListener('click', () => setMode('retro'));
+$('modeBtn2').addEventListener('click', () => setMode('retro'));
+
+})();
+</script>
+<script>
+/* ===== 2000年版 ===== */
+(function(){
+const $ = id => document.getElementById(id);
+const LS = {log:'double-murakami-v2-log', fav:'double-murakami-v2-fav', cnt:'double-murakami-v2-counter'};
+function lsGet(k, d){ try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch(e){ return d; } }
+function lsSet(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+const pick = a => a[Math.floor(Math.random() * a.length)];
+function pickFor(i){ if (i === 1 && Math.random() < 0.3) return BLANK; return pick(POOL[i]); }
+function hash(s){ let h = 2166136261; for (const c of s){ h ^= c.codePointAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
+
+const S = {cur:[null,null,null], current:null};
+let seen = null;
+
+/* アクセスカウンター（この端末での来訪回数に、それっぽい数を足して表示） */
+(function(){
+  const n = lsGet(LS.cnt, 0) + 1; lsSet(LS.cnt, n);
+  const shown = 4718 + n * 3 - 2;
+  $('counter').textContent = String(shown).padStart(7, '0');
+  $('kiri').hidden = !(shown % 100 === 0 || /^(\d)\1+$/.test(String(shown)));
+})();
+
+function srcHTML(c){
+  if (!c || !c.b) return '（なし）';
+  return `出典：<span class="${c.b.a}">${NAME[c.b.a]}</span>『${esc(c.b.full)}』`;
+}
+function build(){
+  const [a, b, c] = S.cur;
+  const title = joinParts([a.t, b.t, c.t]);
+  const used = S.cur.filter(x => x.b);
+  const h = used.filter(x => x.b.a === 'H').length, r = used.length - h;
+  let author, dom;
+  if (r === 0){ author = '村上春樹'; dom = 'H'; }
+  else if (h === 0){ author = '村上龍'; dom = 'R'; }
+  else { author = h > r ? '村上春龍' : '村上龍樹'; dom = 'M'; }
+  const sd = hash(title);
+  return {title, author, dom, h, r, n: used.length, real: REAL.has(title), kind: c.b.k, obi: OBI[dom][(sd >>> 5) % OBI[dom].length]};
+}
+
+const STARS = {N:'★☆☆☆☆', R:'★★☆☆☆', SR:'★★★☆☆', SSR:'★★★★☆', UR:'★★★★★'};
+function generate(){
+  for (let i = 0; i < 3; i++){
+    if (!$('l' + i).checked || !S.cur[i]) S.cur[i] = pickFor(i);
+  }
+  const bk = build();
+  bk.rar = rarityOf(S.cur, bk.real);
+  const entry = addEntry({title: bk.title, author: bk.author, dom: bk.dom, kind: bk.kind, real: bk.real, rar: bk.rar,
+    parts: S.cur.map(x => x.b ? {t:x.t, a:x.b.a, src:x.b.full} : null), fav: false, at: Date.now()});
+  SHARED.cur = S.cur.slice(); SHARED.ref = entry; seen = SHARED.cur;
+  show(bk);
+}
+function show(bk){
+  S.current = bk;
+  for (let i = 0; i < 3; i++){
+    $('p' + i).textContent = S.cur[i].t || '―';
+    $('s' + i).innerHTML = srcHTML(S.cur[i]);
+  }
+  $('rTitle').textContent = '『' + bk.title + '』';
+  $('rAuthor').textContent = bk.author + (bk.real ? '' : '（架空）');
+  $('rKind').textContent = KIND[bk.kind];
+  $('rObi').textContent = '帯：「' + bk.obi + '」';
+  const hb = bk.n ? Math.round(bk.h / bk.n * 10) : 5;
+  $('rBarH').textContent = '■'.repeat(hb); $('rBarR').textContent = '■'.repeat(10 - hb);
+  $('rVerdict').textContent = bk.real ? '本物！' : bk.r === 0 ? '純度100％春樹' : bk.h === 0 ? '純度100％龍' : `ダブル村上（春樹${bk.h}：龍${bk.r}）`;
+  $('rRar').textContent = `${bk.rar}　${STARS[bk.rar] || ''}`;
+  $('rReal').hidden = !bk.real;
+  $('result').hidden = false;
+  const fv = !!(SHARED.ref && SHARED.ref.fav);
+  $('fav').disabled = fv; $('fav').textContent = fv ? '追加しました' : 'お気に入りに追加';
+  renderLog();
+  setShare($('share'), `『${bk.title}』\n著：${bk.author}${bk.real ? '' : '（架空）'}／${KIND[bk.kind]}\n判定：${$('rVerdict').textContent}（${bk.rar}）`);
+}
+function renderLog(){
+  const log = SHARED.shelf.slice(0, 30), favs = SHARED.shelf.filter(x => x.fav);
+  const li = x => `『${esc(x.title)}』 ${esc(x.author)}${x.rar ? ` <small>[${x.rar}]</small>` : ''}${x.real ? ' <span class="new">実在!</span>' : ''}`;
+  $('log').innerHTML = log.length ? log.map(x => `<li>${li(x)}</li>`).join('') : '<li>まだありません。</li>';
+  $('favs').innerHTML = favs.length ? favs.map(x => `<li>${li(x)} <a href="#" data-del="${SHARED.shelf.indexOf(x)}">[削除]</a></li>`).join('') : '<li>まだありません。</li>';
+}
+window.RETRO = {
+  enter(){
+    if (SHARED.cur && SHARED.cur !== seen){
+      seen = SHARED.cur; S.cur = SHARED.cur.slice();
+      const bk = build(); bk.rar = (SHARED.ref && SHARED.ref.rar) || rarityOf(S.cur, bk.real);
+      show(bk);
+    } else renderLog();
+  }
+};
+$('gen').addEventListener('click', generate);
+$('again').addEventListener('click', generate);
+$('fav').addEventListener('click', () => {
+  if (!S.current) return;
+  if (!SHARED.ref) return;
+  SHARED.ref.fav = true; SHARED.save();
+  $('fav').disabled = true; $('fav').textContent = '追加しました';
+  renderLog();
+});
+$('favs').addEventListener('click', e => {
+  const a = e.target.closest('[data-del]'); if (!a) return; e.preventDefault();
+  const x = SHARED.shelf[+a.dataset.del]; if (x){ x.fav = false; SHARED.save(); }
+  if (x && x === SHARED.ref){ $('fav').disabled = false; $('fav').textContent = 'お気に入りに追加'; }
+  renderLog();
+});
+let armed = false, armT = null;
+$('clearLog').addEventListener('click', e => {
+  e.preventDefault();
+  const el = $('clearLog');
+  if (!armed){ armed = true; el.textContent = '[本当に消す？もう一度クリック]'; clearTimeout(armT); armT = setTimeout(() => { armed = false; el.textContent = '[ログを消す]'; }, 3000); return; }
+  armed = false; clearTimeout(armT); el.textContent = '[ログを消す]';
+  SHARED.shelf = SHARED.shelf.filter(x => x.fav); SHARED.save(); renderLog();
+});
+
+/* 収録作品一覧 */
+['H','R'].forEach(a => {
+  const bs = BOOKS.filter(b => b.a === a);
+  $('cnt' + a).textContent = bs.length;
+  $('list' + a).innerHTML = bs.map(b => `<div>・${esc(b.parts.filter(Boolean).join('｜'))}</div>`).join('');
+});
+
+/* シェア */
+const GAME_URL = 'https://porkgorilla.com/works/double-murakami.html';
+const OG_CACHE_VERSION = 1;
+const SHARE_URL = GAME_URL + '?ogv=' + OG_CACHE_VERSION;
+const HASHTAG = '#ダブル村上ルーレット';
+function setShare(el, text){
+  el.href = 'https://x.com/intent/post?text=' + encodeURIComponent(text + '\n' + HASHTAG) + '&url=' + encodeURIComponent(SHARE_URL);
+  if (matchMedia('(pointer: coarse)').matches){ el.removeAttribute('target'); el.removeAttribute('rel'); }
+}
+setShare($('share2'), '村上春樹と村上龍の書名をまぜて、架空の村上文学をつくるページ');
+renderLog();
+
+$('modeBtn3').addEventListener('click', () => setMode('modern'));
+$('modeBtn4').addEventListener('click', () => setMode('modern'));
+
+})();
+(function(){ let m = 'retro'; try { m = localStorage.getItem(MODE_KEY) || 'retro'; } catch(e){} setMode(m === 'modern' ? 'modern' : 'retro', true); })();
+</script>
+</body>
+</html>
