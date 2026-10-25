@@ -69,6 +69,7 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 | [てづかみステーキ](https://porkgorilla.com/works/tezukami-steak.html) | GAME | 素手で掴んでビタンと焼く、座布団ステーキ調理ゲーム |
 | [ダブル村上ルーレット](https://porkgorilla.com/works/double-murakami.html) | GAME | 春樹と龍の書名で、架空の村上文学をつくるゲーム |
 | [横バーガー](https://porkgorilla.com/works/yoko-burger.html) | GAME | 傾いた具を垂直で止めて、両手でバチンと挟むゲーム |
+| [目指せアメリカ！](https://porkgorilla.com/works/mezase-america.html) | GAME | 1人から仲間を増やして、アメリカの州に刺さるゲーム |
 
 ## 構成
 
@@ -141,7 +142,8 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
     ├── seikimatsu-derby.html
     ├── tezukami-steak.html
     ├── double-murakami.html
-    └── yoko-burger.html
+    ├── yoko-burger.html
+    └── mezase-america.html
 ```
 
 `theme.css` / `site.js` / `favicon.svg` はルート直下に置き、各作品ページからは絶対パス(`/theme.css` など)で読み込みます。404.html も GitHub Pages の仕様上ルート直下が必須です。
