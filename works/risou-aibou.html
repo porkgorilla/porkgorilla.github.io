@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>りそうの相棒 | porkgorilla://</title>
+<meta name="description" content="窓際部署の初老の警部に、新しい相棒を迎えるゲーム。ときどき、どこかで見たような人が来ます。">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-MBT4300J0L');
+</script>
+<meta property="og:type" content="website">
+<meta property="og:title" content="りそうの相棒">
+<meta property="og:description" content="窓際部署の初老の警部に、新しい相棒を迎えるゲーム">
+<meta property="og:url" content="https://porkgorilla.com/works/risou-aibou.html">
+<meta property="og:image" content="https://porkgorilla.com/assets/og-risou-aibou.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="りそうの相棒">
+<meta name="twitter:description" content="窓際部署の初老の警部に、新しい相棒を迎えるゲーム">
+<meta name="twitter:image" content="https://porkgorilla.com/assets/og-risou-aibou.jpg">
+<style>
+[hidden]{display:none!important}
+:root{
+  --bg:#15110e; --ink:#f3ead8; --sub:#a99c84; --line:rgba(243,234,216,.16);
+  --acc:#d9a441; --acc2:#b8402f; --card:rgba(24,19,15,.94);
+  --serif:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP","BIZ UDPMincho",serif;
+  --sans:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic","YuGothic","Noto Sans JP","Meiryo",sans-serif;
+}
+*{box-sizing:border-box}
+html{height:100%;box-sizing:border-box;background:var(--bg)}
+body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+button{font:inherit;color:inherit;cursor:pointer}
+#app{position:relative;height:100%;display:grid;grid-template-rows:48px minmax(0,1fr) auto;grid-template-columns:minmax(0,1fr)}
+#app>*{min-width:0}
+#top{grid-column:1/-1;position:relative;z-index:20;display:flex;align-items:center;gap:8px;padding:0 max(8px,env(safe-area-inset-right)) 0 max(12px,env(safe-area-inset-left));background:#0e0b09;border-bottom:1px solid var(--line)}
+.home{color:var(--sub);text-decoration:none;font-size:12px;letter-spacing:.04em;white-space:nowrap}
+.home:hover{color:var(--ink)}
+#lbl{flex:1;min-width:0;text-align:center;font-family:var(--serif);font-size:15px;white-space:nowrap;overflow:hidden;color:var(--ink)}
+.tb{display:flex;gap:4px}
+.ib{min-width:44px;min-height:44px;display:grid;place-items:center;background:transparent;border:0;border-radius:10px;color:var(--sub);padding:0}
+.ib:hover{color:var(--ink);background:rgba(255,255,255,.06)}
+.ib svg{width:22px;height:22px}
+#main{position:relative;overflow:hidden;touch-action:manipulation}
+#cv{position:absolute;inset:0;width:100%;height:100%;display:block}
+/* result panel */
+#panel{position:relative;z-index:5;background:var(--card);border-top:1px solid var(--line);max-height:52vh;overflow-y:auto;padding:14px max(16px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+#panel .in{max-width:560px;margin-left:auto;margin-right:auto}
+@media (orientation:landscape) and (min-width:640px){
+  #app.has-panel{grid-template-columns:minmax(0,1fr) minmax(0,380px);grid-template-rows:48px minmax(0,1fr)}
+  #app.has-panel #panel{grid-column:2;grid-row:2;max-height:none;border-top:0;border-left:1px solid var(--line);display:flex;flex-direction:column}
+  #app.has-panel #panel .in{width:100%;margin-top:auto;margin-bottom:auto}
+}
+.kick{display:flex;align-items:center;gap:8px;font-size:12px;letter-spacing:.12em;color:var(--sub)}
+.badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.06em;color:#15110e;background:#8f8a80;white-space:nowrap}
+.badge.t0{background:#8f8a80}.badge.t1{background:#5d9be0}.badge.t2{background:#c17ee8}
+.badge.R{background:#5d9be0}.badge.SR{background:#c17ee8}.badge.SSR{background:linear-gradient(90deg,#f6d36b,#e2a43c,#f6e19b);}
+.badge.jp{background:var(--acc2);color:#fff}
+#pName{font-family:var(--serif);font-size:28px;line-height:1.25;margin:6px 0 2px;white-space:nowrap;overflow:hidden}
+#pSub{font-size:13px;color:var(--sub);margin:0 0 10px;line-height:1.5}
+.rows{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:6px 10px;font-size:14px;margin:0 0 10px;align-items:center}
+.rows .k{color:var(--sub);font-size:12px;white-space:nowrap}
+.rows .v{line-height:1.4}
+.aff{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--sub);margin:4px 0 6px}
+.aff .bar{flex:1;height:8px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+.aff .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--acc2),var(--acc))}
+.aff b{color:var(--ink);font-size:15px}
+#pPrev{font-size:12px;color:var(--sub);margin:0 0 12px;line-height:1.5}
+.actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:6px}
+.go{border:0;border-radius:12px;background:var(--acc);color:#1b140c;font-weight:700;padding:12px 18px;min-height:44px;font-size:15px;box-shadow:0 3px 0 #8a6420;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.go:active{transform:translateY(2px);box-shadow:0 1px 0 #8a6420}
+.ract{display:grid;gap:8px;margin-top:8px}
+.ract.main{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.ract.sub{grid-template-columns:repeat(3,minmax(0,1fr))}
+.ract>*{width:100%;min-width:0;justify-content:center;white-space:nowrap}
+.ract.sub>*{min-height:44px;padding:6px 4px;font-size:13px}
+.ract .go.two small{font-size:11px;white-space:nowrap;line-height:1.3}
+.go.two{flex-direction:column;gap:2px;line-height:1.25;padding-top:8px;padding-bottom:8px}
+.go.two small{font-size:11px;font-weight:500;opacity:.82;white-space:nowrap}
+.go.ghost{background:transparent;color:var(--acc);box-shadow:none;border:2px solid rgba(217,164,65,.55)}
+.go.ghost:hover{background:rgba(217,164,65,.12)}
+.go.small{padding:8px 14px;font-size:13px;font-weight:600}
+.go.danger{background:var(--acc2);color:#fff;border-color:var(--acc2)}
+.xbtn{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:8px 14px;border-radius:12px;border:1px solid var(--line);color:var(--ink);text-decoration:none;font-size:13px}
+.xbtn:hover{background:rgba(255,255,255,.06)}
+.xbtn svg{width:14px;height:14px}
+/* overlays */
+.ov{position:absolute;left:0;right:0;top:48px;bottom:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;overflow-y:auto;padding:16px max(16px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+.ov.center{background:rgba(10,8,6,.74)}
+.ov.center .card{margin-top:auto;margin-bottom:auto}
+.inv{visibility:hidden}
+
+#titleOv{background:linear-gradient(to bottom,rgba(14,11,9,0) 38%,rgba(14,11,9,.88) 60%,rgba(14,11,9,.96))}
+@media (orientation:landscape) and (min-aspect-ratio:13/10){
+  #titleOv{align-items:flex-end;background:linear-gradient(to right,rgba(14,11,9,0) 45%,rgba(14,11,9,.9) 70%)}
+}
+.card{width:100%;max-width:440px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
+#titleOv .card{background:rgba(14,11,9,.78);border:1px solid var(--line);padding:14px 16px;margin-top:auto;-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+@media (orientation:landscape) and (min-aspect-ratio:13/10){ #titleOv .card{margin-top:auto;margin-bottom:auto} }
+.tkick{font-size:12px;letter-spacing:.2em;color:var(--sub)}
+h1{font-family:var(--serif);font-weight:700;font-size:44px;white-space:nowrap;margin:4px 0 6px;letter-spacing:.06em;color:var(--ink);text-shadow:0 2px 0 rgba(0,0,0,.4)}
+h1 small{display:block;font-size:13px;letter-spacing:.3em;color:var(--acc);margin-top:2px}
+.lead{font-size:13px;line-height:1.7;color:#d8ccb4;margin:0 0 12px}
+.next{font-size:12px;color:var(--sub);margin:0 0 10px}
+.next b{color:var(--acc);font-size:14px}
+.stack{display:flex;flex-direction:column;gap:10px}
+.row2{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.credit{font-size:11px;color:#7d7362;margin-top:14px;letter-spacing:.05em}
+.card h2{font-family:var(--serif);margin:0 0 12px;font-size:22px}
+/* file */
+#fileOv .card{max-width:620px;max-height:100%;overflow-y:auto}
+.jgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px;margin:8px 0 14px}
+.jc{border:1px solid var(--line);border-radius:10px;padding:7px 8px;font-size:12px;line-height:1.35;min-height:46px}
+.jc.no{color:#6a6152}
+.jc .badge{font-size:9px;padding:1px 6px;margin-bottom:3px}
+.hist{font-size:13px;line-height:1.5;margin:0;padding:0;list-style:none}
+.hist li{border-top:1px solid var(--line);padding:7px 0;display:flex;gap:10px}
+.hist .s{color:var(--acc);font-family:var(--serif);white-space:nowrap}
+.hist .m{color:var(--sub);font-size:12px}
+.muted{color:var(--sub);font-size:12px}
+/* roulette */
+.setrow>span{min-width:0}
+.setrow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 10px;margin:0 0 12px;font-size:15px}
+.setrow.col{flex-direction:column;align-items:flex-start;gap:4px}
+.seg{display:flex;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.seg button{min-height:44px;padding:8px 12px;white-space:nowrap;border:0;background:transparent;color:var(--sub);font-size:14px}
+.seg button.on{background:var(--acc);color:#1b140c;font-weight:700}
+.reel{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px 10px;align-items:center;margin:8px 0 4px;font-size:15px}
+.reel .k{color:var(--sub);font-size:12px}
+.reel .v{font-family:var(--serif);border:1px solid var(--line);border-radius:8px;padding:8px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.reel .v.stop{border-color:var(--acc);color:var(--acc)}
+@media (max-height:560px){ .lead{display:none} h1{font-size:32px;margin:2px 0 4px} .credit{margin-top:8px} }
+</style>
+</head>
+<body>
+<div id="app">
+  <header id="top">
+    <a class="home" href="/">&lt; porkgorilla</a>
+    <div id="lbl">特別対応係</div>
+    <div class="tb">
+      <button id="sndBtn" class="ib" aria-label="音のオン・オフ"></button>
+      <button id="pauseBtn" class="ib" aria-label="一時停止" hidden>
+        <svg viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor"/></svg>
+      </button>
+    </div>
+  </header>
+  <main id="main"><canvas id="cv"></canvas></main>
+
+  <section id="panel" hidden>
+    <div class="in">
+      <div class="kick"><span id="pSeason">SEASON 26 新相棒</span><span id="pBadge" class="badge">人事ファイル</span></div>
+      <div id="pName">—</div>
+      <p id="pSub"></p>
+      <div id="pRows" class="rows"></div>
+      <div class="aff">相性 <div class="bar"><i id="pAffBar" style="width:50%"></i></div><b id="pAff">50%</b></div>
+      <p id="pPrev"></p>
+      <div class="ract main">
+        <button class="go two" id="againBtn"><span>もう一度</span><small>配属審査<br>ミニゲーム3本</small></button>
+        <button class="go ghost two" id="changeBtn"><span>チェンジ</span><small>人事におまかせ<br>ミニゲームなし</small></button>
+      </div>
+      <div class="ract sub">
+        <button class="go ghost small" id="titleBtn">タイトルへ</button>
+        <a class="xbtn" id="shareRes" href="#" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M17.8 3h3.1l-6.8 7.7L22 21h-6.2l-4.9-6.4L5.3 21H2.2l7.2-8.3L1.8 3h6.4l4.4 5.8zm-1.1 16.2h1.7L7.4 4.7H5.6z"/></svg>シェア</a>
+        <button class="go ghost small" id="fileBtn2">相棒ファイル</button>
+      </div>
+    </div>
+  </section>
+
+  <div id="titleOv" class="ov">
+    <div class="card">
+      <div class="tkick">窓際部署・新相棒配属記録</div>
+      <h1>りそうの相棒<small>— THE IDEAL PARTNER —</small></h1>
+      <p class="lead">初老の敏腕警部に、新しい相棒を。<br>張り込み・取り調べ・現場検証のミニゲームで、相棒の見た目や特技が決まります。ときどき、どこかで見たような人が来ます。</p>
+      <p class="next">次の配属：<b id="nextSeason">Season 26</b></p>
+      <div class="stack">
+        <button class="go two" id="startBtn"><span>配属審査をはじめる</span><small>ミニゲーム3本・約2分</small></button>
+        <div class="row2">
+          <button class="go ghost two" id="quickBtn"><span>人事におまかせ</span><small>ミニゲームなし・すぐ着任</small></button>
+          <button class="go ghost" id="fileBtn">歴代相棒ファイル</button>
+          <button class="go ghost" id="setBtn">設定</button>
+          <a class="xbtn" id="shareTitle" href="#" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M17.8 3h3.1l-6.8 7.7L22 21h-6.2l-4.9-6.4L5.3 21H2.2l7.2-8.3L1.8 3h6.4l4.4 5.8zm-1.1 16.2h1.7L7.4 4.7H5.6z"/></svg>Xでシェア</a>
+        </div>
+      </div>
+      <div class="credit">porkgorilla — 2026</div>
+    </div>
+  </div>
+
+  <div id="pauseOv" class="ov center" hidden>
+    <div class="card">
+      <h2>一時停止</h2>
+      <p class="muted" id="pauseInfo"></p>
+      <div class="stack">
+        <button class="go" id="resumeBtn">再開する</button>
+        <div class="row2">
+          <button class="go ghost" id="pSndBtn">音：ON</button>
+          <a class="xbtn" id="sharePause" href="#" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M17.8 3h3.1l-6.8 7.7L22 21h-6.2l-4.9-6.4L5.3 21H2.2l7.2-8.3L1.8 3h6.4l4.4 5.8zm-1.1 16.2h1.7L7.4 4.7H5.6z"/></svg>Xでシェア</a>
+        </div>
+        <button class="go ghost" id="quitBtn">タイトルへ戻る</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="fileOv" class="ov center" hidden>
+    <div class="card">
+      <h2>歴代相棒ファイル</h2>
+      <div class="muted" id="fileStat"></div>
+      <div class="jgrid" id="jgrid"></div>
+      <ul class="hist" id="hist"></ul>
+      <div class="actions"><button class="go" id="fileClose">閉じる</button></div>
+    </div>
+  </div>
+
+  <div id="setOv" class="ov center" hidden>
+    <div class="card">
+      <h2>設定</h2>
+      <div class="setrow"><span>音</span><button class="go ghost small" id="sSnd">音：ON</button></div>
+      <div class="setrow"><span>ミニゲームの速さ</span><div class="seg"><button id="spdN">ふつう</button><button id="spdS">ゆっくり</button></div></div>
+      <p class="muted" style="margin:-4px 0 16px">「ゆっくり」にすると、人の歩く速さやゲージが遅くなり、制限時間も長くなります。</p>
+      <div class="setrow col"><button class="go ghost" id="resetSeason">シーズンを26に戻す</button><span class="muted">歴代相棒ファイルは残ります</span></div>
+      <div class="setrow col"><button class="go ghost" id="resetAll">相棒ファイルを全部消す</button><span class="muted">大当たりの発見記録も消え、シーズンも26に戻ります</span></div>
+      <div class="actions"><button class="go" id="setClose">閉じる</button></div>
+    </div>
+  </div>
+
+  <div id="rlOv" class="ov center" hidden>
+    <div class="card">
+      <h2>人事におまかせ</h2>
+      <p class="muted">人事課が、手元のファイルから適当に選んでいます…</p>
+      <div class="reel">
+        <span class="k">見た目・前職</span><span class="v" id="rl0">…</span><span class="badge inv" id="rb0">N</span>
+        <span class="k">特技</span><span class="v" id="rl1">…</span><span class="badge inv" id="rb1">N</span>
+        <span class="k">クセ・口ぐせ</span><span class="v" id="rl2">…</span><span class="badge inv" id="rb2">N</span>
+      </div>
+      <p class="muted">タップで早送り</p>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+// ===================== 基本設定 =====================
+const W = 420, H = 420;
+const KEY = 'risou-aibou';
+const GAME_NAME = 'りそうの相棒';
+const GAME_URL = 'https://porkgorilla.com/works/risou-aibou.html';
+const OG_CACHE_VERSION = 1;
+const SHARE_URL = GAME_URL + '?ogv=' + OG_CACHE_VERSION;
+const HASHTAG = '#りそうの相棒';
+const SANS = '"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic","Noto Sans JP","Meiryo",sans-serif';
+const SERIF = '"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP",serif';
+const $ = id => document.getElementById(id);
+const app = $('app'), cv = $('cv'), ctx = cv.getContext('2d');
+const R = Math.random;
+const pick = a => a[Math.floor(R() * a.length)];
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, k) => a + (b - a) * k;
+const ease = k => k < 0 ? 0 : k > 1 ? 1 : k * k * (3 - 2 * k);
+function wpick(items, wf){ let s = 0; for (const it of items) s += Math.max(0, wf(it)); let r = R() * s; for (const it of items){ r -= Math.max(0, wf(it)); if (r <= 0) return it; } return items[items.length - 1]; }
+
+// ===================== 保存 =====================
+function loadFile(){ try{ const d = JSON.parse(localStorage.getItem(KEY + '-file')); if (d && d.list) return d; }catch(e){} return null; }
+let FILE = loadFile() || { next: 26, list: [], found: {} };
+function saveFile(){ try{ localStorage.setItem(KEY + '-file', JSON.stringify(FILE)); }catch(e){} }
+let soundOn = true, slow = false;
+try{ soundOn = localStorage.getItem(KEY + '-sound') !== '0'; slow = localStorage.getItem(KEY + '-slow') === '1'; }catch(e){}
+
+// ===================== 音 =====================
+let AC = null, master = null, noiseBuf = null;
+function initAudio(force){
+  if (AC && force){ try{ AC.close().catch(() => {}); }catch(e){} AC = null; }
+  else if (AC){ if (AC.state === 'closed') AC = null; else { if (AC.state === 'suspended') AC.resume().catch(()=>{}); return; } }
+  try{
+    const C = window.AudioContext || window.webkitAudioContext; if (!C) return;
+    AC = new C(); master = AC.createGain(); master.gain.value = 0.55; master.connect(AC.destination);
+    noiseBuf = AC.createBuffer(1, AC.sampleRate, AC.sampleRate);
+    const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = R() * 2 - 1;
+  }catch(e){ AC = null; }
+}
+function tone(f, d, type = 'sine', v = .2, when = 0, slide = 0){
+  if (!AC || !soundOn) return;
+  try{
+    const t = AC.currentTime + when, o = AC.createOscillator(), g = AC.createGain();
+    o.type = type; o.frequency.setValueAtTime(f, t);
+    if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(20, f * slide), t + d);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+    o.connect(g); g.connect(master); o.start(t); o.stop(t + d + 0.05);
+  }catch(e){}
+}
+function noise(d, v = .2, when = 0, freq = 1200, q = 1){
+  if (!AC || !soundOn || !noiseBuf) return;
+  try{
+    const t = AC.currentTime + when, s = AC.createBufferSource(), f = AC.createBiquadFilter(), g = AC.createGain();
+    s.buffer = noiseBuf; f.type = 'bandpass'; f.frequency.value = freq; f.Q.value = q;
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+    s.connect(f); f.connect(g); g.connect(master); s.start(t); s.stop(t + d + 0.05);
+  }catch(e){}
+}
+const SFX = {
+  tap(){ tone(700, .06, 'triangle', .1); },
+  hit(){ tone(660, .1, 'triangle', .2); tone(990, .18, 'triangle', .2, .08); },
+  miss(){ tone(200, .28, 'sawtooth', .08, 0, .6); },
+  knock(){ noise(.09, .7, 0, 260, 3); noise(.09, .7, .24, 260, 3); },
+  creak(){ tone(120, .7, 'sawtooth', .035, 0, 1.7); },
+  reveal(){ [392, 494, 587, 784].forEach((f, i) => tone(f, 1.1, 'triangle', .1, i * .03)); },
+  fanfare(){ [523, 659, 784, 1047].forEach((f, i) => tone(f, .3, 'square', .06, i * .11)); tone(1047, 1.1, 'triangle', .14, .46); tone(1319, 1.1, 'triangle', .1, .46); },
+  boom(){ noise(1.0, .9, 0, 110, .6); tone(60, .8, 'sine', .4, 0, .5); },
+  flash(){ tone(1600, .5, 'sine', .12, 0, .25); },
+  tick(){ tone(1300, .03, 'square', .04); },
+  pop(){ tone(500, .08, 'sine', .15, 0, 2); }
+};
+
+// ===================== 画面サイズ =====================
+let DPR = 1, CW = 1, CH = 1, SC = 1, OX = 0, OY = 0;
+function resize(){
+  const r = $('main').getBoundingClientRect();
+  CW = Math.max(1, r.width || 0); CH = Math.max(1, r.height || 0);
+  DPR = Math.min(3, window.devicePixelRatio || 1);
+  cv.width = Math.max(1, Math.round(CW * DPR)); cv.height = Math.max(1, Math.round(CH * DPR));
+}
+function layoutScene(){
+  SC = Math.max(0.01, Math.min(CW / W, CH / H));
+  let ax = 0.5, ay = 0.5;
+  const titleish = (S.mode === 'title');
+  if (titleish){
+    if (CW / CH > 1.3) ax = 0.18; else ay = 0.05;
+  }
+  OX = (CW - W * SC) * ax; OY = (CH - H * SC) * ay;
+}
+// 見えている論理座標の範囲
+function vis(){ return { x0: -OX / SC, y0: -OY / SC, x1: (CW - OX) / SC, y1: (CH - OY) / SC }; }
+
+// ===================== 描画ユーティリティ =====================
+function rr(c, x, y, w, h, r){ r = Math.min(r, w / 2, h / 2); c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+function circ(c, x, y, r){ c.beginPath(); c.arc(x, y, Math.max(0.01, r), 0, Math.PI * 2); }
+function ln(c, x1, y1, x2, y2){ c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.stroke(); }
+function ell(c, x, y, rx, ry, rot = 0, a0 = 0, a1 = Math.PI * 2){ c.beginPath(); c.ellipse(x, y, Math.max(.01, rx), Math.max(.01, ry), rot, a0, a1); }
+// 枠に収まるまで縮める
+function fitFont(c, weight, size, txt, maxW, fam = SANS){
+  c.font = `${weight} ${size}px ${fam}`;
+  const w = c.measureText(txt).width;
+  if (w > maxW && w > 0){ size = Math.max(6, size * maxW / w); c.font = `${weight} ${size}px ${fam}`; }
+  return size;
+}
+function wrapLines(c, text, maxW){
+  const out = []; let line = '';
+  for (const ch of text){ const t = line + ch; if (c.measureText(t).width > maxW && line){ out.push(line); line = ch; } else line = t; }
+  if (line) out.push(line); return out;
+}
+function bubble(c, text, ax, ay, side, maxW, opt = {}){
+  let fs = opt.fs || 15, lines;
+  for (;;){ c.font = `700 ${fs}px ${SANS}`; lines = wrapLines(c, text, maxW - 22); if (lines.length <= 3 || fs <= 9) break; fs -= 1; }
+  const lh = fs * 1.38;
+  const w = Math.min(maxW, Math.max(...lines.map(l => c.measureText(l).width)) + 22);
+  const h = lines.length * lh + 14;
+  let bx = side === 'left' ? ax - w + 26 : ax - 26;
+  bx = clamp(bx, 6, W - 6 - w);
+  const by = ay - h - 12;
+  c.save();
+  c.fillStyle = opt.bg || '#fbf6ea'; c.strokeStyle = 'rgba(0,0,0,.35)'; c.lineWidth = 1.2;
+  rr(c, bx, by, w, h, 10); c.fill(); c.stroke();
+  c.beginPath(); const tx = clamp(ax, bx + 14, bx + w - 14);
+  c.moveTo(tx - 7, by + h - 1); c.lineTo(ax + (side === 'left' ? 6 : -6), ay - 2); c.lineTo(tx + 7, by + h - 1); c.closePath(); c.fill();
+  c.fillStyle = opt.ink || '#2a221a'; c.textBaseline = 'top'; c.textAlign = 'left';
+  lines.forEach((l, i) => c.fillText(l, bx + 11, by + 8 + i * lh));
+  c.restore();
+}
+
+// ===================== 人物の描画 =====================
+const SKINS = ['#f0cfae', '#e6bd96', '#d4a37c', '#b07d58', '#7d5438'];
+function poseHands(pose, x, shY, hipY, headY, headR, shW, u, walk){
+  const L = { x: x - shW - 2 * u, y: hipY + 2 * u }, Rh = { x: x + shW + 2 * u, y: hipY + 2 * u };
+  if (pose === 'walk'){ L.x += walk * 4 * u; Rh.x -= walk * 4 * u; L.y -= Math.abs(walk) * 2 * u; Rh.y -= Math.abs(walk) * 2 * u; }
+  if (pose === 'hold'){ Rh.x = x + shW + 1 * u; Rh.y = shY + 19 * u; }
+  if (pose === 'pour'){ Rh.x = x + shW + 7 * u; Rh.y = shY - 22 * u; L.x = x + 3 * u; L.y = shY + 17 * u; }
+  if (pose === 'phone'){ Rh.x = x + headR * 0.95; Rh.y = headY + 2 * u; }
+  if (pose === 'think'){ Rh.x = x + headR * 0.55; Rh.y = headY - headR * 0.45; }
+  if (pose === 'scratch'){ Rh.x = x + headR * 0.7; Rh.y = headY - headR * 1.05; }
+  return { L, R: Rh };
+}
+function drawPerson(c, x, fy, h, sp, o = {}){
+  if (sp.dog) return drawDog(c, x, fy, h * 0.62, o);
+  const u = h / 100, sil = o.sil, col = k => sil || k;
+  const kid = !!sp.kid;
+  const headR = (kid ? 13 : 10) * u, headY = fy - (kid ? 86 : 90) * u;
+  const shY = fy - (kid ? 69 : 77) * u, hipY = fy - (kid ? 36 : 44) * u;
+  const shW = (kid ? 11 : 13) * u;
+  const walk = o.pose === 'walk' ? Math.sin((o.t || 0) * 9) : 0;
+  const pose = o.pose || sp.pose || 'stand';
+  const hands = poseHands(pose, x, shY, hipY, headY, headR, shW, u, walk);
+  const skin = col(sp.skin || SKINS[1]);
+  c.save(); c.lineCap = 'round'; c.lineJoin = 'round';
+  if (o.alpha != null) c.globalAlpha *= o.alpha;
+  // 背中・横の小物
+  if (sp.prop === 'swords2'){
+    c.strokeStyle = col('#3a3530'); c.lineWidth = 2.4 * u;
+    ln(c, x - 9 * u, shY + 22 * u, x + 15 * u, shY - 22 * u); ln(c, x + 9 * u, shY + 22 * u, x - 15 * u, shY - 22 * u);
+    c.strokeStyle = col('#7a5a30'); c.lineWidth = 3 * u;
+    ln(c, x + 11 * u, shY - 15 * u, x + 16 * u, shY - 24 * u); ln(c, x - 11 * u, shY - 15 * u, x - 16 * u, shY - 24 * u);
+  }
+  if (sp.prop === 'ladder') drawLadder(c, x + 27 * u, fy, h * 1.02, u, col);
+  // 髪(後ろ)
+  hairBack(c, x, headY, headR, sp, col, u);
+  // 脚
+  const lx = (kid ? 4 : 5) * u, lw = (kid ? 7 : 8) * u;
+  for (const s of [-1, 1]){
+    const sw = walk * s * 6 * u;
+    c.fillStyle = col(sp.legs || '#2b2b30');
+    c.beginPath(); c.moveTo(x + s * lx - lw / 2, hipY); c.lineTo(x + s * lx + lw / 2, hipY);
+    c.lineTo(x + s * lx + sw + lw / 2 - .5 * u, fy - 3 * u); c.lineTo(x + s * lx + sw - lw / 2 + .5 * u, fy - 3 * u); c.closePath(); c.fill();
+    if (kid && !sil){ c.fillStyle = skin; c.fillRect(x + s * lx + sw - lw / 2 + u, hipY + 12 * u, lw - 2 * u, fy - 3 * u - hipY - 12 * u); }
+    c.fillStyle = sp.barefoot ? skin : col(sp.shoes || '#1a1a1a');
+    ell(c, x + s * lx + sw + s * 1.5 * u, fy - 1.8 * u, 5 * u, 2.6 * u); c.fill();
+  }
+  // 胴体
+  const top = col(sp.top || '#333');
+  const outfit = sp.outfit || 'suit';
+  const long = outfit === 'coat' || outfit === 'lab';
+  const botY = long ? fy - 18 * u : hipY + 5 * u;
+  if (outfit === 'hakama'){
+    c.fillStyle = col(sp.hakama || '#4a4a52');
+    c.beginPath(); c.moveTo(x - 11 * u, hipY - 6 * u); c.lineTo(x + 11 * u, hipY - 6 * u); c.lineTo(x + 17 * u, fy - 4 * u); c.lineTo(x - 17 * u, fy - 4 * u); c.closePath(); c.fill();
+    if (!sil){ c.strokeStyle = 'rgba(0,0,0,.25)'; c.lineWidth = .8 * u; for (let i = -2; i <= 2; i++) ln(c, x + i * 4 * u, hipY - 4 * u, x + i * 6 * u, fy - 5 * u); }
+  }
+  if (outfit === 'tank'){
+    c.fillStyle = skin;
+    c.beginPath(); c.moveTo(x - shW, shY); c.quadraticCurveTo(x, shY - 4 * u, x + shW, shY); c.lineTo(x + shW - 1 * u, botY); c.lineTo(x - shW + 1 * u, botY); c.closePath(); c.fill();
+    c.fillStyle = top; c.beginPath(); c.moveTo(x - 9 * u, shY - 1 * u); c.lineTo(x - 6 * u, shY - 1 * u); c.quadraticCurveTo(x, shY + 9 * u, x + 6 * u, shY - 1 * u); c.lineTo(x + 9 * u, shY - 1 * u); c.lineTo(x + 11 * u, botY); c.lineTo(x - 11 * u, botY); c.closePath(); c.fill();
+    if (!sil && sp.dirty){ c.fillStyle = 'rgba(90,70,50,.45)'; [[-4, 14], [5, 22], [-2, 28], [6, 10]].forEach(([a, b]) => { circ(c, x + a * u, shY + b * u, 2.4 * u); c.fill(); }); }
+  } else if (outfit !== 'hakama' || true){
+    if (outfit !== 'tank'){
+      c.fillStyle = top;
+      const w2 = long ? shW + 3 * u : shW - 1 * u;
+      c.beginPath(); c.moveTo(x - shW, shY); c.quadraticCurveTo(x, shY - 4 * u, x + shW, shY); c.lineTo(x + w2, botY); c.lineTo(x - w2, botY); c.closePath(); c.fill();
+    }
+  }
+  if (!sil && outfit !== 'tank'){
+    // 柄
+    if (sp.pattern === 'stripe'){ c.strokeStyle = 'rgba(255,255,255,.18)'; c.lineWidth = .5 * u; for (let i = -3; i <= 3; i++) ln(c, x + i * 3.6 * u, shY + 1 * u, x + i * 3.6 * u, botY - 1 * u); }
+    if (sp.pattern === 'dots'){ c.fillStyle = 'rgba(255,255,255,.55)'; for (let i = 0; i < 9; i++){ circ(c, x + ((i * 37) % 22 - 11) * u, shY + 5 * u + ((i * 53) % 26) * u, 1.8 * u); c.fill(); } }
+    // 衿
+    const cl = sp.collar || 'tie';
+    if (outfit === 'military'){ c.fillStyle = 'rgba(0,0,0,.25)'; c.fillRect(x - shW + u, hipY - 3 * u, (shW - u) * 2, 3 * u); c.fillStyle = '#c9a640'; [-1, 1].forEach(s => { circ(c, x + s * 2 * u, shY + 8 * u, .9 * u); c.fill(); circ(c, x + s * 2 * u, shY + 16 * u, .9 * u); c.fill(); }); }
+    if (outfit === 'armor'){ c.strokeStyle = '#6a5a44'; c.lineWidth = 1.6 * u; ln(c, x - shW + 2 * u, shY + 2 * u, x + shW - 2 * u, hipY - 2 * u); c.fillStyle = '#8a8a8a'; circ(c, x, shY + 15 * u, 2 * u); c.fill(); }
+    if (outfit === 'hakama'){ c.fillStyle = '#e8e2d2'; c.beginPath(); c.moveTo(x - 4 * u, shY - 1 * u); c.lineTo(x, shY + 9 * u); c.lineTo(x + 4 * u, shY - 1 * u); c.closePath(); c.fill(); }
+    else if (cl === 'tie' || cl === 'bow' || cl === 'open' || cl === 'shirtdark'){
+      const vD = (sp.vest ? 13 : 15) * u;
+      const shirt = cl === 'shirtdark' ? '#1c1c20' : (cl === 'open' && outfit === 'shirt' ? skin : '#efeae0');
+      if (outfit === 'shirt' || outfit === 'jersey' || outfit === 'aloha'){
+        c.fillStyle = cl === 'open' ? skin : '#efeae0';
+        c.beginPath(); c.moveTo(x - 3.5 * u, shY - 1 * u); c.lineTo(x, shY + (cl === 'open' ? 7 : 3) * u); c.lineTo(x + 3.5 * u, shY - 1 * u); c.closePath(); c.fill();
+        if (outfit === 'jersey'){ c.strokeStyle = 'rgba(255,255,255,.7)'; c.lineWidth = .8 * u; ln(c, x - shW + 1 * u, shY + 2 * u, x - shW + 1 * u, botY - 1 * u); ln(c, x + shW - 1 * u, shY + 2 * u, x + shW - 1 * u, botY - 1 * u); }
+      } else {
+        if (sp.vest){ c.fillStyle = col(sp.vest); c.beginPath(); c.moveTo(x - 6 * u, shY - 1 * u); c.lineTo(x, shY + 22 * u); c.lineTo(x + 6 * u, shY - 1 * u); c.closePath(); c.fill(); }
+        c.fillStyle = shirt; c.beginPath(); c.moveTo(x - 4 * u, shY - 1 * u); c.lineTo(x, shY + vD); c.lineTo(x + 4 * u, shY - 1 * u); c.closePath(); c.fill();
+        if (cl === 'open' && outfit !== 'lab'){ c.fillStyle = skin; c.beginPath(); c.moveTo(x - 1.6 * u, shY - 1 * u); c.lineTo(x, shY + 4 * u); c.lineTo(x + 1.6 * u, shY - 1 * u); c.closePath(); c.fill(); }
+        c.strokeStyle = 'rgba(0,0,0,.25)'; c.lineWidth = .7 * u; ln(c, x - 4 * u, shY - 1 * u, x - 1 * u, shY + vD + 2 * u); ln(c, x + 4 * u, shY - 1 * u, x + 1 * u, shY + vD + 2 * u);
+      }
+      if (cl === 'tie' && outfit !== 'aloha'){ c.fillStyle = sp.tie || '#5a2a2a'; c.beginPath(); c.moveTo(x - 1.4 * u, shY + 0.5 * u); c.lineTo(x + 1.4 * u, shY + .5 * u); c.lineTo(x + 1.8 * u, shY + 13 * u); c.lineTo(x, shY + 15.5 * u); c.lineTo(x - 1.8 * u, shY + 13 * u); c.closePath(); c.fill(); }
+      if (cl === 'bow'){ c.fillStyle = sp.tie || '#a02a2a'; c.beginPath(); c.moveTo(x, shY + 1.5 * u); c.lineTo(x - 4 * u, shY - .5 * u); c.lineTo(x - 4 * u, shY + 3.5 * u); c.closePath(); c.fill(); c.beginPath(); c.moveTo(x, shY + 1.5 * u); c.lineTo(x + 4 * u, shY - .5 * u); c.lineTo(x + 4 * u, shY + 3.5 * u); c.closePath(); c.fill(); }
+    }
+    if (outfit === 'lab' || outfit === 'coat'){ c.strokeStyle = 'rgba(0,0,0,.18)'; c.lineWidth = .8 * u; ln(c, x, shY + 15 * u, x, botY); }
+  }
+  // 腕
+  const sleeve = outfit === 'tank' ? skin : top;
+  for (const [s, hd] of [[-1, hands.L], [1, hands.R]]){
+    c.strokeStyle = sleeve; c.lineWidth = (kid ? 5.5 : 6) * u;
+    const sx = x + s * (shW - 1.5 * u), sy = shY + 2.5 * u;
+    ln(c, sx, sy, hd.x, hd.y);
+    c.fillStyle = skin; circ(c, hd.x, hd.y, 2.8 * u); c.fill();
+  }
+  // 首・頭
+  c.fillStyle = skin; c.fillRect(x - 3 * u, headY + headR * .6, 6 * u, shY - headY - headR * .6 + 1 * u);
+  circ(c, x, headY, headR); c.fill();
+  if (!sil){ circ(c, x - headR * .98, headY + headR * .1, headR * .2); c.fill(); circ(c, x + headR * .98, headY + headR * .1, headR * .2); c.fill(); }
+  if (!sil && sp.red){ c.fillStyle = 'rgba(220,60,60,.35)'; circ(c, x - headR * .5, headY + headR * .3, headR * .26); c.fill(); circ(c, x + headR * .5, headY + headR * .3, headR * .26); c.fill(); }
+  // 顔
+  if (!sil) drawFace(c, x, headY, headR, sp, o.expr || sp.expr || 'neutral', u);
+  // ひげ
+  drawBeard(c, x, headY, headR, sp, col, u, sil);
+  // 髪(前)
+  hairFront(c, x, headY, headR, sp, col, u, sil);
+  // メガネ
+  if (sp.glasses && sp.glasses !== 'none' && !(sil && sp.glasses !== 'sun')) drawGlasses(c, x, headY, headR, sp.glasses, u, sil);
+  if (sp.tiehead){ c.fillStyle = col('#a03a3a'); c.fillRect(x - headR * 1.02, headY - headR * .62, headR * 2.04, headR * .26); c.beginPath(); c.moveTo(x + headR * .9, headY - headR * .55); c.lineTo(x + headR * 1.6, headY - headR * .1); c.lineTo(x + headR * 1.4, headY + headR * .05); c.closePath(); c.fill(); }
+  // 帽子
+  drawHat(c, x, headY, headR, sp, col, u);
+  // 手の小物
+  if (sp.prop && sp.prop !== 'swords2' && sp.prop !== 'ladder') drawProp(c, sp.prop, hands.R, u, col, sil, o);
+  if (pose === 'pour') drawProp(c, 'cup', hands.L, u, col, sil, o);
+  c.restore();
+  return { headY, headR, hands, u };
+}
+function drawFace(c, x, hy, r, sp, expr, u){
+  const ey = hy - r * .05, ex = r * .38;
+  c.fillStyle = '#2a201a'; c.strokeStyle = '#2a201a'; c.lineWidth = .9 * u;
+  if (expr === 'sleep'){ ln(c, x - ex - r * .12, ey, x - ex + r * .12, ey); ln(c, x + ex - r * .12, ey, x + ex + r * .12, ey); }
+  else if (expr === 'blank'){ circ(c, x - ex, ey, r * .07); c.fill(); circ(c, x + ex, ey, r * .07); c.fill(); }
+  else if (expr === 'up'){ circ(c, x - ex, ey - r * .08, r * .09); c.fill(); circ(c, x + ex, ey - r * .08, r * .09); c.fill(); }
+  else { circ(c, x - ex, ey, r * .09); c.fill(); circ(c, x + ex, ey, r * .09); c.fill(); }
+  if (expr === 'grim' || expr === 'shock'){ ln(c, x - ex - r * .17, ey - r * .26, x - ex + r * .14, ey - r * .17); ln(c, x + ex + r * .17, ey - r * .26, x + ex - r * .14, ey - r * .17); }
+  if (expr === 'cry'){ c.fillStyle = '#5aa8e0'; [[-1], [1]].forEach(([s]) => { ell(c, x + s * ex, ey + r * .3, r * .08, r * .2); c.fill(); }); c.fillStyle = '#2a201a'; }
+  // 口
+  c.beginPath();
+  const my = hy + r * .45;
+  if (expr === 'smile'){ c.arc(x, my - r * .12, r * .26, .15 * Math.PI, .85 * Math.PI); c.stroke(); }
+  else if (expr === 'shock'){ ell(c, x, my, r * .12, r * .16); c.fill(); }
+  else if (expr === 'cry'){ c.arc(x, my + r * .1, r * .2, 1.15 * Math.PI, 1.85 * Math.PI); c.stroke(); }
+  else if (expr === 'sleep'){ ell(c, x, my, r * .06, r * .06); c.fill(); }
+  else { ln(c, x - r * .18, my, x + r * .18, my); }
+}
+function drawGlasses(c, x, hy, r, g, u, sil){
+  const ey = hy - r * .05, ex = r * .38;
+  c.save(); c.lineWidth = .8 * u;
+  if (g === 'sun'){ c.fillStyle = sil ? '#000' : '#111'; [-1, 1].forEach(s => { rr(c, x + s * ex - r * .3, ey - r * .17, r * .6, r * .34, r * .1); c.fill(); }); c.strokeStyle = '#111'; ln(c, x - ex + r * .3, ey - r * .06, x + ex - r * .3, ey - r * .06); }
+  else {
+    c.strokeStyle = g === 'rimless' ? 'rgba(60,60,70,.6)' : '#2a2a2e';
+    [-1, 1].forEach(s => { if (g === 'round'){ circ(c, x + s * ex, ey, r * .25); c.stroke(); } else { c.strokeRect(x + s * ex - r * .27, ey - r * .17, r * .54, r * .32); } });
+    ln(c, x - ex + r * .26, ey - r * .03, x + ex - r * .26, ey - r * .03);
+  }
+  c.restore();
+}
+function drawBeard(c, x, hy, r, sp, col, u, sil){
+  if (!sp.beard) return;
+  const hc = col(sp.beardC || sp.hairC || '#2a2018');
+  c.save(); c.fillStyle = hc; c.strokeStyle = hc;
+  if (sp.beard === 'stubble'){ if (!sil){ c.globalAlpha *= .32; ell(c, x, hy + r * .42, r * .82, r * .5, 0, 0, Math.PI); c.fill(); } }
+  else if (sp.beard === 'full'){ c.beginPath(); c.moveTo(x - r * .95, hy + r * .05); c.quadraticCurveTo(x - r * .9, hy + r * 1.15, x, hy + r * 1.2); c.quadraticCurveTo(x + r * .9, hy + r * 1.15, x + r * .95, hy + r * .05); c.quadraticCurveTo(x, hy + r * .55, x - r * .95, hy + r * .05); c.fill(); if (!sil){ c.fillStyle = '#d8b090'; ell(c, x, hy + r * .5, r * .2, r * .08); c.fill(); } }
+  else if (sp.beard === 'mustache'){ ell(c, x, hy + r * .3, r * .38, r * .11); c.fill(); }
+  else if (sp.beard === 'curl'){ c.lineWidth = r * .14; c.beginPath(); c.moveTo(x - r * .5, hy + r * .2); c.quadraticCurveTo(x, hy + r * .45, x + r * .5, hy + r * .2); c.stroke(); circ(c, x - r * .55, hy + r * .14, r * .07); c.stroke(); circ(c, x + r * .55, hy + r * .14, r * .07); c.stroke(); }
+  else if (sp.beard === 'goatee'){ ell(c, x, hy + r * .78, r * .2, r * .22); c.fill(); }
+  c.restore();
+}
+function hairBack(c, x, hy, r, sp, col, u){
+  const hc = col(sp.hairC || '#2a2018'); c.fillStyle = hc;
+  switch (sp.hair){
+    case 'afro': circ(c, x, hy - r * .25, r * 1.6); c.fill(); break;
+    case 'long': rr(c, x - r * 1.08, hy - r * .4, r * 2.16, r * 2.3, r * .6); c.fill(); break;
+    case 'wildlong': rr(c, x - r * 1.12, hy - r * .4, r * 2.24, r * 2.6, r * .5); c.fill(); break;
+    case 'bob': rr(c, x - r * 1.12, hy - r * .9, r * 2.24, r * 1.85, r * .7); c.fill(); break;
+    case 'pony': ell(c, x + r * 1.1, hy + r * .5, r * .35, r * 1.0, -.3); c.fill(); break;
+  }
+}
+function hairFront(c, x, hy, r, sp, col, u, sil){
+  const hc = col(sp.hairC || '#2a2018'); c.fillStyle = hc;
+  const cap = (k = 1) => { c.beginPath(); c.ellipse(x, hy - r * .28, r * 1.05, r * .78 * k, 0, Math.PI, 0); c.fill(); c.fillRect(x - r * 1.04, hy - r * .3, r * .22, r * .55); c.fillRect(x + r * .82, hy - r * .3, r * .22, r * .55); };
+  switch (sp.hair){
+    case 'short': case 'pony': case 'long': case 'wildlong': case 'bob': cap(); break;
+    case 'buzz': c.save(); if (!sil) c.globalAlpha *= .85; c.beginPath(); c.ellipse(x, hy - r * .2, r * 1.02, r * .82, 0, Math.PI, 0); c.fill(); c.restore(); break;
+    case '73': cap(); c.beginPath(); c.ellipse(x + r * .2, hy - r * .62, r * .92, r * .45, -.18, 0, Math.PI * 2); c.fill(); if (!sil){ c.strokeStyle = 'rgba(0,0,0,.2)'; c.lineWidth = .7 * u; ln(c, x - r * .45, hy - r * .95, x - r * .5, hy - r * .4); } break;
+    case 'slick': cap(.9); if (!sil){ c.strokeStyle = 'rgba(255,255,255,.35)'; c.lineWidth = .8 * u; c.beginPath(); c.arc(x, hy - r * .1, r * .85, 1.2 * Math.PI, 1.55 * Math.PI); c.stroke(); } break;
+    case 'bald': if (!sil){ c.fillStyle = 'rgba(255,255,255,.35)'; ell(c, x - r * .35, hy - r * .6, r * .25, r * .12, -.5); c.fill(); } break;
+    case 'receding': ell(c, x - r * .95, hy - r * .15, r * .22, r * .45); c.fill(); ell(c, x + r * .95, hy - r * .15, r * .22, r * .45); c.fill(); if (!sil){ c.fillStyle = 'rgba(255,255,255,.3)'; ell(c, x - r * .3, hy - r * .65, r * .22, r * .1, -.4); c.fill(); } break;
+    case 'pomp': cap(); ell(c, x + r * .15, hy - r * 1.0, r * 1.05, r * .62, -.1); c.fill(); break;
+    case 'afro': for (let i = 0; i < 7; i++){ circ(c, x - r * .9 + i * r * .3, hy - r * .85 + Math.sin(i * 2) * r * .1, r * .4); c.fill(); } break;
+    case 'mohawk': cap(.35); rr(c, x - r * .22, hy - r * 1.75, r * .44, r * 1.2, r * .2); c.fill(); break;
+    case 'punch': cap(.8); for (let i = 0; i < 6; i++) for (let j = 0; j < 2; j++){ circ(c, x - r * .8 + i * r * .32, hy - r * .7 - j * r * .26 + (i % 2) * r * .05, r * .2); c.fill(); } break;
+    case 'messy': cap(); c.beginPath(); for (let i = 0; i <= 8; i++){ const a = Math.PI + i * Math.PI / 8; const rr2 = r * (i % 2 ? 1.35 : 1.0); c.lineTo(x + Math.cos(a) * rr2, hy - r * .15 + Math.sin(a) * rr2); } c.closePath(); c.fill(); break;
+    case 'wavy': cap(); for (let i = 0; i < 5; i++){ circ(c, x - r * .7 + i * r * .35, hy - r * .9, r * .3); c.fill(); } break;
+    case 'kid': cap(); c.beginPath(); c.moveTo(x - r * .2, hy - r * 1.02); c.quadraticCurveTo(x + r * .1, hy - r * 1.8, x + r * .45, hy - r * 1.55); c.quadraticCurveTo(x + r * .2, hy - r * 1.3, x + r * .2, hy - r * .95); c.closePath(); c.fill();
+      c.beginPath(); c.moveTo(x - r * .9, hy - r * .45); for (let i = 0; i < 5; i++){ c.lineTo(x - r * .8 + i * r * .38, hy - r * .1); c.lineTo(x - r * .62 + i * r * .38, hy - r * .55); } c.lineTo(x + r * .9, hy - r * .5); c.closePath(); c.fill(); break;
+  }
+}
+function drawHat(c, x, hy, r, sp, col, u){
+  if (!sp.hat) return;
+  const hc = col(sp.hatC || '#2c2a2a');
+  c.save(); c.fillStyle = hc;
+  if (sp.hat === 'fedora'){ ell(c, x, hy - r * .62, r * 1.5, r * .3); c.fill(); rr(c, x - r * .85, hy - r * 1.45, r * 1.7, r * .9, r * .3); c.fill(); if (!col('x').startsWith('#') || true){ c.fillStyle = 'rgba(0,0,0,.35)'; c.fillRect(x - r * .85, hy - r * .82, r * 1.7, r * .18); } }
+  else if (sp.hat === 'okama'){ ell(c, x, hy - r * .55, r * 1.45, r * .32); c.fill(); ell(c, x, hy - r * .85, r * 1.0, r * .62, 0, Math.PI, 0); c.fill(); }
+  else if (sp.hat === 'cap'){ ell(c, x, hy - r * .45, r * 1.05, r * .85, 0, Math.PI, 0); c.fill(); ell(c, x + r * .55, hy - r * .45, r * .85, r * .18); c.fill(); if (sp.outfit === 'military'){ c.fillStyle = '#c9a640'; circ(c, x, hy - r * .9, r * .14); c.fill(); } }
+  else if (sp.hat === 'beret'){ ell(c, x - r * .15, hy - r * .78, r * 1.15, r * .45, -.15); c.fill(); }
+  c.restore();
+}
+function drawLadder(c, x, fy, h, u, col){
+  c.save(); c.strokeStyle = col('#b88a4a'); c.lineWidth = 2.2 * u;
+  const top = fy - h, w = 11 * u;
+  ln(c, x - w / 2, fy, x - w / 2 + 3 * u, top); ln(c, x + w / 2, fy, x + w / 2 + 3 * u, top);
+  for (let i = 1; i < 8; i++){ const k = i / 8, y = lerp(fy, top, k); ln(c, x - w / 2 + 3 * u * k, y, x + w / 2 + 3 * u * k, y); }
+  c.restore();
+}
+function drawProp(c, name, p, u, col, sil, o){
+  const { x, y } = p; c.save(); c.lineCap = 'round';
+  const f = k => { c.fillStyle = col(k); };
+  switch (name){
+    case 'puppy': f('#c8a070'); ell(c, x - 2 * u, y - 2 * u, 6 * u, 4 * u); c.fill(); circ(c, x + 4 * u, y - 6 * u, 3.6 * u); c.fill(); f('#8a6440'); ell(c, x + 6.3 * u, y - 8 * u, 1.4 * u, 2.6 * u, .4); c.fill(); ell(c, x + 1.8 * u, y - 8 * u, 1.4 * u, 2.6 * u, -.4); c.fill(); if (!sil){ c.fillStyle = '#222'; circ(c, x + 5.5 * u, y - 6 * u, .6 * u); c.fill(); circ(c, x + 7.4 * u, y - 5 * u, .7 * u); c.fill(); } break;
+    case 'umbrella': c.strokeStyle = col('#141414'); c.lineWidth = 3.4 * u; ln(c, x, y + 1 * u, x + 1.5 * u, y + 42 * u); c.lineWidth = 1.2 * u; c.strokeStyle = col('#6a4a2a'); c.beginPath(); c.arc(x - 1.5 * u, y - 1 * u, 2 * u, 0, Math.PI, true); c.stroke(); break;
+    case 'phone': f('#1a1a1e'); rr(c, x - 1.6 * u, y - 4 * u, 3.2 * u, 7 * u, .8 * u); c.fill(); break;
+    case 'pen': c.strokeStyle = col('#c8ccd4'); c.lineWidth = 1.6 * u; ln(c, x, y, x + 2 * u, y - 9 * u); if (!sil && o.glow){ c.fillStyle = 'rgba(255,60,60,.9)'; circ(c, x + 2 * u, y - 9.5 * u, 1.2 * u); c.fill(); } break;
+    case 'kabu': f('#c03a4a'); circ(c, x, y - 2 * u, 4.5 * u); c.fill(); f('#3a8a3a'); ell(c, x - 2 * u, y - 9 * u, 1.6 * u, 4 * u, -.3); c.fill(); ell(c, x + 2 * u, y - 9 * u, 1.6 * u, 4 * u, .3); c.fill(); break;
+    case 'camera': f('#202024'); rr(c, x - 5 * u, y - 4 * u, 10 * u, 7 * u, 1.2 * u); c.fill(); f('#5a5a66'); circ(c, x, y - .5 * u, 2.3 * u); c.fill(); break;
+    case 'chicken': f('#d23a2a'); c.beginPath(); c.moveTo(x - 5 * u, y - 6 * u); c.lineTo(x + 5 * u, y - 6 * u); c.lineTo(x + 4 * u, y + 4 * u); c.lineTo(x - 4 * u, y + 4 * u); c.closePath(); c.fill(); if (!sil){ c.fillStyle = '#fff'; c.fillRect(x - 1 * u, y - 6 * u, 2 * u, 10 * u); } f('#c8862a'); circ(c, x - 2 * u, y - 7 * u, 2.2 * u); c.fill(); circ(c, x + 2 * u, y - 7.5 * u, 2.2 * u); c.fill(); break;
+    case 'stopwatch': f('#c8ccd4'); circ(c, x, y - 2 * u, 3.4 * u); c.fill(); if (!sil){ c.fillStyle = '#fff'; circ(c, x, y - 2 * u, 2.5 * u); c.fill(); c.strokeStyle = '#222'; c.lineWidth = .5 * u; ln(c, x, y - 2 * u, x + 1.2 * u, y - 3.6 * u); } f('#999'); c.fillRect(x - .6 * u, y - 7 * u, 1.2 * u, 1.8 * u); break;
+    case 'shotgun': c.strokeStyle = col('#2a2a2e'); c.lineWidth = 2 * u; ln(c, x - 8 * u, y + 5 * u, x + 20 * u, y - 16 * u); c.strokeStyle = col('#6a4424'); c.lineWidth = 3 * u; ln(c, x - 12 * u, y + 8 * u, x - 2 * u, y + 1 * u); break;
+    case 'flashlight': if (!sil){ const g = c.createLinearGradient(x, y, x + 34 * u, y - 18 * u); g.addColorStop(0, 'rgba(255,240,170,.55)'); g.addColorStop(1, 'rgba(255,240,170,0)'); c.fillStyle = g; c.beginPath(); c.moveTo(x + 4 * u, y - 2 * u); c.lineTo(x + 36 * u, y - 26 * u); c.lineTo(x + 40 * u, y - 8 * u); c.closePath(); c.fill(); } f('#2a2a30'); rr(c, x - 2 * u, y - 3 * u, 7 * u, 3 * u, 1 * u); c.fill(); break;
+    case 'notepad': f('#efe6c8'); c.fillRect(x - 3.5 * u, y - 5 * u, 7 * u, 8 * u); if (!sil){ c.strokeStyle = '#8a7a5a'; c.lineWidth = .4 * u; for (let i = 0; i < 3; i++) ln(c, x - 2.5 * u, y - 3 * u + i * 2 * u, x + 2.5 * u, y - 3 * u + i * 2 * u); } break;
+    case 'sake': f('#4a6a3a'); rr(c, x - 2.5 * u, y - 12 * u, 5 * u, 16 * u, 1.5 * u); c.fill(); c.fillRect(x - 1 * u, y - 16 * u, 2 * u, 4 * u); if (!sil){ c.fillStyle = '#efe6c8'; c.fillRect(x - 2 * u, y - 6 * u, 4 * u, 5 * u); } break;
+    case 'mug': f('#efeae0'); rr(c, x - 3 * u, y - 5 * u, 6 * u, 7 * u, 1 * u); c.fill(); c.strokeStyle = col('#efeae0'); c.lineWidth = 1.2 * u; c.beginPath(); c.arc(x + 3.5 * u, y - 1.5 * u, 1.8 * u, -1.4, 1.4); c.stroke(); if (!sil){ c.fillStyle = '#222'; circ(c, x - .8 * u, y - 2 * u, .9 * u); c.fill(); circ(c, x + .9 * u, y - 2 * u, .9 * u); c.fill(); } break;
+    case 'anpan': f('#b8742e'); ell(c, x, y - 1 * u, 4.5 * u, 3.2 * u); c.fill(); if (!sil){ c.fillStyle = '#efe0b8'; circ(c, x, y - 2.5 * u, .8 * u); c.fill(); } break;
+    case 'briefcase': f('#5a3a22'); rr(c, x - 6 * u, y + 1 * u, 12 * u, 9 * u, 1.2 * u); c.fill(); c.strokeStyle = col('#3a2412'); c.lineWidth = 1 * u; c.strokeRect(x - 2 * u, y - 1 * u, 4 * u, 2 * u); break;
+    case 'magnifier': c.strokeStyle = col('#6a4a2a'); c.lineWidth = 1.6 * u; ln(c, x, y, x + 3 * u, y - 4 * u); c.strokeStyle = col('#c8a040'); c.lineWidth = 1.2 * u; circ(c, x + 5 * u, y - 7 * u, 3 * u); c.stroke(); if (!sil){ c.fillStyle = 'rgba(180,220,255,.4)'; c.fill(); } break;
+    case 'shinai': c.strokeStyle = col('#d8c08a'); c.lineWidth = 2 * u; ln(c, x, y + 2 * u, x + 4 * u, y - 30 * u); break;
+    case 'bonsai': f('#6a4a3a'); rr(c, x - 5 * u, y - 2 * u, 10 * u, 4 * u, 1 * u); c.fill(); c.strokeStyle = col('#5a3a22'); c.lineWidth = 1.4 * u; ln(c, x, y - 2 * u, x - 1 * u, y - 7 * u); f('#3a7a3a'); circ(c, x - 3 * u, y - 8 * u, 3 * u); c.fill(); circ(c, x + 2 * u, y - 9 * u, 3.4 * u); c.fill(); break;
+    case 'guitar': f('#b8642a'); ell(c, x - 3 * u, y + 3 * u, 5.5 * u, 6.5 * u, .5); c.fill(); c.strokeStyle = col('#4a2a12'); c.lineWidth = 1.6 * u; ln(c, x, y, x + 10 * u, y - 14 * u); break;
+    case 'megaphone': f('#e8e2d2'); c.beginPath(); c.moveTo(x, y - 1 * u); c.lineTo(x + 9 * u, y - 6 * u); c.lineTo(x + 9 * u, y + 4 * u); c.closePath(); c.fill(); if (!sil){ c.fillStyle = '#c03a2a'; c.fillRect(x + 8 * u, y - 6 * u, 1.4 * u, 10 * u); } break;
+    case 'laptop': f('#9aa0a8'); c.fillRect(x - 7 * u, y - 1 * u, 13 * u, 2 * u); c.beginPath(); c.moveTo(x - 6 * u, y - 1 * u); c.lineTo(x - 3 * u, y - 10 * u); c.lineTo(x + 8 * u, y - 10 * u); c.lineTo(x + 6 * u, y - 1 * u); c.closePath(); c.fill(); break;
+    case 'bouquet': c.strokeStyle = col('#3a7a3a'); c.lineWidth = 1 * u; ln(c, x, y + 4 * u, x - 2 * u, y - 4 * u); ln(c, x, y + 4 * u, x + 2 * u, y - 4 * u); ['#e05a7a', '#f0c040', '#e86040', '#c060c0'].forEach((k, i) => { f(k); circ(c, x - 3 * u + i * 2 * u, y - 6 * u - (i % 2) * 2 * u, 2.2 * u); c.fill(); }); break;
+    case 'fish': f('#8aa0b8'); ell(c, x + 2 * u, y - 1 * u, 7 * u, 2.8 * u); c.fill(); c.beginPath(); c.moveTo(x - 4 * u, y - 1 * u); c.lineTo(x - 8 * u, y - 4 * u); c.lineTo(x - 8 * u, y + 2 * u); c.closePath(); c.fill(); break;
+    case 'teapot': f('#f4f0e6'); ell(c, x + 1 * u, y + 1 * u, 5.5 * u, 4.5 * u); c.fill(); if (!sil){ c.fillStyle = '#4a6aa8'; c.fillRect(x - 4 * u, y + .2 * u, 10 * u, 1 * u); } c.strokeStyle = col('#f4f0e6'); c.lineWidth = 1.6 * u; c.beginPath(); c.moveTo(x - 3.6 * u, y + 1 * u); c.quadraticCurveTo(x - 7 * u, y + 1 * u, x - 8.5 * u, y + 5 * u); c.stroke(); f('#f4f0e6'); circ(c, x + 1 * u, y - 3.5 * u, 1.2 * u); c.fill(); break;
+    case 'cup': f('#f4f0e6'); ell(c, x, y + 1.5 * u, 4.6 * u, 1.3 * u); c.fill(); c.beginPath(); c.moveTo(x - 3 * u, y - 2.5 * u); c.lineTo(x + 3 * u, y - 2.5 * u); c.lineTo(x + 2 * u, y + 1 * u); c.lineTo(x - 2 * u, y + 1 * u); c.closePath(); c.fill(); if (!sil){ c.fillStyle = '#a8541c'; ell(c, x, y - 2.4 * u, 2.9 * u, .7 * u); c.fill(); } break;
+    case 'watch': f('#2a2a30'); c.fillRect(x - 2.2 * u, y - 2 * u, 4.4 * u, 3 * u); if (!sil){ c.fillStyle = '#e8d070'; c.fillRect(x - 1.4 * u, y - 1.4 * u, 2.8 * u, 1.8 * u); } break;
+  }
+  c.restore();
+}
+function drawDog(c, x, fy, h, o = {}){
+  const u = h / 100, col = k => o.sil || k;
+  c.save(); if (o.alpha != null) c.globalAlpha *= o.alpha;
+  c.fillStyle = col('#8a5a2a');
+  // しっぽ
+  c.strokeStyle = col('#6a4220'); c.lineWidth = 7 * u; c.lineCap = 'round';
+  const wag = Math.sin((o.t || 0) * 10) * 8 * u;
+  c.beginPath(); c.moveTo(x - 30 * u, fy - 20 * u); c.quadraticCurveTo(x - 50 * u, fy - 30 * u, x - 48 * u + wag, fy - 55 * u); c.stroke();
+  // 体
+  c.fillStyle = col('#8a5a2a'); ell(c, x - 8 * u, fy - 28 * u, 30 * u, 26 * u); c.fill();
+  c.fillStyle = col('#3a2a1a'); ell(c, x - 12 * u, fy - 38 * u, 24 * u, 14 * u, -.2); c.fill();
+  // 前脚
+  c.fillStyle = col('#8a5a2a'); rr(c, x + 6 * u, fy - 40 * u, 9 * u, 40 * u, 4 * u); c.fill(); rr(c, x + 16 * u, fy - 40 * u, 9 * u, 40 * u, 4 * u); c.fill();
+  // 胸
+  c.fillStyle = col('#c8925a'); ell(c, x + 14 * u, fy - 52 * u, 13 * u, 18 * u); c.fill();
+  // 頭
+  c.fillStyle = col('#8a5a2a'); circ(c, x + 16 * u, fy - 78 * u, 15 * u); c.fill();
+  c.fillStyle = col('#3a2a1a'); c.beginPath(); c.moveTo(x + 5 * u, fy - 86 * u); c.lineTo(x + 7 * u, fy - 108 * u); c.lineTo(x + 15 * u, fy - 90 * u); c.closePath(); c.fill();
+  c.beginPath(); c.moveTo(x + 20 * u, fy - 90 * u); c.lineTo(x + 28 * u, fy - 108 * u); c.lineTo(x + 30 * u, fy - 86 * u); c.closePath(); c.fill();
+  c.fillStyle = col('#c8925a'); ell(c, x + 18 * u, fy - 70 * u, 9 * u, 7 * u); c.fill();
+  if (!o.sil){
+    c.fillStyle = '#1a1210'; circ(c, x + 11 * u, fy - 81 * u, 1.8 * u); c.fill(); circ(c, x + 22 * u, fy - 81 * u, 1.8 * u); c.fill(); circ(c, x + 18 * u, fy - 73 * u, 2.6 * u); c.fill();
+    c.fillStyle = '#2a4a8a'; c.fillRect(x + 4 * u, fy - 64 * u, 24 * u, 4 * u); c.fillStyle = '#e8c040'; circ(c, x + 16 * u, fy - 58 * u, 3 * u); c.fill();
+  }
+  c.restore();
+}
+
+// ===================== 相棒データ =====================
+const PROT = { skin: '#ecc9a6', hair: '73', hairC: '#bab5ac', glasses: 'rimless', outfit: 'suit', top: '#3a404d', vest: '#4a505e', collar: 'tie', tie: '#6b2a2a', legs: '#33373f', shoes: '#141414' };
+const KACHO = { skin: '#e2b48c', hair: 'receding', hairC: '#3a3430', glasses: 'square', outfit: 'shirt', top: '#8a7a5a', collar: 'tie', tie: '#2a3a5a', legs: '#4a4a52', prop: 'mug', pose: 'hold', expr: 'smile' };
+// 大当たり(どこかで見たような人たち)
+const JP = [
+  { id: 'wick', rar: 'SR', nick: '子犬を抱いた黒スーツの男', sub: '前職については黙っている。支払いはなぜか金貨。', quote: '…犬に手を出した奴がいてね', reply: '…前職をお聞きしても？',
+    look: [{ skin: '#e2b896', hair: 'long', hairC: '#1d1a18', beard: 'full', outfit: 'suit', top: '#17171b', collar: 'shirtdark', legs: '#17171b', prop: 'puppy', pose: 'hold', expr: 'grim' }] },
+  { id: 'xfiles', rar: 'SSR', nick: '空ばかり見ている男と、白衣の似合う女', sub: '二人一組での配属を希望。地下の資料室に住みつきたいらしい。', quote: '信じたいんだ', reply: 'おや、お二人も？', special: 'duo',
+    look: [{ skin: '#e8c4a0', hair: 'short', hairC: '#4a3424', outfit: 'suit', top: '#4a4e55', collar: 'tie', tie: '#7a3a2a', legs: '#4a4e55', prop: 'flashlight', pose: 'hold', expr: 'up' },
+           { skin: '#f0d2b6', hair: 'bob', hairC: '#b5502a', outfit: 'suit', top: '#363a42', collar: 'open', legs: '#363a42', prop: 'notepad', pose: 'hold', expr: 'neutral' }] },
+  { id: 'frank', rar: 'SSR', nick: '黄色い家から来た白髪の男', sub: '口数は少ない。目を閉じると、犯人の目に映るものが見えるという。', quote: '…見えるんだ。犯人の見ている景色が', reply: '…あなたにも、見えているのですね', special: 'sepia',
+    look: [{ skin: '#e6c4a2', hair: 'buzz', hairC: '#e8e6e0', outfit: 'coat', top: '#5a5a56', collar: 'tie', tie: '#3a3a3a', legs: '#33332f', expr: 'grim' }] },
+  { id: 'jack', rar: 'SR', nick: '24時間走り続けている男', sub: 'なぜか常に時間に追われている。電話を切ったところを誰も見たことがない。', quote: '時間がない！ 今すぐだ！', reply: '少し落ち着いて、紅茶でもいかがですか？', special: 'clock',
+    look: [{ skin: '#e4bd98', hair: 'short', hairC: '#a07a4a', beard: 'stubble', outfit: 'leather', top: '#2a2e33', collar: 'open', legs: '#34404f', prop: 'phone', pose: 'phone', expr: 'grim' }] },
+  { id: 'harry', rar: 'SR', nick: '傘とメガネの英国紳士', sub: '仕立ての良いスーツ。紅茶の淹れ方に一家言ある。', quote: 'マナーが人を作る', reply: '…紅茶の淹れ方について、あとでゆっくりお話ししましょう',
+    look: [{ skin: '#ecc9a6', hair: '73', hairC: '#5a3e2a', glasses: 'square', outfit: 'suit', top: '#2a3247', pattern: 'stripe', collar: 'tie', tie: '#8a1f2a', legs: '#2a3247', prop: 'umbrella' }] },
+  { id: 'mib', rar: 'SR', nick: '黒服サングラスの二人組', sub: '所属を聞いても、ペンのような物を見せてくるだけ。', quote: 'ちょっとここを見てくれ', reply: 'はい？', reply2: '…はて。何の話でしたっけ？', special: 'mib',
+    look: [{ skin: '#e0bc98', hair: 'buzz', hairC: '#9a958c', glasses: 'sun', outfit: 'suit', top: '#121214', collar: 'tie', tie: '#121214', legs: '#121214', expr: 'grim' },
+           { skin: '#6e4a32', hair: 'buzz', hairC: '#1a1412', glasses: 'sun', outfit: 'suit', top: '#121214', collar: 'tie', tie: '#121214', legs: '#121214', prop: 'pen', pose: 'hold', expr: 'smile' }] },
+  { id: 'pena', rar: 'R', nick: '口ひげの、少しくたびれた捜査官', sub: '南米帰り。カウボーイブーツ。疲れているのに妙に色気がある。', quote: '南米は暑くてね', reply: '南米帰りですか。お疲れのようですね',
+    look: [{ skin: '#c9946c', hair: 'wavy', hairC: '#2a2018', beard: 'mustache', outfit: 'shirt', top: '#6a7a8a', collar: 'open', legs: '#4a5a7a', shoes: '#7a4a24', expr: 'smile' }] },
+  { id: 'carrillo', rar: 'R', nick: 'サングラスの大佐', sub: '外にヘリを待たせている。捜査方針はかなり強引。', quote: 'ヘリを待たせている。行くぞ', reply: '捜査方針が…少々強引ですね',
+    look: [{ skin: '#c08a62', hair: 'buzz', hairC: '#2a2018', beard: 'mustache', glasses: 'sun', outfit: 'military', top: '#4a5a3a', legs: '#4a5a3a', hat: 'cap', hatC: '#3e4c30', expr: 'grim' }] },
+  { id: 'gus', rar: 'SR', nick: '丁寧すぎるチキン店の店長', sub: '物腰はどこまでも柔らか。差し入れはいつもフライドチキン。', quote: 'お近づきのしるしに', reply: '…ありがとうございます。とても、丁寧な方ですね', special: 'cold',
+    look: [{ skin: '#6a4630', hair: 'buzz', hairC: '#1e1a18', glasses: 'square', outfit: 'shirt', top: '#e2c85e', collar: 'tie', tie: '#222', legs: '#2a2a2a', prop: 'chicken', pose: 'hold', expr: 'smile' }] },
+  { id: 'mccall', rar: 'SR', nick: '時間を計る物静かな男', sub: 'ティーバッグを紙ナプキンで丁寧に包む。動く前にストップウォッチを押す。', quote: '…19秒だ', reply: 'ティーバッグの包み方、気に入りました',
+    look: [{ skin: '#5e3e2a', hair: 'bald', hairC: '#cfcac2', beard: 'stubble', beardC: '#d8d2c8', outfit: 'leather', top: '#2a2622', collar: 'open', legs: '#3a3632', prop: 'stopwatch', pose: 'hold', expr: 'neutral' }] },
+  { id: 'mcclane', rar: 'R', nick: 'ランニングシャツで裸足の男', sub: 'たまたま居合わせただけらしい。入り口を使わない。', quote: 'なんで毎回こうなるんだ…', reply: '入り口はそちらではありませんよ', special: 'vent',
+    look: [{ skin: '#e2b48c', hair: 'receding', hairC: '#6a5038', outfit: 'tank', top: '#e8e2d0', dirty: true, legs: '#3a4048', barefoot: true, expr: 'grim' }] },
+  { id: 'geralt', rar: 'SSR', nick: '剣を二本背負った白髪の旅人', sub: '依頼料の相談から入る。怪物専門だと言っている。', quote: '…ふむ', reply: '…どうやら、管轄外のようですね',
+    look: [{ skin: '#e6d2c0', hair: 'wildlong', hairC: '#ece8e0', outfit: 'armor', top: '#2a2622', legs: '#2a2622', shoes: '#1a1612', prop: 'swords2', expr: 'grim' }] },
+  { id: 'jackie', rar: 'R', nick: 'ハシゴで戦うカンフー刑事', sub: '身の回りの物はすべて武器になる。最後にNG集が流れる。', quote: 'ハシゴがあれば十分さ', reply: '備品の扱いには、くれぐれもお気をつけて',
+    look: [{ skin: '#e2b48c', hair: 'short', hairC: '#1a1614', outfit: 'shirt', top: '#e8e2d2', collar: 'open', legs: '#3a3a40', prop: 'ladder', expr: 'smile' }] },
+  { id: 'abudeka', rar: 'SR', nick: '港から来たダンディな二人組', sub: '仕事中でもなぜか楽しそう。夜の港が似合う。', quote: 'お待たせ、相棒たち', reply: '…ずいぶんと、お楽しそうですね', special: 'duo',
+    look: [{ skin: '#d8ae88', hair: 'short', hairC: '#1a1614', glasses: 'sun', outfit: 'suit', top: '#c8c0b0', collar: 'open', legs: '#c8c0b0', shoes: '#e8e2d2', expr: 'smile' },
+           { skin: '#e2b48c', hair: 'wavy', hairC: '#2a2018', beard: 'mustache', outfit: 'suit', top: '#1e2a4a', collar: 'tie', tie: '#c8a040', legs: '#1e2a4a', expr: 'smile' }] },
+  { id: 'akakabu', rar: 'R', nick: '赤かぶを持った名古屋の検事', sub: 'のんびりしているが、法廷では鋭い。お土産は赤かぶ。', quote: 'そりゃあ、おかしいでかんわ', reply: '検事の方が、なぜこちらへ？',
+    look: [{ skin: '#e2b48c', hair: 'receding', hairC: '#5a5048', glasses: 'round', outfit: 'suit', top: '#7a5a3a', collar: 'tie', tie: '#5a2a1a', legs: '#6a4a2a', prop: 'kabu', pose: 'hold', expr: 'smile' }] },
+  { id: 'asami', rar: 'R', nick: '白い車で来たルポライター', sub: '名刺を見せると、周りの刑事の態度が急に変わる。', quote: '兄には内緒にしてください', reply: 'お兄様に、よろしくお伝えください',
+    look: [{ skin: '#ecc9a6', hair: 'short', hairC: '#2a2018', outfit: 'suit', top: '#3a5a8a', collar: 'tie', tie: '#c0c8d0', legs: '#d8d0c0', prop: 'camera', pose: 'hold', expr: 'smile' }] },
+  { id: 'kindaichi', rar: 'SR', nick: '袴にお釜帽の探偵', sub: '頭をかくとフケが舞う。彼が来ると、なぜか事件が増える。', quote: 'い、いやあ…これは大変なことになりましたね', reply: '…あなたが来ると、なぜ事件が増えるのでしょう', special: 'body',
+    look: [{ skin: '#e8c4a0', hair: 'messy', hairC: '#2a2018', hat: 'okama', hatC: '#5a4a3a', outfit: 'hakama', top: '#4a5a6a', hakama: '#5a5048', legs: '#5a5048', shoes: '#6a5030', pose: 'scratch', expr: 'smile' }] },
+  { id: 'kitano', rar: 'SR', nick: '無表情な刑事', sub: '何を考えているのか分からない。歩き方だけ妙にリズムがいい。', quote: '………', reply: '……', special: 'stepback',
+    look: [{ skin: '#d8ae88', hair: 'buzz', hairC: '#1a1614', outfit: 'suit', top: '#9a8a6a', collar: 'open', legs: '#5a5040', expr: 'blank' }] },
+  { id: 'conan', rar: 'SSR', nick: '蝶ネクタイの小学生', sub: '見た目は子ども。腕時計をやたらこちらに向けてくる。', quote: 'あれれ〜？ おかしいぞ〜？', reply: '…君、本当に小学生ですか？', special: 'sleep',
+    look: [{ kid: true, skin: '#f0d2b6', hair: 'kid', hairC: '#1e1a20', glasses: 'round', outfit: 'suit', top: '#2a4a8a', collar: 'bow', tie: '#c0302a', legs: '#4a4a52', prop: 'watch', pose: 'hold', expr: 'smile' }] },
+  { id: 'columbo', rar: 'R', nick: 'よれよれコートの警部補', sub: '帰りかけて戻ってくる。家ではカミさんの話ばかり。', quote: 'あ、あともう一つだけ', reply: 'おや、僕もちょうど一つ、気になっていました',
+    look: [{ skin: '#e2b48c', hair: 'messy', hairC: '#2a2018', outfit: 'coat', top: '#b8a47e', collar: 'tie', tie: '#3a3a3a', legs: '#5a5048', prop: 'notepad', pose: 'hold', expr: 'neutral' }] },
+  { id: 'poirot', rar: 'SR', nick: '口ひげ自慢の小柄な探偵', sub: '灰色の脳細胞を信じている。左右対称でない物が許せない。', quote: '灰色の脳細胞が、そう言っています', reply: '紅茶より、ショコラのほうがお好みで？',
+    look: [{ skin: '#ecc9a6', hair: 'slick', hairC: '#141214', beard: 'curl', outfit: 'suit', top: '#1a1a22', collar: 'bow', tie: '#2a2a2a', legs: '#2a2a33', expr: 'smile', small: .88 }] },
+  { id: 'furuhata', rar: 'SSR', nick: '黒ずくめの警部補', sub: '「えー」から話しはじめる。主人公と、かなりキャラが被っている。', quote: 'えー…、ところで、警部', reply: '…どちらが謎解きをするか、先に決めておきましょうか', special: 'rival',
+    look: [{ skin: '#e8c4a0', hair: 'slick', hairC: '#1a1614', outfit: 'suit', top: '#141416', collar: 'tie', tie: '#2a2a30', legs: '#141416', pose: 'think', expr: 'smile' }] },
+  { id: 'aoshima', rar: 'R', nick: 'モッズコートの刑事', sub: '元営業マン。会議室より現場が好き。', quote: '事件は現場で起きてるんです！', reply: '会議室も、たまには現場ですよ',
+    look: [{ skin: '#e2b48c', hair: 'short', hairC: '#2a2018', outfit: 'coat', top: '#5a6a3a', collar: 'tie', tie: '#3a3a5a', legs: '#3a3a40', expr: 'smile' }] },
+  { id: 'jiipan', rar: 'R', nick: 'ジーパンの新人刑事', sub: '血気盛ん。ニックネームで呼んでほしいらしい。', quote: 'なんじゃこりゃあ！', reply: '…大丈夫ですか？ まだ何も起きていませんが',
+    look: [{ skin: '#e2b48c', hair: 'long', hairC: '#2a2018', outfit: 'shirt', top: '#3a5a8a', collar: 'open', legs: '#3a5a8a', expr: 'shock' }] },
+  { id: 'seibu', rar: 'SR', nick: 'サングラスにショットガンの団長', sub: '彼の行く先では、だいたい何かが爆発する。', quote: '…行くぞ', reply: '庁舎内では、お静かに願います', special: 'boom',
+    look: [{ skin: '#d8ae88', hair: 'short', hairC: '#1a1614', glasses: 'sun', outfit: 'suit', top: '#3a3a40', collar: 'tie', tie: '#1a1a1a', legs: '#3a3a40', prop: 'shotgun', pose: 'hold', expr: 'grim' }] },
+  { id: 'dog', rar: 'R', nick: '引退した警察犬', sub: '鼻は今も現役。紅茶には興味がない。', quote: 'ワン', reply: 'よろしくお願いします、相棒',
+    look: [{ dog: true }] },
+  { id: 'drunk', rar: 'R', nick: '酔っ払いのおじさん', sub: '昼から飲んでいる。よく見ると、元・伝説の名刑事らしい。', quote: 'おう、ここが窓際ってとこか？', reply: 'まずは、お水をどうぞ',
+    look: [{ skin: '#e8b494', hair: 'receding', hairC: '#5a5048', red: true, tiehead: true, outfit: 'suit', top: '#5a5a62', collar: 'tie', tie: '#a03a3a', legs: '#4a4a52', prop: 'sake', pose: 'hold', expr: 'smile' }] },
+  { id: 'kacho', rar: 'R', nick: '隣の課の課長', sub: '暇なときによく顔を出す。マグカップはいつも同じ。', quote: '暇か？ …いや、俺が暇なんだ', reply: 'では、ご一緒にお茶でも',
+    look: [KACHO] }
+];
+const TIER = ['N', 'R', 'SR'];
+const PARTS = {
+  job: [
+    ['元交番勤務', '元交通課', '元総務課', '元鑑識の見習い', '元生活安全課', '元警察学校の教官', '元落とし物係'],
+    ['元白バイ隊員', '元SAT（自称）', '元ホスト', '元パティシエ', '元競艇選手', '元お天気キャスター', '元僧侶', '元マジシャン'],
+    ['元怪盗', '元宇宙飛行士候補', '元大富豪', '元売れっ子漫画家', '元横綱', '未来から来た（自称）', '元殿様']
+  ],
+  skill: [
+    ['聞き込み', 'あんぱん選び', '報告書の誤字探し', '早起き', '自販機の下の小銭拾い', 'コピー機の紙詰まり直し'],
+    ['一度見た顔は忘れない', '三か国語で取り調べ', '壁を走る', '匂いで犯人の昼ごはんを当てる', '職務質問で相手を泣かせる', '鍵開け'],
+    ['犯人の夢に出られる', '指紋を目で照合できる', '証拠品の声が聞こえる', '紅茶の淹れ方で警部に勝つ', '時速60kmで走る']
+  ],
+  habit: [
+    ['貧乏ゆすり', '語尾が上がる', '鍵をよくなくす', 'メモを取りすぎる', '毎日同じ定食', '指を鳴らす'],
+    ['嘘をつかれると耳が動く', '現場で必ず一礼する', '犯人に手紙を書く', '雨の日だけ冴える', '推理の前にスクワット', '敬礼が長い'],
+    ['解決するたび髪型が変わる', '犯人と友達になる', '帰り道で毎回事件に遭う', '寝言で真相を言う', '気づくと屋上にいる']
+  ],
+  line: [
+    ['マジっすか', '了解っす', '腹減りました', 'それ、いります？', 'ですよねー'],
+    ['俺の勘がそう言ってる', '細かいことはいいんすよ', '現場百回っすよ', '話は署で聞きます', 'ここは任せてください'],
+    ['真実は…いや、なんでもないです', 'この事件、あと3分で解決します', '警部、それ僕のセリフです', '僕に考えがあります', '犯人は、この中にいます']
+  ]
+};
+const SURN = ['鬼塚', '猿渡', '不破', '早乙女', '犬飼', '柳生', '鷹見', '熊谷', '雷電', '御手洗', '轟', '獅子堂', '二階堂', '一ノ瀬', '白鳥', '黒岩', '鮫島', '伊達', '真壁', '火野', '霧島', '東雲'];
+const GIVEN = ['ハジメ', '竜也', '誠', '勇気', '拳', '翔', '鉄平', '大和', '輝', '進', '隼人', '一徹', '剛', '光', '新', '凛', '颯'];
+const EXITS = ['実家の蕎麦屋を継ぐ', '海外研修に旅立った', '南の島で漁師になる', '宝くじが当たった', '異動になった（ほぼ左遷）', '突然結婚した', 'なぜか逮捕された', '故郷の星に帰った', '劇団の主役に抜擢された', '犬の世話に専念する', '山にこもって修行に出た', '探偵事務所を開いた'];
+function makeLook(t){
+  const hairs = [['short', '73', 'buzz', 'receding', 'bald'], ['wavy', 'messy', 'long', 'pony', 'slick'], ['afro', 'pomp', 'mohawk', 'punch', 'wildlong']][t];
+  const outs = [['suit', 'suit', 'jersey'], ['coat', 'leather', 'shirt', 'military', 'suit'], ['aloha', 'lab', 'hakama', 'tank', 'armor']][t];
+  const tops = [['#3a3e48', '#4a4a50', '#2e3440', '#5a5248'], ['#6a4a2a', '#2a4a6a', '#5a2a2a', '#3a5a3a', '#7a6a4a'], ['#d23a5a', '#e8a020', '#2a8ac8', '#f2f0ea', '#8a3ac8', '#1a1a1a']][t];
+  const props = [[null, 'anpan', 'notepad', 'briefcase', 'mug'], ['magnifier', 'shinai', 'camera', 'megaphone', 'laptop', 'flashlight'], ['guitar', 'bonsai', 'bouquet', 'fish', 'teapot']][t];
+  const hc = pick(t === 2 ? ['#1a1614', '#e8c040', '#c84a2a', '#d8d8d8', '#5a2a8a'] : ['#1a1614', '#2a2018', '#4a3424', '#7a7068']);
+  const outfit = pick(outs);
+  const sp = { skin: pick(SKINS), hair: pick(hairs), hairC: hc, outfit, top: pick(tops), legs: pick(['#2b2b30', '#3a3a44', '#4a3e30', '#2a3a5a']), collar: outfit === 'aloha' ? 'open' : pick(['tie', 'tie', 'open']), tie: pick(['#6b2a2a', '#2a3a6a', '#c8a040', '#3a6a3a']), pattern: outfit === 'aloha' ? 'dots' : (R() < .15 ? 'stripe' : null) };
+  if (outfit === 'hakama') sp.hakama = pick(['#4a4a52', '#5a3a2a']);
+  if (outfit === 'tank') sp.top = '#efeae0';
+  if (outfit === 'lab') sp.top = '#f2f0ea';
+  if (R() < [.2, .4, .5][t]) sp.glasses = pick(t === 0 ? ['square', 'round'] : ['sun', 'round', 'square']);
+  if (R() < [.15, .35, .5][t]) sp.beard = pick(['stubble', 'mustache', 'full', 'goatee']);
+  if (R() < [0, .3, .45][t]) { sp.hat = pick(['fedora', 'cap', 'beret', 'okama']); sp.hatC = pick(['#2c2a2a', '#5a4a3a', '#3a4a6a', '#8a2a2a']); }
+  sp.prop = pick(props); if (sp.prop) sp.pose = 'hold';
+  sp.expr = pick(['smile', 'neutral', 'smile', 'grim']);
+  return sp;
+}
+function tierFromScore(s){ const w = [[70, 25, 5], [55, 35, 10], [38, 42, 20], [22, 45, 33]][clamp(s, 0, 3)]; return wpick([0, 1, 2], i => w[i]); }
+function makePartner(scores, forceJp, opts = {}){
+  const total = scores.reduce((a, b) => a + b, 0);
+  const p = opts.noJp ? 0 : 0.12 + total * 0.03;
+  if ((forceJp && !opts.noJp) || R() < p){
+    let j;
+    if (typeof forceJp === 'string') j = JP.find(e => e.id === forceJp);
+    if (!j){
+      const rw = { R: 60 - total * 3, SR: 30 + total, SSR: total >= 9 ? 10 + total * 2 : 0 };   // SSRは全部満点のときだけ
+      j = wpick(JP, e => rw[e.rar] / JP.filter(x => x.rar === e.rar).length * (FILE.found[e.id] ? 1 : 2.2));
+    }
+    const aff = j.rar === 'SSR' ? 80 + Math.floor(R() * 21) : j.rar === 'SR' ? 65 + Math.floor(R() * 31) : 45 + Math.floor(R() * 51);
+    return { jp: j.id, rar: j.rar, nick: j.nick, sub: j.sub, quote: j.quote, reply: j.reply, reply2: j.reply2, look: j.look.map(l => Object.assign({}, l)), special: j.special || null, aff, rows: null };
+  }
+  let t = opts.tiers || scores.map(tierFromScore);
+  if (opts.cap != null) t = t.map(x => Math.min(x, opts.cap));
+  const pk = opts.picks || {};
+  const name = pick(SURN) + ' ' + pick(GIVEN);
+  const job = pk.job || pick(PARTS.job[t[0]]), skill = pk.skill || pick(PARTS.skill[t[1]]), habit = pk.habit || pick(PARTS.habit[t[2]]), line = pick(PARTS.line[t[2]]);
+  const mx = Math.max(...t);
+  const reply = mx === 2 ? 'おやおや。…細かいことが、気になる方ですねえ' : mx === 1 ? 'なるほど。…面白い方が来ましたね' : 'はい。…よろしくお願いします';
+  const aff = clamp(30 + (t[0] + t[1] + t[2]) * 9 + Math.floor(R() * 30), 5, 99);
+  return { jp: null, rar: null, nick: job + 'の' + name, name, sub: '人事ファイルから配属された新人。', quote: line, reply, look: [makeLook(t[0])], special: null, aff, tiers: t,
+    rows: [['前職', job, t[0]], ['特技', skill, t[1]], ['クセ', habit, t[2]], ['口ぐせ', '「' + line + '」', t[2]]] };
+}
+
+// ===================== 状態 =====================
+const S = { mode: 'title', paused: false, t: 0, scores: [], tiers: [], mgi: 0, mg: null, rv: null, rl: null, lastRun: 'mg', briefT: 0, resT: 0 };
+const MG_NAMES = ['張り込み', '取り調べ', '現場検証'];
+const MG_PARTS = ['見た目・前職', '特技', 'クセ・口ぐせ'];
+
+// ===================== オフィス(タイトル・登場) =====================
+function drawOffice(c, o){
+  const v = vis();
+  const t = o.t || 0;
+  // 壁
+  c.fillStyle = '#d6ccb8'; c.fillRect(v.x0, v.y0, v.x1 - v.x0, 372 - v.y0);
+  c.fillStyle = '#c4b89f'; c.fillRect(v.x0, 300, v.x1 - v.x0, 72);
+  c.fillStyle = 'rgba(0,0,0,.12)'; c.fillRect(v.x0, 298, v.x1 - v.x0, 3);
+  // 天井の照明
+  c.fillStyle = '#ece6d8'; c.fillRect(v.x0, v.y0, v.x1 - v.x0, Math.max(0, 14 - v.y0));
+  c.fillStyle = '#f6f2e6'; rr(c, 150, 10, 120, 8, 3); c.fill();
+  // 床
+  c.fillStyle = '#6e5a44'; c.fillRect(v.x0, 372, v.x1 - v.x0, v.y1 - 372);
+  c.strokeStyle = 'rgba(0,0,0,.15)'; c.lineWidth = 1;
+  for (let y = 384; y < v.y1; y += 16) ln(c, v.x0, y, v.x1, y);
+  // 窓
+  c.save();
+  const g = c.createLinearGradient(0, 70, 0, 250); g.addColorStop(0, '#9cc0d8'); g.addColorStop(1, '#f2d9a8');
+  c.fillStyle = g; c.fillRect(18, 70, 122, 180);
+  // 外の景色(ビル)
+  c.fillStyle = 'rgba(80,100,120,.35)'; [[24, 170, 26, 80], [54, 140, 30, 110], [90, 190, 22, 60], [116, 160, 20, 90]].forEach(a => c.fillRect(...a));
+  if (o.boom){ c.save(); c.beginPath(); c.rect(18, 70, 122, 180); c.clip(); const k = o.boom; ['#fff2a0', '#ffb040', '#e04a20'].forEach((cc, i) => { c.fillStyle = cc; c.globalAlpha = Math.max(0, 1 - k) * (1 - i * .15); circ(c, 80, 200, (20 + i * 18) * (0.5 + k * 2)); c.fill(); }); c.restore(); }
+  c.fillStyle = 'rgba(240,236,226,.85)'; for (let y = 76; y < 250; y += 9) c.fillRect(18, y, 122, 3);
+  c.strokeStyle = '#8a7a62'; c.lineWidth = 5; c.strokeRect(18, 70, 122, 180); ln(c, 79, 70, 79, 250);
+  c.restore();
+  // 窓からの光
+  c.fillStyle = 'rgba(255,240,200,.16)'; c.beginPath(); c.moveTo(140, 80); c.lineTo(140, 250); c.lineTo(250, 372); c.lineTo(250, 420); c.lineTo(160, 420); c.closePath(); c.fill();
+  // 観葉植物
+  c.fillStyle = '#8a5a3a'; rr(c, 22, 336, 30, 36, 4); c.fill();
+  c.fillStyle = '#4a7a3a'; [[37, 320, 16], [27, 300, 11], [47, 296, 12], [37, 284, 10]].forEach(([a, b, r]) => { circ(c, a, b, r); c.fill(); });
+  // 壁の時計
+  c.fillStyle = '#f4f0e6'; circ(c, 215, 70, 16); c.fill(); c.strokeStyle = '#5a4a3a'; c.lineWidth = 2; c.stroke();
+  const now = new Date(); c.lineWidth = 1.5; const ha = (now.getHours() % 12 + now.getMinutes() / 60) / 12 * Math.PI * 2, ma = now.getMinutes() / 60 * Math.PI * 2;
+  ln(c, 215, 70, 215 + Math.sin(ha) * 8, 70 - Math.cos(ha) * 8); ln(c, 215, 70, 215 + Math.sin(ma) * 12, 70 - Math.cos(ma) * 12);
+  // ドア
+  drawDoor(c, o);
+  // 主人公
+  const px = 165 + (o.protDX || 0);
+  const pr = drawPerson(c, px, 372, 196, PROT, { pose: 'pour', expr: o.protExpr || 'neutral' });
+  // 紅茶の流れ
+  if (o.pour !== false){
+    const u = pr.u, sp = { x: pr.hands.R.x - 8.5 * u, y: pr.hands.R.y + 5 * u }, cp = { x: pr.hands.L.x, y: pr.hands.L.y - 2.4 * u };
+    c.save(); c.strokeStyle = 'rgba(168,84,28,.9)'; c.lineWidth = 2; c.beginPath(); c.moveTo(sp.x, sp.y);
+    const wob = Math.sin(S.t * 14) * 1.5;
+    c.quadraticCurveTo(sp.x - 3 + wob, (sp.y + cp.y) / 2, cp.x + 1, cp.y); c.stroke();
+    c.fillStyle = 'rgba(255,255,255,.5)'; for (let i = 0; i < 2; i++){ const k = (S.t * .6 + i * .5) % 1; c.globalAlpha = 1 - k; circ(c, cp.x - 3 + i * 5, cp.y - 6 - k * 14, 2 + k * 2); c.fill(); }
+    c.restore();
+  }
+  // 机
+  c.fillStyle = '#7a5a3a'; c.fillRect(60, 288, 190, 10); c.fillStyle = '#8b6a46'; c.fillRect(66, 298, 178, 74);
+  c.fillStyle = 'rgba(0,0,0,.15)'; c.fillRect(70, 306, 80, 28); c.fillRect(70, 338, 80, 28);
+  // 机の上：チェス盤・本
+  for (let i = 0; i < 4; i++) for (let j = 0; j < 2; j++){ c.fillStyle = (i + j) % 2 ? '#2a2420' : '#efe6d0'; c.fillRect(194 + i * 9, 279 + j * 4.5, 9, 4.5); }
+  c.fillStyle = '#efe6d0'; c.fillRect(200, 270, 3, 9); c.fillStyle = '#2a2420'; c.fillRect(214, 272, 3, 7);
+  c.fillStyle = '#6a2a2a'; c.fillRect(74, 276, 34, 6); c.fillStyle = '#2a4a6a'; c.fillRect(76, 270, 30, 6); c.fillStyle = '#3a5a3a'; c.fillRect(78, 264, 26, 6);
+  // 机上の名札
+  c.fillStyle = '#efe6c8'; c.beginPath(); c.moveTo(126, 288); c.lineTo(178, 288); c.lineTo(174, 278); c.lineTo(130, 278); c.closePath(); c.fill();
+  c.fillStyle = '#3a2a1a'; fitFont(c, 700, 7, '特別対応係', 40, SERIF); c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('特別対応係', 152, 283.5);
+  o.prot = pr; o.px = px;
+}
+function doorOpenK(o){ return o.doorK || 0; }
+function drawDoor(c, o){
+  const x0 = 292, x1 = 402, y0 = 140, y1 = 372, k = doorOpenK(o);
+  // 枠
+  c.fillStyle = '#7a6448'; c.fillRect(x0 - 6, y0 - 6, x1 - x0 + 12, y1 - y0 + 6);
+  // 廊下の光
+  const g = c.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, '#fffaf0'); g.addColorStop(1, '#f0e2c0');
+  c.fillStyle = g; c.fillRect(x0, y0, x1 - x0, y1 - y0);
+  if (o.body && k > .5){ c.fillStyle = '#3a3430'; ell(c, 330, 366, 26, 5); c.fill(); c.fillStyle = '#2a2420'; c.fillRect(352, 360, 18, 6); circ(c, 304, 362, 6); c.fill(); }
+  // ドア枠内の人物(廊下側)
+  if (o.inDoor) o.inDoor(c);
+  // 扉
+  const pw = (x1 - x0) * (1 - k * .86);
+  const px0 = x1 - pw;
+  c.fillStyle = '#9a7c58'; c.fillRect(px0, y0, pw, y1 - y0);
+  c.strokeStyle = 'rgba(0,0,0,.2)'; c.lineWidth = 1; c.strokeRect(px0 + 2, y0 + 2, pw - 4, y1 - y0 - 4);
+  if (k < .35){
+    // すりガラス
+    const gx = px0 + pw * .14, gw = pw * .72;
+    c.fillStyle = '#e8e4d8'; c.fillRect(gx, y0 + 14, gw, 80);
+    if (o.glassSil){ c.save(); c.globalAlpha = o.glassSil; c.fillStyle = 'rgba(40,34,28,.75)'; c.filter = 'blur(3px)'; circ(c, gx + gw / 2, y0 + 50, 14); c.fill(); rr(c, gx + gw / 2 - 24, y0 + 64, 48, 40, 12); c.fill(); c.filter = 'none'; c.restore(); c.fillStyle = 'rgba(232,228,216,.0)'; }
+    c.strokeStyle = '#7a6448'; c.lineWidth = 2; c.strokeRect(gx, y0 + 14, gw, 80);
+    c.fillStyle = '#2a2018'; fitFont(c, 700, 13, '特別対応係', gw - 10, SERIF); c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('特別対応係', gx + gw / 2, y0 + 30);
+    c.fillStyle = '#c8a040'; circ(c, px0 + 12, 260, 4); c.fill();
+  }
+  // 床への光
+  if (k > 0){ c.fillStyle = `rgba(255,246,220,${.35 * k})`; c.beginPath(); c.moveTo(x0, y1); c.lineTo(x1 - (x1 - x0) * .86 * 0 , y1); c.lineTo(x1 + 10, 420); c.lineTo(x0 - 70, 420); c.closePath(); c.fill(); }
+}
+// 相棒を描く(登場位置)
+function drawPartnerAt(c, p, x, fy, o){
+  const looks = p.look;
+  if (looks.length === 2){
+    drawOne(c, looks[1], x + 40, fy, o);
+    drawOne(c, looks[0], x - 14, fy, o);
+  } else drawOne(c, looks[0], x, fy, o);
+}
+function drawOne(c, sp, x, fy, o){
+  const h = sp.kid ? 128 : sp.dog ? 196 : 192 * (sp.small || 1);
+  const base = { t: o.t, pose: o.walking ? (sp.pose === 'hold' || sp.pose === 'phone' ? sp.pose : 'walk') : undefined };
+  if (o.revealK < 1){
+    drawPerson(c, x, fy, h, sp, Object.assign({}, base, { sil: '#1c1712' }));
+    if (o.revealK > 0) drawPerson(c, x, fy, h, sp, Object.assign({}, base, { alpha: o.revealK }));
+  } else drawPerson(c, x, fy, h, sp, base);
+}
+
+// ===================== 登場演出 =====================
+const RV = { glass: 1.4, knock: 1.9, open: 2.8, walk: 3.3, stand: 4.3, reveal: 4.5, card: 5.2, quote: 5.3, reply: 6.2 };
+function startReveal(partner, changed){
+  const prev = FILE.list[0] || null;
+  const season = FILE.next;
+  const exit = pick(EXITS);
+  partner.season = season;
+  partner.prevText = prev ? (changed ? `前任の「${prev.nick}」は、着任わずか数秒でチェンジされました。` : `前任の「${prev.nick}」は、${exit}ため去りました。`) : `前任者は、${exit}ため去ったそうです。`;
+  FILE.list.unshift({ s: season, nick: partner.nick, jp: partner.jp, rar: partner.rar, aff: partner.aff, t: partner.tiers || null });
+  if (FILE.list.length > 300) FILE.list.length = 300;
+  FILE.next = season + 1;
+  if (partner.jp) FILE.found[partner.jp] = true;
+  saveFile();
+  S.mode = 'reveal'; S.paused = false;
+  S.rv = { t: 0, p: partner, fired: {} };
+  hideAll(); setLabel(`Season ${season} 新相棒 着任`);
+  $('pauseBtn').hidden = true;
+}
+function rvFire(k, fn){ const r = S.rv; if (!r.fired[k] && r.t >= RV[k] ){ r.fired[k] = true; fn(); } }
+function updateReveal(dt){
+  const r = S.rv; r.t += dt;
+  const sp = r.p.special;
+  if (sp === 'vent'){
+    if (!r.fired.vent && r.t >= 2.0){ r.fired.vent = true; SFX.pop(); }
+    if (!r.fired.land && r.t >= 3.0){ r.fired.land = true; SFX.boom(); }
+  } else {
+    rvFire('knock', () => SFX.knock());
+    rvFire('open', () => SFX.creak());
+  }
+  rvFire('reveal', () => { (r.p.rar ? SFX.fanfare : SFX.reveal)(); if (sp === 'boom') SFX.boom(); });
+  rvFire('card', () => showPanel(r.p));
+  if (sp === 'mib' && !r.fired.mib && r.t >= 7.2){ r.fired.mib = true; SFX.flash(); }
+  if (sp === 'clock' && r.t > 3 && Math.floor(r.t * 1) !== Math.floor((r.t - dt) * 1)) SFX.tick();
+}
+function skipReveal(){
+  const r = S.rv; if (!r || r.t >= RV.card) return;
+  r.t = RV.card - .01;
+  ['knock', 'open', 'vent', 'land'].forEach(k => r.fired[k] = true);
+}
+function drawReveal(c){
+  const r = S.rv, t = r.t, p = r.p, sp = p.special;
+  const o = { t };
+  // ドアの開き具合
+  if (sp !== 'vent') o.doorK = ease((t - RV.open) / .45);
+  o.glassSil = sp === 'vent' ? 0 : clamp((t - RV.glass) / .5, 0, 1) * (1 - clamp((t - RV.open) / .2, 0, 1));
+  o.body = sp === 'body' && t > RV.reveal;
+  o.boom = sp === 'boom' && t > RV.reveal && t < RV.reveal + 1.2 ? (t - RV.reveal) / 1.2 : 0;
+  // 相棒の位置
+  const revealK = clamp((t - RV.reveal) / .6, 0, 1);
+  let px = 300, pfy = 372, walking = false, inDoorway = false;
+  if (sp === 'vent'){
+    const k = clamp((t - 2.4) / .6, 0, 1);
+    pfy = t < 2.4 ? -400 : lerp(40, 372, k * k);
+    px = 318;
+  } else {
+    if (t < RV.walk){ px = 347; inDoorway = true; }
+    else { const k = clamp((t - RV.walk) / (RV.stand - RV.walk), 0, 1); px = lerp(347, 300, ease(k)); walking = k < 1; }
+  }
+  const drawP = cc => drawPartnerAt(cc, p, px, pfy, { t, walking, revealK });
+  if (inDoorway && t >= RV.open) o.inDoor = drawP;
+  if (sp === 'stepback' && t > RV.quote){ o.protDX = -12; o.protExpr = 'shock'; }
+  if (sp === 'sleep' && t > RV.reply + .9) o.protExpr = 'sleep';
+  if (sp === 'rival' && t > RV.reply) o.protExpr = 'smile';
+  drawOffice(c, o);
+  // 部屋を暗くする(登場の瞬間)
+  const dim = sp === 'vent' ? clamp((t - 1.6) / .4, 0, 1) * (1 - clamp((t - RV.reveal) / .6, 0, 1)) : clamp((t - RV.open) / .4, 0, 1) * (1 - clamp((t - RV.reveal) / .6, 0, 1));
+  if (dim > 0){ const v = vis(); c.fillStyle = `rgba(10,8,6,${.42 * dim})`; c.fillRect(v.x0, v.y0, v.x1 - v.x0, v.y1 - v.y0); }
+  // 通気口
+  if (sp === 'vent'){
+    c.fillStyle = '#2a2420'; c.fillRect(296, 18, 48, 14);
+    if (t < 2.0){ c.fillStyle = '#9a9488'; c.fillRect(296, 18, 48, 14); c.strokeStyle = '#5a5448'; for (let i = 0; i < 6; i++) ln(c, 300 + i * 8, 20, 300 + i * 8, 30); }
+    else { const k = clamp((t - 2.0) / .5, 0, 1); c.save(); c.translate(320 + k * 30, 25 + k * k * 340); c.rotate(k * 3); c.fillStyle = '#9a9488'; c.fillRect(-24, -7, 48, 14); c.restore(); }
+  }
+  if (!inDoorway || t < RV.open){ if (!(inDoorway && t < RV.open)) drawP(c); }
+  // 吹き出し
+  if (t >= RV.quote){ const hy = p.look[0].kid ? pfy - 140 : p.look[0].dog ? pfy - 190 : pfy - 196 * (p.look[0].small || 1); bubble(c, p.quote, px, hy - 4, 'right', 186); }
+  if (t >= RV.reply){
+    let rep = p.reply;
+    if (sp === 'mib' && t > 7.3) rep = p.reply2;
+    const hy = 372 - 196 - 4;
+    bubble(c, rep, (o.px || 165) - 10, hy, 'left', 186);
+  }
+  if (sp === 'sleep' && t > RV.reply + .9){ c.save(); c.fillStyle = '#4a6aa8'; c.font = `700 ${14}px ${SANS}`; const k = (t * .8) % 1; c.globalAlpha = 1 - k; c.fillText('Z z z', 186 + k * 10, 150 - k * 20); c.restore(); }
+  // 演出
+  const v = vis();
+  if (sp === 'sepia' && t > RV.reveal){
+    c.save(); c.globalCompositeOperation = 'multiply'; c.fillStyle = 'rgba(190,140,80,.55)'; c.fillRect(v.x0, v.y0, v.x1 - v.x0, v.y1 - v.y0); c.restore();
+    if (t < RV.reveal + 1.0 && Math.sin(t * 40) > .6){ c.fillStyle = 'rgba(255,255,255,.55)'; c.fillRect(v.x0, v.y0, v.x1 - v.x0, v.y1 - v.y0); }
+  }
+  if (sp === 'clock' && t > 3){
+    const sec = 59 - Math.floor((t - 3)) % 60;
+    const txt = `23:59:${String(Math.max(0, sec)).padStart(2, '0')}`;
+    c.save(); c.fillStyle = 'rgba(0,0,0,.75)'; rr(c, W - 132, 28, 118, 30, 5); c.fill();
+    c.fillStyle = '#f0d040'; fitFont(c, 700, 22, txt, 104, 'ui-monospace,Menlo,Consolas,monospace'); c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(txt, W - 73, 44); c.restore();
+  }
+  if (sp === 'mib' && t > 7.2){ const k = clamp((t - 7.2) / .8, 0, 1); c.fillStyle = `rgba(255,255,255,${1 - k})`; c.fillRect(v.x0, v.y0, v.x1 - v.x0, v.y1 - v.y0); }
+  if (sp === 'cold' && t > RV.reply){ c.fillStyle = 'rgba(120,170,230,.12)'; c.fillRect(v.x0, v.y0, v.x1 - v.x0, v.y1 - v.y0); }
+  if (p.jp && t > RV.reveal && t < RV.reveal + 1.6){
+    const k = (t - RV.reveal) / 1.6;
+    c.save(); c.globalAlpha = Math.min(1, (1 - k) * 2); c.fillStyle = p.rar === 'SSR' ? '#f2c94c' : p.rar === 'SR' ? '#c17ee8' : '#5d9be0';
+    c.font = `900 ${30 + k * 10}px ${SERIF}`; c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.strokeStyle = 'rgba(0,0,0,.6)'; c.lineWidth = 5; c.strokeText(`大当たり ${p.rar}`, W / 2, 110 - k * 20); c.fillText(`大当たり ${p.rar}`, W / 2, 110 - k * 20); c.restore();
+  }
+  // スキップの案内
+  if (t < RV.card){ c.fillStyle = 'rgba(255,255,255,.6)'; c.font = `600 11px ${SANS}`; c.textAlign = 'right'; c.textBaseline = 'bottom'; c.fillText('タップでスキップ ▶', Math.min(W - 8, v.x1 - 10), Math.min(H - 6, v.y1 - 8)); }
+}
+
+// ===================== リザルト表示 =====================
+function showPanel(p){
+  $('pSeason').textContent = `SEASON ${p.season} 新相棒`;
+  const b = $('pBadge');
+  if (p.jp){ b.className = 'badge ' + p.rar; b.textContent = '大当たり ' + p.rar; }
+  else { b.className = 'badge t0'; b.textContent = '人事ファイル'; }
+  $('pName').textContent = p.nick;
+  $('pSub').textContent = p.sub;
+  const rows = $('pRows'); rows.innerHTML = '';
+  if (p.rows){
+    p.rows.forEach(([k, v, t]) => {
+      const a = document.createElement('span'); a.className = 'k'; a.textContent = k;
+      const bb = document.createElement('span'); bb.className = 'v'; bb.textContent = v;
+      const cc = document.createElement('span'); cc.className = 'badge t' + t; cc.textContent = TIER[t];
+      rows.append(a, bb, cc);
+    });
+    rows.hidden = false;
+  } else rows.hidden = true;
+  $('pAff').textContent = p.aff + '%'; $('pAffBar').style.width = p.aff + '%';
+  $('pPrev').textContent = p.prevText;
+  setShare($('shareRes'), `Season ${p.season} の新しい相棒は「${p.nick}」でした（${p.jp ? '大当たり' + p.rar : '人事ファイル'}・相性${p.aff}%）`);
+  $('panel').hidden = false; app.classList.add('has-panel');
+  requestAnimationFrame(fitName);
+}
+function fitName(){
+  const el = $('pName'); el.style.fontSize = '';
+  let fs = parseFloat(getComputedStyle(el).fontSize) || 28, n = 0;
+  while (n++ < 20 && fs > 13 && el.scrollWidth > el.clientWidth + 1){ fs -= 1; el.style.fontSize = fs + 'px'; }
+}
+
+// ===================== ミニゲーム共通 =====================
+function floatText(arr, txt, x, y, color){ arr.push({ txt, x, y, color, t: 0 }); }
+function drawFloats(c, arr, dt){
+  for (let i = arr.length - 1; i >= 0; i--){
+    const f = arr[i]; f.t += dt;
+    if (f.t > 1.1){ arr.splice(i, 1); continue; }
+    c.save(); c.globalAlpha = 1 - Math.max(0, f.t - .6) / .5; c.fillStyle = f.color; c.strokeStyle = 'rgba(0,0,0,.7)'; c.lineWidth = 4;
+    c.font = `900 20px ${SANS}`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.strokeText(f.txt, f.x, f.y - f.t * 26); c.fillText(f.txt, f.x, f.y - f.t * 26); c.restore();
+  }
+}
+function drawNote(c, title, text){
+  c.save(); c.fillStyle = 'rgba(244,238,222,.96)'; rr(c, 12, 8, W - 24, 58, 8); c.fill();
+  c.fillStyle = '#8a2a1a'; fitFont(c, 700, 13, title, W - 48); c.textAlign = 'left'; c.textBaseline = 'top'; c.fillText(title, 24, 14);
+  c.fillStyle = '#2a201a'; fitFont(c, 800, 19, text, W - 48); c.fillText(text, 24, 34); c.restore();
+}
+function drawCount(c, txt, color){ c.save(); c.fillStyle = 'rgba(0,0,0,.55)'; c.font = `700 15px ${SANS}`; const w = c.measureText(txt).width + 16; rr(c, 12, 72, w, 24, 6); c.fill(); c.fillStyle = color || '#f3ead8'; c.textAlign = 'left'; c.textBaseline = 'middle'; c.fillText(txt, 20, 84.5); c.restore(); }
+
+// --- 1: 張り込み ---
+const COATS = [['赤', '#d0302a'], ['青', '#2f6fd8'], ['黄色', '#ecbc1c'], ['緑', '#2f9a3a'], ['白', '#f0ece2']];
+const HATS = [['あり', 'fedora'], ['なし', null]];
+const GLS = [['あり', 'sun'], ['なし', null]];
+function mgHarikomi(){
+  const tc = pick(COATS), th = pick(HATS), tg = pick(GLS);
+  const target = { coat: tc[1], hat: th[1], gl: tg[1] };
+  const desc = `${tc[0]}のコート・帽子${th[0]}・サングラス${tg[0]}`;
+  const WALK = slow ? 3.9 : 3.2, GAP = slow ? 1.65 : 1.35;
+  const people = [];
+  const N = 11, tIdx = new Set();
+  while (tIdx.size < 3) tIdx.add(2 + Math.floor(R() * (N - 2)));
+  for (let i = 0; i < N; i++){
+    let f;
+    if (tIdx.has(i)) f = Object.assign({}, target);
+    else {
+      do {
+        f = { coat: pick(COATS)[1], hat: pick(HATS)[1], gl: pick(GLS)[1] };
+        if (R() < .6){ const k = pick(['coat', 'hat', 'gl']); f = Object.assign({}, target); if (k === 'coat') while (f.coat === target.coat) f.coat = pick(COATS)[1]; if (k === 'hat') while (f.hat === target.hat) f.hat = pick(HATS)[1]; if (k === 'gl') while (f.gl === target.gl) f.gl = pick(GLS)[1]; }
+      } while (f.coat === target.coat && f.hat === target.hat && f.gl === target.gl);
+    }
+    const sp = { skin: pick(SKINS), hair: pick(['short', 'buzz', 'messy', 'receding', '73']), hairC: pick(['#1a1614', '#4a3424', '#7a7068']), outfit: 'coat', top: f.coat, collar: pick(['tie', 'open']), tie: '#2a2a2a', legs: '#2a2a30', hat: f.hat, hatC: '#c8965a', glasses: f.gl || null, expr: 'neutral' };
+    people.push({ sp, target: tIdx.has(i), spawn: 1.2 + i * GAP, dir: R() < .5 ? -1 : 1, state: 'wait', t: 0 });
+  }
+  const m = { name: '張り込み', t: 0, hits: 0, wrong: 0, lost: 0, people, floats: [], desc, done: false, tc, th, tg,
+    targetSp: { skin: SKINS[1], hair: 'short', hairC: '#2a2018', outfit: 'coat', top: target.coat, collar: 'tie', tie: '#2a2a2a', legs: '#2a2a30', hat: target.hat, hatC: '#c8965a', glasses: target.gl, expr: 'grim' },
+    lamp: [...Array(18)].map(() => R() < .55) };
+  m.posOf = p => { const k = clamp(p.t / WALK, 0, 1); return { x: 210 + p.dir * k * 280, fy: lerp(300, 410, k), h: lerp(98, 180, k), k }; };
+  m.update = dt => {
+    m.t += dt;
+    for (const p of m.people){
+      if (p.state === 'wait' && m.t >= p.spawn) p.state = 'walk';
+      if (p.state === 'walk'){ p.t += dt; if (p.t >= WALK){ p.state = 'gone'; if (p.target){ m.lost++; floatText(m.floats, '逃した…', 210 + p.dir * 140, 200, '#ff9a7a'); SFX.miss(); } } }
+      if (p.state === 'caught'){ p.ct = (p.ct || 0) + dt; if (p.ct > .7) p.state = 'gone'; }
+    }
+    if (m.people.every(p => p.state === 'gone')) m.done = true;
+  };
+  m.tap = (x, y) => {
+    const cand = m.people.filter(p => p.state === 'walk').map(p => ({ p, q: m.posOf(p) })).filter(({ q }) => x > q.x - q.h * .22 && x < q.x + q.h * .22 && y > q.fy - q.h && y < q.fy).sort((a, b) => b.q.fy - a.q.fy);
+    if (!cand.length) return;
+    const { p, q } = cand[0];
+    if (p.target){ p.state = 'caught'; p.ct = 0; p.cq = q; m.hits++; floatText(m.floats, '確保！', q.x, q.fy - q.h - 6, '#9cf09a'); SFX.hit(); }
+    else if (!p.wronged){ p.wronged = true; m.wrong++; floatText(m.floats, '人違い！', q.x, q.fy - q.h - 6, '#ffb0a0'); SFX.miss(); }
+  };
+  m.score = () => clamp(m.hits - Math.floor(m.wrong / 2), 0, 3);
+  m.draw = (c, dt) => {
+    const v = vis();
+    const g = c.createLinearGradient(0, v.y0, 0, 300); g.addColorStop(0, '#0b1020'); g.addColorStop(1, '#1e2436');
+    c.fillStyle = g; c.fillRect(v.x0, v.y0, v.x1 - v.x0, 300 - v.y0);
+    // 隣のビル
+    c.fillStyle = '#151824'; c.fillRect(v.x0, 110, 70 - v.x0, 190); c.fillRect(350, 90, v.x1 - 350, 210);
+    // 雑居ビル
+    c.fillStyle = '#2c2e3a'; c.fillRect(70, 60, 280, 240);
+    for (let i = 0; i < 18; i++){ const cx = 88 + (i % 6) * 44, cy = 76 + Math.floor(i / 6) * 42; c.fillStyle = m.lamp[i] ? '#e8c870' : '#1c1e28'; c.fillRect(cx, cy, 24, 22); }
+    c.fillStyle = '#c84a3a'; rr(c, 250, 196, 64, 18, 3); c.fill(); c.fillStyle = '#fff'; fitFont(c, 700, 11, 'スナック 夜霧', 58); c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('スナック 夜霧', 282, 205.5);
+    // 入口
+    c.fillStyle = '#f2d48a'; c.fillRect(185, 222, 50, 78); c.strokeStyle = '#5a4a3a'; c.lineWidth = 3; c.strokeRect(185, 222, 50, 78);
+    c.fillStyle = 'rgba(242,212,138,.18)'; c.beginPath(); c.moveTo(185, 300); c.lineTo(235, 300); c.lineTo(290, 420); c.lineTo(130, 420); c.closePath(); c.fill();
+    // 歩道
+    c.fillStyle = '#34343c'; c.fillRect(v.x0, 300, v.x1 - v.x0, v.y1 - 300);
+    c.strokeStyle = 'rgba(255,255,255,.06)'; for (let x = -40; x < 480; x += 40) ln(c, x, 300, x * 1.3 - 60, 420);
+    // 街灯
+    c.strokeStyle = '#4a4a52'; c.lineWidth = 4; ln(c, 384, 300, 384, 150); c.fillStyle = '#fff4c8'; circ(c, 384, 148, 7); c.fill();
+    c.fillStyle = 'rgba(255,244,200,.08)'; c.beginPath(); c.moveTo(384, 150); c.lineTo(330, 330); c.lineTo(440, 330); c.closePath(); c.fill();
+    // 通行人
+    const vis2 = m.people.filter(p => p.state === 'walk' || p.state === 'caught').map(p => ({ p, q: p.state === 'caught' ? p.cq : m.posOf(p) })).sort((a, b) => a.q.fy - b.q.fy);
+    for (const { p, q } of vis2){
+      c.save(); if (p.state === 'caught'){ c.globalAlpha = 1 - p.ct / .7; }
+      drawPerson(c, q.x, q.fy, q.h, p.sp, { pose: 'walk', t: p.t + p.spawn });
+      if (p.state === 'caught'){ c.strokeStyle = '#9cf09a'; c.lineWidth = 3; c.strokeRect(q.x - q.h * .24, q.fy - q.h - 4, q.h * .48, q.h + 6); }
+      c.restore();
+    }
+    // 車のダッシュボード
+    c.fillStyle = '#0c0c10'; c.beginPath(); c.moveTo(v.x0, 392); c.quadraticCurveTo(210, 376, v.x1, 392); c.lineTo(v.x1, v.y1); c.lineTo(v.x0, v.y1); c.closePath(); c.fill();
+    c.strokeStyle = '#1e1e26'; c.lineWidth = 8; c.beginPath(); c.arc(60, 440, 50, Math.PI * 1.1, Math.PI * 1.9); c.stroke();
+    c.fillStyle = '#b8742e'; ell(c, 330, 384, 13, 8); c.fill(); c.fillStyle = '#efe0b8'; circ(c, 330, 380, 2); c.fill();
+    c.fillStyle = '#f4f0e6'; c.fillRect(352, 360, 16, 26); c.fillStyle = '#3a6ac8'; c.fillRect(352, 368, 16, 8);
+    drawNote(c, 'マル被の特徴（3回出てくる）', desc);
+    c.fillStyle = tc[1]; c.strokeStyle = '#2a201a'; c.lineWidth = 1; rr(c, W - 44, 18, 22, 22, 4); c.fill(); c.stroke();
+    drawCount(c, `確保 ${m.hits}/3　人違い ${m.wrong}`);
+    drawFloats(c, m.floats, dt);
+  };
+  m.brief = ['張り込み'];
+  m.drawBrief = c => {
+    dim(c, .8);
+    c.save();
+    c.fillStyle = '#efe6cc'; rr(c, 30, 46, W - 60, 318, 10); c.fill();
+    c.strokeStyle = '#8a2a1a'; c.lineWidth = 3; rr(c, 38, 54, W - 76, 302, 6); c.stroke();
+    c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.fillStyle = '#8a2a1a'; fitFont(c, 900, 22, '手配書（マル被の特徴）', W - 100, SERIF); c.fillText('手配書（マル被の特徴）', W / 2, 78);
+    drawPerson(c, 120, 318, 210, m.targetSp, {});
+    const rows = [['コート', tc[0], tc[1]], ['帽子', th[0]], ['サングラス', tg[0]]];
+    c.textAlign = 'left';
+    rows.forEach(([k, v, col], i) => {
+      const y = 128 + i * 66;
+      c.fillStyle = '#6a5a44'; fitFont(c, 700, 14, k, 140); c.fillText(k, 214, y);
+      c.fillStyle = '#1e1812'; fitFont(c, 900, 30, v, col ? 104 : 140); c.fillText(v, 214, y + 30);
+      if (col){ c.fillStyle = col; c.strokeStyle = '#2a201a'; c.lineWidth = 1.5; rr(c, 332, y + 14, 32, 32, 6); c.fill(); c.stroke(); }
+    });
+    c.fillStyle = '#4a3a2a'; c.textAlign = 'center'; fitFont(c, 700, 15, 'この人が3回出てくる。この人だけタップ！', W - 90); c.fillText('この人が3回出てくる。この人だけタップ！', W / 2, 336);
+    const blink = .65 + .35 * Math.sin(S.t * 4);
+    c.globalAlpha = blink; c.fillStyle = '#f2c060'; fitFont(c, 800, 19, '準備ができたらタップ', W - 40); c.fillText('準備ができたらタップ', W / 2, 392);
+    c.restore();
+  };
+  m.result = () => `確保 ${m.hits}/3　人違い ${m.wrong}`;
+  return m;
+}
+
+// --- 2: 取り調べ ---
+function mgTorishirabe(){
+  // 容疑者は1回ごとに別人(髪型・肌・服を必ず変える)
+  const hairs = ['short', 'buzz', 'messy', 'receding', 'pomp', 'long', 'bald', 'punch', 'wavy', 'mohawk'].sort(() => R() - .5);
+  const skins = [...SKINS].sort(() => R() - .5);
+  const tops = ['#5a2a2a', '#2a4a6a', '#3a5a3a', '#6a5a3a', '#4a3a5a', '#d8d0c0', '#2a2a2a'].sort(() => R() - .5);
+  const sus = [0, 1, 2].map(i => {
+    const l = makeLook(i === 2 ? 1 : Math.floor(R() * 2));
+    l.hair = hairs[i]; l.skin = skins[i]; l.top = tops[i]; l.prop = null; l.pose = 'stand'; l.hat = null;
+    if (l.outfit === 'tank' || l.outfit === 'lab') l.outfit = 'shirt';
+    if (i === 1 && !l.beard) l.beard = pick(['stubble', 'mustache', 'full']);
+    if (i === 2 && !l.glasses) l.glasses = pick(['sun', 'square']);
+    return l;
+  });
+  const m = { name: '取り調べ', t: 0, round: 0, hits: 0, floats: [], done: false, sus, phase: Math.random() * 6, state: 'aim', st: 0, zones: [], expr: 'grim', msg: '…何も話すことはない' };
+  const ZW = [.22, .15, .1].map(z => z * (slow ? 1.35 : 1)), SP = [2.2, 3.0, 3.9].map(v => v * (slow ? .65 : 1));
+  for (let i = 0; i < 3; i++) m.zones.push(.18 + R() * .64);
+  m.needle = () => .5 + .5 * Math.sin(m.phase);
+  m.update = dt => {
+    m.t += dt; m.st += dt;
+    if (m.state === 'aim'){ m.phase += dt * SP[m.round]; if (m.st > 10){ m.judge(false, '沈黙…'); } }
+    else if (m.state === 'react' && m.st > 1.4){
+      m.round++;
+      if (m.round >= 3){ m.done = true; m.round = 2; return; }
+      m.state = 'aim'; m.st = 0; m.expr = 'grim'; m.msg = ['…何も話すことはない', '腹なんか減ってない', '俺はやってない。帰らせろ'][m.round];
+    }
+  };
+  m.judge = (ok, txt) => {
+    m.state = 'react'; m.st = 0;
+    if (ok){ m.hits++; m.expr = 'cry'; m.msg = pick(['刑事さん…俺が、やりました…', 'おふくろの味だ…全部話します', 'うまい…すみませんでした…']); floatText(m.floats, '落ちた！', 210, 150, '#9cf09a'); SFX.hit(); }
+    else { m.expr = 'grim'; m.msg = txt || pick(['弁護士を呼べ', 'カツ丼で釣られると思うなよ', '冷めてるじゃねえか']); floatText(m.floats, 'まだだ…', 210, 150, '#ffb0a0'); SFX.miss(); }
+  };
+  m.tap = () => {
+    if (m.state !== 'aim') return;
+    const z = m.zones[m.round], w = ZW[m.round], n = m.needle();
+    m.judge(Math.abs(n - z) <= w / 2);
+  };
+  m.score = () => m.hits;
+  m.draw = (c, dt) => {
+    const v = vis();
+    c.fillStyle = '#25221e'; c.fillRect(v.x0, v.y0, v.x1 - v.x0, v.y1 - v.y0);
+    c.fillStyle = '#2f2b26'; c.fillRect(v.x0, 290, v.x1 - v.x0, v.y1 - 290);
+    // マジックミラー
+    c.fillStyle = '#1a1c22'; c.fillRect(300, 70, 110, 120); c.strokeStyle = '#4a4640'; c.lineWidth = 4; c.strokeRect(300, 70, 110, 120);
+    c.fillStyle = 'rgba(255,255,255,.05)'; c.beginPath(); c.moveTo(310, 80); c.lineTo(350, 80); c.lineTo(320, 180); c.lineTo(310, 180); c.closePath(); c.fill();
+    // ランプの光
+    c.fillStyle = 'rgba(255,230,160,.12)'; c.beginPath(); c.moveTo(196, 40); c.lineTo(224, 40); c.lineTo(340, 330); c.lineTo(80, 330); c.closePath(); c.fill();
+    c.strokeStyle = '#555'; c.lineWidth = 2; ln(c, 210, v.y0, 210, 30); c.fillStyle = '#3a3a3a'; c.beginPath(); c.moveTo(192, 42); c.lineTo(228, 42); c.lineTo(220, 28); c.lineTo(200, 28); c.closePath(); c.fill(); c.fillStyle = '#fff4c8'; ell(c, 210, 43, 14, 3); c.fill();
+    const enter = m.state === 'aim' && m.round > 0 ? 1 - ease(m.st / .35) : 0;
+    drawPerson(c, 210 + enter * 260, 430, 270, m.sus[m.round], { expr: m.expr });
+    // 机
+    c.fillStyle = '#5a4a38'; c.fillRect(v.x0 + 0, 300, v.x1 - v.x0, v.y1 - 300); c.fillStyle = '#6a5843'; c.fillRect(v.x0, 300, v.x1 - v.x0, 8);
+    // カツ丼
+    const ok = m.state === 'react' && m.expr === 'cry';
+    const by = ok ? lerp(338, 318, clamp(m.st / .3, 0, 1)) : 338;
+    c.fillStyle = '#2a1a14'; ell(c, 210, by + 12, 38, 9); c.fill();
+    c.fillStyle = '#7a2a1a'; c.beginPath(); c.moveTo(172, by - 6); c.lineTo(248, by - 6); c.quadraticCurveTo(244, by + 18, 210, by + 20); c.quadraticCurveTo(176, by + 18, 172, by - 6); c.fill();
+    c.fillStyle = '#f2ecd8'; ell(c, 210, by - 6, 38, 9); c.fill();
+    c.fillStyle = '#c8862a'; for (let i = 0; i < 4; i++){ rr(c, 182 + i * 14, by - 12, 13, 9, 3); c.fill(); }
+    c.fillStyle = '#f0d040'; ell(c, 205, by - 9, 10, 4); c.fill(); c.fillStyle = '#4a9a3a'; circ(c, 220, by - 10, 2.5); c.fill();
+    c.strokeStyle = 'rgba(255,255,255,.3)'; c.lineWidth = 2; for (let i = 0; i < 3; i++){ const k = (m.t * .7 + i / 3) % 1; c.globalAlpha = 1 - k; c.beginPath(); c.moveTo(196 + i * 12, by - 18 - k * 20); c.quadraticCurveTo(190 + i * 12, by - 26 - k * 20, 198 + i * 12, by - 34 - k * 20); c.stroke(); } c.globalAlpha = 1;
+    // 吹き出し
+    bubble(c, m.msg, 220, 150, 'right', 220, { fs: 14 });
+    // ゲージ
+    const gx = 50, gw = 320, gy = 380;
+    c.fillStyle = 'rgba(0,0,0,.6)'; rr(c, gx - 6, gy - 8, gw + 12, 30, 8); c.fill();
+    c.fillStyle = '#3a3430'; c.fillRect(gx, gy, gw, 14);
+    const z = m.zones[m.round], w = ZW[m.round];
+    c.fillStyle = '#5ac85a'; c.fillRect(gx + (z - w / 2) * gw, gy, w * gw, 14);
+    const n = m.needle(); c.fillStyle = '#f2ecd8'; c.beginPath(); c.moveTo(gx + n * gw, gy + 16); c.lineTo(gx + n * gw - 7, gy + 26); c.lineTo(gx + n * gw + 7, gy + 26); c.closePath(); c.fill(); c.fillRect(gx + n * gw - 1.5, gy - 4, 3, 20);
+    drawNote(c, `取り調べ ${Math.min(3, m.round + 1)}/3`, '緑のところで、カツ丼をそっと差し出せ');
+    drawCount(c, `自供 ${m.hits}`);
+    drawFloats(c, m.floats, dt);
+  };
+  m.brief = ['取り調べ', '口を割らない容疑者に、', '緑のところでタップしてカツ丼を出せ！', '3回。だんだん速くなる'];
+  m.result = () => `自供 ${m.hits}/3`;
+  return m;
+}
+
+// --- 3: 現場検証 ---
+function mgGenba(){
+  const POOLS = [['lemon', 'spoon', 'handle'], ['handle', 'steam', 'spoon'], ['level', 'saucer', 'steam']];
+  const m = { name: '現場検証', t: 0, round: 0, hits: 0, floats: [], done: false, state: 'find', st: 0, rounds: [] };
+  for (let i = 0; i < 3; i++) m.rounds.push({ odd: Math.floor(R() * 12), kind: pick(POOLS[i]), flipAll: R() < .5 });
+  const LIMIT = slow ? 14 : 10;
+  const pos = i => ({ x: 66 + (i % 4) * 96, y: 150 + Math.floor(i / 4) * 92 });
+  m.update = dt => {
+    m.t += dt; m.st += dt;
+    if (m.state === 'find' && m.st > LIMIT){ m.state = 'show'; m.st = 0; m.ok = false; floatText(m.floats, '時間切れ', 210, 120, '#ffb0a0'); SFX.miss(); }
+    if (m.state === 'show' && m.st > 1.2){ m.round++; if (m.round >= 3){ m.done = true; m.round = 2; return; } m.state = 'find'; m.st = 0; }
+  };
+  m.tap = (x, y) => {
+    if (m.state !== 'find') return;
+    for (let i = 0; i < 12; i++){
+      const p = pos(i);
+      if (Math.abs(x - p.x) < 42 && Math.abs(y - p.y) < 42){
+        const r = m.rounds[m.round];
+        m.state = 'show'; m.st = 0; m.ok = i === r.odd; m.tapped = i;
+        if (m.ok){ m.hits++; floatText(m.floats, 'おや？', p.x, p.y - 40, '#9cf09a'); SFX.hit(); }
+        else { floatText(m.floats, 'ちがう…', p.x, p.y - 40, '#ffb0a0'); SFX.miss(); }
+        return;
+      }
+    }
+  };
+  m.score = () => m.hits;
+  m.draw = (c, dt) => {
+    const v = vis();
+    c.fillStyle = '#3e2c1e'; c.fillRect(v.x0, v.y0, v.x1 - v.x0, v.y1 - v.y0);
+    c.strokeStyle = 'rgba(0,0,0,.25)'; c.lineWidth = 1; for (let y = Math.floor(v.y0 / 26) * 26; y < v.y1; y += 26) ln(c, v.x0, y, v.x1, y);
+    c.strokeStyle = 'rgba(255,220,170,.05)'; c.lineWidth = 6; for (let y = Math.floor(v.y0 / 26) * 26 + 10; y < v.y1; y += 52) ln(c, v.x0, y, v.x1, y);
+    const r = m.rounds[m.round];
+    for (let i = 0; i < 12; i++){
+      const p = pos(i), odd = i === r.odd;
+      drawCup(c, p.x, p.y, 33, odd ? r.kind : null, r.flipAll, m.t + i * .37);
+      if (m.state === 'show' && odd){ c.strokeStyle = m.ok ? '#6ae06a' : '#ff6a5a'; c.lineWidth = 5; circ(c, p.x, p.y, 46); c.stroke(); }
+      if (m.state === 'show' && !m.ok && i === m.tapped){ c.strokeStyle = 'rgba(200,74,58,.6)'; c.lineWidth = 3; ln(c, p.x - 22, p.y - 22, p.x + 22, p.y + 22); ln(c, p.x + 22, p.y - 22, p.x - 22, p.y + 22); }
+    }
+    // 時間
+    const k = m.state === 'find' ? 1 - m.st / LIMIT : 0;
+    c.fillStyle = 'rgba(255,255,255,.15)'; rr(c, 40, 392, 340, 12, 6); c.fill();
+    c.fillStyle = k > .3 ? '#d9a441' : '#e05a4a'; rr(c, 40, 392, Math.max(0, 340 * k), 12, 6); c.fill();
+    drawNote(c, `現場検証 ${m.round + 1}/3（細かいことが気になる）`, 'ひとつだけ、違うカップがあります');
+    drawCount(c, `発見 ${m.hits}`);
+    drawFloats(c, m.floats, dt);
+  };
+  m.brief = ['現場検証', '紅茶のカップが12個。', 'ひとつだけ違うカップをタップ！', '取っ手の向き、湯気、受け皿、スプーン…'];
+  m.result = () => `発見 ${m.hits}/3`;
+  return m;
+}
+function drawCup(c, x, y, s, kind, flipAll, t){
+  const handleLeft = flipAll ? kind !== 'handle' : kind === 'handle';
+  c.save();
+  c.fillStyle = kind === 'saucer' ? '#a8c8f0' : '#f6f3ec'; c.strokeStyle = '#b8b0a0'; c.lineWidth = 1.2;
+  ell(c, x, y + s * .55, s * 1.25, s * .34); c.fill(); c.stroke();
+  c.strokeStyle = '#c8a040'; c.lineWidth = 1; ell(c, x, y + s * .55, s * 1.0, s * .25); c.stroke();
+  if (kind === 'spoon'){ c.strokeStyle = '#d8b040'; c.lineWidth = 3.4; ln(c, x + s * .45, y + s * .64, x + s * 1.15, y + s * .42); c.fillStyle = '#d8b040'; ell(c, x + s * .4, y + s * .66, s * .16, s * .09); c.fill(); }
+  // 取っ手
+  c.strokeStyle = '#f6f3ec'; c.lineWidth = s * .14;
+  const hx = handleLeft ? -1 : 1;
+  c.beginPath(); c.arc(x + hx * s * .52, y + s * .08, s * .2, hx > 0 ? -1.4 : Math.PI - 1.7, hx > 0 ? 1.7 : Math.PI + 1.4); c.stroke();
+  c.strokeStyle = '#b8b0a0'; c.lineWidth = 1; c.stroke();
+  // 本体
+  c.fillStyle = '#fbfaf6'; c.strokeStyle = '#b8b0a0'; c.lineWidth = 1.2;
+  c.beginPath(); c.moveTo(x - s * .55, y - s * .2); c.lineTo(x + s * .55, y - s * .2); c.quadraticCurveTo(x + s * .5, y + s * .5, x, y + s * .5); c.quadraticCurveTo(x - s * .5, y + s * .5, x - s * .55, y - s * .2); c.fill(); c.stroke();
+  c.strokeStyle = '#c8a040'; c.lineWidth = 1; c.beginPath(); c.moveTo(x - s * .53, y - s * .1); c.lineTo(x + s * .53, y - s * .1); c.stroke();
+  c.fillStyle = '#fbfaf6'; c.strokeStyle = '#b8b0a0'; ell(c, x, y - s * .2, s * .55, s * .15); c.fill(); c.stroke();
+  c.fillStyle = kind === 'level' ? '#ecc488' : '#8a3a12'; ell(c, x, y - s * .18, s * .47, s * .11); c.fill();
+  if (kind === 'lemon'){ c.fillStyle = '#f6dc2a'; ell(c, x + s * .08, y - s * .19, s * .26, s * .09); c.fill(); c.strokeStyle = '#d8b830'; c.lineWidth = .8; c.stroke(); }
+  if (kind !== 'steam'){
+    c.strokeStyle = 'rgba(245,240,230,.8)'; c.lineWidth = 2.4;
+    for (let i = 0; i < 2; i++){ const ox = (i ? 6 : -6), ph = t * 2 + i; c.beginPath(); c.moveTo(x + ox, y - s * .35); c.bezierCurveTo(x + ox + Math.sin(ph) * 5, y - s * .6, x + ox - Math.sin(ph) * 5, y - s * .8, x + ox + Math.sin(ph + 1) * 3, y - s * 1.05); c.stroke(); }
+  }
+  c.restore();
+}
+const MG_MAKERS = [mgHarikomi, mgTorishirabe, mgGenba];
+
+// ===================== 流れ =====================
+function hideAll(){ ['titleOv', 'pauseOv', 'fileOv', 'rlOv', 'setOv', 'panel'].forEach(id => $(id).hidden = true); app.classList.remove('has-panel'); }
+function setLabel(t){ $('lbl').textContent = t; fitLbl(); }
+function fitLbl(){ const el = $('lbl'); el.style.fontSize = ''; let fs = 15, n = 0; while (n++ < 8 && fs > 10 && el.scrollWidth > el.clientWidth + 1){ fs -= 1; el.style.fontSize = fs + 'px'; } }
+function startRun(){
+  initAudio(true); SFX.tap();
+  S.lastRun = 'mg'; S.scores = []; S.tiers = []; S.mgi = 0; hideAll();
+  startBrief();
+}
+function startBrief(){
+  S.mg = MG_MAKERS[S.mgi]();
+  S.mode = 'brief'; S.briefT = 0; S.paused = false;
+  $('pauseBtn').hidden = false;
+  setLabel(`Season ${FILE.next} 配属審査 ${S.mgi + 1}/3　${S.mg.name}`);
+}
+function endMG(){
+  const sc = S.mg.score(); S.scores[S.mgi] = sc;
+  S.mode = 'mgres'; S.resT = 0; S.resTier = tierFromScore(sc); S.tiers[S.mgi] = S.resTier;
+  SFX.tap();
+}
+function nextAfterRes(){
+  S.mgi++;
+  if (S.mgi < 3) startBrief();
+  else { startReveal(makePartner(S.scores, window.__RAforce, { tiers: S.tiers.slice() })); }
+}
+function startQuick(){
+  initAudio(true); SFX.tap();
+  S.lastRun = 'quick'; hideAll();
+  S.mode = 'roulette'; S.paused = false;
+  S.scores = [0, 0, 0].map(() => Math.floor(R() * 4));
+  S.rl = { t: 0, stop: [0, 0, 0], tick: 0, tiers: [0, 0, 0], picks: {} };
+  $('rlOv').hidden = false; setLabel('人事におまかせ');
+  for (let i = 0; i < 3; i++){ $('rl' + i).classList.remove('stop'); $('rb' + i).className = 'badge inv'; }
+}
+const RL_STOP = [1.0, 1.6, 2.2];
+function updateRoulette(dt){
+  const r = S.rl; r.t += dt; r.tick += dt;
+  const cats = [PARTS.job, PARTS.skill, PARTS.habit];
+  for (let i = 0; i < 3; i++){
+    if (r.stop[i]) continue;
+    if (r.t >= RL_STOP[i]){
+      r.stop[i] = 1; const tier = Math.min(1, tierFromScore(S.scores[i]));
+      r.tiers[i] = tier;
+      const txt = pick(cats[i][tier]); r.picks[['job', 'skill', 'habit'][i]] = txt;
+      const el = $('rl' + i); el.textContent = txt; el.classList.add('stop');
+      const b = $('rb' + i); b.className = 'badge t' + tier; b.textContent = TIER[tier];
+      SFX.hit();
+    } else if (r.tick > .07){ $('rl' + i).textContent = pick(pick(cats[i].slice(0, 2))); }
+  }
+  if (r.tick > .07){ r.tick = 0; SFX.tick(); }
+  if (r.t > 3.0){ $('rlOv').hidden = true; startReveal(makePartner(S.scores, null, { noJp: true, tiers: r.tiers, picks: r.picks })); }
+}
+function startChange(){
+  initAudio(true); SFX.pop();
+  S.lastRun = 'quick';
+  hideAll();
+  const sc = [0, 0, 0].map(() => Math.floor(R() * 4));
+  startReveal(makePartner(sc, null, { noJp: true, cap: 1 }), true);
+}
+function backToTitle(){
+  S.mode = 'title'; S.paused = false; S.mg = null; S.rv = null;
+  hideAll(); $('titleOv').hidden = false; $('pauseBtn').hidden = true;
+  $('nextSeason').textContent = `Season ${FILE.next}`;
+  setLabel('特別対応係');
+  disarmQuit();
+}
+function pauseGame(){
+  if (!(S.mode === 'brief' || S.mode === 'mg' || S.mode === 'mgres')) return;
+  S.paused = true; $('pauseOv').hidden = false;
+  $('pauseInfo').textContent = `配属審査 ${S.mgi + 1}/3「${S.mg ? S.mg.name : ''}」の途中です。`;
+  setShare($('sharePause'), `${GAME_NAME}で、窓際部署の新しい相棒を選ぶ配属審査中（${S.mgi + 1}/3 ${S.mg ? S.mg.name : ''}）`);
+  updSnd();
+}
+function resumeGame(){ S.paused = false; $('pauseOv').hidden = true; disarmQuit(); initAudio(false); }
+// 2回押し
+let armed = false, armTimer = null;
+function disarmQuit(){ armed = false; clearTimeout(armTimer); const b = $('quitBtn'); b.textContent = 'タイトルへ戻る'; b.classList.remove('danger'); }
+$('quitBtn').addEventListener('click', () => {
+  if (!armed){ armed = true; const b = $('quitBtn'); b.textContent = '本当に？(もう一度タップ)'; b.classList.add('danger'); clearTimeout(armTimer); armTimer = setTimeout(disarmQuit, 3000); return; }
+  disarmQuit(); backToTitle();
+});
+
+// ===================== ファイル =====================
+function openFile(){
+  const ov = $('fileOv'); ov.hidden = false;
+  const found = JP.filter(j => FILE.found[j.id]).length;
+  $('fileStat').textContent = `大当たり発見 ${found} / ${JP.length}　・　これまでの相棒 ${FILE.list.length}人`;
+  const g = $('jgrid'); g.innerHTML = '';
+  const order = { SSR: 0, SR: 1, R: 2 };
+  [...JP].sort((a, b) => order[a.rar] - order[b.rar]).forEach(j => {
+    const d = document.createElement('div'); const f = FILE.found[j.id];
+    d.className = 'jc' + (f ? '' : ' no');
+    const b = document.createElement('span'); b.className = 'badge ' + j.rar; b.textContent = j.rar;
+    d.append(b, document.createElement('br'), document.createTextNode(f ? j.nick : '？？？'));
+    g.append(d);
+  });
+  const h = $('hist'); h.innerHTML = '';
+  if (!FILE.list.length){ const li = document.createElement('li'); li.className = 'muted'; li.textContent = 'まだ誰も配属されていません。'; h.append(li); }
+  FILE.list.slice(0, 60).forEach(e => {
+    const li = document.createElement('li');
+    const s = document.createElement('span'); s.className = 's'; s.textContent = 'S' + e.s;
+    const m = document.createElement('span');
+    m.append(document.createTextNode(e.nick));
+    const sub = document.createElement('div'); sub.className = 'm'; sub.textContent = (e.jp ? '大当たり ' + e.rar : '人事ファイル') + '・相性 ' + e.aff + '%';
+    m.append(sub); li.append(s, m); h.append(li);
+  });
+}
+$('fileBtn').addEventListener('click', () => { SFX.tap(); openFile(); });
+$('fileBtn2').addEventListener('click', () => { SFX.tap(); openFile(); });
+$('fileClose').addEventListener('click', () => { $('fileOv').hidden = true; });
+
+// ===================== 共有 =====================
+function shareHref(text){ return 'https://x.com/intent/post?text=' + encodeURIComponent(text + ' ' + HASHTAG) + '&url=' + encodeURIComponent(SHARE_URL); }
+function setShare(el, text){ el.href = shareHref(text); if (matchMedia('(pointer: coarse)').matches){ el.removeAttribute('target'); el.removeAttribute('rel'); } }
+setShare($('shareTitle'), `${GAME_NAME}：窓際部署の初老の警部に、新しい相棒を迎えるゲーム。ときどき、どこかで見たような人が来ます`);
+
+// ===================== 音ボタン =====================
+const SVG_ON = '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+const SVG_OFF = '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 9l6 6M22 9l-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+function updSnd(){ $('sndBtn').innerHTML = soundOn ? SVG_ON : SVG_OFF; $('pSndBtn').textContent = $('sSnd').textContent = '音：' + (soundOn ? 'ON' : 'OFF'); }
+function toggleSnd(){ soundOn = !soundOn; try{ localStorage.setItem(KEY + '-sound', soundOn ? '1' : '0'); }catch(e){} updSnd(); if (soundOn){ initAudio(false); SFX.tap(); } }
+$('sndBtn').addEventListener('click', toggleSnd);
+$('pSndBtn').addEventListener('click', toggleSnd);
+$('sSnd').addEventListener('click', toggleSnd);
+// 設定
+function updSpd(){ $('spdN').classList.toggle('on', !slow); $('spdS').classList.toggle('on', slow); }
+function setSlow(v){ slow = v; try{ localStorage.setItem(KEY + '-slow', v ? '1' : '0'); }catch(e){} updSpd(); SFX.tap(); }
+$('spdN').addEventListener('click', () => setSlow(false));
+$('spdS').addEventListener('click', () => setSlow(true));
+updSpd();
+function armTwice(btn, action, doneText){
+  const label = btn.textContent; let on = false, tm = null;
+  const reset = () => { on = false; clearTimeout(tm); btn.textContent = label; btn.classList.remove('danger'); };
+  btn.addEventListener('click', () => {
+    if (!on){ on = true; btn.textContent = '本当に？(もう一度タップ)'; btn.classList.add('danger'); clearTimeout(tm); tm = setTimeout(reset, 3000); return; }
+    reset(); action(); SFX.hit(); btn.textContent = doneText; btn.disabled = true;
+    setTimeout(() => { btn.textContent = label; btn.disabled = false; }, 1800);
+  });
+}
+armTwice($('resetSeason'), () => { FILE.next = 26; saveFile(); $('nextSeason').textContent = 'Season 26'; }, 'シーズン26に戻しました');
+armTwice($('resetAll'), () => { FILE = { next: 26, list: [], found: {} }; saveFile(); $('nextSeason').textContent = 'Season 26'; }, 'ファイルを消しました');
+$('setBtn').addEventListener('click', () => { SFX.tap(); $('setOv').hidden = false; updSnd(); updSpd(); });
+$('setClose').addEventListener('click', () => { $('setOv').hidden = true; });
+updSnd();
+
+// ===================== ボタン =====================
+$('startBtn').addEventListener('click', startRun);
+$('quickBtn').addEventListener('click', startQuick);
+$('againBtn').addEventListener('click', startRun);
+$('titleBtn').addEventListener('click', () => { SFX.tap(); backToTitle(); });
+$('changeBtn').addEventListener('click', startChange);
+$('pauseBtn').addEventListener('click', pauseGame);
+$('resumeBtn').addEventListener('click', resumeGame);
+$('rlOv').addEventListener('pointerdown', () => { if (S.rl) S.rl.t = Math.max(S.rl.t, RL_STOP[S.rl.stop.indexOf(0)] || S.rl.t); });
+
+// ===================== 入力 =====================
+function toLogical(e){ const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left - OX) / SC, y: (e.clientY - r.top - OY) / SC }; }
+cv.addEventListener('pointerdown', e => {
+  if (S.paused) return;
+  const p = toLogical(e);
+  if (S.mode === 'brief'){ if (S.briefT < .5) return; initAudio(false); S.mode = 'mg'; SFX.tap(); return; }
+  if (S.mode === 'mg'){ S.mg.tap(p.x, p.y); return; }
+  if (S.mode === 'mgres'){ if (S.resT > .4) nextAfterRes(); return; }
+  if (S.mode === 'reveal'){ skipReveal(); return; }
+});
+document.addEventListener('visibilitychange', () => { if (document.hidden){ if (S.mode === 'mg' || S.mode === 'brief') pauseGame(); } else initAudio(false); });
+
+// ===================== メインループ =====================
+function update(dt){
+  S.t += dt;
+  if (S.paused) return;
+  if (S.mode === 'brief'){ S.briefT += dt; }
+  else if (S.mode === 'mg'){ S.mg.update(dt); if (S.mg.done) endMG(); }
+  else if (S.mode === 'mgres'){ S.resT += dt; }
+  else if (S.mode === 'reveal') updateReveal(dt);
+  else if (S.mode === 'roulette') updateRoulette(dt);
+}
+function render(dt){
+  const c = ctx;
+  layoutScene();
+  c.setTransform(1, 0, 0, 1, 0, 0);
+  c.fillStyle = '#15110e'; c.fillRect(0, 0, cv.width, cv.height);
+  c.setTransform(DPR * SC, 0, 0, DPR * SC, DPR * OX, DPR * OY);
+  if (S.mode === 'title' || S.mode === 'roulette'){
+    const o = { t: S.t };
+    const ph = S.t % 11;
+    if (S.mode === 'title' && ph > 6 && ph < 9.2){
+      const k = Math.min(1, (ph - 6) / .4) * Math.min(1, (9.2 - ph) / .4);
+      o.doorK = .38 * k;
+      o.inDoor = cc => { drawPerson(cc, 312, 372, 188, KACHO, { pose: 'hold', expr: 'smile' }); };
+      drawOffice(c, o);
+      if (k > .8) bubble(c, '暇か？', 318, 196, 'right', 120);
+    } else drawOffice(c, o);
+  } else if (S.mode === 'reveal' && S.rv){ drawReveal(c); }
+  else if (S.mg){
+    S.mg.draw(c, (S.paused || S.mode !== 'mg') ? 0 : dt);
+    if (S.mode === 'brief') drawBrief(c);
+    if (S.mode === 'mgres') drawRes(c);
+  }
+}
+function dim(c, a){ const v = vis(); c.fillStyle = `rgba(10,8,6,${a})`; c.fillRect(v.x0, v.y0, v.x1 - v.x0, v.y1 - v.y0); }
+function drawBrief(c){
+  if (S.mg.drawBrief) return S.mg.drawBrief(c);
+  dim(c, .72);
+  const b = S.mg.brief, cx = W / 2;
+  c.save(); c.textAlign = 'center'; c.textBaseline = 'middle';
+  c.fillStyle = '#d9a441'; fitFont(c, 700, 13, `配属審査 ${S.mgi + 1}/3　→　${MG_PARTS[S.mgi]}が決まる`, W - 40); c.fillText(`配属審査 ${S.mgi + 1}/3　→　${MG_PARTS[S.mgi]}が決まる`, cx, 120);
+  c.fillStyle = '#f3ead8'; fitFont(c, 900, 40, b[0], W - 40, SERIF); c.fillText(b[0], cx, 165);
+  c.fillStyle = '#e8dcc4'; for (let i = 1; i < b.length; i++){ fitFont(c, i === 3 ? 500 : 700, i === 3 ? 13 : 16, b[i], W - 40); if (i === 3) c.fillStyle = '#a99c84'; c.fillText(b[i], cx, 205 + i * 28); }
+  const blink = .65 + .35 * Math.sin(S.t * 4);
+  c.globalAlpha = blink; c.fillStyle = '#d9a441'; fitFont(c, 700, 18, '準備ができたらタップ', W - 40); c.fillText('準備ができたらタップ', cx, 345); c.globalAlpha = 1;
+  c.restore();
+}
+function drawRes(c){
+  dim(c, .7);
+  const cx = W / 2, tier = S.resTier;
+  c.save(); c.textAlign = 'center'; c.textBaseline = 'middle';
+  c.fillStyle = '#f3ead8'; fitFont(c, 900, 30, S.mg.name + ' 終了', W - 40, SERIF); c.fillText(S.mg.name + ' 終了', cx, 140);
+  c.fillStyle = '#e8dcc4'; fitFont(c, 700, 18, S.mg.result(), W - 40); c.fillText(S.mg.result(), cx, 184);
+  c.fillStyle = '#a99c84'; fitFont(c, 700, 14, MG_PARTS[S.mgi] + 'のパーツ', W - 40); c.fillText(MG_PARTS[S.mgi] + 'のパーツ', cx, 228);
+  const col = ['#8f8a80', '#5d9be0', '#c17ee8'][tier];
+  const k = ease(S.resT / .35);
+  c.fillStyle = col; rr(c, cx - 50 * k, 250, 100 * k, 50, 25); c.fill();
+  c.fillStyle = '#15110e'; c.font = `900 ${26 * k + 1}px ${SANS}`; c.fillText(TIER[tier], cx, 276);
+  const nx = S.mgi < 2 ? 'タップで次のミニゲームへ' : 'タップで新しい相棒を呼ぶ';
+  c.globalAlpha = S.resT > .4 ? .65 + .35 * Math.sin(S.t * 4) : .3; c.fillStyle = '#f2c060'; fitFont(c, 700, 17, nx, W - 40); c.fillText(nx, cx, 336); c.globalAlpha = 1;
+  c.restore();
+}
+let last = performance.now();
+function loop(now){
+  requestAnimationFrame(loop);
+  const dt = Math.min(0.033, Math.max(0, (now - last) / 1000)); last = now;
+  if (CW < 2 || CH < 2){ resize(); return; }
+  try{ if (!window.__RAmanual) update(dt); render(window.__RAmanual ? 0 : dt); }catch(e){ console.error(e); }
+}
+window.addEventListener('resize', () => { resize(); fitLbl(); });
+try{ new ResizeObserver(() => { resize(); if (!$('panel').hidden) fitName(); }).observe($('main')); }catch(e){}
+resize();
+$('nextSeason').textContent = `Season ${FILE.next}`;
+requestAnimationFrame(loop);
+
+// テスト用(テスト時だけ使う)
+if (window.__RAtest){
+  window.__RA = { S, JP, startRun, startChange, startQuick, startReveal, makePartner, backToTitle, pauseGame, openFile,
+    step(n, dt = 1 / 30){ for (let i = 0; i < n; i++) update(dt); render(dt); }, mgByIndex(i){ S.mgi = i; startBrief(); S.mode = 'mg'; } };
+}
+</script>
+</body>
+</html>

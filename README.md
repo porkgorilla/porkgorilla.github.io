@@ -72,6 +72,7 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 | [目指せアメリカ！](https://porkgorilla.com/works/mezase-america.html) | GAME | 1人から仲間を増やして、アメリカの州に刺さるゲーム |
 | [ハゲチャップ](https://porkgorilla.com/works/hagechap.html) | GAME | オムライスじゃなくて、おじさんの頭にケチャップで絵を描くゲーム |
 | [逆ケチャップ](https://porkgorilla.com/works/gyaku-ketchup.html) | GAME | 空っぽのケチャップボトルで、オムライスを吸い込むゲーム |
+| [りそうの相棒](https://porkgorilla.com/works/risou-aibou.html) | GAME | 窓際部署の初老の警部に、新しい相棒を迎えるゲーム |
 
 ## 構成
 
@@ -147,7 +148,8 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
     ├── yoko-burger.html
     ├── mezase-america.html
     ├── hagechap.html
-    └── gyaku-ketchup.html
+    ├── gyaku-ketchup.html
+    └── risou-aibou.html
 ```
 
 `theme.css` / `site.js` / `favicon.svg` はルート直下に置き、各作品ページからは絶対パス(`/theme.css` など)で読み込みます。404.html も GitHub Pages の仕様上ルート直下が必須です。
