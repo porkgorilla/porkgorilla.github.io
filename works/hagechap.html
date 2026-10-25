@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>ハゲチャップ | porkgorilla://</title>
+<meta name="description" content="オムライスじゃなくて、おじさんの頭にケチャップで絵を描くゲーム">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-MBT4300J0L');
+</script>
+<meta property="og:type" content="website">
+<meta property="og:title" content="ハゲチャップ">
+<meta property="og:description" content="オムライスじゃなくて、おじさんの頭にケチャップで絵を描くゲーム">
+<meta property="og:url" content="https://porkgorilla.com/works/hagechap.html">
+<meta property="og:image" content="https://porkgorilla.com/assets/og-hagechap.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ハゲチャップ">
+<meta name="twitter:description" content="オムライスじゃなくて、おじさんの頭にケチャップで絵を描くゲーム">
+<meta name="twitter:image" content="https://porkgorilla.com/assets/og-hagechap.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
+<style>
+[hidden]{display:none!important}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--ink:#1f1a24;--sub:#c9b8a6;--cream:#fffaf1;--red:#d42415;--line:#1f1a24}
+html{box-sizing:border-box}
+html,body{height:100%;overflow:hidden;color:var(--ink);
+  font-family:"M PLUS Rounded 1c","Hiragino Maru Gothic ProN","Hiragino Sans","Meiryo",sans-serif;
+  overscroll-behavior:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 40%, rgba(255,214,170,.28), rgba(0,0,0,0) 70%),
+    repeating-linear-gradient(178deg, rgba(0,0,0,.05) 0 3px, rgba(0,0,0,0) 3px 11px, rgba(255,255,255,.025) 11px 13px, rgba(0,0,0,0) 13px 27px),
+    linear-gradient(#6e4a30, #4a2f1e 60%, #2e1d12);
+}
+/* 首の下を暗く沈める(体はほぼ見せない) */
+.fade{position:fixed;left:0;right:0;bottom:0;height:38%;pointer-events:none;z-index:1;background:linear-gradient(rgba(30,18,11,0),rgba(30,18,11,.85) 55%,#1e120b)}
+#cv{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+
+.hud{position:fixed;left:0;right:0;top:0;z-index:30;display:flex;align-items:center;gap:10px;pointer-events:none;
+  padding:max(10px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) 0 max(12px,env(safe-area-inset-left))}
+.hud>*{pointer-events:auto}
+.home{color:var(--sub);text-decoration:none;font-size:12px;letter-spacing:.04em;white-space:nowrap;
+  background:rgba(20,12,8,.45);padding:7px 11px;border-radius:999px}
+.home:hover{color:#fff}
+/* お題なし: 音ボタンは右端 */
+.icon{min-width:44px;min-height:44px;border-radius:50%;border:3px solid var(--line);background:#fff;
+  display:grid;place-items:center;cursor:pointer;margin-left:auto;color:var(--ink)}
+.icon svg{width:22px;height:22px}
+
+.ctrl{position:fixed;left:50%;transform:translateX(-50%);bottom:max(18px,env(safe-area-inset-bottom));z-index:10;
+  display:flex;align-items:center;justify-content:center}
+.pill{border:3px solid var(--line);background:#fff;border-radius:999px;font:inherit;font-weight:800;color:var(--ink);
+  cursor:pointer;min-height:58px}
+.pill:active{transform:translateY(2px)}
+.main{width:210px;font-size:25px;letter-spacing:.12em}
+.main:active{transform:translateY(2px)}
+
+#bottle{position:fixed;left:0;top:0;width:58px;height:150px;z-index:12;pointer-events:none;transform-origin:50% 100%;
+  filter:drop-shadow(2px 6px 6px rgba(0,0,0,.35))}
+#bottle svg{width:100%;height:100%;display:block;transition:transform .08s}
+#bottle.press svg{transform:scale(1.07,.96)}
+
+.bubble{position:fixed;left:50%;top:15%;transform:translateX(-50%);z-index:9;background:var(--cream);border:3px solid var(--line);
+  border-radius:20px;padding:8px 16px;font-weight:800;font-size:18px;pointer-events:none;white-space:nowrap}
+.bubble::after{content:"";position:absolute;left:50%;bottom:-13px;margin-left:-8px;border:8px solid transparent;border-top-color:var(--line)}
+
+.ov{position:fixed;inset:0;z-index:20;display:grid;place-items:center;overflow:auto;
+  padding:70px 16px max(16px,env(safe-area-inset-bottom));background:rgba(20,12,8,.35)}
+.card{background:var(--cream);border:3px solid var(--line);border-radius:22px;padding:24px 22px;width:100%;max-width:420px;
+  text-align:center;box-shadow:0 8px 0 rgba(0,0,0,.25)}
+h1{font-size:46px;font-weight:800;color:var(--red);letter-spacing:.04em;line-height:1.1;text-shadow:3px 3px 0 var(--ink)}
+.lead{font-weight:800;margin:10px 0 14px;font-size:15px}
+.how{text-align:left;font-size:14px;line-height:1.75;background:#fff;border:2px dashed rgba(31,26,36,.3);border-radius:14px;padding:10px 14px;margin-bottom:14px}
+.how b{color:var(--red)}
+.bestT{font-size:13px;color:#8a7764;margin-bottom:12px;font-weight:800}
+.go{flex:1;min-width:130px;min-height:52px;border:3px solid var(--line);border-radius:999px;background:var(--red);color:#fff;
+  font:inherit;font-weight:800;font-size:19px;cursor:pointer;letter-spacing:.06em}
+.go:active{transform:translateY(2px)}
+.go.ghost{background:transparent;color:var(--red);border:2px solid rgba(212,36,21,.55)}
+.go.ghost:hover{background:rgba(212,36,21,.08)}
+.startBtn{width:100%;max-width:280px;font-size:22px}
+.credit{font-size:11px;color:#9a8a74;margin-top:18px;letter-spacing:.05em}
+.loading{font-size:13px;color:#8a7764;margin-top:10px}
+
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;justify-content:center;pointer-events:none;
+  padding:0 12px max(12px,env(safe-area-inset-bottom))}
+.sheet .card{pointer-events:auto;max-width:520px;padding:14px 16px 16px}
+.resHead{font-size:28px;font-weight:800;color:var(--red);text-shadow:2px 2px 0 var(--ink);letter-spacing:.06em}
+.resOdai{font-size:13px;color:#8a7764;font-weight:800;margin-top:2px}
+.score{display:flex;align-items:baseline;justify-content:center;gap:6px;margin-top:4px}
+.score small{font-size:13px;font-weight:800}
+.score b{font-size:42px;line-height:1;color:var(--red)}
+.score span{font-weight:800}
+.comment{font-size:15px;font-weight:800;margin:6px 0 4px}
+.best{font-size:12px;color:#8a7764;font-weight:800;margin-bottom:10px}
+.actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px}
+.actions.sub{margin-top:10px;gap:8px}
+.mini{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 14px;border:2px solid var(--line);
+  border-radius:999px;background:#fff;color:var(--ink);font:inherit;font-weight:800;font-size:14px;text-decoration:none;cursor:pointer}
+.viewback{position:fixed;left:50%;transform:translateX(-50%);bottom:max(18px,env(safe-area-inset-bottom));z-index:20;padding:0 26px;font-size:17px}
+.viewback:active{transform:translate(-50%,2px)}   /* 押したときも中央寄せを保つ(.pill:active の transform で上書きされるため) */
+.toast{position:fixed;left:50%;top:76px;transform:translateX(-50%);z-index:25;background:rgba(20,12,8,.82);color:#fff;font-weight:800;
+  padding:9px 16px;border-radius:999px;font-size:14px;pointer-events:none;white-space:nowrap}
+@media (max-height:640px){ h1{font-size:36px}.how{font-size:13px;line-height:1.55}.score b{font-size:34px}.resHead{font-size:22px} }
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div class="fade"></div>
+
+<div class="hud">
+  <a class="home" href="/">&lt; porkgorilla</a>
+  <button class="icon" id="sndBtn" aria-label="音のオン・オフ"></button>
+</div>
+
+<div id="bottle" hidden>
+  <svg viewBox="0 0 80 206" aria-hidden="true">
+    <polygon points="31,160 49,160 44,201 36,201" fill="#f7f3ec" stroke="#1f1a24" stroke-width="5" stroke-linejoin="round"/>
+    <rect x="23" y="138" width="34" height="26" rx="6" fill="#c81e10" stroke="#1f1a24" stroke-width="5"/>
+    <rect x="9" y="14" width="62" height="130" rx="24" fill="#c0180c" stroke="#1f1a24" stroke-width="5"/>
+    <rect x="19" y="34" width="10" height="92" rx="5" fill="#fff" opacity=".42"/>
+    <path d="M14 34 Q14 16 34 16 L46 16 Q66 16 66 34 L66 40 L14 40 Z" fill="#f7f3ec"/>
+    <rect x="9" y="14" width="62" height="130" rx="24" fill="none" stroke="#1f1a24" stroke-width="5"/>
+  </svg>
+</div>
+
+<div class="bubble" id="bubble" hidden></div>
+
+<div class="ctrl" id="ctrl" hidden>
+  <button class="pill main" id="doneBtn">完成</button>
+</div>
+
+<div class="ov" id="titleOv">
+  <div class="card">
+    <h1>ハゲチャップ</h1>
+    <p class="lead">オムライスの代わりに、おじさんの頭。</p>
+    <div class="how">
+      ・頭をなぞると<b>ケチャップ</b>が出る<br>
+      ・頭の外をドラッグすると、<b>頭が回る</b><br>
+      ・描けたら「<b>完成</b>」
+    </div>
+    <div class="bestT" id="bestT"></div>
+    <button class="go startBtn" id="startBtn" disabled>じゅんび中…</button>
+    <div class="actions sub"><a class="mini" id="xTitle" href="#" target="_blank" rel="noopener">𝕏 でシェア</a></div>
+    <div class="loading" id="loadMsg" hidden></div>
+    <div class="credit">porkgorilla — 2026</div>
+  </div>
+</div>
+
+<div class="sheet" id="resOv" hidden>
+  <div class="card">
+    <div class="resHead">完成！</div>
+    <div class="score"><small>ケチャップ</small><b id="resLen">0</b><span>cm</span></div>
+    <div class="comment" id="resCmt"></div>
+    <div class="best" id="resBest"></div>
+    <div class="actions">
+      <button class="go" id="againBtn">もう一度</button>
+      <button class="go ghost" id="titleBtn">タイトルへ</button>
+    </div>
+    <div class="actions sub">
+      <a class="mini" id="xBtn" href="#" target="_blank" rel="noopener">𝕏 でポスト</a>
+      <button class="mini" id="imgBtn">画像を保存</button>
+      <button class="mini" id="viewBtn">ながめる</button>
+    </div>
+  </div>
+</div>
+<button class="pill viewback" id="viewBack" hidden>結果にもどる</button>
+<div class="toast" id="toast" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+
+const GAME_URL = 'https://porkgorilla.com/works/hagechap.html';
+const OG_CACHE_VERSION = 1;
+const SHARE_URL = GAME_URL + '?ogv=' + OG_CACHE_VERSION;
+const HASHTAG = '#ハゲチャップ';
+const KEY_BEST = 'hagechap-bestcm', KEY_SND = 'hagechap-sound';
+const FONT = '"M PLUS Rounded 1c","Hiragino Maru Gothic ProN","Hiragino Sans",sans-serif';
+const CM_PER_UNIT = 9;            // 頭の横幅(約1.6)をおよそ15cmとする
+const coarse = matchMedia('(pointer: coarse)').matches;
+const TOUCH_OFF = 52;             // 指で隠れないよう、描く点を指の少し上にする
+
+function save(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+function load(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+let toastTimer = null;
+function toast(t, ms) { const el = $('toast'); el.textContent = t; el.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { el.hidden = true; }, ms || 1800); }
+
+if (!window.THREE) {
+  $('startBtn').textContent = '読み込めませんでした';
+  $('loadMsg').hidden = false; $('loadMsg').textContent = '通信状況を確かめて、ページを再読み込みしてください。';
+  return;
+}
+
+/* ================= 3D基盤 ================= */
+const cv = $('cv');
+const renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: true });
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.95;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.setClearColor(0x000000, 0);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 50);
+let W = 1, H = 1, baseDist = 5;
+const CAM_PLAY = { elev: 0.3, zoom: 1, ty: -0.02 };
+const CAM_TOP = { elev: 1.25, zoom: 1.32, ty: -0.62 };   // 完成後: 上から見下ろし、頭を画面の上寄りに
+const CAMS = { elev: 0.3, zoom: 1, ty: -0.02 };
+const OUTRO = { t: 0, dur: 3.0, from: null, rotFrom: 0, tiltFrom: 0 };
+
+function lin(hex) { return new THREE.Color(hex).convertSRGBToLinear(); }
+function smooth(a, b, v) { let t = (v - a) / (b - a); t = t < 0 ? 0 : t > 1 ? 1 : t; return t * t * (3 - 2 * t); }
+function mkCanvas(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
+
+/* 映り込み用の環境マップ(窓の明かりがある部屋っぽく) */
+(function makeEnv() {
+  const c = mkCanvas(512, 256), g = c.getContext('2d');
+  const gr = g.createLinearGradient(0, 0, 0, 256);
+  gr.addColorStop(0, '#fff6ea'); gr.addColorStop(0.45, '#c9a888'); gr.addColorStop(0.55, '#7a5a42'); gr.addColorStop(1, '#2a1a10');
+  g.fillStyle = gr; g.fillRect(0, 0, 512, 256);
+  const win = (x, y, w, h, a) => { const rg = g.createRadialGradient(x, y, 2, x, y, Math.max(w, h)); rg.addColorStop(0, `rgba(255,255,255,${a})`); rg.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = rg; g.fillRect(x - w * 2, y - h * 2, w * 4, h * 4); };
+  win(150, 60, 50, 34, 1); win(400, 70, 40, 30, 0.6); win(280, 40, 70, 20, 0.5);
+  const tex = new THREE.CanvasTexture(c);
+  tex.mapping = THREE.EquirectangularReflectionMapping; tex.encoding = THREE.sRGBEncoding;
+  const pm = new THREE.PMREMGenerator(renderer);
+  scene.environment = pm.fromEquirectangular(tex).texture;
+  tex.dispose(); pm.dispose();
+})();
+
+/* ライト */
+scene.add(new THREE.HemisphereLight(0xfff1e2, 0x3a2418, 0.28));
+const key = new THREE.DirectionalLight(0xfff0dc, 1.25);
+key.position.set(-1.7, 2.8, 2.6);
+key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048);
+Object.assign(key.shadow.camera, { left: -1.4, right: 1.4, top: 1.6, bottom: -1.6, near: 0.5, far: 9 });
+key.shadow.bias = -0.0004; key.shadow.normalBias = 0.015; key.shadow.radius = 3;
+scene.add(key);
+const rim = new THREE.DirectionalLight(0xdbe6ff, 0.75); rim.position.set(1.6, 1.4, -2.6); scene.add(rim);
+const fill = new THREE.DirectionalLight(0xffd8bc, 0.28); fill.position.set(2.2, -0.4, 2.0); scene.add(fill);
+
+const headGroup = new THREE.Group(); scene.add(headGroup);
+const kGroup = new THREE.Group(); headGroup.add(kGroup);   // ケチャップは頭と一緒に回る
+
+/* ================= 頭の形 ================= */
+// 単位球の方向(x,y,z)を、後頭部・首つきの頭の形に変形する。顔は -z 側、カメラは +z 側(後ろ)から見る
+function shape(x, y, z, out) {
+  let X = x * 0.80, Y = y, Z = z * 0.93;
+  Z += Math.max(0, z) * Math.exp(-(((y - 0.02) / 0.42) ** 2)) * 0.075;     // 後頭部のふくらみ
+  X *= 1 + 0.03 * Math.exp(-(((y - 0.25) / 0.35) ** 2));                     // 頭頂の横幅
+  if (Y > 0.55) Y -= (Y - 0.55) * 0.07;                                        // 頭頂を少し平らに
+  const t = smooth(-0.32, -0.9, y);                                            // 首へ(下はすぼまらず円柱になる)
+  if (t > 0) {
+    const rxz = Math.hypot(x, z) || 1e-6, dx = x / rxz, dz = z / rxz;
+    const nx = dx * 0.52, nz = dz * (dz > 0 ? 0.50 : 0.44) - 0.10;              // 首の太さ
+    X += (nx - X) * t; Z += (nz - Z) * t;
+    Y = y + t * (y + 0.32) * 1.05;
+    if (z > 0) {
+      const k = t * smooth(-0.45, -0.75, y);
+      Z += 0.035 * k * (Math.exp(-(((X - 0.15) / 0.085) ** 2)) + Math.exp(-(((X + 0.15) / 0.085) ** 2)));  // 首の筋
+      Z -= 0.02 * k * Math.exp(-((X / 0.05) ** 2));
+    }
+  }
+  out.set(X, Y, Z);
+  return out;
+}
+function dirOf(theta, phi, out) { const s = Math.sin(theta); return out.set(-Math.cos(phi) * s, Math.cos(theta), Math.sin(phi) * s); }
+
+const HSEG_W = 128, HSEG_H = 100;
+const headGeo = new THREE.SphereGeometry(1, HSEG_W, HSEG_H);
+(function deform() {
+  const pos = headGeo.attributes.position, uv = headGeo.attributes.uv, nor = headGeo.attributes.normal;
+  const d = new THREE.Vector3(), p = new THREE.Vector3(), a = new THREE.Vector3(), b = new THREE.Vector3(), n = new THREE.Vector3();
+  const e = 0.002;
+  for (let i = 0; i < pos.count; i++) {
+    const phi = uv.getX(i) * Math.PI * 2, theta = (1 - uv.getY(i)) * Math.PI;
+    shape(...dirOf(theta, phi, d).toArray(), p);
+    pos.setXYZ(i, p.x, p.y, p.z);
+    if (theta < 0.004) n.set(0, 1, 0);
+    else if (theta > Math.PI - 0.004) n.set(0, -1, 0);
+    else {
+      const p1 = shape(...dirOf(theta, phi + e, d).toArray(), new THREE.Vector3());
+      const p2 = shape(...dirOf(theta, phi - e, d).toArray(), new THREE.Vector3());
+      const p3 = shape(...dirOf(theta + e, phi, d).toArray(), new THREE.Vector3());
+      const p4 = shape(...dirOf(theta - e, phi, d).toArray(), new THREE.Vector3());
+      a.subVectors(p1, p2); b.subVectors(p3, p4);
+      n.crossVectors(a, b).normalize();
+      dirOf(theta, phi, d);
+      if (n.dot(d) < 0) n.negate();
+    }
+    nor.setXYZ(i, n.x, n.y, n.z);
+  }
+  pos.needsUpdate = true; nor.needsUpdate = true;
+  headGeo.computeBoundingSphere(); headGeo.computeBoundingBox();
+})();
+
+/* ================= 肌と髪のテクスチャ ================= */
+function hash(i, j) { let h = (Math.imul(i, 374761393) + Math.imul(j, 668265263)) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); h ^= h >>> 16; return (h >>> 0) / 4294967295; }
+function vnoise(x, y, per) {
+  const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi;
+  const w = k => ((k % per) + per) % per;
+  const A = hash(w(xi), yi), B = hash(w(xi + 1), yi), C = hash(w(xi), yi + 1), D = hash(w(xi + 1), yi + 1);
+  const u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
+  return A + (B - A) * u + (C - A) * v + (A - B - C + D) * u * v;
+}
+function fbm(x, y, per) { let s = 0, a = 0.5, f = 1; for (let o = 0; o < 4; o++) { s += a * vnoise(x * f, y * f, per * f); a *= 0.5; f *= 2; } return s; }
+
+const TW = 2048, TH = 1024;
+const colorC = mkCanvas(TW, TH), bumpC = mkCanvas(1024, 512), roughC = mkCanvas(256, 128);
+(function makeTextures() {
+  // ---- 肌の色(低解像度で計算して拡大) ----
+  const lw = 512, lh = 256, low = mkCanvas(lw, lh), lg = low.getContext('2d');
+  const img = lg.createImageData(lw, lh), D = img.data;
+  for (let y = 0; y < lh; y++) for (let x = 0; x < lw; x++) {
+    const u = (x + 0.5) / lw, v = 1 - (y + 0.5) / lh;
+    const n = fbm(u * 10, v * 5, 10), n2 = vnoise(u * 40, v * 20, 40);
+    let r = 218, g = 148, b = 112;
+    r += (n - 0.5) * 30; g += (n - 0.5) * 20; b += (n - 0.5) * 16;
+    r += (n2 - 0.5) * 8 * (1 - smooth(0.9, 0.98, v)); g += (n2 - 0.5) * 6 * (1 - smooth(0.9, 0.98, v));
+    const cr = smooth(0.6, 0.95, v); r += 12 * cr; g -= 10 * cr; b -= 6 * cr;   // 頭頂は赤み
+    const nk = smooth(0.32, 0.16, v); r -= 10 * nk; g -= 12 * nk; b -= 10 * nk; // 首は日焼け
+    const i = (y * lw + x) * 4; D[i] = r; D[i + 1] = g; D[i + 2] = b; D[i + 3] = 255;
+  }
+  lg.putImageData(img, 0, 0);
+  const g = colorC.getContext('2d');
+  g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+  g.drawImage(low, 0, 0, TW, TH);
+  // シミ
+  const R = (() => { let s = 99; return () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return s / 4294967296; }; })();
+  for (let i = 0; i < 46; i++) {
+    const u = R(), v = 0.4 + R() * 0.5;
+    const rr = 3 + R() * 10;
+    g.fillStyle = `rgba(150,90,60,${0.08 + R() * 0.16})`;
+    g.beginPath(); g.ellipse(u * TW, (1 - v) * TH, rr, rr * (0.7 + R() * 0.5), R() * 3, 0, Math.PI * 2); g.fill();
+  }
+  // 首のしわ
+  const wrinkle = (ctx, sx, sy, col, w) => {
+    ctx.strokeStyle = col; ctx.lineWidth = w; ctx.lineCap = 'round';
+    [0.215, 0.24, 0.262].forEach((v, k) => {
+      ctx.beginPath();
+      const y = (1 - v) * ctx.canvas.height, x0 = 0.16 * ctx.canvas.width, x1 = 0.34 * ctx.canvas.width;
+      ctx.moveTo(x0 + k * 8 * sx, y); ctx.quadraticCurveTo((x0 + x1) / 2, y + 10 * sy, x1 - k * 8 * sx, y);
+      ctx.stroke();
+    });
+  };
+  wrinkle(g, 1, 1, 'rgba(130,70,48,.28)', 4);
+
+  // ---- 凹凸(毛穴・しわ) ----
+  const bg = bumpC.getContext('2d'), bi = bg.createImageData(1024, 512), BD = bi.data;
+  for (let y = 0; y < 512; y++) for (let x = 0; x < 1024; x++) {
+    const u = x / 1024, v = 1 - y / 512;
+    const pole = 1 - smooth(0.9, 0.985, v);                                    // 頭頂の極で模様が放射状に集まらないよう弱める
+    let val = 128 + ((Math.random() - 0.5) * 14 + (vnoise(u * 160, v * 80, 160) - 0.5) * 22) * pole;
+    const i = (y * 1024 + x) * 4; BD[i] = BD[i + 1] = BD[i + 2] = val; BD[i + 3] = 255;
+  }
+  bg.putImageData(bi, 0, 0);
+  wrinkle(bg, 0.5, 0.5, 'rgba(0,0,0,.55)', 3);
+
+  // ---- 粗さ(頭頂はテカる、髪はマット) ----
+  const rg = roughC.getContext('2d'), ri = rg.createImageData(256, 128), RD = ri.data;
+  for (let y = 0; y < 128; y++) for (let x = 0; x < 256; x++) {
+    const u = x / 256, v = 1 - y / 128;
+    let r = 0.44 - 0.14 * smooth(0.62, 0.92, v) + (vnoise(u * 20, v * 10, 20) - 0.5) * 0.08;
+    const i = (y * 256 + x) * 4; RD[i] = RD[i + 1] = RD[i + 2] = Math.max(0, Math.min(255, r * 255)); RD[i + 3] = 255;
+  }
+  rg.putImageData(ri, 0, 0);
+
+})();
+
+const colorTex = new THREE.CanvasTexture(colorC); colorTex.encoding = THREE.sRGBEncoding;
+colorTex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+const bumpTex = new THREE.CanvasTexture(bumpC);
+const roughTex = new THREE.CanvasTexture(roughC);
+
+const skinMat = new THREE.MeshPhysicalMaterial({
+  map: colorTex, bumpMap: bumpTex, bumpScale: 0.0022, roughnessMap: roughTex, roughness: 1,
+  metalness: 0, clearcoat: 0.18, clearcoatRoughness: 0.42, envMapIntensity: 0.75,
+});
+const headMesh = new THREE.Mesh(headGeo, skinMat);
+headMesh.castShadow = true; headMesh.receiveShadow = true;
+headGroup.add(headMesh);
+
+
+/* 耳 */
+const earMat = new THREE.MeshPhysicalMaterial({ color: lin('#e0957a'), roughness: 0.5, clearcoat: 0.1, envMapIntensity: 0.6, emissive: lin('#3a0800'), emissiveIntensity: 0.25 });
+function makeEar(side) {
+  const g = new THREE.SphereGeometry(1, 40, 30), p = g.attributes.position;
+  for (let i = 0; i < p.count; i++) {
+    const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
+    let X = x * 0.075, Y = y * 0.29, Z = z * 0.18;
+    X += 0.05 * ((Y / 0.24) ** 2);                     // 外側に反る
+    if (y < -0.4) Y += (y + 0.4) * 0.03;               // 耳たぶ
+    if (x > 0.2) X -= 0.025 * Math.max(0, 1 - (y * y + z * z) * 1.2);  // 外側のくぼみ
+    p.setXYZ(i, X * side, Y, Z);
+  }
+  g.computeVertexNormals();
+  const m = new THREE.Mesh(g, earMat);
+  m.position.set(0.815 * side, -0.08, -0.15);
+  m.rotation.set(0, -0.72 * side, -0.08 * side);
+  m.castShadow = true; m.receiveShadow = true;
+  headGroup.add(m);
+  return m;
+}
+const earL = makeEar(-1), earR = makeEar(1);
+
+
+/* 目とまゆ(顔側。頭を大きく回すと、ちらっと見える) */
+const eyeTex = (() => {
+  const c = mkCanvas(256, 128), g = c.getContext('2d');
+  g.fillStyle = '#f3ede4'; g.fillRect(0, 0, 256, 128);
+  const vg = g.createLinearGradient(0, 0, 0, 128); vg.addColorStop(0, 'rgba(200,120,110,.25)'); vg.addColorStop(.5, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(200,120,110,.25)');
+  g.fillStyle = vg; g.fillRect(0, 0, 256, 128);
+  const cx = 192, cy = 64;                                   // u=0.75 が -z(前)
+  const ig = g.createRadialGradient(cx, cy, 2, cx, cy, 20);
+  ig.addColorStop(0, '#2a1a10'); ig.addColorStop(0.35, '#4a2e1a'); ig.addColorStop(0.85, '#6b4528'); ig.addColorStop(1, '#2a1a10');
+  g.fillStyle = ig; g.beginPath(); g.ellipse(cx, cy, 19, 20, 0, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#0d0806'; g.beginPath(); g.ellipse(cx, cy, 8, 8.5, 0, 0, Math.PI * 2); g.fill();
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; return t;
+})();
+const eyeMat = new THREE.MeshPhysicalMaterial({ map: eyeTex, roughness: 0.15, clearcoat: 1, clearcoatRoughness: 0.05, envMapIntensity: 1.2 });
+const lidMat = new THREE.MeshPhysicalMaterial({ color: lin('#d99a7a'), roughness: 0.5, clearcoat: 0.1, envMapIntensity: 0.6 });
+const browMat = new THREE.MeshStandardMaterial({ color: lin('#4a4440'), roughness: 0.9 });
+const lids = [];
+function surf(x, y, z) { const d = new THREE.Vector3(x, y, z).normalize(); return shape(d.x, d.y, d.z, new THREE.Vector3()); }
+[-1, 1].forEach(side => {
+  const ER = 0.085;
+  const p = surf(0.34 * side, 0.0, -0.94), out = p.clone().normalize();
+  const eye = new THREE.Group();
+  eye.position.copy(p).addScaledVector(out, -ER * 0.3);
+  eye.rotation.y = -0.22 * side;
+  const ball = new THREE.Mesh(new THREE.SphereGeometry(ER, 32, 20), eyeMat);
+  eye.add(ball);
+  // 上まぶた(少し眠そうに垂れる)
+  const lid = new THREE.Mesh(new THREE.SphereGeometry(ER * 1.1, 32, 12, 0, Math.PI * 2, 0, Math.PI * 0.4), lidMat);
+  lid.castShadow = true; eye.add(lid); lids.push(lid);
+  // 下まぶた
+  const low = new THREE.Mesh(new THREE.SphereGeometry(ER * 1.08, 32, 10, 0, Math.PI * 2, Math.PI * 0.62, Math.PI * 0.38), lidMat);
+  eye.add(low);
+  headGroup.add(eye);
+  // まゆ(白髪まじりの太め)
+  const pts = [-0.2, -0.33, -0.46].map((x, k) => {
+    const q = surf(Math.abs(x) * side, 0.235 + (k === 1 ? 0.02 : 0), -0.93);
+    return q.addScaledVector(q.clone().normalize(), 0.012);
+  });
+  const browCurve = new THREE.CatmullRomCurve3(pts.map(v => new THREE.Vector3(Math.abs(v.x) * side, v.y, v.z)));
+  const brow = new THREE.Mesh(new THREE.TubeGeometry(browCurve, 16, 0.02, 6, false), browMat);
+  brow.scale.set(1, 0.7, 1); brow.castShadow = true;
+  headGroup.add(brow);
+});
+let blinkT = 2.5;
+
+/* 顔のパーツ(ふだんは見えない側。眼鏡のつるだけ耳の上に少し見える) */
+const faceSkin = new THREE.MeshPhysicalMaterial({ color: lin('#e3a585'), roughness: 0.48, clearcoat: 0.15, clearcoatRoughness: 0.4, envMapIntensity: 0.6 });
+const lipMat = new THREE.MeshPhysicalMaterial({ color: lin('#b9705f'), roughness: 0.35, clearcoat: 0.3, envMapIntensity: 0.6 });
+const stacheMat = new THREE.MeshStandardMaterial({ color: lin('#2b2622'), roughness: 0.95 });
+const frameMat = new THREE.MeshPhysicalMaterial({ color: lin('#0d0b0a'), roughness: 0.25, clearcoat: 1, clearcoatRoughness: 0.1, envMapIntensity: 0.9 });
+const lensMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.02, transparent: true, opacity: 0.12, clearcoat: 1, envMapIntensity: 1.4, depthWrite: false });
+const sph = new THREE.SphereGeometry(1, 28, 18);
+function blob(mat, pos, sx, sy, sz, rx) {
+  const m = new THREE.Mesh(sph, mat);
+  m.position.copy(pos); m.scale.set(sx, sy, sz); if (rx) m.rotation.x = rx;
+  m.castShadow = true; headGroup.add(m); return m;
+}
+function onFace(x, y, z, out) { const q = surf(x, y, z); return q.addScaledVector(q.clone().normalize(), out || 0); }
+// 鼻(低めで小さく丸い)
+blob(faceSkin, onFace(0, -0.02, -1, 0.012), 0.05, 0.11, 0.05, -0.15);    // 鼻すじ
+blob(faceSkin, onFace(0, -0.12, -1, 0.06), 0.07, 0.06, 0.065);           // 鼻先
+[-1, 1].forEach(sd => blob(faceSkin, onFace(0.065 * sd, -0.14, -1, 0.035), 0.048, 0.042, 0.048));   // 小鼻
+// ちょび髭(鼻の下の小さな四角)
+const st = new THREE.Mesh(new THREE.BoxGeometry(0.17, 0.06, 0.045, 6, 2, 2), stacheMat);
+{ const q = onFace(0, -0.205, -1, 0.028); st.position.copy(q); st.lookAt(q.clone().multiplyScalar(2)); st.castShadow = true; headGroup.add(st); }
+// 唇(うすめ)
+blob(lipMat, onFace(0, -0.275, -1, 0.012), 0.11, 0.02, 0.03);
+blob(lipMat, onFace(0, -0.305, -1, 0.01), 0.1, 0.025, 0.03);
+// 丸眼鏡(太い黒縁)
+const RIM = 0.16, TUBE = 0.03;
+const rimCenters = [];
+[-1, 1].forEach(side => {
+  const c = onFace(0.34 * side, 0.0, -0.94, 0.085);
+  rimCenters.push(c);
+  const g = new THREE.Group(); g.position.copy(c); g.rotation.y = -0.18 * side; headGroup.add(g);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(RIM, TUBE, 14, 56), frameMat); ring.castShadow = true; g.add(ring);
+  g.add(new THREE.Mesh(new THREE.CircleGeometry(RIM, 40), lensMat));
+  // つる: 外側のふちから耳の付け根へ、耳の後ろで下に曲がる
+  const start = new THREE.Vector3(RIM * side, 0.02, 0).applyEuler(g.rotation).add(c);
+  const mid1 = onFace(0.72 * side, 0.04, -0.62, 0.04);
+  const mid2 = onFace(0.84 * side, 0.15, -0.36, 0.03);
+  const ear = onFace(0.86 * side, 0.235, -0.1, 0.03);      // 耳のてっぺんを越えて
+  const hook = onFace(0.86 * side, 0.02, 0.07, 0.018);     // 耳の後ろで下へ
+  const temple = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([start, mid1, mid2, ear, hook]), 48, 0.016, 8, false), frameMat);
+  temple.castShadow = true; headGroup.add(temple);
+});
+{ // ブリッジ
+  const a = rimCenters[0].clone().add(new THREE.Vector3(RIM * 0.92, 0.03, 0)), b = rimCenters[1].clone().add(new THREE.Vector3(-RIM * 0.92, 0.03, 0));
+  const m = a.clone().add(b).multiplyScalar(0.5); m.y += 0.035; m.z -= 0.02;
+  const br = new THREE.Mesh(new THREE.TubeGeometry(new THREE.QuadraticBezierCurve3(a, m, b), 16, 0.02, 8, false), frameMat);
+  headGroup.add(br);
+}
+
+
+
+/* ================= ケチャップ ================= */
+const KR = 0.017;                      // 太さ(半径)。v3で少し細く(0.021→0.017)
+const LIFT = KR * 0.5;                 // 表面からの浮かせ量(半分めり込ませて「乗っている」感じに)
+const MIN_STEP = 0.011;
+const kMat = new THREE.MeshPhysicalMaterial({ color: lin('#b5120a'), roughness: 0.2, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.08, envMapIntensity: 1.1 });
+const blobGeo = new THREE.SphereGeometry(1, 20, 14);
+const ZAX = new THREE.Vector3(0, 0, 1);
+
+let strokes = [], cur = null;
+function addBlob(st, p, n, r) {
+  const m = new THREE.Mesh(blobGeo, kMat);
+  m.position.copy(p).addScaledVector(n, -r * 0.25);
+  m.quaternion.setFromUnitVectors(ZAX, n);
+  m.scale.set(r, r, r * 0.6);
+  m.castShadow = true;
+  kGroup.add(m); st.meshes.push(m);
+}
+function buildChunk(st) {
+  if (st.chunkPts.length < 2) return;
+  const curve = new THREE.CatmullRomCurve3(st.chunkPts, false, 'centripetal');
+  const geo = new THREE.TubeGeometry(curve, Math.max(2, st.chunkPts.length * 2), KR, 10, false);
+  if (st.chunkMesh) { st.chunkMesh.geometry.dispose(); st.chunkMesh.geometry = geo; }
+  else { st.chunkMesh = new THREE.Mesh(geo, kMat); st.chunkMesh.castShadow = true; kGroup.add(st.chunkMesh); st.meshes.push(st.chunkMesh); }
+  st.dirty = false;
+}
+function startStroke(p, n) {
+  cur = { meshes: [], chunkMesh: null, chunkPts: [p], last: p, lastN: n, len: 0, dirty: false, count: 1 };
+  strokes.push(cur);
+  addBlob(cur, p, n, KR * 1.25);
+  sfxPlop();
+}
+function endStroke() {
+  const st = cur; if (!st) return;
+  buildChunk(st);
+  if (st.count > 1) addBlob(st, st.last, st.lastN, KR * 1.5);   // 描き終わりの「ぽてっ」
+  cur = null;
+}
+function addHit(hit) {
+  const p = hit.p.clone().addScaledVector(hit.n, LIFT);
+  if (!cur) { startStroke(p, hit.n); return; }
+  const d = p.distanceTo(cur.last);
+  if (d > 0.3) { endStroke(); startStroke(p, hit.n); return; }   // 裏側に飛んだときなどは線を分ける
+  if (d < MIN_STEP) return;
+  cur.chunkPts.push(p); cur.last = p; cur.lastN = hit.n; cur.len += d; cur.count++; cur.dirty = true;
+  P.speedAcc += d;
+  if (cur.chunkPts.length >= 140) {          // 長い線は分割して作り直しを軽くする
+    buildChunk(cur);
+    const pts = cur.chunkPts;
+    cur.chunkMesh = null; cur.chunkPts = [pts[pts.length - 2], pts[pts.length - 1]];
+  }
+}
+function removeStroke(st) {
+  for (const m of st.meshes) { kGroup.remove(m); if (m.geometry !== blobGeo) m.geometry.dispose(); }
+}
+function clearAll() { if (cur) endStroke(); strokes.forEach(removeStroke); strokes = []; }
+function undo() {
+  if (G.mode !== 'play') return;
+  if (cur) endStroke();
+  const st = strokes.pop(); if (st) removeStroke(st);
+}
+function totalLen() { return strokes.reduce((s, st) => s + st.len, 0); }
+
+/* ================= 当たり判定 ================= */
+const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+const paintables = [headMesh, earL, earR];
+const vA = new THREE.Vector3(), vB = new THREE.Vector3(), vC = new THREE.Vector3(), bary = new THREE.Vector3(), invG = new THREE.Matrix4();
+function hitAt(cx, cy) {
+  ndc.set(cx / W * 2 - 1, -(cy / H) * 2 + 1);
+  headGroup.updateMatrixWorld(true);
+  ray.setFromCamera(ndc, camera);
+  const hits = ray.intersectObjects(paintables, false);
+  if (!hits.length) return null;
+  const h = hits[0], obj = h.object, geo = obj.geometry, f = h.face;
+  const local = obj.worldToLocal(h.point.clone());
+  vA.fromBufferAttribute(geo.attributes.position, f.a); vB.fromBufferAttribute(geo.attributes.position, f.b); vC.fromBufferAttribute(geo.attributes.position, f.c);
+  THREE.Triangle.getBarycoord(local, vA, vB, vC, bary);
+  const na = new THREE.Vector3().fromBufferAttribute(geo.attributes.normal, f.a);
+  const nb = new THREE.Vector3().fromBufferAttribute(geo.attributes.normal, f.b);
+  const nc = new THREE.Vector3().fromBufferAttribute(geo.attributes.normal, f.c);
+  const n = na.multiplyScalar(bary.x).addScaledVector(nb, bary.y).addScaledVector(nc, bary.z).normalize();
+  n.transformDirection(obj.matrixWorld);
+  invG.copy(headGroup.matrixWorld).invert();
+  n.transformDirection(invG);
+  return { p: headGroup.worldToLocal(h.point.clone()), n };
+}
+
+/* ================= 状態 ================= */
+const G = { mode: 'loading', blob: null, shareText: '', strokesStarted: 0 };
+const P = { down: false, drawing: false, rotating: false, id: null, x: 0, y: 0, type: 'mouse', hover: false, speed: 0, speedAcc: 0, rx0: 0, ry0: 0, px0: 0, py0: 0 };
+const ROT = { y: 0, x: 0, ty: 0, tx: 0 };
+let T = 0;
+
+function resize() {
+  W = Math.max(1, window.innerWidth || 0); H = Math.max(1, window.innerHeight || 0);
+  renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+  renderer.setSize(W, H, false);
+  camera.aspect = W / H;
+  const vf = THREE.MathUtils.degToRad(camera.fov) / 2;
+  const dH = (2.75 / 2) / Math.tan(vf), dW = (1.98 / 2) / (Math.tan(vf) * camera.aspect);
+  baseDist = Math.max(dH, dW);
+  camera.updateProjectionMatrix();
+  placeCamera();
+}
+const _dir = new THREE.Vector3(), _tgt = new THREE.Vector3();
+function placeCamera() {
+  _dir.set(0, CAMS.elev, 1).normalize();
+  _tgt.set(0, CAMS.ty, 0);
+  camera.position.copy(_tgt).addScaledVector(_dir, baseDist * CAMS.zoom);
+  camera.lookAt(_tgt);
+}
+addEventListener('resize', resize); resize();
+
+/* ================= 入力 ================= */
+function drawXY(e) { return { x: e.clientX, y: e.clientY - (e.pointerType === 'touch' ? TOUCH_OFF : 0) }; }
+cv.addEventListener('contextmenu', e => e.preventDefault());
+cv.addEventListener('pointerdown', e => {
+  P.type = e.pointerType; P.x = e.clientX; P.y = e.clientY;
+  const canRotate = G.mode === 'play' || G.mode === 'result';
+  if (!canRotate) return;
+  e.preventDefault();
+  P.down = true; P.id = e.pointerId;
+  try { cv.setPointerCapture(e.pointerId); } catch (_) {}
+  const q = drawXY(e);
+  const hit = G.mode === 'play' ? hitAt(q.x, q.y) : null;
+  if (hit) {
+    P.drawing = true; initAudio();
+    addHit(hit);
+    G.strokesStarted++;
+    maybeMumble();
+    $('bottle').classList.add('press');
+  } else {
+    P.rotating = true; P.rx0 = ROT.ty; P.ry0 = ROT.tx; P.px0 = e.clientX; P.py0 = e.clientY;
+  }
+});
+cv.addEventListener('pointermove', e => {
+  P.type = e.pointerType; P.x = e.clientX; P.y = e.clientY;
+  if (e.pointerType === 'mouse') P.hover = true;
+  if (!P.down || e.pointerId !== P.id) return;
+  if (P.drawing) {
+    const list = e.getCoalescedEvents ? e.getCoalescedEvents() : [];
+    for (const ev of (list.length ? list : [e])) {
+      const q = drawXY(ev.pointerType ? ev : e);
+      const hit = hitAt(q.x, q.y);
+      if (hit) addHit(hit); else if (cur) endStroke();
+    }
+  } else if (P.rotating) {
+    ROT.ty = Math.max(-1.6, Math.min(1.6, P.rx0 + (e.clientX - P.px0) * 0.007));
+    ROT.tx = Math.max(-0.35, Math.min(0.45, P.ry0 + (e.clientY - P.py0) * 0.004));
+  }
+});
+function up(e) {
+  if (P.down && e.pointerId === P.id) {
+    if (P.drawing && cur) endStroke();
+    P.down = false; P.drawing = false; P.rotating = false;
+    $('bottle').classList.remove('press');
+  }
+  if (e.pointerType !== 'mouse') P.hover = false;
+}
+cv.addEventListener('pointerup', up);
+cv.addEventListener('pointercancel', up);
+cv.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse' && !P.down) P.hover = false; });
+
+/* おじさんのつぶやき(たまに) */
+const MUMBLE = ['ひゃっ', 'ん？', 'つめたっ', 'くすぐったいのう', 'なんか垂れとる？', '…甘酸っぱい匂いがする'];
+let bubbleTimer = null;
+function maybeMumble() {
+  if (G.strokesStarted === 1 || Math.random() < 0.1) {
+    const el = $('bubble');
+    el.textContent = G.strokesStarted === 1 ? 'つめたっ！' : MUMBLE[Math.floor(Math.random() * MUMBLE.length)];
+    el.hidden = false; clearTimeout(bubbleTimer); bubbleTimer = setTimeout(() => { el.hidden = true; }, 1300);
+  }
+}
+
+/* ================= 毎フレーム ================= */
+const bottleEl = $('bottle');
+function update(dt) {
+  T += dt;
+  P.speed = P.speed * 0.75 + (P.speedAcc / Math.max(dt, 0.001)) * 0.25; P.speedAcc = 0;
+  if (G.mode === 'title' || G.mode === 'loading') { ROT.ty = Math.sin(T * 0.45) * 0.55; ROT.tx = 0.05; }
+  if (G.mode === 'outro') {
+    OUTRO.t += dt;
+    const k = Math.min(1, OUTRO.t / OUTRO.dur), e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;   // ゆっくり出てゆっくり止まる
+    const f = OUTRO.from;
+    CAMS.elev = f.elev + (CAM_TOP.elev - f.elev) * e;
+    CAMS.zoom = f.zoom + (CAM_TOP.zoom - f.zoom) * e + Math.sin(k * Math.PI) * 0.18;   // 途中で少し引いて全体を見せる
+    CAMS.ty = f.ty + (CAM_TOP.ty - f.ty) * e;
+    ROT.ty = ROT.y = OUTRO.rotFrom * (1 - e) + Math.sin(k * Math.PI * 2) * 0.62 * Math.sin(k * Math.PI);   // 左→右と両側を眺めて正面に戻る
+    ROT.tx = ROT.x = OUTRO.tiltFrom * (1 - e);
+    if (k >= 1) showResult();
+  } else {
+    ROT.y += (ROT.ty - ROT.y) * Math.min(1, dt * 10);
+    ROT.x += (ROT.tx - ROT.x) * Math.min(1, dt * 10);
+    // 横を向かせたときは少し引いて、頭の輪郭(と目)が画面に収まるようにする
+    const turn = Math.min(1, Math.abs(ROT.y) / 1.3);
+    if (G.mode === 'play') CAMS.zoom = CAM_PLAY.zoom * (1 + 0.24 * turn);
+    else if (G.mode === 'result') CAMS.zoom = CAM_TOP.zoom * (1 + 0.15 * turn);
+  }
+  placeCamera();
+  headGroup.rotation.set(ROT.x, ROT.y, 0);
+  headGroup.position.y = Math.sin(T * 1.3) * 0.004;            // 呼吸
+  blinkT -= dt; let bl = 0;
+  if (blinkT < 0) { bl = Math.max(0, 1 - Math.abs(blinkT + 0.09) / 0.09); if (blinkT < -0.18) blinkT = 2 + Math.random() * 4; }
+  for (const l of lids) l.rotation.x = -(0.08 + bl * 1.1);   // 前へ倒すと目が閉じる
+  if (cur && cur.dirty) buildChunk(cur);
+
+  // ボトル
+  if (G.mode === 'play') {
+    let bx, by;
+    if (P.drawing || (P.hover && !P.rotating)) { bx = P.x; by = P.y - (P.type === 'touch' ? TOUCH_OFF : 0); }
+    else { bx = W - Math.min(80, W * 0.16); by = H * 0.62; }
+    bottleEl.hidden = false;
+    bottleEl.style.transform = `translate(${bx - 29}px, ${by - 150}px) rotate(26deg)`;
+  } else bottleEl.hidden = true;
+
+  updateAudio();
+}
+
+let last = performance.now();
+function loop(now) {
+  requestAnimationFrame(loop);
+  const dt = Math.min(0.033, Math.max(0, (now - last) / 1000)); last = now;
+  if (window.innerWidth < 1 || window.innerHeight < 1) return;
+  try { update(dt); renderer.render(scene, camera); } catch (e) { console.error(e); }
+}
+requestAnimationFrame(loop);
+
+/* ================= 画面遷移 ================= */
+function bestVal() { const v = parseFloat(load(KEY_BEST)); return isFinite(v) ? v : 0; }
+function refreshBest() { const b = bestVal(); $('bestT').textContent = b > 0 ? 'これまでの最長：ケチャップ ' + b + 'cm' : ''; }
+
+function startGame() {
+  initAudio(true);
+  clearAll();
+  G.mode = 'play'; G.blob = null; G.strokesStarted = 0;
+  ROT.ty = 0; ROT.tx = 0;
+  Object.assign(CAMS, CAM_PLAY);
+  $('ctrl').hidden = false;
+  $('titleOv').hidden = true; $('resOv').hidden = true; $('viewBack').hidden = true;
+  toast('頭の外をドラッグすると、頭が回ります', 2600);
+}
+
+function commentFor(cm, n) {
+  if (n === 0) return '…何もせんのかい。';
+  if (cm < 40) return 'ちょっと冷たいのう。';
+  if (cm < 120) return 'なんか甘酸っぱい匂いがするんじゃが。';
+  if (cm < 260) return '母さん、ワシの頭どうなっとる？';
+  if (cm < 450) return 'さっきから、ずっと冷たいんじゃが。';
+  return 'ワシはオムライスじゃないぞ！';
+}
+
+function finish() {
+  if (G.mode !== 'play') return;
+  if (cur) endStroke();
+  P.down = false; P.drawing = false;
+  G.mode = 'outro';
+  OUTRO.t = 0; OUTRO.from = { ...CAMS }; OUTRO.rotFrom = ROT.y; OUTRO.tiltFrom = ROT.x;
+  $('ctrl').hidden = true; $('bubble').hidden = true; $('toast').hidden = true;
+  sfxWhoosh();
+}
+
+function showResult() {
+  G.mode = 'result';
+  ROT.ty = 0; ROT.tx = 0;
+  const cm = Math.round(totalLen() * CM_PER_UNIT);
+  $('resLen').textContent = cm;
+  $('resCmt').textContent = '「' + commentFor(cm, strokes.length) + '」';
+  const best = bestVal();
+  if (cm > best) { save(KEY_BEST, String(cm)); $('resBest').textContent = cm > 0 ? '最長記録！' : ''; }
+  else $('resBest').textContent = best > 0 ? 'これまでの最長：' + best + 'cm' : '';
+  G.shareText = 'おじさんの頭に、ケチャップで絵を描いた（ケチャップ' + cm + 'cm） ' + HASHTAG;
+  $('xBtn').href = 'https://x.com/intent/post?text=' + encodeURIComponent(G.shareText) + '&url=' + encodeURIComponent(SHARE_URL);
+  $('resOv').hidden = false;
+  sfxDone();
+  makeShareImage(cm);
+}
+
+function backToTitle() {
+  clearAll();
+  Object.assign(CAMS, CAM_PLAY);
+  G.mode = 'title';
+  $('resOv').hidden = true; $('viewBack').hidden = true; $('ctrl').hidden = true;
+  $('titleOv').hidden = false;
+  refreshBest();
+}
+
+/* ================= 画像 ================= */
+let canShareFiles = false;
+try { canShareFiles = coarse && !!navigator.canShare && navigator.canShare({ files: [new File([new Blob(['x'])], 't.jpg', { type: 'image/jpeg' })] }); } catch (e) {}
+$('imgBtn').textContent = canShareFiles ? '画像を共有' : '画像を保存';
+
+function makeShareImage(cm) {
+  G.blob = null;
+  try {
+    const W2 = 1080, H2 = 1350, c = mkCanvas(W2, H2), g = c.getContext('2d');
+    const bg = g.createLinearGradient(0, 0, 0, H2);
+    bg.addColorStop(0, '#6e4a30'); bg.addColorStop(0.6, '#4a2f1e'); bg.addColorStop(1, '#2e1d12');
+    g.fillStyle = bg; g.fillRect(0, 0, W2, H2);
+    renderer.render(scene, camera);                       // 描いた直後に同じ処理の中で読む
+    const src = renderer.domElement, sa = src.width / src.height, da = W2 / H2;
+    let sx, sy, sw, sh;
+    if (sa > da) { sh = src.height; sw = sh * da; sx = (src.width - sw) / 2; sy = 0; }
+    else { sw = src.width; sh = sw / da; sx = 0; sy = (src.height - sh) * 0.15; }
+    g.drawImage(src, sx, sy, sw, sh, 0, 0, W2, H2);
+    const gr = g.createLinearGradient(0, H2 * 0.66, 0, H2);
+    gr.addColorStop(0, 'rgba(20,12,8,0)'); gr.addColorStop(0.45, 'rgba(20,12,8,.72)'); gr.addColorStop(1, 'rgba(20,12,8,.92)');
+    g.fillStyle = gr; g.fillRect(0, H2 * 0.66, W2, H2 * 0.34);
+    g.textBaseline = 'alphabetic'; g.lineJoin = 'round';
+    g.font = '800 96px ' + FONT; g.lineWidth = 10; g.strokeStyle = '#1f1a24';
+    g.strokeText('ハゲチャップ', 56, H2 - 190); g.fillStyle = '#e8402f'; g.fillText('ハゲチャップ', 56, H2 - 190);
+    g.font = '800 40px ' + FONT; g.fillStyle = '#fff';
+    g.fillText('おじさんの頭に、ケチャップ ' + cm + 'cm', 60, H2 - 116);
+    g.font = '500 28px ' + FONT; g.fillStyle = '#bfb3a3';
+    g.fillText('porkgorilla.com/works/hagechap.html', 60, H2 - 60);
+    c.toBlob(b => { G.blob = b; }, 'image/jpeg', 0.9);
+  } catch (e) { console.error(e); }
+}
+function downloadImg() {
+  const url = URL.createObjectURL(G.blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'hagechap.jpg';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+$('imgBtn').addEventListener('click', async () => {
+  if (!G.blob) { toast('画像を準備中…もう一度タップ'); return; }
+  if (canShareFiles) {
+    const file = new File([G.blob], 'hagechap.jpg', { type: 'image/jpeg' });
+    try { await navigator.share({ files: [file], text: G.shareText }); }
+    catch (e) { if (e && e.name !== 'AbortError') { try { downloadImg(); } catch (_) {} } }
+    return;
+  }
+  try { downloadImg(); } catch (e) {}
+});
+if (coarse) { ['xBtn', 'xTitle'].forEach(id => { $(id).removeAttribute('target'); $(id).removeAttribute('rel'); }); }
+$('xTitle').href = 'https://x.com/intent/post?text=' + encodeURIComponent('オムライスじゃなくて、おじさんの頭にケチャップで絵を描くゲーム ' + HASHTAG) + '&url=' + encodeURIComponent(SHARE_URL);
+
+/* ================= ボタン ================= */
+$('startBtn').addEventListener('click', startGame);
+$('againBtn').addEventListener('click', startGame);
+$('titleBtn').addEventListener('click', backToTitle);
+$('doneBtn').addEventListener('click', finish);
+$('viewBtn').addEventListener('click', () => { $('resOv').hidden = true; $('viewBack').hidden = false; toast('ドラッグで頭を回せます'); });
+$('viewBack').addEventListener('click', () => { $('resOv').hidden = false; $('viewBack').hidden = true; });
+
+/* ================= 音 ================= */
+let AC = null, master = null, sqG = null, sqF = null, noiseBuf = null;
+let soundOn = load(KEY_SND) !== '0';
+function initAudio(force) {
+  if (AC && force) { try { AC.close().catch(() => {}); } catch (e) {} AC = null; }
+  else if (AC) {
+    if (AC.state === 'closed') AC = null;
+    else { if (AC.state === 'suspended') AC.resume().catch(() => {}); return; }
+  }
+  const C = window.AudioContext || window.webkitAudioContext; if (!C) return;
+  try {
+    AC = new C();
+    master = AC.createGain(); master.gain.value = soundOn ? 0.9 : 0; master.connect(AC.destination);
+    noiseBuf = AC.createBuffer(1, AC.sampleRate * 2, AC.sampleRate);
+    const d = noiseBuf.getChannelData(0); let b = 0;
+    for (let i = 0; i < d.length; i++) { const w = Math.random() * 2 - 1; b = (b + 0.02 * w) / 1.02; d[i] = w * 0.45 + b * 3; }
+    const src = AC.createBufferSource(); src.buffer = noiseBuf; src.loop = true;
+    sqF = AC.createBiquadFilter(); sqF.type = 'bandpass'; sqF.frequency.value = 900; sqF.Q.value = 0.9;
+    sqG = AC.createGain(); sqG.gain.value = 0;
+    src.connect(sqF); sqF.connect(sqG); sqG.connect(master); src.start();
+    if (AC.state === 'suspended') AC.resume().catch(() => {});
+  } catch (e) { AC = null; }
+}
+function updateAudio() {   // ゲームロジックの外側。描いていなければ必ず0へ
+  if (!AC || !sqG) return;
+  const drawing = G.mode === 'play' && P.drawing && cur;
+  const tgt = drawing ? Math.min(0.45, 0.05 + P.speed * 0.25) : 0;
+  try {
+    sqG.gain.setTargetAtTime(tgt, AC.currentTime, 0.04);
+    sqF.frequency.setTargetAtTime(700 + Math.min(1400, P.speed * 500), AC.currentTime, 0.05);
+  } catch (e) {}
+}
+function noiseHit(dur, freq, vol, type) {
+  if (!AC || !noiseBuf) return;
+  const t = AC.currentTime, s = AC.createBufferSource(); s.buffer = noiseBuf;
+  const f = AC.createBiquadFilter(); f.type = type || 'lowpass'; f.frequency.value = freq;
+  const gg = AC.createGain(); gg.gain.setValueAtTime(vol, t); gg.gain.exponentialRampToValueAtTime(0.001, t + dur);
+  s.connect(f); f.connect(gg); gg.connect(master); s.start(t, Math.random()); s.stop(t + dur + 0.05);
+}
+function tone(f0, f1, dur, vol, type, delay) {
+  if (!AC) return;
+  const t = AC.currentTime + (delay || 0), o = AC.createOscillator(), gg = AC.createGain();
+  o.type = type || 'sine'; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(Math.max(1, f1), t + dur);
+  gg.gain.setValueAtTime(0.0001, t); gg.gain.linearRampToValueAtTime(vol, t + 0.01); gg.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(gg); gg.connect(master); o.start(t); o.stop(t + dur + 0.05);
+}
+function sfxPlop() { noiseHit(0.12, 500, 0.35); tone(170, 60, 0.12, 0.22); }
+function sfxWhoosh() { noiseHit(1.2, 600, 0.16, 'bandpass'); }
+function sfxDone() { [660, 880, 1320].forEach((f, i) => tone(f, f, 0.28, 0.12, 'triangle', i * 0.09)); }
+
+const ICON_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
+const ICON_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M17 9l5 6M22 9l-5 6"/></svg>';
+function refreshSnd() { $('sndBtn').innerHTML = soundOn ? ICON_ON : ICON_OFF; $('sndBtn').setAttribute('aria-pressed', soundOn ? 'true' : 'false'); }
+$('sndBtn').addEventListener('click', () => {
+  soundOn = !soundOn; save(KEY_SND, soundOn ? '1' : '0'); refreshSnd();
+  if (soundOn) initAudio();
+  if (master && AC) { try { master.gain.setTargetAtTime(soundOn ? 0.9 : 0, AC.currentTime, 0.02); } catch (e) {} }
+});
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && G.mode === 'play') initAudio();
+  if (document.visibilityState === 'hidden' && P.down) { if (cur) endStroke(); P.down = false; P.drawing = false; P.rotating = false; }
+});
+
+refreshSnd(); refreshBest();
+G.mode = 'title';
+$('startBtn').disabled = false; $('startBtn').textContent = 'はじめる';
+})();
+</script>
+</body>
+</html>
