@@ -360,7 +360,10 @@ function makeProduct(type){
   else if(type==='banana'){const t=mesh(new THREE.TorusGeometry(.07,.02,6,10,Math.PI*.85),'#f5d43c');t.rotation.z=Math.PI*1.08;g.add(t);bo=.03;name='バナナ';mass=.3;}
   else if(type==='bento'){g.add(box(.17,.05,.12,'#222'));g.add(at(box(.165,.012,.115,'#e9f2ee',{transparent:true,opacity:.7}),0,.03,0));g.add(at(box(.06,.02,.05,'#e8731c'),-.04,.02,0));g.add(at(box(.06,.02,.05,'#fff'),.04,.02,0));bo=.03;name='のり弁';mass=.7;}
   else if(type==='egg'){const e=sph(.04,'#f6efe0',10);e.scale.set(1,1.25,1);g.add(e);bo=.05;name='ゆで卵';mass=.15;}
-  const K=1.35;g.scale.setScalar(K);return {g,r:r*K,bo:bo*K,mass,name};
+  const K=1.35;g.scale.setScalar(K);
+  // 接地の高さは実際の形の一番下から求める(手で決めた値だと台にめり込む)
+  const bb=new THREE.Box3().setFromObject(g);bo=Math.max(.01,-bb.min.y);
+  return {g,r:r*K,bo,mass,name};
 }
 const PRODUCT_TYPES=['can','onigiri','bottle','pan','pudding','banana','bento','egg'];
 
