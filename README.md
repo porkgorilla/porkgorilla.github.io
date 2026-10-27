@@ -75,6 +75,7 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 | [りそうの相棒](https://porkgorilla.com/works/risou-aibou.html) | GAME | 窓際部署の初老の警部に、新しい相棒を迎えるゲーム |
 | [誤送金ビリオネア](https://porkgorilla.com/works/gosoukin.html) | GAME | 大富豪の口座の1兆ドルを、いいね長押しで世界に配るゲーム |
 | [駅弁](https://porkgorilla.com/works/ekiben.html) | GAME | 紐を引き間違えると、中身が吹っ飛ぶ加熱式駅弁の二択ゲーム |
+| [10秒、現金、鉄](https://porkgorilla.com/works/jubyo-genkin-tetsu.html) | GAME | 札束を詰めて、鉄で粘って、10秒でずらかる強盗ゲーム |
 
 ## 構成
 
@@ -153,7 +154,8 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
     ├── gyaku-ketchup.html
     ├── risou-aibou.html
     ├── gosoukin.html
-    └── ekiben.html
+    ├── ekiben.html
+    └── jubyo-genkin-tetsu.html
 ```
 
 `theme.css` / `site.js` / `favicon.svg` はルート直下に置き、各作品ページからは絶対パス(`/theme.css` など)で読み込みます。404.html も GitHub Pages の仕様上ルート直下が必須です。
