@@ -848,7 +848,8 @@ function grateLevel(v){
   grSrc.playbackRate.setTargetAtTime(clamp(.7 + v / 60, .6, 1.8), t, .05);
 }
 function sfx(type){
-  if (!AC || !soundOn) return;
+  // 効果音はプレイ中だけ。タイトル画面の後ろのデモや一時停止中は鳴らさない
+  if (!AC || !soundOn || mode !== 'play') return;
   const t = AC.currentTime;
   const noise = (dur, f, q, gain, ft) => {
     const n = Math.floor(AC.sampleRate * dur), b = AC.createBuffer(1, n, AC.sampleRate), d = b.getChannelData(0);
@@ -954,7 +955,7 @@ function stepArm(dt){
     }
     if (cur) HAND.y = PY + appleH(cur);
     if (cur && appleH(cur) <= 1.2){
-      st = 'move'; amp = 0; session.n++; total.n++; lsSet(K_TOTAL, JSON.stringify(total));
+      st = 'move'; amp = 0; if (mode === 'play'){ session.n++; total.n++; lsSet(K_TOTAL, JSON.stringify(total)); }   // タイトルのデモは数えない
       goTo(HAND.x, HAND.y + 7, -1.05, .7, () => goTo(HAND.x, HAND.y + .01, -1.05, .7, () =>
         goTo(BIN_X, PY + 13, -.2, .9, () => {
           dropToBin(cur); cur = null; HAND.open = 1;
@@ -968,7 +969,8 @@ function addGrams(g, ap){
   const u = tray.userData;
   u.B = u.grams > 0 ? u.B * u.grams / (u.grams + g) : 0;
   u.flesh = ap.v.flesh;
-  u.grams += g; session.g += g; total.g += g;
+  u.grams += g;
+  if (mode === 'play'){ session.g += g; total.g += g; }   // タイトルのデモは累計に入れない
 }
 function dropToBin(ap){
   const h = Math.max(.5, appleH(ap)), rp = Math.max(1, planeR(ap, ap.yc));
@@ -1086,7 +1088,7 @@ function setRunMode(v){ if (SET.mode === v) return; SET.mode = v; saveSet(); set
 function setPeel(v){ if (SET.peel === v) return; SET.peel = v; saveSet(); belt.forEach(disposeApple); belt = []; renderOpts(); }
 function renderTitle(){
   renderOpts();
-  $('totalT').textContent = total.n > 0 ? 'これまでに ' + total.n + '個・' + Math.round(total.g).toLocaleString() + 'g すりおろした' : '';
+  $('totalT').textContent = total.n > 0 ? 'これまでに ' + total.n + '個・' + Math.floor(total.g).toLocaleString() + 'g すりおろした' : '';
 }
 const GRATER_ITEMS = [['copper', '銅'], ['ceramic', '陶器'], ['oni', '鬼おろし']];
 function setGrater(v){
@@ -1133,8 +1135,8 @@ function start(){
   setMode('play');
 }
 function pause(){ if (mode !== 'play') return; setHold(false); setMode('pause'); disarm();
-  $('pSum').textContent = 'リンゴ ' + session.n + '個・' + Math.round(session.g).toLocaleString() + 'g すりおろした';
-  setShare($('shareBtn'), 'スリリンゴで、' + (nightNow ? '誰もいない夜の' : '') + (SET.theme === 'kitchen' ? '台所' : '工場') + 'のロボットアームがリンゴを' + session.n + '個(' + Math.round(session.g).toLocaleString() + 'g)すりおろした。♩=' + SET.bpm);
+  $('pSum').textContent = 'リンゴ ' + session.n + '個・' + Math.floor(session.g).toLocaleString() + 'g すりおろした';
+  setShare($('shareBtn'), 'スリリンゴで、' + (nightNow ? '誰もいない夜の' : '') + (SET.theme === 'kitchen' ? '台所' : '工場') + 'のロボットアームがリンゴを' + session.n + '個(' + Math.floor(session.g).toLocaleString() + 'g)すりおろした。♩=' + SET.bpm);
 }
 function resume(){ initAudio(); setMode('play'); }
 function backToTitle(){ disarm(); camView = 'far'; updCamBtn(); setMode('title'); renderTitle(); }
