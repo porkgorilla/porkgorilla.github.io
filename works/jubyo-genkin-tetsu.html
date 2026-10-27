@@ -541,7 +541,7 @@ function spawn(){
   const pCs = B.cs * (.3 + u * 1.5);
   const pB10 = .1 + .32 * u + B.b10;
   let type = 'b1';
-  const pDm = (S.dmN < 1 && S.closeT > 3 && S.closeT < 9) ? .03 : 0;
+  const pDm = (S.dmN < 1 && S.closeT > 3 && S.closeT < 9) ? .0035 : 0;   // 1軒あたり約1/10
   if (Math.random() < pDm) type = 'dm';
   else if (r < pFe) type = 'fe'; else if (r < pFe + pCs) type = 'cs'; else if (r < pFe + pCs + pB10) type = 'b10';
   let x = 0, y = 0, ok = false;
