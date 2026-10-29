@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>かぼちゃ彫刻室 | porkgorilla://</title>
+<meta name="description" content="3Dのかぼちゃを彫ってジャック・オー・ランタンを作り、黒タイツの男にかぶせて踊らせるアプリ">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:title" content="かぼちゃ彫刻室">
+<meta property="og:description" content="3Dのかぼちゃを彫ってジャック・オー・ランタンを作り、黒タイツの男にかぶせて踊らせるアプリ">
+<meta property="og:url" content="https://porkgorilla.com/works/kabocha.html">
+<meta property="og:image" content="https://porkgorilla.com/assets/og-kabocha.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="かぼちゃ彫刻室">
+<meta name="twitter:description" content="3Dのかぼちゃを彫ってジャック・オー・ランタンを作り、黒タイツの男にかぶせて踊らせるアプリ">
+<meta name="twitter:image" content="https://porkgorilla.com/assets/og-kabocha.jpg">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-MBT4300J0L');
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Potta+One&family=Zen+Kaku+Gothic+New:wght@500;700&display=swap">
+<style>
+[hidden]{display:none!important}
+/* 全画面の夜の作業台。下に道具の棚、右に手元のスイッチ。単一のダークな世界観で固定 */
+:root{
+  --night:#0d0b13;
+  --panel:rgba(22,18,28,.9);
+  --line:rgba(255,214,170,.14);
+  --ink:#f4e9d8;
+  --sub:#a99c8c;
+  --pump:#f08a24;
+  --pump-deep:#b85a14;
+  --flame:#ffd36a;
+  --f-disp:"Potta One","Hiragino Maru Gothic ProN","Yu Gothic",sans-serif;
+  --f-body:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic","Noto Sans JP",sans-serif;
+  color-scheme:dark;
+}
+html{box-sizing:border-box}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--night);color:var(--ink)}
+body{font-family:var(--f-body);-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+#app{position:fixed;inset:0;overflow:hidden;user-select:none;-webkit-user-select:none}
+#cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:crosshair}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible{outline:2px solid var(--flame);outline-offset:2px}
+
+/* 上部バー(どの画面でも前面) */
+.top{position:absolute;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:calc(env(safe-area-inset-top,0px) + 8px) 16px 8px;pointer-events:none}
+.top > *{pointer-events:auto}
+.home{color:var(--sub);text-decoration:none;font-size:12px;letter-spacing:.04em;white-space:nowrap;min-height:44px;display:inline-flex;align-items:center}
+.home:hover{color:var(--ink)}
+.brand{font-family:var(--f-disp);font-size:15px;color:var(--pump);letter-spacing:.06em;opacity:.9;pointer-events:none}
+.snd{min-width:44px;min-height:44px;padding:0 10px;border-radius:12px;border:1px solid var(--line);background:rgba(20,16,26,.6);font-size:12px;color:var(--sub)}
+.snd[aria-pressed="true"]{color:var(--ink)}
+
+/* 右の手元スイッチ */
+.side{position:absolute;right:12px;top:calc(env(safe-area-inset-top,0px) + 64px);z-index:12;display:flex;flex-direction:column;gap:10px}
+.sbtn{width:56px;min-height:56px;border-radius:16px;border:1px solid var(--line);background:rgba(20,16,26,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:10px;color:var(--sub);padding:6px 2px}
+.sbtn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.sbtn[aria-pressed="true"]{color:var(--night);background:var(--flame);border-color:var(--flame)}
+.sbtn.danger{color:#fff;background:#b8322a;border-color:#b8322a}
+
+/* ヒント */
+.hint{position:absolute;left:16px;top:calc(env(safe-area-inset-top,0px) + 60px);z-index:11;max-width:min(320px,calc(100% - 100px));
+  padding:8px 14px;border-radius:12px;background:rgba(20,16,26,.78);border:1px solid var(--line);font-size:12px;line-height:1.6;color:var(--ink);text-align:center;
+  transition:opacity .5s;pointer-events:none}
+.hint.fade{opacity:0}
+
+/* 下のパネル共通 */
+.panel{position:absolute;left:0;right:0;bottom:0;margin-inline:auto;max-width:640px;z-index:10;background:var(--panel);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--line);border-bottom:none;border-radius:20px 20px 0 0;
+  padding:10px 16px calc(env(safe-area-inset-bottom,0px) + 12px);display:flex;flex-direction:column;gap:10px}
+.toolrow{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.toolrow::-webkit-scrollbar{display:none}
+.tool{flex:0 0 auto;min-width:58px;height:58px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.03);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;color:var(--sub)}
+.tool svg{width:24px;height:24px}
+.tool[aria-pressed="true"]{border-color:var(--pump);color:var(--ink);background:rgba(240,138,36,.16)}
+.ctrlrow{display:flex;align-items:center;gap:10px}
+.seg{display:flex;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.seg button{min-width:44px;min-height:44px;background:transparent;border:none;color:var(--sub);font-weight:700;font-size:14px}
+.seg button + button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--pump);color:var(--night)}
+.seglabel{font-size:11px;color:var(--sub);letter-spacing:.06em}
+.icon{min-width:44px;min-height:44px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--ink);display:inline-flex;align-items:center;justify-content:center}
+.icon svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.icon:disabled{opacity:.35;cursor:default}
+.spacer{flex:1}
+.btn{min-height:46px;padding:0 20px;border-radius:14px;border:2px solid transparent;font-weight:700;font-size:15px;letter-spacing:.04em;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;white-space:nowrap}
+.btn.primary{background:var(--pump);color:var(--night);box-shadow:0 0 0 1px rgba(255,211,106,.25),0 6px 20px rgba(240,138,36,.35)}
+.btn.primary:hover{background:#ff9a35}
+.btn.ghost{background:transparent;color:var(--pump);border-color:rgba(240,138,36,.55)}
+.btn.ghost:hover{background:rgba(240,138,36,.12)}
+.btn.soft{background:rgba(255,255,255,.05);color:var(--ink);border-color:var(--line);font-size:13px;padding:0 14px}
+.btn.soft[aria-pressed="true"]{background:rgba(255,211,106,.16);border-color:rgba(255,211,106,.6);color:var(--flame)}
+.btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+
+/* 完成パネル */
+.donehead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.donehead b{font-family:var(--f-disp);font-weight:400;font-size:24px;color:var(--flame);text-shadow:0 0 18px rgba(255,180,70,.55)}
+.donehead span{font-size:12px;color:var(--sub);font-variant-numeric:tabular-nums}
+.btnrow{display:flex;flex-wrap:wrap;gap:8px}
+.btnrow .btn{flex:1 1 auto}
+
+/* タイトル */
+.ov{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;overflow-y:auto;overscroll-behavior:contain;
+  padding:calc(env(safe-area-inset-top,0px) + 60px) 16px 0;
+  background:linear-gradient(to top,rgba(8,6,12,.85),rgba(8,6,12,.1) 55%,rgba(8,6,12,0))}
+.card{width:100%;max-width:460px;margin-top:auto;flex-shrink:0;margin-bottom:calc(env(safe-area-inset-bottom,0px) + 16px);background:var(--panel);border:1px solid var(--line);
+  border-radius:22px;padding:22px 20px 18px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.card h1{margin:0 0 6px;font-family:var(--f-disp);font-weight:400;font-size:clamp(34px,10vw,46px);line-height:1.15;color:var(--pump);
+  text-shadow:0 0 24px rgba(240,138,36,.45);letter-spacing:.04em;text-wrap:balance}
+.lead{margin:0 0 14px;font-size:14px;line-height:1.75;color:var(--ink)}
+.howto{list-style:none;margin:0 0 16px;padding:0;display:grid;gap:6px;font-size:13px;color:var(--sub);line-height:1.6}
+.howto b{color:var(--flame);font-weight:700;margin-right:6px;letter-spacing:.06em}
+.actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.actions .btn{flex:1 1 140px}
+.credit{font-size:11px;color:#7e7363;margin-top:16px;letter-spacing:.05em}
+
+/* 画像保存 */
+.ov.center .card{margin-bottom:auto}
+.ov.center{background:rgba(6,5,9,.72);padding-top:calc(env(safe-area-inset-top,0px) + 56px)}
+.save h2{margin:0 0 12px;font-family:var(--f-disp);font-weight:400;font-size:22px;color:var(--flame)}
+.save img{display:block;width:100%;max-height:52vh;object-fit:contain;border-radius:12px;background:#000;margin-bottom:10px;-webkit-touch-callout:default;user-select:auto;-webkit-user-select:auto}
+.note{font-size:12px;color:var(--sub);margin:0 0 12px;line-height:1.6}
+
+@media (min-width:900px){
+  .panel{bottom:16px;border-radius:20px;border-bottom:1px solid var(--line);padding-bottom:12px}
+}
+@media (max-height:600px){
+  .card{padding:14px 16px 12px}
+  .card h1{font-size:30px;margin-bottom:2px}
+  .lead{font-size:13px;margin-bottom:8px;line-height:1.6}
+  .howto{gap:2px;margin-bottom:10px;font-size:12px}
+  .credit{margin-top:8px}
+  .card .btn{min-height:44px}
+}
+@media (prefers-reduced-motion:reduce){ .hint{transition:none} }
+</style>
+</head>
+<body>
+<div id="app">
+  <canvas id="cv" aria-label="彫刻台のかぼちゃ"></canvas>
+
+  <div class="top">
+    <a class="home" href="/">&lt; porkgorilla</a>
+    <span class="brand" id="brand" hidden>かぼちゃ彫刻室</span>
+    <button class="snd" id="sndBtn" aria-pressed="true">音 ON</button>
+  </div>
+
+  <div class="hint" id="hint" hidden>かぼちゃをなぞると彫れます。<br>かぼちゃの外をドラッグすると回せます</div>
+
+  <div class="side" id="side" hidden>
+    <button class="sbtn" id="rotBtn" aria-pressed="false" aria-label="回すだけモード">
+      <svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/></svg>回す
+    </button>
+    <button class="sbtn" id="litBtn" aria-pressed="false" aria-label="灯りをともす">
+      <svg viewBox="0 0 24 24"><path d="M12 3c2.5 3.2 5 5.6 5 9.3A5 5 0 0 1 7 12.3c0-1.8.8-3.3 2-4.6.2 1.6 1 2.6 2 3 0-2.6.4-5 1-7.7z"/><path d="M8 21h8"/></svg>灯り
+    </button>
+    <button class="sbtn" id="clearBtn" aria-label="まっさらにする">
+      <svg viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/></svg><span id="clearLbl">まっさら</span>
+    </button>
+    <a class="sbtn" id="cShare" href="#" target="_blank" rel="noopener" aria-label="Xでシェア" style="text-decoration:none">
+      <svg viewBox="0 0 24 24"><path d="M4 4l16 16M20 4 4 20"/></svg>ポスト
+    </a>
+  </div>
+
+  <div class="panel" id="tools" hidden>
+    <div class="toolrow" id="toolRow" role="toolbar" aria-label="刃と型紙"></div>
+    <div class="ctrlrow">
+      <span class="seglabel">太さ</span>
+      <div class="seg" id="sizeSeg">
+        <button data-size="0" aria-pressed="false">細</button>
+        <button data-size="1" aria-pressed="true">中</button>
+        <button data-size="2" aria-pressed="false">太</button>
+      </div>
+      <button class="icon" id="undoBtn" aria-label="ひとつ戻す" disabled>
+        <svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>
+      </button>
+      <span class="spacer"></span>
+      <button class="btn primary" id="doneBtn">完成</button>
+    </div>
+  </div>
+
+  <div class="panel" id="donePanel" hidden>
+    <div class="donehead"><b>完成！</b><span id="cutCount"></span></div>
+    <div class="btnrow">
+      <button class="btn soft" id="danceBtn" aria-pressed="true">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="3"/><path d="M12 8v6l-3 7M12 14l3 7M6 9l6 2 5-5"/></svg>ダンス</button>
+      <button class="btn soft" id="dLitBtn" aria-pressed="true">
+        <svg viewBox="0 0 24 24"><path d="M12 3c2.5 3.2 5 5.6 5 9.3A5 5 0 0 1 7 12.3c0-1.8.8-3.3 2-4.6.2 1.6 1 2.6 2 3 0-2.6.4-5 1-7.7z"/></svg>灯り</button>
+      <button class="btn soft" id="dRotBtn" aria-pressed="true">
+        <svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/></svg>自動回転</button>
+      <button class="btn soft" id="shotBtn">
+        <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/></svg>画像を保存</button>
+      <a class="btn soft" id="postBtn" href="#" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24"><path d="M4 4l16 16M20 4 4 20"/></svg>ポスト</a>
+    </div>
+    <div class="actions">
+      <button class="btn primary" id="againBtn">彫りなおす</button>
+      <button class="btn ghost" id="titleBtn">タイトルへ</button>
+    </div>
+  </div>
+
+  <div class="ov" id="titleOv">
+    <div class="card" id="titleCard">
+      <h1>かぼちゃ彫刻室</h1>
+      <p class="lead">3Dのかぼちゃに刃を入れて、自分だけのジャック・オー・ランタンを彫りあげよう。</p>
+      <ul class="howto">
+        <li><b>なぞる</b>刃で自由に彫る。外をドラッグで回転</li>
+        <li><b>型紙</b>目・鼻・口・星などをタップで抜く</li>
+        <li><b>完成</b>黒タイツの男がかぶって踊る。画像も保存</li>
+      </ul>
+      <div class="actions">
+        <button class="btn primary" id="startBtn">彫りはじめる</button>
+        <button class="btn ghost" id="sampleBtn">おてほんの顔から</button>
+        <button class="btn ghost" id="contBtn" hidden>つづきから</button>
+        <a class="btn ghost" id="tShare" href="#" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M4 4l16 16M20 4 4 20"/></svg>Xでシェア</a>
+      </div>
+      <div class="credit">porkgorilla — 2026</div>
+    </div>
+  </div>
+
+  <div class="ov center" id="saveOv" hidden>
+    <div class="card save">
+      <h2>画像を保存</h2>
+      <img id="shot" alt="彫りあげたジャック・オー・ランタン">
+      <p class="note" id="saveNote">画像を長押し(PCは右クリック)でも保存できます。</p>
+      <div class="actions">
+        <button class="btn primary" id="shareBtn" hidden>画像を共有</button>
+        <button class="btn primary" id="dlBtn">画像を保存</button>
+        <button class="btn ghost" id="closeSave">閉じる</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+const GAME_URL = 'https://porkgorilla.com/works/kabocha.html';
+const OG_CACHE_VERSION = 1;
+const SHARE_URL = GAME_URL + '?ogv=' + OG_CACHE_VERSION;
+const HASHTAG = '#かぼちゃ彫刻室';
+function shareHref(text){
+  return 'https://x.com/intent/post?text=' + encodeURIComponent(text + ' ' + HASHTAG) + '&url=' + encodeURIComponent(SHARE_URL);
+}
+function setShare(el, text){
+  el.href = shareHref(text);
+  if (matchMedia('(pointer: coarse)').matches){ el.removeAttribute('target'); el.removeAttribute('rel'); }
+}
+const LS = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v == null ? d : v; }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, v); }catch(e){} }
+};
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lin = hex => new THREE.Color(hex).convertSRGBToLinear();
+const coarse = matchMedia('(pointer: coarse)').matches;
+
+/* ========== 彫りデータ(R=残っている皮 / G=切り口の縁) ========== */
+const W = 2048, H = 1024, RIM = 0.024;
+const carveCv = document.createElement('canvas');
+carveCv.width = W; carveCv.height = H;
+const cx = carveCv.getContext('2d');
+cx.lineCap = 'round'; cx.lineJoin = 'round';
+let ops = [];
+
+function scaleAt(y){
+  const th = clamp(y / H * Math.PI, 0.05, Math.PI - 0.05);
+  const s = Math.max(Math.sin(th), 0.12);
+  const L = Math.sqrt(Math.cos(th) ** 2 + 0.64 * Math.sin(th) ** 2);
+  return [W / (2 * Math.PI * s), H / (Math.PI * L)];
+}
+function setPass(pass){
+  if (pass === 'rim'){ cx.globalCompositeOperation = 'lighter'; cx.strokeStyle = cx.fillStyle = 'rgb(0,255,0)'; }
+  else { cx.globalCompositeOperation = 'source-over'; cx.strokeStyle = cx.fillStyle = '#000'; }
+}
+function resetCarve(){
+  cx.setTransform(1,0,0,1,0,0);
+  cx.globalCompositeOperation = 'source-over';
+  cx.fillStyle = '#f00'; cx.fillRect(0, 0, W, H);
+}
+function seg(d, a, b, pass){
+  const x1 = ((a[0] % W) + W) % W, y1 = a[1];
+  let dx = b[0] - a[0]; dx -= W * Math.round(dx / W);
+  const dy = b[1] - y1, my = y1 + dy / 2;
+  const [sx, sy] = scaleAt(my);
+  let lx = dx / 2 / sx, ly = dy / 2 / sy;
+  if (Math.abs(lx) + Math.abs(ly) < 1e-5) lx = 1e-4;
+  const lw = pass === 'rim' ? d + RIM * 2 : d;
+  cx.lineWidth = lw;
+  const ext = Math.abs(dx) / 2 + lw * sx;
+  for (const off of [-W, 0, W]){
+    const mx = x1 + dx / 2 + off;
+    if (mx + ext < 0 || mx - ext > W) continue;
+    cx.setTransform(sx, 0, 0, sy, mx, my);
+    cx.beginPath(); cx.moveTo(-lx, -ly); cx.lineTo(lx, ly); cx.stroke();
+  }
+}
+function shapePath(sh, s){
+  cx.beginPath();
+  if (sh === 'tri'){
+    cx.moveTo(0, -0.42*s); cx.lineTo(0.48*s, 0.38*s); cx.lineTo(-0.48*s, 0.38*s); cx.closePath();
+  } else if (sh === 'nose'){
+    cx.moveTo(-0.45*s, -0.35*s); cx.lineTo(0.45*s, -0.35*s); cx.lineTo(0, 0.42*s); cx.closePath();
+  } else if (sh === 'circle'){
+    cx.arc(0, 0, 0.42*s, 0, Math.PI*2);
+  } else if (sh === 'star'){
+    for (let i = 0; i < 10; i++){
+      const r = (i % 2 ? 0.21 : 0.5) * s, a = -Math.PI/2 + i * Math.PI / 5;
+      i ? cx.lineTo(Math.cos(a)*r, Math.sin(a)*r) : cx.moveTo(Math.cos(a)*r, Math.sin(a)*r);
+    }
+    cx.closePath();
+  } else if (sh === 'moon'){
+    const R1 = 0.45*s, R2 = 0.4*s, d = 0.22*s, al = -Math.PI/4;
+    const x0 = (d*d + R1*R1 - R2*R2) / (2*d), h = Math.sqrt(Math.max(R1*R1 - x0*x0, 0));
+    const a = Math.atan2(h, x0), b = Math.atan2(h, x0 - d);
+    const ca = Math.cos(al), sa = Math.sin(al);
+    // 回転した座標系で描く
+    const save = cx.getTransform();
+    cx.transform(ca, sa, -sa, ca, 0, 0);
+    cx.arc(0, 0, R1, a, Math.PI*2 - a, false);
+    cx.arc(d, 0, R2, -b, b, true);
+    cx.closePath();
+    cx.setTransform(save);
+  } else if (sh === 'mouth'){
+    const w = s, n = 8;
+    for (let i = 0; i <= n; i++){
+      const x = -w/2 + w*i/n, t = 2*x/w;
+      let y = -0.13*s + 0.12*s*(1 - t*t);
+      if (i % 2) y += 0.1*s*(1 - 0.4*t*t);
+      i ? cx.lineTo(x, y) : cx.moveTo(x, y);
+    }
+    for (let i = n; i >= 0; i--){
+      const x = -w/2 + w*i/n, t = 2*x/w;
+      cx.lineTo(x, -0.13*s + 0.44*s*(1 - t*t));
+    }
+    cx.closePath();
+  }
+}
+function stamp(op, pass){
+  const [sx, sy] = scaleAt(op.y);
+  const ext = op.s * sx;
+  for (const off of [-W, 0, W]){
+    const mx = op.x + off;
+    if (mx + ext < 0 || mx - ext > W) continue;
+    cx.setTransform(sx, 0, 0, sy, mx, op.y);
+    shapePath(op.sh, op.s);
+    if (pass === 'rim'){ cx.lineWidth = RIM * 2; cx.fill(); cx.stroke(); }
+    else cx.fill();
+  }
+}
+function drawOp(op){
+  for (const pass of ['rim', 'hole']){
+    setPass(pass);
+    if (op.t === 's'){ stamp(op, pass); continue; }
+    const p = op.p;
+    for (let i = 0; i < p.length; i++){
+      const a = p[i]; if (!a) continue;
+      const nx = p[i+1], pv = p[i-1];
+      if (nx) seg(op.d, a, nx, pass);
+      else if (!pv) seg(op.d, a, a, pass);
+    }
+  }
+}
+function redrawAll(list){
+  resetCarve();
+  for (const op of list) drawOp(op);
+  carveTex.needsUpdate = true;
+}
+
+/* ========== three.js ========== */
+const canvas = $('cv');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+renderer.outputEncoding = THREE.sRGBEncoding;
+const scene = new THREE.Scene();
+{
+  const c = document.createElement('canvas'); c.width = 4; c.height = 256;
+  const g = c.getContext('2d'), gr = g.createLinearGradient(0, 0, 0, 256);
+  gr.addColorStop(0, '#231b3a'); gr.addColorStop(0.55, '#130f1f'); gr.addColorStop(1, '#060508');
+  g.fillStyle = gr; g.fillRect(0, 0, 4, 256);
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; scene.background = t;
+}
+const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 50);
+const hemi = new THREE.HemisphereLight(0xcfd8ff, 0x3a2618, 0.8); scene.add(hemi);
+const key = new THREE.DirectionalLight(0xfff0d8, 1.5); key.position.set(2.2, 3, 3); scene.add(key);
+const rimL = new THREE.DirectionalLight(0x8e9cff, 0.5); rimL.position.set(-3, 1.2, -2.5); scene.add(rimL);
+
+function pumpkinGeo(seg, rings){
+  const g = new THREE.SphereGeometry(1, seg, rings);
+  const pos = g.attributes.position, uv = g.attributes.uv;
+  for (let i = 0; i < pos.count; i++){
+    const u = uv.getX(i), v = uv.getY(i);
+    const phi = u * Math.PI * 2, th = (1 - v) * Math.PI;
+    const st = Math.sin(th), ct = Math.cos(th);
+    const groove = Math.pow(1 - Math.abs(Math.cos(5 * phi)), 3);
+    const r = (1 - 0.075 * groove * Math.pow(st, 0.7)) * (1 + 0.04 * st);
+    let y = 0.8 * ct;
+    y -= 0.2 * Math.exp(-Math.pow(th / 0.32, 2));
+    y += 0.14 * Math.exp(-Math.pow((Math.PI - th) / 0.32, 2));
+    pos.setXYZ(i, -Math.cos(phi) * st * r, y, Math.sin(phi) * st * r);
+  }
+  g.computeVertexNormals();
+  const nrm = g.attributes.normal, row = seg + 1;
+  for (let j = 0; j <= rings; j++){
+    const a = j * row, b = a + seg;
+    const nx = (nrm.getX(a) + nrm.getX(b)) / 2, ny = (nrm.getY(a) + nrm.getY(b)) / 2, nz = (nrm.getZ(a) + nrm.getZ(b)) / 2;
+    const l = Math.hypot(nx, ny, nz) || 1;
+    nrm.setXYZ(a, nx/l, ny/l, nz/l); nrm.setXYZ(b, nx/l, ny/l, nz/l);
+  }
+  return g;
+}
+function makeBaseTex(){
+  const w = 1024, h = 512, c = document.createElement('canvas'); c.width = w; c.height = h;
+  const g = c.getContext('2d'), img = g.createImageData(w, h), d = img.data;
+  let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const streak = new Float32Array(w);
+  for (let k = 0; k < 70; k++){
+    const c0 = Math.round(rnd() * w), wid = 2 + rnd() * 9, amp = (rnd() - 0.5) * 0.16;
+    for (let i = -30; i <= 30; i++){ const x = ((c0 + i) % w + w) % w; streak[x] += amp * Math.exp(-(i*i)/(wid*wid)); }
+  }
+  const mix = (a, b, t) => a + (b - a) * t;
+  for (let y = 0; y < h; y++){
+    const th = y / h * Math.PI, st = Math.sin(th);
+    const tTop = Math.exp(-Math.pow(th / 0.3, 2)) * 0.85, tBot = Math.exp(-Math.pow((Math.PI - th) / 0.35, 2)) * 0.45;
+    for (let x = 0; x < w; x++){
+      const phi = x / w * Math.PI * 2;
+      const groove = Math.pow(1 - Math.abs(Math.cos(5 * phi)), 4) * st;
+      const ridge = Math.pow(Math.abs(Math.cos(5 * phi)), 8) * st;
+      let r = 236, gg = 120, b = 26;
+      r = mix(r, 150, groove*0.85); gg = mix(gg, 58, groove*0.85); b = mix(b, 12, groove*0.85);
+      r = mix(r, 252, ridge*0.3); gg = mix(gg, 162, ridge*0.3); b = mix(b, 64, ridge*0.3);
+      const m = 1 + streak[x] * st + (rnd() - 0.5) * 0.04;
+      r *= m; gg *= m; b *= m;
+      r = mix(r, 108, tTop); gg = mix(gg, 82, tTop); b = mix(b, 32, tTop);
+      r = mix(r, 214, tBot); gg = mix(gg, 146, tBot); b = mix(b, 66, tBot);
+      const o = (y * w + x) * 4;
+      d[o] = clamp(r, 0, 255); d[o+1] = clamp(gg, 0, 255); d[o+2] = clamp(b, 0, 255); d[o+3] = 255;
+    }
+  }
+  g.putImageData(img, 0, 0);
+  const t = new THREE.CanvasTexture(c);
+  t.encoding = THREE.sRGBEncoding; t.wrapS = THREE.RepeatWrapping;
+  t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  return t;
+}
+function radialTex(stops){
+  const c = document.createElement('canvas'); c.width = c.height = 128;
+  const g = c.getContext('2d'), gr = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+  for (const [o, col] of stops) gr.addColorStop(o, col);
+  g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; return t;
+}
+
+const carveTex = new THREE.CanvasTexture(carveCv);
+carveTex.generateMipmaps = false;
+carveTex.minFilter = THREE.LinearFilter; carveTex.magFilter = THREE.LinearFilter;
+carveTex.wrapS = THREE.RepeatWrapping;
+
+const U = {
+  carveMap: { value: carveTex },
+  fleshColor: { value: lin('#f6cc72') },
+  glowColor: { value: lin('#ffb040') },
+  glowAmt: { value: 0 }
+};
+const shellMat = new THREE.MeshStandardMaterial({ map: makeBaseTex(), roughness: 0.52, metalness: 0 });
+shellMat.onBeforeCompile = sh => {
+  Object.assign(sh.uniforms, U);
+  sh.fragmentShader = sh.fragmentShader
+    .replace('#include <common>', '#include <common>\nuniform sampler2D carveMap; uniform vec3 fleshColor; uniform vec3 glowColor; uniform float glowAmt;')
+    .replace('#include <map_fragment>', [
+      '#include <map_fragment>',
+      'vec4 cvS = texture2D(carveMap, vUv);',
+      'if (cvS.r < 0.5) discard;',
+      'float rimA = clamp(cvS.g / max(cvS.r, 0.001), 0.0, 1.0);',
+      'float bevel = smoothstep(0.5, 0.95, cvS.r);',
+      'diffuseColor.rgb = mix(diffuseColor.rgb, fleshColor * mix(0.72, 1.0, bevel), rimA);'
+    ].join('\n'))
+    .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\ntotalEmissiveRadiance += glowColor * rimA * glowAmt;');
+};
+
+const group = new THREE.Group(); scene.add(group);
+const outer = new THREE.Mesh(pumpkinGeo(176, 120), shellMat); group.add(outer);
+
+// 内側の果肉(ろうそくの近くほど明るい)
+const innerGeo = pumpkinGeo(96, 64);
+innerGeo.scale(0.9, 0.9, 0.9);
+const CANDLE = new THREE.Vector3(0, -0.4, 0);
+{
+  const p = innerGeo.attributes.position, col = new Float32Array(p.count * 3), fl = lin('#eba24a'), v = new THREE.Vector3();
+  for (let i = 0; i < p.count; i++){
+    v.fromBufferAttribute(p, i);
+    const b = clamp(1.3 - v.distanceTo(CANDLE) * 0.8, 0.16, 1.15);
+    col[i*3] = fl.r * b; col[i*3+1] = fl.g * b; col[i*3+2] = fl.b * b;
+  }
+  innerGeo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+}
+const innerMat = new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.BackSide });
+group.add(new THREE.Mesh(innerGeo, innerMat));
+
+// へた
+{
+  const g = new THREE.CylinderGeometry(0.065, 0.1, 0.34, 14, 8);
+  const p = g.attributes.position;
+  for (let i = 0; i < p.count; i++){
+    const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
+    const a = Math.atan2(z, x), t = (y + 0.17) / 0.34;
+    const k = 1 + 0.14 * Math.cos(a * 6) * (1 - t * 0.5);
+    p.setXYZ(i, x * k + 0.13 * t * t, y, z * k);
+  }
+  g.computeVertexNormals();
+  const stem = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: lin('#6b6a2e'), roughness: 0.85 }));
+  stem.position.set(0, 0.72, 0); stem.rotation.y = 0.6;
+  group.add(stem);
+}
+// ろうそく
+const waxMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+{
+  const wax = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.08, 0.16, 20), new THREE.MeshBasicMaterial({ color: lin('#efe4cf') }));
+  wax.material = waxMat; waxMat.color = lin('#efe4cf');
+  wax.position.set(0, -0.5, 0); group.add(wax);
+}
+const waxBase = lin('#efe4cf');
+const flame = new THREE.Sprite(new THREE.SpriteMaterial({
+  map: radialTex([[0, 'rgba(255,250,220,1)'], [0.25, 'rgba(255,214,110,.95)'], [0.6, 'rgba(255,140,40,.35)'], [1, 'rgba(255,100,20,0)']]),
+  blending: THREE.AdditiveBlending, depthWrite: false, transparent: true
+}));
+flame.position.set(0, -0.33, 0); group.add(flame);
+
+// 台
+const ground = new THREE.Mesh(new THREE.CircleGeometry(3.4, 72), new THREE.MeshLambertMaterial({
+  color: lin('#2b1d16'), transparent: true,
+  alphaMap: radialTex([[0, '#fff'], [0.55, '#bbb'], [1, '#000']])
+}));
+ground.rotation.x = -Math.PI / 2; ground.position.y = -0.668; scene.add(ground);
+const shadow = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 2.6), new THREE.MeshBasicMaterial({
+  map: radialTex([[0, 'rgba(0,0,0,.75)'], [0.45, 'rgba(0,0,0,.4)'], [1, 'rgba(0,0,0,0)']]), transparent: true, depthWrite: false
+}));
+shadow.rotation.x = -Math.PI / 2; shadow.position.y = -0.664; scene.add(shadow);
+const glowDecal = new THREE.Mesh(new THREE.PlaneGeometry(5, 5), new THREE.MeshBasicMaterial({
+  map: radialTex([[0, 'rgba(255,170,70,.9)'], [0.35, 'rgba(255,120,30,.35)'], [1, 'rgba(255,90,20,0)']]),
+  transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0
+}));
+glowDecal.rotation.x = -Math.PI / 2; glowDecal.position.y = -0.66; scene.add(glowDecal);
+
+// 当たり判定用の軽いメッシュ
+const pickMesh = new THREE.Mesh(pumpkinGeo(72, 50), new THREE.MeshBasicMaterial());
+pickMesh.visible = false; group.add(pickMesh);
+
+// かぼちゃの中のろうそくが肩を照らす光
+const headLight = new THREE.PointLight(0xff9a3c, 0, 3.2, 1.6);
+headLight.position.copy(CANDLE); group.add(headLight);
+
+/* ========== 黒タイツの男 ========== */
+const FLOOR = -0.668, HEAD_SCALE = 0.36;
+const tightsMat = new THREE.MeshStandardMaterial({ color: lin('#1a1720'), roughness: 0.42, metalness: 0 });
+const shoeMat = new THREE.MeshStandardMaterial({ color: lin('#0b0a0d'), roughness: 0.55 });
+const stageKey = new THREE.DirectionalLight(0xc9b8ff, 0); stageKey.position.set(-2, 3, 3); scene.add(stageKey);
+const stageRim = new THREE.DirectionalLight(0x7fd8ff, 0); stageRim.position.set(1.5, 2, -3); scene.add(stageRim);
+const stageRim2 = new THREE.DirectionalLight(0xff7a3a, 0); stageRim2.position.set(-2.5, 0.5, -2); scene.add(stageRim2);
+const spotDecal = new THREE.Mesh(new THREE.PlaneGeometry(3, 3), new THREE.MeshBasicMaterial({
+  map: radialTex([[0, 'rgba(210,195,255,.55)'], [0.5, 'rgba(160,140,230,.18)'], [1, 'rgba(120,100,200,0)']]),
+  transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0
+}));
+spotDecal.rotation.x = -Math.PI / 2; spotDecal.position.y = -0.662; scene.add(spotDecal);
+
+function J(parent, x, y, z){ const g = new THREE.Group(); g.position.set(x, y, z); parent.add(g); return g; }
+function limb(parent, len, r1, r2){
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(r1, r2, len, 18, 1), tightsMat);
+  m.position.y = -len / 2; parent.add(m);
+  const ball = new THREE.Mesh(new THREE.SphereGeometry(r1, 18, 12), tightsMat); parent.add(ball);
+  return J(parent, 0, -len, 0);
+}
+const dancer = new THREE.Group(); dancer.visible = false; scene.add(dancer);
+const D = {};
+{
+  const hips = D.hips = J(dancer, 0, FLOOR + 1.1, 0);
+  const pelvis = new THREE.Mesh(new THREE.SphereGeometry(0.2, 22, 16), tightsMat);
+  pelvis.scale.set(1.12, 0.72, 0.82); hips.add(pelvis);
+  const spine = D.spine = J(hips, 0, 0.04, 0);
+  const prof = [[0.001, 0], [0.2, 0.02], [0.225, 0.16], [0.235, 0.3], [0.27, 0.46], [0.275, 0.54], [0.22, 0.64], [0.1, 0.7], [0.001, 0.71]]
+    .map(([r, y]) => new THREE.Vector2(r, y));
+  const torso = new THREE.Mesh(new THREE.LatheGeometry(prof, 28), tightsMat);
+  torso.scale.z = 0.7; spine.add(torso);
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.08, 0.2, 14), tightsMat);
+  neck.position.y = 0.76; spine.add(neck);
+  D.head = J(spine, 0, 1.0, 0);
+  for (const s of [1, -1]){
+    const k = s > 0 ? 'L' : 'R';
+    const sh = D['sh' + k] = J(spine, s * 0.31, 0.58, 0);
+    const delt = new THREE.Mesh(new THREE.SphereGeometry(0.11, 16, 12), tightsMat); sh.add(delt);
+    const el = D['el' + k] = limb(sh, 0.36, 0.088, 0.066);
+    const wr = limb(el, 0.32, 0.066, 0.05);
+    const hand = new THREE.Mesh(new THREE.SphereGeometry(0.062, 14, 10), tightsMat);
+    hand.scale.set(0.85, 1.15, 0.7); hand.position.y = -0.05; wr.add(hand);
+    const hp = D['hp' + k] = J(hips, s * 0.115, -0.05, 0);
+    const kn = D['kn' + k] = limb(hp, 0.5, 0.115, 0.08);
+    const an = limb(kn, 0.5, 0.08, 0.056);
+    const foot = new THREE.Mesh(new THREE.SphereGeometry(0.07, 14, 10), shoeMat);
+    foot.scale.set(0.9, 0.6, 1.9); foot.position.set(0, -0.02, 0.07); an.add(foot);
+  }
+}
+const lerp = (a, b, t) => a + (b - a) * t;
+const sstep = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+const KEYS = ['hx', 'drop', 'hry', 'hrz', 'srx', 'srz', 'sry', 'hdx', 'hdz', 'lsx', 'lsz', 'lex', 'lez', 'rsx', 'rsz', 'rex', 'rez', 'llx', 'llz', 'lkn', 'rlx', 'rlz', 'rkn', 'spin', 'jump'];
+function P(o){ const p = {}; for (const k of KEYS) p[k] = o[k] || 0; return p; }
+// 片側の腕を基本ポーズで(内側に少し)
+function moveIdle(){ return P({ drop: 0.03, lsz: 0.18, rsz: -0.18, lex: -0.2, rex: -0.2, hdx: -0.12 }); }
+function moveStep(b){
+  const p = b * Math.PI, s = Math.sin(p), bob = 0.5 - 0.5 * Math.cos(2 * p);
+  return P({ hx: 0.09 * s, drop: 0.04 + 0.07 * bob, hrz: -0.07 * s, srz: 0.13 * s, hdz: 0.16 * s, srx: 0.05,
+    lsx: 0.55 * s, rsx: -0.55 * s, lsz: 0.25, rsz: -0.25, lex: -0.9 - 0.3 * bob, rex: -0.9 - 0.3 * bob,
+    llz: 0.06 + 0.1 * Math.max(0, s), rlz: -0.06 + 0.1 * Math.min(0, s) });
+}
+function moveDisco(b){
+  const p = b * Math.PI, k = sstep(-0.6, 0.6, Math.sin(p)), bob = 0.5 - 0.5 * Math.cos(2 * p);
+  return P({ hx: 0.07 * (k * 2 - 1), drop: 0.05 + 0.06 * bob, hrz: 0.08 * (1 - 2 * k), hry: 0.25 * (k - 0.5),
+    srz: -0.1 * (1 - 2 * k), hdz: 0.12 * (2 * k - 1), hdx: -0.15 * k,
+    rsz: lerp(0.55, -2.55, k), rsx: lerp(-0.7, -0.2, k), rex: -0.15,
+    lsz: 0.75, lsx: 0.25, lez: -1.9, lex: -0.4,
+    llz: 0.12, rlz: -0.12, rkn: 0.35 * (1 - k), rlx: -0.15 * (1 - k) });
+}
+function moveZombie(b){
+  const p = b * Math.PI, s = Math.sin(p), up = Math.max(0, s), dn = Math.max(0, -s);
+  return P({ hx: 0.04 * s, drop: 0.08, hrz: 0.05 * s, srx: 0.2, srz: 0.06 * s, hdz: 0.35 + 0.12 * Math.sin(p * 0.5), hdx: 0.15,
+    lsx: -1.45 + 0.12 * Math.sin(p * 2), rsx: -1.45 - 0.12 * Math.sin(p * 2), lsz: 0.08, rsz: -0.08, lex: -0.15, rex: -0.35,
+    llx: -0.55 * up, lkn: 1.0 * up, rlx: -0.55 * dn, rkn: 1.0 * dn, hry: 0.12 * s });
+}
+function moveSpin(b){
+  const t = b % 8, sp = sstep(0, 2.2, t), land = sstep(2.2, 2.8, t), jump = Math.sin(clamp(t / 2.2, 0, 1) * Math.PI) * 0.18;
+  const armOut = 1 - land;
+  return P({ spin: sp * Math.PI * 2, jump, drop: 0.04 + 0.1 * land * (0.5 + 0.5 * Math.cos((t - 2.8) * Math.PI * 2)),
+    lsz: lerp(1.4, 2.5, land), rsz: lerp(-1.4, -0.8, land), rez: land * 1.9, rex: -0.3 * land, lsx: -0.25 * land,
+    hrz: 0.1 * land, srz: -0.12 * land, hdz: -0.2 * land, hdx: -0.18 * land,
+    rlx: -0.35 * land, rkn: 0.6 * land, rlz: -0.1, llz: 0.15 * land + 0.05 * armOut });
+}
+const MOVES = [moveStep, moveDisco, moveZombie, moveSpin];
+function danceAt(beat){
+  if (beat < 0) return moveIdle();
+  const i = Math.floor(beat / 8), t = beat - i * 8;
+  const cur = MOVES[i % MOVES.length](t);
+  const w = sstep(0, 0.7, t);
+  if (w >= 1) return cur;
+  const prev = i === 0 ? moveIdle() : MOVES[(i - 1) % MOVES.length](8 - 0.001);
+  const o = {}; for (const k of KEYS) o[k] = lerp(prev[k], cur[k], w);
+  if (prev.spin) o.spin = lerp(prev.spin % (Math.PI * 2), cur.spin, w);
+  return o;
+}
+function applyPose(p){
+  const crouch = Math.acos(clamp(1 - p.drop / 1.0, -1, 1));
+  D.hips.position.set(p.hx, FLOOR + 1.1 - p.drop + p.jump, 0);
+  D.hips.rotation.set(0, p.hry, p.hrz);
+  D.spine.rotation.set(p.srx, p.sry, p.srz);
+  D.head.rotation.set(p.hdx, 0, p.hdz);
+  D.shL.rotation.set(p.lsx, 0, p.lsz); D.elL.rotation.set(p.lex, 0, p.lez);
+  D.shR.rotation.set(p.rsx, 0, p.rsz); D.elR.rotation.set(p.rex, 0, p.rez);
+  D.hpL.rotation.set(-crouch + p.llx, 0, p.llz - p.hrz); D.knL.rotation.set(crouch * 2 + p.lkn, 0, 0);
+  D.hpR.rotation.set(-crouch + p.rlx, 0, p.rlz - p.hrz); D.knR.rotation.set(crouch * 2 + p.rkn, 0, 0);
+  return p.spin;
+}
+
+/* ダンスモードへの出入り(かぼちゃを頭へ付け替え) */
+let danceOn = false, faceYaw = 0, dropT = 1, beat = -1, landed = false;
+function enterDance(){
+  if (danceOn) return;
+  danceOn = true;
+  faceYaw = yaw; yaw = 0; velY = 0; pitch = 0.1; zoom = 1;
+  D.head.add(group); group.position.set(0, 0, 0); group.scale.setScalar(HEAD_SCALE);
+  dancer.visible = true; dropT = 0; landed = false; beat = -1;
+  applyPose(moveIdle());
+}
+function exitDance(){
+  if (!danceOn) return;
+  danceOn = false; stopMusic();
+  yaw = faceYaw + yaw; velY = 0; pitch = 0.22;
+  scene.add(group); group.position.set(0, 0, 0); group.scale.setScalar(1); group.rotation.set(0, yaw, 0);
+  dancer.visible = false;
+}
+const easeBounce = t => {
+  const n = 7.5625, d = 2.75;
+  if (t < 1 / d) return n * t * t;
+  if (t < 2 / d) return n * (t -= 1.5 / d) * t + 0.75;
+  if (t < 2.5 / d) return n * (t -= 2.25 / d) * t + 0.9375;
+  return n * (t -= 2.625 / d) * t + 0.984375;
+};
+
+/* ========== カメラ・配置 ========== */
+let yaw = 0, pitch = 0.22, zoom = 1, velY = 0;
+let insetTop = 60, insetBottom = 0, baseDist = 4;
+const TARGET = new THREE.Vector3(0, 0.02, 0);
+let R_FIT = 1.3, danceBlend = 0;
+function fitDist(w, h, top, bottom){
+  const tanH = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+  const hv = Math.max(160, h - top - bottom);
+  return Math.max(R_FIT / (tanH * hv / h), R_FIT / (tanH * (w / h)) * 1.06);
+}
+function visibleBottomEl(){
+  if (!$('titleOv').hidden) return $('titleCard');
+  if (!$('tools').hidden) return $('tools');
+  if (!$('donePanel').hidden) return $('donePanel');
+  return null;
+}
+function layout(){
+  const w = innerWidth || 0, h = innerHeight || 0;
+  if (w < 1 || h < 1) return;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  insetTop = $('app').querySelector('.top').offsetHeight;
+  const el = visibleBottomEl();
+  insetBottom = el ? (h - el.getBoundingClientRect().top) : 0;
+  if (!$('titleOv').hidden) insetBottom = Math.min(insetBottom, h * 0.62);
+  baseDist = fitDist(w, h, insetTop, insetBottom);
+  camera.setViewOffset(w, h, 0, (insetBottom - insetTop) / 2, w, h);
+  camera.updateProjectionMatrix();
+}
+function placeCamera(dist){
+  camera.position.set(TARGET.x, TARGET.y + Math.sin(pitch) * dist, TARGET.z + Math.cos(pitch) * dist);
+  camera.lookAt(TARGET);
+  camera.updateMatrixWorld();
+}
+addEventListener('resize', layout);
+if (window.ResizeObserver){
+  const ro = new ResizeObserver(() => layout());
+  ['tools', 'donePanel', 'titleCard'].forEach(id => ro.observe($(id)));
+}
+
+/* ========== 音 ========== */
+let AC = null, master = null, noiseBuf = null, carveGain = null, carveBP = null, carveLevel = 0;
+let soundOn = LS.get('kabocha-sound', '1') === '1';
+function initAudio(force){
+  if (AC && force){ try{ AC.close().catch(() => {}); }catch(e){} AC = null; }
+  else if (AC){ if (AC.state === 'closed') AC = null; else { if (AC.state === 'suspended') AC.resume(); return; } }
+  const C = window.AudioContext || window.webkitAudioContext; if (!C) return;
+  try{
+    AC = new C();
+    master = AC.createGain(); master.gain.value = soundOn ? 0.8 : 0; master.connect(AC.destination);
+    noiseBuf = AC.createBuffer(1, AC.sampleRate * 2, AC.sampleRate);
+    const ch = noiseBuf.getChannelData(0); for (let i = 0; i < ch.length; i++) ch[i] = Math.random() * 2 - 1;
+    const src = AC.createBufferSource(); src.buffer = noiseBuf; src.loop = true;
+    carveBP = AC.createBiquadFilter(); carveBP.type = 'bandpass'; carveBP.frequency.value = 2000; carveBP.Q.value = 1.4;
+    carveGain = AC.createGain(); carveGain.gain.value = 0;
+    src.connect(carveBP); carveBP.connect(carveGain); carveGain.connect(master); src.start();
+  }catch(e){ AC = null; }
+}
+function noiseHit(t0, dur, type, f0, f1, vol, q){
+  const s = AC.createBufferSource(); s.buffer = noiseBuf;
+  const f = AC.createBiquadFilter(); f.type = type; f.Q.value = q || 1;
+  f.frequency.setValueAtTime(f0, t0); f.frequency.exponentialRampToValueAtTime(f1, t0 + dur);
+  const g = AC.createGain(); g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vol, t0 + Math.min(0.03, dur/3)); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  s.connect(f); f.connect(g); g.connect(master); s.start(t0, Math.random()); s.stop(t0 + dur + 0.05);
+}
+function tone(t0, freq, dur, vol, type, f1){
+  const o = AC.createOscillator(); o.type = type || 'sine'; o.frequency.setValueAtTime(freq, t0);
+  if (f1) o.frequency.exponentialRampToValueAtTime(f1, t0 + dur);
+  const g = AC.createGain(); g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vol, t0 + 0.015); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  o.connect(g); g.connect(master); o.start(t0); o.stop(t0 + dur + 0.05);
+}
+const sfx = {
+  stamp(){ if (!AC || !soundOn) return; const t = AC.currentTime; noiseHit(t, 0.12, 'bandpass', 2600, 900, 0.5, 1.2); tone(t + 0.02, 150, 0.18, 0.5, 'sine', 55); },
+  undo(){ if (!AC || !soundOn) return; tone(AC.currentTime, 520, 0.12, 0.15, 'triangle', 380); },
+  light(){ if (!AC || !soundOn) return; const t = AC.currentTime; noiseHit(t, 0.6, 'bandpass', 300, 1400, 0.35, 0.8); tone(t + 0.1, 220, 0.8, 0.08, 'sine', 330); },
+  done(){ if (!AC || !soundOn) return; const t = AC.currentTime; [660, 880, 1320].forEach((f, i) => tone(t + i * 0.12, f, 0.9, 0.14, 'sine')); }
+};
+sfx.plop = () => { if (!AC || !soundOn) return; const t = AC.currentTime; noiseHit(t, 0.18, 'lowpass', 900, 200, 0.6, 0.7); tone(t, 210, 0.22, 0.4, 'sine', 90); };
+
+/* ダンス用BGM(Aマイナーのちょっと不気味なディスコ) */
+const BPM = 118, BPS = BPM / 60, STEP = 60 / BPM / 2;
+const mf = m => 440 * Math.pow(2, (m - 69) / 12);
+const ROOTS = [45, 41, 38, 40];               // A2 F2 D2 E2
+const BASS = [0, 0, 12, 0, 7, 0, 12, 10];
+const LEAD = [69, null, 72, null, 76, null, 75, 76,  77, null, 76, null, 72, null, 69, null,
+              74, null, 77, null, 81, null, 80, 81,  76, null, null, null, 68, null, 71, null];
+let musicOn = false, musicStart = 0, nextStep = 0, stepIdx = 0;
+function startMusic(){
+  if (!AC) return;
+  musicOn = true; musicStart = AC.currentTime + 0.05; nextStep = musicStart; stepIdx = 0;
+}
+function stopMusic(){ musicOn = false; }
+function bassNote(t, f){
+  const o = AC.createOscillator(); o.type = 'sawtooth'; o.frequency.value = f;
+  const lp = AC.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(900, t); lp.frequency.exponentialRampToValueAtTime(220, t + 0.2); lp.Q.value = 6;
+  const g = AC.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.2, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.24);
+  o.connect(lp); lp.connect(g); g.connect(master); o.start(t); o.stop(t + 0.3);
+}
+function organ(t, f, dur){
+  for (const [mul, v] of [[1, 0.05], [2, 0.025], [3, 0.012]]){
+    const o = AC.createOscillator(); o.type = 'sine'; o.frequency.value = f * mul;
+    const lfo = AC.createOscillator(); lfo.frequency.value = 5.5; const lg = AC.createGain(); lg.gain.value = f * mul * 0.006;
+    lfo.connect(lg); lg.connect(o.frequency);
+    const g = AC.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + 0.03); g.gain.setValueAtTime(v, t + dur * 0.6); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(master); o.start(t); lfo.start(t); o.stop(t + dur + 0.05); lfo.stop(t + dur + 0.05);
+  }
+}
+function playStep(i, t){
+  const inBar = i % 8, bar = Math.floor(i / 8) % 4;
+  if (inBar % 2 === 0) tone(t, 140, 0.26, 0.85, 'sine', 42);
+  else noiseHit(t, 0.05, 'highpass', 8000, 6500, 0.13, 0.7);
+  if (inBar === 2 || inBar === 6){ noiseHit(t, 0.16, 'bandpass', 1900, 1100, 0.42, 0.9); tone(t, 190, 0.1, 0.12, 'triangle', 150); }
+  bassNote(t, mf(ROOTS[bar] + BASS[inBar]));
+  const n = LEAD[i % 32];
+  if (n != null){ let len = 1; while (LEAD[(i + len) % 32] === null && len < 4) len++; organ(t, mf(n), STEP * len * 0.95); }
+}
+function scheduleMusic(){
+  if (!musicOn || !AC) return;
+  if (nextStep < AC.currentTime - 0.2){                          // タブ復帰などで大きく遅れたら追いつく
+    const skip = Math.ceil((AC.currentTime - nextStep) / STEP);
+    nextStep += skip * STEP; stepIdx += skip;
+  }
+  while (nextStep < AC.currentTime + 0.15){ playStep(stepIdx, nextStep); nextStep += STEP; stepIdx++; }
+}
+function setSound(on){
+  soundOn = on; LS.set('kabocha-sound', on ? '1' : '0');
+  $('sndBtn').textContent = on ? '音 ON' : '音 OFF';
+  $('sndBtn').setAttribute('aria-pressed', on ? 'true' : 'false');
+  if (master) master.gain.setTargetAtTime(on ? 0.8 : 0, AC.currentTime, 0.05);
+}
+$('sndBtn').addEventListener('click', () => { initAudio(); setSound(!soundOn); });
+setSound(soundOn);
+document.addEventListener('visibilitychange', () => { if (!document.hidden && AC) initAudio(); });
+
+/* ========== 状態とUI ========== */
+let state = 'title', tool = 'knife', size = 1, rotateLock = false, previewLit = false, doneLit = true, autoRot = true;
+const KNIFE_D = [0.035, 0.06, 0.1], STAMP_S = [0.17, 0.26, 0.38];
+const SHAPE_MUL = { tri: 1, nose: 0.8, circle: 1, star: 1.15, moon: 1.1, mouth: 2.3 };
+const TOOLS = [
+  ['knife', '刃', '<path d="M4 20 15 9l2 2L6 22z" fill="currentColor" opacity=".25"/><path d="M15 9l5-5c1 3-1 6-3 7" fill="currentColor"/><path d="M4 20 15 9l2 2L6 22z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>'],
+  ['tri', '三角目', '<path d="M12 4 21 19H3z" fill="currentColor"/>'],
+  ['nose', '鼻', '<path d="M4 6h16l-8 13z" fill="currentColor"/>'],
+  ['circle', '丸目', '<circle cx="12" cy="12" r="8" fill="currentColor"/>'],
+  ['star', '星', '<path d="M12 2.5l2.7 6 6.5.6-4.9 4.3 1.5 6.4L12 16.5 6.2 19.8l1.5-6.4L2.8 9.1l6.5-.6z" fill="currentColor"/>'],
+  ['moon', '三日月', '<path d="M15.5 3.5A9 9 0 1 0 20.5 15 7 7 0 0 1 15.5 3.5z" fill="currentColor"/>'],
+  ['mouth', 'ギザ口', '<path d="M2 9h20l-1.5 2-2-1.5-2 2-2-2-2 2-2-2-2 2-2-2-2 1.5z" fill="currentColor"/><path d="M2 9c3 9 17 9 20 0" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 10.5c3 7 15 7 18 0" fill="currentColor"/>']
+];
+const toolRow = $('toolRow');
+for (const [id, label, svg] of TOOLS){
+  const b = document.createElement('button');
+  b.className = 'tool'; b.dataset.tool = id;
+  b.setAttribute('aria-pressed', id === tool ? 'true' : 'false');
+  b.innerHTML = `<svg viewBox="0 0 24 24">${svg}</svg>${label}`;
+  b.addEventListener('click', () => {
+    tool = id;
+    toolRow.querySelectorAll('.tool').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+    showHint(id === 'knife' ? 'かぼちゃをなぞると彫れます' : 'かぼちゃをタップすると型紙で抜けます');
+  });
+  toolRow.appendChild(b);
+}
+$('sizeSeg').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  size = +b.dataset.size;
+  $('sizeSeg').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+});
+$('rotBtn').addEventListener('click', () => {
+  rotateLock = !rotateLock; $('rotBtn').setAttribute('aria-pressed', rotateLock ? 'true' : 'false');
+  canvas.style.cursor = rotateLock ? 'grab' : 'crosshair';
+  showHint(rotateLock ? 'どこをドラッグしても回るだけになります' : 'なぞると彫れる状態に戻りました');
+});
+$('litBtn').addEventListener('click', () => {
+  previewLit = !previewLit; $('litBtn').setAttribute('aria-pressed', previewLit ? 'true' : 'false');
+  if (previewLit) sfx.light();
+});
+$('undoBtn').addEventListener('click', undo);
+addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && state === 'carve'){ e.preventDefault(); undo(); } });
+
+function undo(){
+  if (!ops.length) return;
+  ops.pop(); redrawAll(ops); saveWork(); sfx.undo(); refreshUI();
+}
+function saveWork(){ LS.set('kabocha-work', JSON.stringify(ops)); }
+function loadWork(){ try{ const a = JSON.parse(LS.get('kabocha-work', '[]')); return Array.isArray(a) ? a : []; }catch(e){ return []; } }
+function refreshUI(){ $('undoBtn').disabled = ops.length === 0; }
+
+// まっさら(2回押し)
+let armed = false, armTimer = null;
+function disarm(){ armed = false; clearTimeout(armTimer); $('clearLbl').textContent = 'まっさら'; $('clearBtn').classList.remove('danger'); }
+$('clearBtn').addEventListener('click', () => {
+  if (!ops.length) return;
+  if (!armed){
+    armed = true; $('clearLbl').textContent = '本当に？'; $('clearBtn').classList.add('danger');
+    clearTimeout(armTimer); armTimer = setTimeout(disarm, 3000); return;
+  }
+  disarm(); ops = []; redrawAll(ops); saveWork(); refreshUI(); sfx.undo();
+});
+
+let hintTimer = null;
+function showHint(text){
+  const h = $('hint'); h.innerHTML = text; h.hidden = false; h.classList.remove('fade');
+  clearTimeout(hintTimer); hintTimer = setTimeout(() => h.classList.add('fade'), 3200);
+}
+
+const SAMPLE = [
+  { t: 's', sh: 'tri', x: W * 0.204, y: 405, s: 0.27 },
+  { t: 's', sh: 'tri', x: W * 0.296, y: 405, s: 0.27 },
+  { t: 's', sh: 'nose', x: W * 0.25, y: 515, s: 0.15 },
+  { t: 's', sh: 'mouth', x: W * 0.25, y: 615, s: 0.78 }
+];
+
+function setState(s){
+  state = s;
+  $('titleOv').hidden = s !== 'title';
+  $('tools').hidden = s !== 'carve';
+  $('side').hidden = s !== 'carve';
+  $('donePanel').hidden = s !== 'done';
+  $('brand').hidden = s === 'title';
+  if (s !== 'carve'){ $('hint').hidden = true; disarm(); }
+  layout();
+}
+function toTitle(){
+  zoom = 1; pitch = 0.22;
+  redrawAll(SAMPLE);
+  $('contBtn').hidden = loadWork().length === 0;
+  setState('title');
+}
+function startCarve(list){
+  initAudio(true);
+  ops = list.map(o => JSON.parse(JSON.stringify(o)));
+  redrawAll(ops); saveWork(); refreshUI();
+  yaw = 0; velY = 0; pitch = 0.22; zoom = 1;
+  previewLit = false; $('litBtn').setAttribute('aria-pressed', 'false');
+  setState('carve');
+  showHint('かぼちゃをなぞると彫れます。<br>かぼちゃの外をドラッグすると回せます');
+}
+$('startBtn').addEventListener('click', () => startCarve([]));
+$('sampleBtn').addEventListener('click', () => startCarve(SAMPLE));
+$('contBtn').addEventListener('click', () => startCarve(loadWork()));
+$('doneBtn').addEventListener('click', () => {
+  initAudio();
+  doneLit = true; autoRot = false;
+  $('dLitBtn').setAttribute('aria-pressed', 'true'); $('dRotBtn').setAttribute('aria-pressed', 'false');
+  $('danceBtn').setAttribute('aria-pressed', 'true');
+  $('cutCount').textContent = '刃を入れた回数 ' + ops.length;
+  setShare($('postBtn'), `${ops.length}回刃を入れたジャック・オー・ランタンを、黒タイツの男がかぶって踊っています。`);
+  enterDance();
+  setState('done'); sfx.done(); setTimeout(() => sfx.light(), 250);
+});
+setShare($('tShare'), '3Dのかぼちゃを彫ってジャック・オー・ランタンを作ると、黒タイツの男がかぶって踊りだす。');
+$('cShare').addEventListener('pointerdown', () => {
+  setShare($('cShare'), `かぼちゃを彫っています(いま${ops.length}回刃を入れたところ)。`);
+});
+$('cShare').addEventListener('focus', () => {
+  setShare($('cShare'), `かぼちゃを彫っています(いま${ops.length}回刃を入れたところ)。`);
+});
+$('againBtn').addEventListener('click', () => { exitDance(); initAudio(true); setState('carve'); });
+$('titleBtn').addEventListener('click', () => { exitDance(); toTitle(); });
+$('danceBtn').addEventListener('click', () => {
+  initAudio();
+  if (danceOn){ exitDance(); autoRot = true; }
+  else { enterDance(); autoRot = false; }
+  $('danceBtn').setAttribute('aria-pressed', danceOn ? 'true' : 'false');
+  $('dRotBtn').setAttribute('aria-pressed', autoRot ? 'true' : 'false');
+});
+$('dLitBtn').addEventListener('click', () => {
+  doneLit = !doneLit; $('dLitBtn').setAttribute('aria-pressed', doneLit ? 'true' : 'false'); if (doneLit) sfx.light();
+});
+$('dRotBtn').addEventListener('click', () => {
+  autoRot = !autoRot; $('dRotBtn').setAttribute('aria-pressed', autoRot ? 'true' : 'false');
+});
+
+/* ========== 画像保存 ========== */
+let shotFile = null, shotUrl = null, shotBlob = null;
+const dlP = (window.claude && typeof window.claude.use === 'function')
+  ? window.claude.use('downloads').catch(() => null) : Promise.resolve(null);
+let dlNS = null; dlP.then(d => { dlNS = d; });
+async function makeShot(){
+  try{ await document.fonts.load('60px "Potta One"'); }catch(e){}
+  const S = 1080, pr = renderer.getPixelRatio(), sz = new THREE.Vector2(); renderer.getSize(sz);
+  renderer.setPixelRatio(1); renderer.setSize(S, S, false);
+  camera.aspect = 1; camera.clearViewOffset(); camera.updateProjectionMatrix();
+  const tanH = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+  placeCamera(R_FIT / tanH * 1.12);
+  renderer.render(scene, camera);
+  const c = document.createElement('canvas'); c.width = c.height = S;
+  const g = c.getContext('2d'); g.drawImage(canvas, 0, 0, S, S);
+  renderer.setPixelRatio(pr); renderer.setSize(sz.x, sz.y, false); layout();
+  const gr = g.createLinearGradient(0, S * 0.7, 0, S);
+  gr.addColorStop(0, 'rgba(6,5,9,0)'); gr.addColorStop(1, 'rgba(6,5,9,.75)');
+  g.fillStyle = gr; g.fillRect(0, S * 0.7, S, S * 0.3);
+  g.textBaseline = 'alphabetic';
+  g.font = '56px "Potta One", sans-serif'; g.fillStyle = '#f08a24';
+  g.shadowColor = 'rgba(240,138,36,.6)'; g.shadowBlur = 24;
+  g.fillText('かぼちゃ彫刻室', 48, S - 82);
+  g.shadowBlur = 0;
+  g.font = '22px "Zen Kaku Gothic New", sans-serif'; g.fillStyle = '#a99c8c';
+  g.fillText('porkgorilla.com/works/kabocha.html', 50, S - 44);
+  return new Promise(res => c.toBlob(b => res(b), 'image/png'));
+}
+$('shotBtn').addEventListener('click', async () => {
+  const blob = await makeShot();
+  if (!blob) return;
+  if (shotUrl) URL.revokeObjectURL(shotUrl);
+  shotUrl = URL.createObjectURL(blob);
+  shotBlob = blob;
+  shotFile = new File([blob], 'kabocha.png', { type: 'image/png' });
+  $('shot').src = shotUrl;
+  $('saveNote').textContent = '画像を長押し(PCは右クリック)でも保存できます。';
+  const canShare = !dlNS && coarse && navigator.canShare && navigator.canShare({ files: [shotFile] });
+  $('shareBtn').hidden = !canShare;
+  $('saveOv').hidden = false;
+});
+$('shareBtn').addEventListener('click', async () => {
+  if (!shotFile) return;
+  try{ await navigator.share({ files: [shotFile], text: 'かぼちゃを彫った #かぼちゃ彫刻室' }); }
+  catch(e){ if (e && e.name !== 'AbortError') $('saveNote').textContent = '共有できませんでした。画像を長押しして保存してください。'; }
+});
+$('dlBtn').addEventListener('click', async () => {
+  if (!shotBlob) return;
+  const dl = dlNS || await Promise.race([dlP, new Promise(r => setTimeout(() => r(null), 300))]);
+  if (dl){
+    try{ await dl.save({ filename: 'kabocha.png', data: shotBlob }); }
+    catch(e){ if (e && e.code !== 'declined') $('saveNote').textContent = 'この画面では保存できませんでした。画像を長押しして保存してください。'; }
+    return;
+  }
+  const a = document.createElement('a');
+  a.href = shotUrl; a.download = 'kabocha.png';
+  document.body.appendChild(a); a.click(); a.remove();
+});
+$('closeSave').addEventListener('click', () => { $('saveOv').hidden = true; });
+
+/* ========== 入力 ========== */
+const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+function pick(x, y){
+  const r = canvas.getBoundingClientRect();
+  ndc.set((x - r.left) / r.width * 2 - 1, -((y - r.top) / r.height) * 2 + 1);
+  group.updateMatrixWorld();
+  ray.setFromCamera(ndc, camera);
+  const h = ray.intersectObject(pickMesh, false)[0];
+  if (!h || !h.uv) return null;
+  const th = (1 - h.uv.y) * Math.PI;
+  return { px: h.uv.x * W, py: (1 - h.uv.y) * H, ok: th > 0.42 && th < Math.PI - 0.45 };
+}
+function texDist(a, b){
+  let dx = b[0] - a[0]; dx -= W * Math.round(dx / W);
+  const [sx, sy] = scaleAt((a[1] + b[1]) / 2);
+  return Math.hypot(dx / sx, (b[1] - a[1]) / sy);
+}
+const pts = new Map();
+let drag = null;
+const r1 = v => Math.round(v * 10) / 10;
+
+function drawSegNow(d, a, b){ setPass('rim'); seg(d, a, b, 'rim'); setPass('hole'); seg(d, a, b, 'hole'); carveTex.needsUpdate = true; }
+function startStroke(hit, x, y){
+  const q = [r1(hit.px), r1(hit.py)];
+  const op = { t: 'k', d: KNIFE_D[size], p: [q] };
+  ops.push(op);
+  drawSegNow(op.d, q, q);
+  drag = { kind: 'carve', op, lx: x, ly: y, t0: performance.now() };
+  carveLevel = 0.25; refreshUI();
+}
+function extendStroke(x, y){
+  const op = drag.op, dx = x - drag.lx, dy = y - drag.ly, dist = Math.hypot(dx, dy);
+  const n = Math.max(1, Math.ceil(dist / 5));
+  for (let i = 1; i <= n; i++){
+    const hit = pick(drag.lx + dx * i / n, drag.ly + dy * i / n);
+    const last = op.p[op.p.length - 1];
+    if (hit && hit.ok){
+      const q = [r1(hit.px), r1(hit.py)];
+      if (last){
+        const td = texDist(last, q);
+        if (td < 0.008 && i < n) continue;
+        if (td < 0.3){ drawSegNow(op.d, last, q); op.p.push(q); continue; }
+        op.p.push(null);
+      }
+      drawSegNow(op.d, q, q); op.p.push(q);
+    } else if (last){ op.p.push(null); }
+  }
+  carveLevel = clamp(carveLevel * 0.6 + dist / 40, 0, 0.9);
+  drag.lx = x; drag.ly = y;
+}
+function endStroke(){
+  if (!drag || drag.kind !== 'carve') return;
+  const p = drag.op.p; while (p.length && !p[p.length - 1]) p.pop();
+  if (!p.length) ops.pop();
+  saveWork(); refreshUI();
+  $('hint').classList.add('fade');
+}
+
+canvas.addEventListener('pointerdown', e => {
+  if (state === 'title') return;
+  try{ canvas.setPointerCapture(e.pointerId); }catch(err){}
+  pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (pts.size === 2){
+    if (drag && drag.kind === 'carve'){
+      if (performance.now() - drag.t0 < 300){ ops.pop(); redrawAll(ops); refreshUI(); }
+      else endStroke();
+    }
+    const [a, b] = [...pts.values()];
+    drag = { kind: 'pinch', d0: Math.hypot(a.x - b.x, a.y - b.y) || 1, z0: zoom, mx: (a.x + b.x) / 2 };
+    return;
+  }
+  if (pts.size > 2) return;
+  const x = e.clientX, y = e.clientY;
+  velY = 0;
+  if (state === 'carve' && !rotateLock){
+    const hit = pick(x, y);
+    if (hit && hit.ok){
+      if (tool === 'knife'){ startStroke(hit, x, y); return; }
+      drag = { kind: 'stamp', sx: x, sy: y, hit }; return;
+    }
+  }
+  drag = { kind: 'rotate', lx: x, ly: y };
+});
+canvas.addEventListener('pointermove', e => {
+  const p = pts.get(e.pointerId); if (!p) return;
+  p.x = e.clientX; p.y = e.clientY;
+  if (!drag) return;
+  const x = e.clientX, y = e.clientY;
+  if (drag.kind === 'pinch'){
+    if (pts.size < 2) return;
+    const [a, b] = [...pts.values()], d = Math.hypot(a.x - b.x, a.y - b.y), mx = (a.x + b.x) / 2;
+    zoom = clamp(drag.z0 * drag.d0 / d, 0.6, 1.8);
+    yaw += (mx - drag.mx) * 0.007; drag.mx = mx;
+    return;
+  }
+  if (drag.kind === 'stamp'){
+    if (Math.hypot(x - drag.sx, y - drag.sy) < 10) return;
+    drag = { kind: 'rotate', lx: x, ly: y };
+  }
+  if (drag.kind === 'rotate'){
+    const dx = x - drag.lx, dy = y - drag.ly;
+    yaw += dx * 0.008; velY = dx * 0.008;
+    pitch = clamp(pitch + dy * 0.005, -0.15, 1.0);
+    drag.lx = x; drag.ly = y;
+  } else if (drag.kind === 'carve'){
+    extendStroke(x, y);
+  }
+});
+function endPointer(e, cancel){
+  if (!pts.has(e.pointerId)) return;
+  pts.delete(e.pointerId);
+  if (!drag) return;
+  if (drag.kind === 'stamp' && !cancel){
+    const h = drag.hit;
+    ops.push({ t: 's', sh: tool, x: r1(h.px), y: r1(h.py), s: STAMP_S[size] * (SHAPE_MUL[tool] || 1) });
+    drawOp(ops[ops.length - 1]); carveTex.needsUpdate = true;
+    saveWork(); refreshUI(); sfx.stamp(); $('hint').classList.add('fade');
+    drag = null; return;
+  }
+  if (drag.kind === 'carve'){ endStroke(); drag = null; return; }
+  if (drag.kind === 'pinch'){
+    if (pts.size === 1){ const [q] = [...pts.values()]; drag = { kind: 'rotate', lx: q.x, ly: q.y }; }
+    else if (!pts.size) drag = null;
+    return;
+  }
+  if (!pts.size) drag = null;
+}
+canvas.addEventListener('pointerup', e => endPointer(e, false));
+canvas.addEventListener('pointercancel', e => endPointer(e, true));
+canvas.addEventListener('wheel', e => { e.preventDefault(); zoom = clamp(zoom * (1 + e.deltaY * 0.0012), 0.6, 1.8); }, { passive: false });
+
+/* ========== ループ ========== */
+let lit = 1, last = performance.now(), T = 0;
+function loop(now){
+  requestAnimationFrame(loop);
+  if ((innerWidth || 0) < 1 || (innerHeight || 0) < 1){ last = now; return; }
+  try { frame(now); } catch (e) { console.error(e); }
+}
+function frame(now){
+  const dt = Math.min(0.05, Math.max(0, (now - last) / 1000)); last = now; T += dt;
+  if (!drag || drag.kind !== 'rotate'){ yaw += velY; velY *= 0.92; if (Math.abs(velY) < 1e-4) velY = 0; }
+  if (state === 'title' || (state === 'done' && autoRot)) yaw += dt * (danceOn ? 0.3 : 0.45);
+  if (danceOn){
+    if (dropT < 1){
+      dropT = Math.min(1, dropT + dt / 0.9);
+      group.position.y = 6 * (1 - easeBounce(dropT));
+      if (!landed && dropT > 0.36){ landed = true; sfx.plop(); }
+      if (dropT >= 1){ beat = -1.5; startMusic(); }
+    }
+    group.rotation.set(0, faceYaw, 0);
+    if (dropT >= 1){
+      if (musicOn && AC) beat = (AC.currentTime - musicStart) * BPS - 1.5;
+      else beat += dt * BPS;
+    }
+    const spin = applyPose(danceAt(beat));
+    dancer.rotation.y = yaw + spin;
+    scheduleMusic();
+  } else group.rotation.y = yaw;
+  danceBlend += ((danceOn ? 1 : 0) - danceBlend) * Math.min(1, dt * 3.5);
+  R_FIT = lerp(1.3, 1.5, danceBlend);
+  TARGET.y = lerp(0.02, 0.6, danceBlend);
+
+  const litTarget = state === 'title' ? 1 : state === 'carve' ? (previewLit ? 1 : 0) : (doneLit ? 1 : 0);
+  lit += (litTarget - lit) * Math.min(1, dt * 3);
+  const fl = 0.9 + 0.06 * Math.sin(T * 13.1) + 0.05 * Math.sin(T * 7.3 + 1.3) + 0.03 * Math.sin(T * 23.7);
+
+  U.glowAmt.value = lit * 2.3 * fl;
+  innerMat.color.setScalar(0.3 + lit * 1.3 * fl);
+  waxMat.color.copy(waxBase).multiplyScalar(0.25 + lit * 1.1 * fl);
+  hemi.intensity = 0.8 - 0.7 * lit;
+  key.intensity = 1.5 - 1.44 * lit;
+  rimL.intensity = 0.5 - 0.15 * lit;
+  flame.material.opacity = lit;
+  flame.scale.set(0.15 * fl, 0.26 * (0.85 + (fl - 0.9) * 2), 1);
+  glowDecal.material.opacity = lit * 0.75 * fl * (1 - 0.6 * danceBlend);
+  headLight.intensity = lit * danceBlend * 1.8 * fl;
+  const pulse = danceOn && beat >= 0 ? 0.85 + 0.15 * Math.cos((beat % 1) * Math.PI * 2) : 1;
+  stageKey.intensity = danceBlend * (0.75 - 0.3 * lit) * pulse;
+  stageRim.intensity = danceBlend * 1.1;
+  stageRim2.intensity = danceBlend * 0.7;
+  spotDecal.material.opacity = danceBlend * 0.5 * pulse;
+  shadow.scale.setScalar(1 - 0.35 * danceBlend);
+
+  // 彫っていないときはループ音を必ずフェードアウト
+  if (carveGain && AC){
+    const carving = drag && drag.kind === 'carve';
+    carveLevel = carving ? carveLevel * 0.9 : 0;
+    carveGain.gain.setTargetAtTime(soundOn ? carveLevel * 0.55 : 0, AC.currentTime, 0.04);
+    carveBP.frequency.setTargetAtTime(1500 + carveLevel * 2600, AC.currentTime, 0.06);
+  }
+
+  baseDist = fitDist(innerWidth, innerHeight, insetTop, insetBottom);
+  placeCamera(baseDist * zoom);
+  renderer.render(scene, camera);
+}
+
+toTitle();
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

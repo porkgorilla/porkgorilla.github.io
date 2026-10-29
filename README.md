@@ -79,6 +79,7 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 | [ファンタレジスタ！](https://porkgorilla.com/works/fanta-register.html) | GAME | 腕がふにゃふにゃのコンビニ店員で、お会計と袋詰めをするゲーム |
 | [近いの口](https://porkgorilla.com/works/chikainokuchi.html) | GAME | 上司のヤニを、ゴムの体でぐにゃっと避けるゲーム |
 | [スリリンゴ](https://porkgorilla.com/works/surilingo.html) | APP | 誰もいない台所で、ロボットがリンゴをすりおろし続けるのを眺めるアプリ |
+| [かぼちゃ彫刻室](https://porkgorilla.com/works/kabocha.html) | GAME | 3Dのかぼちゃを彫ると、黒タイツの男がかぶって踊るゲーム |
 
 ## 構成
 
@@ -161,7 +162,8 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
     ├── jubyo-genkin-tetsu.html
     ├── fanta-register.html
     ├── chikainokuchi.html
-    └── surilingo.html
+    ├── surilingo.html
+    └── kabocha.html
 ```
 
 `theme.css` / `site.js` / `favicon.svg` はルート直下に置き、各作品ページからは絶対パス(`/theme.css` など)で読み込みます。404.html も GitHub Pages の仕様上ルート直下が必須です。
