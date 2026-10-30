@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HIT_AND_BLOW | porkgorilla://</title>
+  <meta name="description" content="定番の数当てゲーム、ヒット&ブロー。重複なしの3桁・4桁の数字を、ヒントを頼りに少ない回数で当てよう。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBT4300J0L');
+  </script>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    main { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 24px 16px;
+      user-select: none; -webkit-user-select: none; text-align: center; }
+    h1 { margin: 0; font-size: 1.6rem; }
+    #info { display: flex; gap: 18px; font-size: 1.05rem; flex-wrap: wrap; justify-content: center; }
+    #slots { display: flex; gap: 8px; }
+    .slot { width: 52px; height: 62px; border: 2px solid var(--cyber-green-dim); background: var(--cyber-bg-panel);
+      display: flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--cyber-green); }
+    .slot.cur { border-color: var(--cyber-green); box-shadow: 0 0 10px rgba(57, 255, 106, .4); }
+    #pad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; width: min(100%, 360px); }
+    #pad button { font-family: var(--cyber-font); font-size: 1.3rem; padding: 10px 0; min-height: 48px; cursor: pointer;
+      border: 1px solid var(--cyber-green-dim); background: var(--cyber-bg-panel); color: var(--cyber-text); }
+    #pad button:disabled { opacity: .25; cursor: default; }
+    #pad button.memo-x { color: var(--cyber-red); text-decoration: line-through; }
+    #pad button.memo-o { border-color: var(--cyber-green); color: var(--cyber-green); }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; align-items: center; }
+    .row .btn { padding: .6rem 1rem; font-size: .9rem; }
+    .btn.active { background: var(--cyber-green); color: #000; }
+    select { font-family: var(--cyber-font); font-size: .9rem; padding: .55rem .5rem; background: var(--cyber-bg-panel);
+      color: var(--cyber-green); border: 1px solid var(--cyber-green-dim); }
+    #msg { min-height: 1.5em; color: var(--cyber-green); }
+    #msg.err { color: var(--cyber-red); }
+    #log { width: min(100%, 360px); padding: 14px 12px 10px; max-height: 320px; overflow-y: auto; }
+    #log table { width: 100%; border-collapse: collapse; font-size: 1.05rem; }
+    #log td { padding: 5px 4px; border-bottom: 1px dashed #1a4a26; }
+    #log td.g { letter-spacing: .3em; color: var(--cyber-text); }
+    #log .h { color: var(--cyber-green); }
+    #log .b { color: #ffd84d; }
+    #log .empty { color: var(--cyber-green-dim); font-size: .85rem; }
+    .rule { font-size: .85rem; color: var(--cyber-green-dim); max-width: 400px; line-height: 1.7; }
+    .credit { font-size: 11px; color: var(--cyber-green-dim); margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>🎯 HIT_AND_BLOW</h1>
+    <div id="info"><span>回数 <b id="count">0</b></span><span>最少 <b id="best">-</b></span></div>
+    <div id="slots"></div>
+    <div id="msg"></div>
+    <div id="pad"></div>
+    <div class="row">
+      <button class="btn" id="memo" type="button">メモ: OFF</button>
+      <button class="btn" id="giveup" type="button">答えを見る</button>
+      <button class="btn" id="new" type="button">新しいゲーム</button>
+      <select id="digits" aria-label="桁数"><option value="3">3桁</option><option value="4" selected>4桁</option></select>
+    </div>
+    <div id="log" class="panel"><table id="table"></table></div>
+    <p class="rule">0〜9から重複なしで選ばれた数字を当てます。数字も位置も合っていれば <span style="color:var(--cyber-green)">HIT</span>、数字だけ合っていれば <span style="color:#ffd84d">BLOW</span>。メモをONにすると、ボタンをタップするたびに 無印 → ×(使わない) → ○(使う) と印をつけられます。キーボードの数字キー・Backspace・Enterでも操作できます。</p>
+    <div class="credit">porkgorilla — 2026</div>
+  </main>
+
+  <script src="/site.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    const STORE = 'hitblow_best';
+    let best = {};
+    try { best = JSON.parse(localStorage.getItem(STORE) || '{}'); } catch (e) {}
+
+    let len, answer, input, history, over, memoMode = false, memo;
+
+    function newGame() {
+      len = +$('digits').value;
+      const pool = [...Array(10).keys()];
+      for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+      answer = pool.slice(0, len);
+      input = []; history = []; over = false;
+      memo = new Array(10).fill(0);
+      setMsg('');
+      $('giveup').disabled = false;
+      render();
+    }
+
+    function setMsg(text, err) {
+      $('msg').textContent = text;
+      $('msg').classList.toggle('err', !!err);
+    }
+
+    function render() {
+      $('slots').innerHTML = '';
+      for (let i = 0; i < len; i++) {
+        const d = document.createElement('div');
+        d.className = 'slot' + (i === input.length && !over ? ' cur' : '');
+        d.textContent = over && !input.length ? answer[i] : input[i] != null ? input[i] : '';
+        $('slots').appendChild(d);
+      }
+      [...$('pad').querySelectorAll('[data-d]')].forEach(b => {
+        const d = +b.dataset.d;
+        b.disabled = over || (!memoMode && input.includes(d));
+        b.classList.toggle('memo-x', memo[d] === 1);
+        b.classList.toggle('memo-o', memo[d] === 2);
+      });
+      $('enter').disabled = over || input.length !== len;
+      $('del').disabled = over || !input.length;
+      $('count').textContent = history.length;
+      $('best').textContent = best[len] || '-';
+      const t = $('table');
+      t.innerHTML = history.length ? '' : '<tr><td class="empty">ここに結果が並びます</td></tr>';
+      history.slice().reverse().forEach((h, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${history.length - idx}</td><td class="g">${h.g.join('')}</td>` +
+          `<td class="h">${h.hit} HIT</td><td class="b">${h.blow} BLOW</td>`;
+        t.appendChild(tr);
+      });
+    }
+
+    function press(d) {
+      if (over) return;
+      if (memoMode) { memo[d] = (memo[d] + 1) % 3; render(); return; }
+      if (input.length >= len || input.includes(d)) return;
+      input.push(d);
+      setMsg('');
+      render();
+    }
+
+    function submit() {
+      if (over || input.length !== len) return;
+      let hit = 0, blow = 0;
+      input.forEach((d, i) => { if (answer[i] === d) hit++; else if (answer.includes(d)) blow++; });
+      history.push({ g: input.slice(), hit, blow });
+      input = [];
+      if (hit === len) {
+        over = true;
+        const n = history.length;
+        const record = !best[len] || n < best[len];
+        if (record) { best[len] = n; try { localStorage.setItem(STORE, JSON.stringify(best)); } catch (e) {} }
+        setMsg(`🎉 正解! ${n}回で当てました${record ? '(自己ベスト)' : ''}`);
+        $('giveup').disabled = true;
+      }
+      render();
+    }
+
+    // テンキー風に 1〜9, 0 の順で並べ、最後の行に削除と決定
+    [1, 2, 3, 4, 5, 6, 7, 8, 9, 0].forEach(d => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = d;
+      b.dataset.d = d;
+      b.onclick = () => press(d);
+      $('pad').appendChild(b);
+    });
+    const del = document.createElement('button');
+    del.type = 'button'; del.id = 'del'; del.textContent = '⌫'; del.style.gridColumn = 'span 2';
+    del.setAttribute('aria-label', '1文字消す');
+    del.onclick = () => { if (!over && input.length) { input.pop(); render(); } };
+    const enter = document.createElement('button');
+    enter.type = 'button'; enter.id = 'enter'; enter.textContent = 'CHECK'; enter.style.gridColumn = 'span 3';
+    enter.onclick = submit;
+    $('pad').append(del, enter);
+
+    $('memo').onclick = () => {
+      memoMode = !memoMode;
+      $('memo').textContent = 'メモ: ' + (memoMode ? 'ON' : 'OFF');
+      $('memo').classList.toggle('active', memoMode);
+      render();
+    };
+    $('giveup').onclick = () => {
+      if (over) return;
+      over = true;
+      input = [];
+      setMsg(`答えは ${answer.join('')} でした`, true);
+      $('giveup').disabled = true;
+      render();
+    };
+    $('new').onclick = newGame;
+    $('digits').onchange = newGame;
+    document.addEventListener('keydown', e => {
+      if (e.target.tagName === 'SELECT') return;
+      if (/^[0-9]$/.test(e.key)) press(+e.key);
+      else if (e.key === 'Backspace') { e.preventDefault(); $('del').click(); }
+      else if (e.key === 'Enter') { e.preventDefault(); submit(); }
+    });
+    newGame();
+  </script>
+</body>
+</html>

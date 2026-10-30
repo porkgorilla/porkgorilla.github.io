@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WAREKI | porkgorilla://</title>
+  <meta name="description" content="和暦・西暦の変換ツール。年・日付の相互変換と、明治から今年までの早見表(干支・年齢つき)。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBT4300J0L');
+  </script>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    main { padding: 24px 16px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+    h1 { margin: 0; font-size: 1.6rem; }
+    h2 { margin: 0; font-size: 1rem; }
+    .box { width: 100%; max-width: 520px; padding: 18px 16px 16px; }
+    .box > * + * { margin-top: 10px; }
+    input, select { font-family: var(--cyber-font); font-size: 1rem; padding: 8px 10px; width: 100%; min-width: 0;
+      background: var(--cyber-bg-panel); color: var(--cyber-text); border: 1px solid var(--cyber-green-dim); }
+    input:focus, select:focus { outline: none; border-color: var(--cyber-green); }
+    input[type=date] { color-scheme: dark; }
+    .row { display: flex; gap: 8px; align-items: center; }
+    .row > * { flex: 1 1 0; min-width: 0; }
+    .row .unit { flex: 0 0 auto; color: var(--cyber-green-dim); }
+    .out { font-size: 1.15rem; color: var(--cyber-green); line-height: 1.6; min-height: 1.6em; }
+    .out small { display: block; font-size: .82rem; color: var(--cyber-text); }
+    .out .err { color: var(--cyber-red); font-size: .9rem; }
+    #tableBox { width: 100%; max-width: 520px; padding: 18px 12px 12px; }
+    .tbl-wrap { max-height: 420px; overflow-y: auto; margin-top: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th { position: sticky; top: 0; background: var(--cyber-bg-panel); color: var(--cyber-green); text-align: left;
+      padding: 6px 4px; border-bottom: 1px solid var(--cyber-green-dim); }
+    td { padding: 5px 4px; border-bottom: 1px dashed #1a4a26; white-space: nowrap; }
+    td.age { text-align: right; }
+    tr.hit td { background: var(--cyber-green-faint); color: #fff; }
+    .note { font-size: .8rem; color: var(--cyber-green-dim); max-width: 520px; line-height: 1.7; margin: 0; }
+    .credit { font-size: 11px; color: var(--cyber-green-dim); margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>🎌 WAREKI</h1>
+
+    <div class="box panel">
+      <h2>西暦 → 和暦</h2>
+      <div class="row"><input id="y" type="number" inputmode="numeric" min="1868" max="2200" aria-label="西暦"><span class="unit">年</span></div>
+      <div class="out" id="yOut"></div>
+    </div>
+
+    <div class="box panel">
+      <h2>和暦 → 西暦</h2>
+      <div class="row">
+        <select id="era" aria-label="元号"></select>
+        <input id="ey" type="number" inputmode="numeric" min="1" value="1" aria-label="和暦の年"><span class="unit">年</span>
+      </div>
+      <div class="out" id="eOut"></div>
+    </div>
+
+    <div class="box panel">
+      <h2>日付 → 和暦</h2>
+      <input id="date" type="date" min="1873-01-01" aria-label="日付">
+      <div class="out" id="dOut"></div>
+    </div>
+
+    <div id="tableBox" class="panel">
+      <h2>早見表</h2>
+      <div class="tbl-wrap">
+        <table><thead><tr><th>西暦</th><th>和暦</th><th>干支</th><th style="text-align:right">年齢</th></tr></thead><tbody id="tbody"></tbody></table>
+      </div>
+    </div>
+    <p class="note">年齢は「今年の誕生日を過ぎた場合 / 過ぎていない場合」の満年齢です。日本で新暦(グレゴリオ暦)が使われ始めたのは明治6年(1873年)からなので、日付の変換はそれ以降に対応しています。改元の年は、改元日より前が旧元号、改元日からが新元号です。</p>
+    <div class="credit">porkgorilla — 2026</div>
+  </main>
+
+  <script src="/site.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    // 改元日(新暦)。明治は改元の詔が出た日だが、慣例で明治元年=1868年とする
+    const ERAS = [
+      { name: '令和', y: 2019, m: 5, d: 1 },
+      { name: '平成', y: 1989, m: 1, d: 8 },
+      { name: '昭和', y: 1926, m: 12, d: 25 },
+      { name: '大正', y: 1912, m: 7, d: 30 },
+      { name: '明治', y: 1868, m: 10, d: 23 }
+    ];
+    const STEMS = '甲乙丙丁戊己庚辛壬癸', BRANCHES = '子丑寅卯辰巳午未申酉戌亥';
+    const ANIMALS = ['ねずみ', 'うし', 'とら', 'うさぎ', 'たつ', 'へび', 'うま', 'ひつじ', 'さる', 'とり', 'いぬ', 'いのしし'];
+    const WEEK = '日月火水木金土';
+    const now = new Date();
+    const thisYear = now.getFullYear();
+
+    const eraYear = n => n === 1 ? '元' : String(n);
+    const eto = y => {
+      const s = ((y - 4) % 10 + 10) % 10, b = ((y - 4) % 12 + 12) % 12;
+      return { kanji: STEMS[s] + BRANCHES[b], animal: ANIMALS[b] };
+    };
+    const startKey = e => e.y * 10000 + e.m * 100 + e.d;
+    const endOf = i => i === 0 ? null : ERAS[i - 1];
+
+    // その年に使われた元号(改元の年は2つ)を古い順に返す
+    function erasInYear(y) {
+      const out = [];
+      ERAS.forEach((e, i) => {
+        const end = endOf(i);
+        if (e.y <= y && (!end || end.y >= y)) {
+          const from = e.y === y && e.y !== 1868 ? `${e.m}/${e.d}` : '';
+          let to = '';
+          if (end && end.y === y) {
+            const last = new Date(end.y, end.m - 1, end.d - 1);
+            to = `${last.getMonth() + 1}/${last.getDate()}`;
+          }
+          out.unshift({ era: e, n: y - e.y + 1, range: from || to ? `${from}〜${to}` : '' });
+        }
+      });
+      return out;
+    }
+
+    function convYear() {
+      const y = Math.floor(+$('y').value);
+      highlight(y);
+      if (!y) { $('yOut').innerHTML = ''; return; }
+      if (y < 1868) { $('yOut').innerHTML = '<span class="err">明治元年(1868年)より前は対象外です</span>'; return; }
+      const list = erasInYear(y);
+      const e = eto(y);
+      const age = thisYear - y;
+      $('yOut').innerHTML = list.map(x => `${x.era.name}${eraYear(x.n)}年${x.range ? ` <small style="display:inline">(${x.range})</small>` : ''}`).join(' / ') +
+        `<small>干支: ${e.kanji}(${e.animal})${age >= 0 ? ` ／ ${thisYear}年に ${age}歳になる年` : ''}</small>`;
+    }
+
+    function convEra() {
+      const i = +$('era').value, e = ERAS[i], end = endOf(i);
+      const n = Math.floor(+$('ey').value);
+      if (!n || n < 1) { $('eOut').innerHTML = '<span class="err">年を入力してください</span>'; return; }
+      const y = e.y + n - 1;
+      const maxN = end ? end.y - e.y + 1 : null;
+      if (maxN && n > maxN) {
+        $('eOut').innerHTML = `<span class="err">${e.name}は${maxN}年(${end.y}年)までです</span>`;
+        return;
+      }
+      // 元年は改元日から、最終年は次の改元日の前日まで(明治元年は1月1日扱いなので除外)
+      const first = n === 1 && i !== ERAS.length - 1;
+      const lastDay = end && n === maxN ? new Date(end.y, end.m - 1, end.d - 1) : null;
+      let note = '';
+      if (first) note = `${e.m}月${e.d}日から`;
+      if (lastDay) note = (first ? `${e.m}月${e.d}日〜` : '') + `${lastDay.getMonth() + 1}月${lastDay.getDate()}日まで`;
+      const et = eto(y);
+      $('eOut').innerHTML = `${y}年<small>${note ? note + ' ／ ' : ''}干支: ${et.kanji}(${et.animal})</small>`;
+    }
+
+    function convDate() {
+      const v = $('date').value;
+      if (!v) { $('dOut').innerHTML = ''; return; }
+      const [y, m, d] = v.split('-').map(Number);
+      if (y < 1873) { $('dOut').innerHTML = '<span class="err">明治6年(1873年)以降の日付を選んでください</span>'; return; }
+      const key = y * 10000 + m * 100 + d;
+      const e = ERAS.find(x => startKey(x) <= key) || ERAS[ERAS.length - 1];
+      const wd = WEEK[new Date(y, m - 1, d).getDay()];
+      $('dOut').innerHTML = `${e.name}${eraYear(y - e.y + 1)}年${m}月${d}日(${wd})`;
+    }
+
+    function buildTable() {
+      const tb = $('tbody');
+      for (let y = thisYear; y >= 1868; y--) {
+        const tr = document.createElement('tr');
+        tr.dataset.y = y;
+        const names = erasInYear(y).map(x => x.era.name + eraYear(x.n)).join(' / ');
+        const e = eto(y);
+        const age = thisYear - y;
+        tr.innerHTML = `<td>${y}</td><td>${names}</td><td>${e.kanji}</td><td class="age">${age} / ${Math.max(0, age - 1)}</td>`;
+        tb.appendChild(tr);
+      }
+    }
+    function highlight(y) {
+      document.querySelectorAll('#tbody tr.hit').forEach(tr => tr.classList.remove('hit'));
+      const tr = document.querySelector(`#tbody tr[data-y="${y}"]`);
+      if (!tr) return;
+      tr.classList.add('hit');
+      const wrap = tr.closest('.tbl-wrap');
+      wrap.scrollTop = tr.offsetTop - wrap.clientHeight / 2;
+    }
+
+    ERAS.forEach((e, i) => {
+      const o = document.createElement('option');
+      o.value = i;
+      o.textContent = e.name;
+      $('era').appendChild(o);
+    });
+    $('era').value = '2';
+    $('ey').value = '50';
+    $('y').value = thisYear;
+    $('date').value = `${thisYear}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    $('y').addEventListener('input', convYear);
+    $('era').addEventListener('change', convEra);
+    $('ey').addEventListener('input', convEra);
+    $('date').addEventListener('input', convDate);
+    $('date').addEventListener('change', convDate);
+    buildTable();
+    convYear(); convEra(); convDate();
+  </script>
+</body>
+</html>

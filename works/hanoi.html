@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HANOI | porkgorilla://</title>
+  <meta name="description" content="定番パズル、ハノイの塔。円盤を1枚ずつ動かして、左の塔を右へそっくり移そう。3〜8枚、最少手数と自動解答つき。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBT4300J0L');
+  </script>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    main { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 24px 16px;
+      user-select: none; -webkit-user-select: none; text-align: center; }
+    h1 { margin: 0; font-size: 1.6rem; }
+    #info { display: flex; gap: 18px; font-size: 1.05rem; flex-wrap: wrap; justify-content: center; }
+    #board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; width: min(100%, 560px); }
+    .peg { position: relative; height: 240px; padding: 0 0 10px; cursor: pointer; border: 1px solid transparent;
+      background: none; display: flex; flex-direction: column-reverse; align-items: center; gap: 3px; }
+    .peg::before { content: ''; position: absolute; left: 50%; bottom: 10px; width: 6px; height: 88%; transform: translateX(-50%);
+      background: var(--cyber-green-dim); }
+    .peg::after { content: ''; position: absolute; left: 4%; right: 4%; bottom: 4px; height: 6px; background: var(--cyber-green-dim); }
+    .peg.goal::after { background: var(--cyber-green); box-shadow: 0 0 8px var(--cyber-green); }
+    .peg.src { border-color: var(--cyber-green-dim); background: var(--cyber-green-faint); }
+    .peg.bad { animation: shake .3s; }
+    @keyframes shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+    .disk { position: relative; z-index: 1; height: 22px; border: 1px solid #000; transition: transform .15s;
+      font-size: 11px; line-height: 20px; color: #000; font-weight: bold; }
+    .disk.lift { transform: translateY(-18px); box-shadow: 0 0 10px #fff; }
+    .peg-label { position: absolute; bottom: -18px; left: 0; right: 0; font-size: .8rem; color: var(--cyber-green-dim); }
+    #msg { min-height: 1.5em; color: var(--cyber-green); margin-top: 10px; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; align-items: center; }
+    .row .btn { padding: .6rem 1rem; font-size: .9rem; }
+    select { font-family: var(--cyber-font); font-size: .9rem; padding: .55rem .5rem; background: var(--cyber-bg-panel);
+      color: var(--cyber-green); border: 1px solid var(--cyber-green-dim); }
+    .rule { font-size: .85rem; color: var(--cyber-green-dim); max-width: 420px; line-height: 1.7; }
+    .credit { font-size: 11px; color: var(--cyber-green-dim); margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>🗼 HANOI</h1>
+    <div id="info"><span>手数 <b id="moves">0</b></span><span>最少 <b id="min">7</b></span><span>自己ベスト <b id="best">-</b></span></div>
+    <div id="board"></div>
+    <div id="msg"></div>
+    <div class="row">
+      <button class="btn" id="undo" type="button">↶ 戻す</button>
+      <button class="btn" id="solve" type="button">自動で解く</button>
+      <button class="btn" id="reset" type="button">↺ 最初から</button>
+      <select id="count" aria-label="円盤の枚数">
+        <option value="3">3枚</option><option value="4" selected>4枚</option><option value="5">5枚</option><option value="6">6枚</option><option value="7">7枚</option><option value="8">8枚</option>
+      </select>
+    </div>
+    <p class="rule">移したい塔をタップしてから、移し先の塔をタップします。動かせるのは一番上の1枚だけ。小さい円盤の上に大きい円盤は置けません。左の塔をすべて右の塔へ移せばクリア。キーボードの 1・2・3 でも操作できます。</p>
+    <div class="credit">porkgorilla — 2026</div>
+  </main>
+
+  <script src="/site.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    const STORE = 'hanoi_best';
+    let best = {};
+    try { best = JSON.parse(localStorage.getItem(STORE) || '{}'); } catch (e) {}
+
+    // pegs[p] は下から順に円盤の大きさ(1が最小)を持つ
+    let n, pegs, src, moves, hist, done, usedAuto, autoTimer;
+    const COLORS = ['#39ff6a', '#5dffb0', '#7de8ff', '#9db8ff', '#c79dff', '#ff9de0', '#ffb36b', '#ffe86b'];
+
+    function reset() {
+      stopAuto();
+      n = +$('count').value;
+      pegs = [[], [], []];
+      for (let d = n; d >= 1; d--) pegs[0].push(d);
+      src = -1; moves = 0; hist = []; done = false; usedAuto = false;
+      $('msg').textContent = '';
+      render();
+    }
+
+    const pegEls = [];
+    for (let p = 0; p < 3; p++) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'peg' + (p === 2 ? ' goal' : '');
+      b.setAttribute('aria-label', `${p + 1}番目の塔`);
+      b.onclick = () => { stopAuto(); tap(p); };
+      $('board').appendChild(b);
+      pegEls.push(b);
+    }
+
+    function render() {
+      const maxW = pegEls[0].clientWidth * .92;
+      pegEls.forEach((el, p) => {
+        el.innerHTML = `<span class="peg-label">${p + 1}</span>`;
+        el.classList.toggle('src', p === src);
+        pegs[p].forEach((d, k) => {
+          const disk = document.createElement('div');
+          disk.className = 'disk' + (p === src && k === pegs[p].length - 1 ? ' lift' : '');
+          disk.style.width = (maxW * (.25 + .75 * d / Math.max(n, 3))) + 'px';
+          disk.style.background = COLORS[d - 1];
+          disk.textContent = d;
+          el.appendChild(disk);
+        });
+      });
+      $('moves').textContent = moves;
+      $('min').textContent = 2 ** n - 1;
+      $('best').textContent = best[n] || '-';
+      $('undo').disabled = !hist.length || done;
+    }
+
+    function move(a, b) {
+      const top = pegs[a][pegs[a].length - 1], dst = pegs[b][pegs[b].length - 1];
+      if (!top || (dst && dst < top)) return false;
+      hist.push([a, b]);
+      pegs[b].push(pegs[a].pop());
+      moves++;
+      if (pegs[2].length === n) {
+        done = true;
+        const min = 2 ** n - 1;
+        if (usedAuto) $('msg').textContent = `自動で解きました(${moves}手)`;
+        else {
+          const record = !best[n] || moves < best[n];
+          if (record) { best[n] = moves; try { localStorage.setItem(STORE, JSON.stringify(best)); } catch (e) {} }
+          $('msg').textContent = moves === min ? `🎉 最少手数 ${min} 手でクリア!` : `🎉 クリア! ${moves}手 (最少 ${min}手)`;
+        }
+      }
+      return true;
+    }
+
+    function tap(p) {
+      if (done) return;
+      if (src < 0) {
+        if (pegs[p].length) src = p;
+      } else if (src === p) {
+        src = -1;
+      } else {
+        if (!move(src, p)) {
+          pegEls[p].classList.remove('bad');
+          void pegEls[p].offsetWidth;
+          pegEls[p].classList.add('bad');
+          $('msg').textContent = '小さい円盤の上には置けません';
+          src = -1;
+          render();
+          return;
+        }
+        if (!done) $('msg').textContent = '';
+        src = -1;
+      }
+      render();
+    }
+
+    // 今の状態から右の塔へ集める最短手順。大きい円盤から順に、目的地にないなら上の山をよけてから動かす
+    function plan() {
+      const pos = [];
+      pegs.forEach((pg, p) => pg.forEach(d => { pos[d] = p; }));
+      const out = [];
+      (function go(k, target) {
+        if (k === 0) return;
+        if (pos[k] === target) { go(k - 1, target); return; }
+        const other = 3 - pos[k] - target;
+        go(k - 1, other);
+        out.push([pos[k], target]);
+        pos[k] = target;
+        go(k - 1, target);
+      })(n, 2);
+      return out;
+    }
+
+    function stopAuto() {
+      clearTimeout(autoTimer);
+      autoTimer = 0;
+      $('solve').textContent = '自動で解く';
+    }
+
+    $('solve').onclick = () => {
+      if (autoTimer) { stopAuto(); return; }
+      if (done) reset();
+      const steps = plan();
+      if (!steps.length) return;
+      usedAuto = true;
+      src = -1;
+      $('solve').textContent = '止める';
+      const delay = Math.max(60, 420 - n * 45);
+      (function step() {
+        const s = steps.shift();
+        move(s[0], s[1]);
+        render();
+        if (steps.length && !done) autoTimer = setTimeout(step, delay);
+        else stopAuto();
+      })();
+    };
+    $('undo').onclick = () => {
+      stopAuto();
+      if (!hist.length || done) return;
+      const [a, b] = hist.pop();
+      pegs[a].push(pegs[b].pop());
+      moves++;
+      src = -1;
+      render();
+    };
+    $('reset').onclick = reset;
+    $('count').onchange = reset;
+    document.addEventListener('keydown', e => {
+      if (e.target.tagName === 'SELECT') return;
+      if (['1', '2', '3'].includes(e.key)) { stopAuto(); tap(+e.key - 1); }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); $('undo').click(); }
+    });
+    window.addEventListener('resize', render);
+    reset();
+  </script>
+</body>
+</html>

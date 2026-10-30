@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR_MAKER | porkgorilla://</title>
+  <meta name="description" content="QRコード作成ツール。URL・テキスト・Wi-Fi接続情報からQRコードを作り、PNG/SVGで保存。ブラウザ内で生成し送信しない。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBT4300J0L');
+  </script>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    main { padding: 24px 16px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+    h1 { margin: 0; font-size: 1.6rem; }
+    .box { width: 100%; max-width: 480px; padding: 18px 16px 16px; }
+    .box > * + * { margin-top: 12px; }
+    input, select, textarea { font-family: var(--cyber-font); font-size: 1rem; padding: 8px 10px; width: 100%; min-width: 0;
+      background: var(--cyber-bg-panel); color: var(--cyber-text); border: 1px solid var(--cyber-green-dim); }
+    textarea { resize: vertical; min-height: 84px; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--cyber-green); }
+    input[type=color] { padding: 2px; height: 40px; cursor: pointer; }
+    input[type=checkbox] { width: auto; }
+    label { color: var(--cyber-green-dim); font-size: .85rem; display: block; margin-bottom: 4px; }
+    label.inline { display: flex; align-items: center; gap: 6px; margin: 0; cursor: pointer; }
+    .row { display: flex; gap: 8px; align-items: flex-end; }
+    .row > div { flex: 1 1 0; min-width: 0; }
+    .tabs { display: flex; gap: 6px; }
+    .tabs .btn { flex: 1; padding: .5rem .4rem; font-size: .85rem; }
+    .btn.active { background: var(--cyber-green); color: #000; }
+    .result { width: 100%; max-width: 480px; padding: 18px 16px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    #canvas { width: min(100%, 280px); height: auto; image-rendering: pixelated; border: 1px solid var(--cyber-green-dim); }
+    #meta { font-size: .8rem; color: var(--cyber-green-dim); }
+    #err { color: var(--cyber-red); min-height: 1.2em; font-size: .9rem; }
+    .actions { display: flex; gap: 8px; width: 100%; max-width: 480px; }
+    .actions .btn { flex: 1; padding: .6rem .5rem; font-size: .9rem; }
+    .note { font-size: .8rem; color: var(--cyber-green-dim); max-width: 480px; line-height: 1.7; margin: 0; }
+    .credit { font-size: 11px; color: var(--cyber-green-dim); margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>🔳 QR_MAKER</h1>
+    <div class="box panel">
+      <div class="tabs">
+        <button class="btn active" type="button" data-mode="text">URL・テキスト</button>
+        <button class="btn" type="button" data-mode="wifi">Wi-Fi</button>
+      </div>
+      <div id="modeText">
+        <label for="text">内容</label>
+        <textarea id="text">https://porkgorilla.com/</textarea>
+      </div>
+      <div id="modeWifi" hidden>
+        <div><label for="ssid">ネットワーク名 (SSID)</label><input id="ssid" type="text" autocomplete="off"></div>
+        <div class="row" style="margin-top:12px">
+          <div><label for="wpass">パスワード</label><input id="wpass" type="text" autocomplete="off"></div>
+          <div style="flex:.6 1 0"><label for="wsec">暗号化</label>
+            <select id="wsec"><option value="WPA">WPA/WPA2/WPA3</option><option value="WEP">WEP</option><option value="nopass">なし</option></select></div>
+        </div>
+        <label class="inline" style="margin-top:10px"><input id="whidden" type="checkbox"> ステルス(非公開)ネットワーク</label>
+      </div>
+      <div class="row">
+        <div><label for="ecc">誤り訂正</label>
+          <select id="ecc" title="L 7% / M 15% / Q 25% / H 30% まで欠けても読める"><option value="L">L 7%</option><option value="M" selected>M 15%</option><option value="Q">Q 25%</option><option value="H">H 30%</option></select></div>
+        <div><label for="size">画像サイズ</label>
+          <select id="size"><option>256</option><option selected>512</option><option>1024</option><option>2048</option></select></div>
+        <div><label for="margin">余白</label>
+          <select id="margin"><option>0</option><option>1</option><option>2</option><option selected>4</option><option>6</option></select></div>
+      </div>
+      <div class="row">
+        <div><label for="fg">色</label><input id="fg" type="color" value="#000000"></div>
+        <div><label for="bg">背景</label><input id="bg" type="color" value="#ffffff"></div>
+      </div>
+    </div>
+
+    <div class="result panel">
+      <canvas id="canvas" width="512" height="512"></canvas>
+      <div id="meta"></div>
+      <div id="err"></div>
+    </div>
+    <div class="actions">
+      <button class="btn" id="png" type="button">PNGで保存</button>
+      <button class="btn" id="svg" type="button">SVGで保存</button>
+    </div>
+    <p class="note">QRコードはこのページの中で作られ、入力した内容がどこかへ送られることはありません。色を変えるときは、読み取りやすいよう背景より十分に濃い色を選んでください。</p>
+    <div class="credit">porkgorilla — 2026</div>
+  </main>
+
+  <script src="/site.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    let mode = 'text', qr = null;
+
+    // 日本語を含む文字列もそのまま読めるよう UTF-8 でバイト化する
+    if (window.qrcode && qrcode.stringToBytesFuncs && qrcode.stringToBytesFuncs['UTF-8']) {
+      qrcode.stringToBytes = qrcode.stringToBytesFuncs['UTF-8'];
+    }
+
+    // Wi-Fi 形式では \ ; , : " を \ でエスケープする決まり
+    const esc = s => s.replace(/([\\;,:"])/g, '\\$1');
+    function content() {
+      if (mode === 'text') return $('text').value;
+      const ssid = $('ssid').value;
+      if (!ssid) return '';
+      const sec = $('wsec').value;
+      return `WIFI:T:${sec};S:${esc(ssid)};` + (sec !== 'nopass' ? `P:${esc($('wpass').value)};` : '') +
+        ($('whidden').checked ? 'H:true;' : '') + ';';
+    }
+
+    function make() {
+      const text = content();
+      const cv = $('canvas'), ctx = cv.getContext('2d');
+      $('err').textContent = '';
+      $('meta').textContent = '';
+      qr = null;
+      if (!window.qrcode) { $('err').textContent = 'QRコードの部品を読み込めませんでした。通信状況を確認してください。'; return; }
+      if (!text) {
+        ctx.clearRect(0, 0, cv.width, cv.height);
+        $('err').textContent = mode === 'text' ? '内容を入力してください' : 'ネットワーク名を入力してください';
+        return;
+      }
+      try {
+        qr = qrcode(0, $('ecc').value);
+        qr.addData(text, 'Byte');
+        qr.make();
+      } catch (e) {
+        qr = null;
+        ctx.clearRect(0, 0, cv.width, cv.height);
+        $('err').textContent = '長すぎてQRコードに収まりません。文字を減らすか、誤り訂正を下げてください。';
+        return;
+      }
+      const count = qr.getModuleCount(), margin = +$('margin').value, total = count + margin * 2;
+      // 1モジュールを整数ピクセルにしてにじみを防ぎ、指定サイズに一番近い大きさにする
+      const scale = Math.max(1, Math.round(+$('size').value / total));
+      cv.width = cv.height = total * scale;
+      ctx.fillStyle = $('bg').value;
+      ctx.fillRect(0, 0, cv.width, cv.height);
+      ctx.fillStyle = $('fg').value;
+      for (let r = 0; r < count; r++) for (let c = 0; c < count; c++) {
+        if (qr.isDark(r, c)) ctx.fillRect((c + margin) * scale, (r + margin) * scale, scale, scale);
+      }
+      const bytes = new TextEncoder().encode(text).length;
+      $('meta').textContent = `バージョン ${(count - 17) / 4} (${count}×${count}) / ${bytes} バイト / ${cv.width}px`;
+    }
+
+    function download(href, name) {
+      const a = document.createElement('a');
+      a.href = href;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+    $('png').onclick = () => { if (qr) download($('canvas').toDataURL('image/png'), 'qrcode.png'); };
+    $('svg').onclick = () => {
+      if (!qr) return;
+      const count = qr.getModuleCount(), m = +$('margin').value, total = count + m * 2;
+      let d = '';
+      for (let r = 0; r < count; r++) for (let c = 0; c < count; c++) if (qr.isDark(r, c)) d += `M${c + m} ${r + m}h1v1h-1z`;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${total} ${total}" shape-rendering="crispEdges">` +
+        `<rect width="100%" height="100%" fill="${$('bg').value}"/><path fill="${$('fg').value}" d="${d}"/></svg>`;
+      const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
+      download(url, 'qrcode.svg');
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    };
+
+    document.querySelectorAll('[data-mode]').forEach(b => {
+      b.onclick = () => {
+        mode = b.dataset.mode;
+        document.querySelectorAll('[data-mode]').forEach(x => x.classList.toggle('active', x === b));
+        $('modeText').hidden = mode !== 'text';
+        $('modeWifi').hidden = mode !== 'wifi';
+        make();
+      };
+    });
+    ['text', 'ssid', 'wpass', 'wsec', 'whidden', 'ecc', 'size', 'margin', 'fg', 'bg'].forEach(id => {
+      $(id).addEventListener('input', make);
+      $(id).addEventListener('change', make);
+    });
+    make();
+  </script>
+</body>
+</html>

@@ -20,6 +20,10 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 | [SUDOKU](https://porkgorilla.com/works/sudoku.html) | GAME | 数独 (自動生成) |
 | [LIGHTS_OUT](https://porkgorilla.com/works/lightsout.html) | GAME | ライツアウト |
 | [GOMOKU](https://porkgorilla.com/works/gomoku.html) | GAME | 五目並べ (対CPU) |
+| [SOLITAIRE](https://porkgorilla.com/works/solitaire.html) | GAME | ソリティア (クロンダイク) |
+| [NONOGRAM](https://porkgorilla.com/works/nonogram.html) | GAME | ノノグラム (自動生成) |
+| [HIT_AND_BLOW](https://porkgorilla.com/works/hitblow.html) | GAME | ヒット&ブロー (数当て) |
+| [HANOI](https://porkgorilla.com/works/hanoi.html) | GAME | ハノイの塔 |
 | [TYPE_ATTACK](https://porkgorilla.com/works/typing.html) | GAME / LANGUAGE | 60秒英単語タイピング |
 | [VOCAB_QUIZ](https://porkgorilla.com/works/vocab.html) | LANGUAGE | 英単語4択クイズ |
 | [KANA_QUIZ](https://porkgorilla.com/works/kana.html) | LANGUAGE | ひらがな・カタカナ読み方クイズ |
@@ -37,6 +41,10 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 | [ENCODER](https://porkgorilla.com/works/encoder.html) | TOOL | Base64 / URL / HTML / Unicode 変換 |
 | [DATE_CALC](https://porkgorilla.com/works/datecalc.html) | TOOL | 日数・日付・年齢計算 |
 | [WARIKAN](https://porkgorilla.com/works/warikan.html) | TOOL | 割り勘計算 |
+| [QR_MAKER](https://porkgorilla.com/works/qrcode.html) | TOOL | QRコード作成 |
+| [WAREKI](https://porkgorilla.com/works/wareki.html) | TOOL | 和暦・西暦変換と早見表 |
+| [ROULETTE](https://porkgorilla.com/works/roulette.html) | TOOL | 抽選ルーレット |
+| [TEXT_DIFF](https://porkgorilla.com/works/textdiff.html) | TOOL | テキスト差分比較 |
 | [KAMOGAWA](https://porkgorilla.com/works/kamogawa.html) | GAME | 鴨川等間隔。河原のいちばん空いている場所にカップルを座らせるゲーム |
 | [台北∞観景台](https://porkgorilla.com/works/taipei-infinity.html) | GAME | 台北101の逆さ台形フロアを積み上げて、台北102、103…と数字を増やしていく積み上げゲーム |
 | [フラッピーばーちゃん](https://porkgorilla.com/works/flappy-baachan.html) | GAME | 焼き芋を食べたら屁で加速。竹林をくぐって飛ぶ、ばーちゃんのフラッピーゲーム |
@@ -104,6 +112,10 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
     ├── sudoku.html
     ├── lightsout.html
     ├── gomoku.html
+    ├── solitaire.html
+    ├── nonogram.html
+    ├── hitblow.html
+    ├── hanoi.html
     ├── calculator.html
     ├── stopwatch.html
     ├── password.html
@@ -113,6 +125,10 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
     ├── encoder.html
     ├── datecalc.html
     ├── warikan.html
+    ├── qrcode.html
+    ├── wareki.html
+    ├── roulette.html
+    ├── textdiff.html
     ├── typing.html
     ├── vocab.html
     ├── kana.html

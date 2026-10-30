@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TEXT_DIFF | porkgorilla://</title>
+  <meta name="description" content="2つのテキストの差分を比較するツール。行ごとの追加・削除と、変わった文字をハイライト。ブラウザ内で処理し送信しない。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBT4300J0L');
+  </script>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    main { padding: 24px 16px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+    h1 { margin: 0; font-size: 1.6rem; }
+    .inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 960px; }
+    @media (max-width: 640px) { .inputs { grid-template-columns: 1fr; } }
+    .inputs label { color: var(--cyber-green-dim); font-size: .85rem; display: block; margin-bottom: 4px; }
+    textarea { font-family: var(--cyber-font); font-size: .9rem; padding: 8px 10px; width: 100%; min-height: 180px; resize: vertical;
+      background: var(--cyber-bg-panel); color: var(--cyber-text); border: 1px solid var(--cyber-green-dim); white-space: pre; }
+    textarea:focus { outline: none; border-color: var(--cyber-green); }
+    .opts { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: center; width: 100%; max-width: 960px; font-size: .9rem; }
+    .opts label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+    .opts .btn { padding: .45rem .9rem; font-size: .85rem; }
+    select { font-family: var(--cyber-font); font-size: .9rem; padding: .4rem .5rem; background: var(--cyber-bg-panel);
+      color: var(--cyber-green); border: 1px solid var(--cyber-green-dim); }
+    #stats { font-size: .95rem; }
+    #stats .add { color: var(--cyber-green); }
+    #stats .del { color: var(--cyber-red); }
+    #out { width: 100%; max-width: 960px; padding: 16px 0 6px; overflow-x: auto; }
+    table.diff { border-collapse: collapse; width: 100%; font-size: .85rem; line-height: 1.5; }
+    .diff td { padding: 0 6px; vertical-align: top; white-space: pre-wrap; word-break: break-all; }
+    .diff td.no { width: 1%; color: #3a7a4a; text-align: right; white-space: nowrap; user-select: none; -webkit-user-select: none; }
+    .diff td.sg { width: 1%; user-select: none; -webkit-user-select: none; }
+    .diff tr.d td { background: rgba(255, 77, 109, .12); }
+    .diff tr.d td.sg, .diff td.d.sg { color: var(--cyber-red); }
+    .diff tr.i td { background: rgba(57, 255, 106, .12); }
+    .diff tr.i td.sg, .diff td.i.sg { color: var(--cyber-green); }
+    .diff td.d { background: rgba(255, 77, 109, .12); }
+    .diff td.i { background: rgba(57, 255, 106, .12); }
+    .diff td.blank { background: repeating-linear-gradient(45deg, transparent 0 4px, rgba(57, 255, 106, .05) 4px 8px); }
+    .diff td.mid { border-left: 1px solid var(--cyber-green-dim); }
+    .diff tr.skip td { color: var(--cyber-green-dim); text-align: center; padding: 4px; background: var(--cyber-green-faint); }
+    .diff del { background: rgba(255, 77, 109, .45); color: #fff; text-decoration: none; }
+    .diff ins { background: rgba(57, 255, 106, .35); color: #fff; text-decoration: none; }
+    .diff .empty { color: var(--cyber-green-dim); text-align: center; padding: 16px; }
+    .note { font-size: .8rem; color: var(--cyber-green-dim); max-width: 960px; line-height: 1.7; margin: 0; }
+    .credit { font-size: 11px; color: var(--cyber-green-dim); margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>📑 TEXT_DIFF</h1>
+    <div class="inputs">
+      <div><label for="a">変更前</label><textarea id="a" spellcheck="false">porkgorilla.com
+定番ゲームとツールの置き場です。
+SNAKE と 2048 があります。
+すべてブラウザで動きます。
+おわり</textarea></div>
+      <div><label for="b">変更後</label><textarea id="b" spellcheck="false">porkgorilla.com
+定番ゲームと定番ツールの置き場です。
+SNAKE と 2048 と SOLITAIRE があります。
+すべてブラウザで動きます。
+スマホでも遊べます。
+おわり</textarea></div>
+    </div>
+    <div class="opts">
+      <select id="view" aria-label="表示方法"><option value="split">左右に並べる</option><option value="unified">1列にまとめる</option></select>
+      <label><input id="onlyChanges" type="checkbox"> 変更箇所だけ</label>
+      <label><input id="ignoreWs" type="checkbox"> 空白の違いを無視</label>
+      <label><input id="ignoreCase" type="checkbox"> 大文字小文字を無視</label>
+      <button class="btn" id="swap" type="button">⇄ 入れ替え</button>
+      <button class="btn" id="clear" type="button">クリア</button>
+    </div>
+    <div id="stats"></div>
+    <div id="out" class="panel"></div>
+    <p class="note">比較はこのページの中だけで行われ、テキストがどこかへ送られることはありません。行の数が多すぎる(片方につき数千行以上)と比較できない場合があります。</p>
+    <div class="credit">porkgorilla — 2026</div>
+  </main>
+
+  <script src="/site.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    const escH = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const CONTEXT = 2;
+    const MAX_CELLS = 6e6;
+
+    // 2つの列の LCS から eq / del / ins の並びを作る。前後の共通部分は先に削って表を小さくする
+    function diffSeq(A, B, eq) {
+      const n = A.length, m = B.length;
+      let pre = 0;
+      while (pre < n && pre < m && eq(A[pre], B[pre])) pre++;
+      let suf = 0;
+      while (suf < n - pre && suf < m - pre && eq(A[n - 1 - suf], B[m - 1 - suf])) suf++;
+      const N = n - pre - suf, M = m - pre - suf;
+      if ((N + 1) * (M + 1) > MAX_CELLS) return null;
+      const W = M + 1;
+      const dp = new Uint32Array((N + 1) * W);
+      for (let i = N - 1; i >= 0; i--) for (let j = M - 1; j >= 0; j--) {
+        dp[i * W + j] = eq(A[pre + i], B[pre + j]) ? dp[(i + 1) * W + j + 1] + 1 : Math.max(dp[(i + 1) * W + j], dp[i * W + j + 1]);
+      }
+      const ops = [];
+      for (let k = 0; k < pre; k++) ops.push({ t: 'eq', a: k, b: k });
+      let i = 0, j = 0;
+      while (i < N || j < M) {
+        if (i < N && j < M && eq(A[pre + i], B[pre + j])) { ops.push({ t: 'eq', a: pre + i, b: pre + j }); i++; j++; }
+        else if (j >= M || (i < N && dp[(i + 1) * W + j] >= dp[i * W + j + 1])) { ops.push({ t: 'del', a: pre + i }); i++; }
+        else { ops.push({ t: 'ins', b: pre + j }); j++; }
+      }
+      for (let k = 0; k < suf; k++) ops.push({ t: 'eq', a: n - suf + k, b: m - suf + k });
+      return ops;
+    }
+
+    // 変更された行どうしを1文字単位で比べて、違う部分を <del> / <ins> で囲む
+    function inline(x, y) {
+      const xs = [...x], ys = [...y];
+      if (xs.length * ys.length > 250000) return [`<del>${escH(x)}</del>`, `<ins>${escH(y)}</ins>`];
+      const ops = diffSeq(xs, ys, (p, q) => p === q);
+      let l = '', r = '';
+      ops.forEach(o => {
+        if (o.t === 'eq') { l += escH(xs[o.a]); r += escH(ys[o.b]); }
+        else if (o.t === 'del') l += `<del>${escH(xs[o.a])}</del>`;
+        else r += `<ins>${escH(ys[o.b])}</ins>`;
+      });
+      return [l.replace(/<\/del><del>/g, ''), r.replace(/<\/ins><ins>/g, '')];
+    }
+
+    function run() {
+      const A = $('a').value.split('\n'), B = $('b').value.split('\n');
+      const norm = s => {
+        if ($('ignoreWs').checked) s = s.replace(/\s+/g, ' ').trim();
+        if ($('ignoreCase').checked) s = s.toLowerCase();
+        return s;
+      };
+      const NA = A.map(norm), NB = B.map(norm);
+      const ops = diffSeq(NA, NB, (p, q) => p === q);
+      const out = $('out');
+      if (!ops) {
+        $('stats').textContent = '';
+        out.innerHTML = '<table class="diff"><tr><td class="empty">テキストが大きすぎて比較できません</td></tr></table>';
+        return;
+      }
+
+      // 連続する削除と追加を1組の「変更」としてまとめ、行どうしを対応させる
+      const rows = [];
+      let adds = 0, dels = 0;
+      for (let k = 0; k < ops.length;) {
+        if (ops[k].t === 'eq') { rows.push({ t: 'eq', a: ops[k].a, b: ops[k].b }); k++; continue; }
+        const ds = [], is = [];
+        while (k < ops.length && ops[k].t !== 'eq') { (ops[k].t === 'del' ? ds : is).push(ops[k]); k++; }
+        dels += ds.length; adds += is.length;
+        for (let q = 0; q < Math.max(ds.length, is.length); q++) {
+          rows.push({ t: 'chg', a: ds[q] ? ds[q].a : null, b: is[q] ? is[q].b : null });
+        }
+      }
+      const same = rows.filter(r => r.t === 'eq').length;
+      $('stats').innerHTML = adds || dels
+        ? `<span class="add">+${adds} 行</span> ／ <span class="del">-${dels} 行</span> ／ 変更なし ${same} 行`
+        : '✓ 違いはありません';
+
+      // 「変更箇所だけ」のときは、変更から CONTEXT 行より離れた同じ行を省略する
+      const keep = rows.map(() => !$('onlyChanges').checked);
+      if ($('onlyChanges').checked) rows.forEach((r, idx) => {
+        if (r.t !== 'eq') for (let q = Math.max(0, idx - CONTEXT); q <= Math.min(rows.length - 1, idx + CONTEXT); q++) keep[q] = true;
+      });
+
+      const split = $('view').value === 'split';
+      let html = '<table class="diff">';
+      let skipped = 0;
+      // 1列表示では変更行が交互にならないよう、削除をまとめてから追加を並べる
+      let pendDel = '', pendIns = '';
+      const flushPend = () => { html += pendDel + pendIns; pendDel = pendIns = ''; };
+      const flushSkip = () => {
+        flushPend();
+        if (skipped) html += `<tr class="skip"><td colspan="${split ? 6 : 4}">… ${skipped} 行省略 …</td></tr>`;
+        skipped = 0;
+      };
+      rows.forEach((r, idx) => {
+        if (!keep[idx]) { skipped++; return; }
+        if (r.t === 'eq' || skipped) flushSkip();
+        const ta = r.a != null ? A[r.a] : null, tb = r.b != null ? B[r.b] : null;
+        if (r.t === 'eq') {
+          const t = escH(ta);
+          html += split
+            ? `<tr><td class="no">${r.a + 1}</td><td class="sg"> </td><td>${t}</td><td class="no mid">${r.b + 1}</td><td class="sg"> </td><td>${escH(tb)}</td></tr>`
+            : `<tr><td class="no">${r.a + 1}</td><td class="no">${r.b + 1}</td><td class="sg"> </td><td>${t}</td></tr>`;
+          return;
+        }
+        let ha = ta != null ? escH(ta) : '', hb = tb != null ? escH(tb) : '';
+        if (ta != null && tb != null) [ha, hb] = inline(ta, tb);
+        if (split) {
+          const left = ta != null ? `<td class="no d">${r.a + 1}</td><td class="sg d">-</td><td class="d">${ha}</td>` : '<td class="no blank"></td><td class="blank"></td><td class="blank"></td>';
+          const right = tb != null ? `<td class="no i mid">${r.b + 1}</td><td class="sg i">+</td><td class="i">${hb}</td>` : '<td class="no blank mid"></td><td class="blank"></td><td class="blank"></td>';
+          html += `<tr>${left}${right}</tr>`;
+        } else {
+          if (ta != null) pendDel += `<tr class="d"><td class="no">${r.a + 1}</td><td class="no"></td><td class="sg">-</td><td>${ha}</td></tr>`;
+          if (tb != null) pendIns += `<tr class="i"><td class="no"></td><td class="no">${r.b + 1}</td><td class="sg">+</td><td>${hb}</td></tr>`;
+        }
+      });
+      flushSkip();
+      out.innerHTML = html + '</table>';
+    }
+
+    let timer;
+    const schedule = () => { clearTimeout(timer); timer = setTimeout(run, 150); };
+    ['a', 'b'].forEach(id => $(id).addEventListener('input', schedule));
+    ['view', 'onlyChanges', 'ignoreWs', 'ignoreCase'].forEach(id => $(id).addEventListener('change', run));
+    $('swap').onclick = () => { [$('a').value, $('b').value] = [$('b').value, $('a').value]; run(); };
+    $('clear').onclick = () => { $('a').value = ''; $('b').value = ''; run(); };
+    if (window.innerWidth < 640) $('view').value = 'unified';
+    run();
+  </script>
+</body>
+</html>

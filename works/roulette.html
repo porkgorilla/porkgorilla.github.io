@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ROULETTE | porkgorilla://</title>
+  <meta name="description" content="抽選ルーレット。候補を1行ずつ入れて回すだけ。当たりを除外して続けて抽選、履歴つき。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBT4300J0L');
+  </script>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    main { padding: 24px 16px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+    h1 { margin: 0; font-size: 1.6rem; }
+    #wheelBox { position: relative; width: min(100%, 400px); aspect-ratio: 1; }
+    #wheel { width: 100%; height: 100%; display: block; cursor: pointer; }
+    #pointer { position: absolute; left: 50%; top: -4px; transform: translateX(-50%); width: 0; height: 0;
+      border-left: 14px solid transparent; border-right: 14px solid transparent; border-top: 26px solid #fff;
+      filter: drop-shadow(0 0 6px var(--cyber-green)); pointer-events: none; }
+    #result { min-height: 2.2em; font-size: 1.5rem; color: var(--cyber-green); text-shadow: 0 0 8px var(--cyber-green);
+      text-align: center; word-break: break-all; }
+    .actions { display: flex; gap: 8px; width: 100%; max-width: 480px; }
+    .actions .btn { flex: 1; padding: .6rem .5rem; font-size: .95rem; }
+    #spin { flex: 2; }
+    .box { width: 100%; max-width: 480px; padding: 18px 16px 16px; }
+    .box > * + * { margin-top: 10px; }
+    textarea { font-family: var(--cyber-font); font-size: 1rem; padding: 8px 10px; width: 100%; min-height: 160px; resize: vertical;
+      background: var(--cyber-bg-panel); color: var(--cyber-text); border: 1px solid var(--cyber-green-dim); }
+    textarea:focus { outline: none; border-color: var(--cyber-green); }
+    label { color: var(--cyber-green-dim); font-size: .85rem; display: block; }
+    label.inline { display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--cyber-text); }
+    #count { color: var(--cyber-green-dim); font-size: .8rem; text-align: right; }
+    #history { margin: 0; padding-left: 1.6em; line-height: 1.8; font-size: .95rem; }
+    #history:empty::before { content: 'まだありません'; color: var(--cyber-green-dim); font-size: .85rem; margin-left: -1.6em; }
+    .small { padding: .4rem .8rem; font-size: .8rem; }
+    .credit { font-size: 11px; color: var(--cyber-green-dim); margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>🎡 ROULETTE</h1>
+    <div id="wheelBox"><canvas id="wheel" width="800" height="800" aria-label="ルーレット"></canvas><div id="pointer"></div></div>
+    <div id="result" aria-live="polite"></div>
+    <div class="actions">
+      <button class="btn" id="spin" type="button">▶ 回す</button>
+      <button class="btn" id="shuffle" type="button">並べ替え</button>
+    </div>
+    <div class="box panel">
+      <label for="items">候補 (1行に1つ)</label>
+      <textarea id="items">カレー
+ラーメン
+寿司
+焼肉
+パスタ
+定食</textarea>
+      <div id="count"></div>
+      <label class="inline"><input id="remove" type="checkbox"> 当たった候補を外して続ける</label>
+    </div>
+    <div class="box panel">
+      <div style="display:flex;justify-content:space-between;align-items:center"><label>抽選履歴</label>
+        <button class="btn small" id="clear" type="button">クリア</button></div>
+      <ol id="history"></ol>
+    </div>
+    <div class="credit">porkgorilla — 2026</div>
+  </main>
+
+  <script src="/site.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    const STORE = 'roulette_items';
+    try { const s = localStorage.getItem(STORE); if (s != null) $('items').value = s; } catch (e) {}
+
+    const COLORS = [['#39ff6a', '#000'], ['#0f3d1c', '#c9ffd6'], ['#1e8f3e', '#000'], ['#07200e', '#39ff6a']];
+    const cv = $('wheel'), ctx = cv.getContext('2d');
+    let items = [], angle = 0, spinning = false;
+
+    const parse = () => $('items').value.split('\n').map(s => s.trim()).filter(Boolean).slice(0, 100);
+
+    // 暗号用の乱数で選ぶ(Math.random より偏りが少ない)
+    function randInt(n) {
+      const buf = new Uint32Array(1);
+      const lim = Math.floor(0x100000000 / n) * n;
+      do crypto.getRandomValues(buf); while (buf[0] >= lim);
+      return buf[0] % n;
+    }
+
+    function draw() {
+      const W = cv.width, R = W / 2 - 8, cx = W / 2, cy = W / 2;
+      ctx.clearRect(0, 0, W, W);
+      if (!items.length) {
+        ctx.strokeStyle = '#1e8f3e'; ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.stroke();
+        ctx.fillStyle = '#1e8f3e'; ctx.font = '40px "Courier New", monospace'; ctx.textAlign = 'center';
+        ctx.fillText('候補を入れてください', cx, cy);
+        return;
+      }
+      const seg = Math.PI * 2 / items.length;
+      // 4色を順に使う。最後と最初が同じ色で隣り合うときだけ、最後を別の色にする
+      const colorOf = i => {
+        let c = i % 4;
+        if (i === items.length - 1 && i > 0 && c === 0) c = 2;
+        return COLORS[c];
+      };
+      items.forEach((label, i) => {
+        // 0番目の扇形の中心が、回転0のとき真上(針の位置)にくるようにする
+        const a0 = angle - Math.PI / 2 - seg / 2 + i * seg;
+        const [bg, fg] = colorOf(i);
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, R, a0, a0 + seg);
+        ctx.closePath();
+        ctx.fillStyle = bg;
+        ctx.fill();
+        ctx.strokeStyle = '#050805';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(a0 + seg / 2);
+        ctx.fillStyle = fg;
+        const size = Math.max(16, Math.min(44, seg * R * .45));
+        ctx.font = `bold ${size}px "Courier New", monospace`;
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        let text = label;
+        const maxW = R * .78;
+        while (text.length > 1 && ctx.measureText(text).width > maxW) text = text.slice(0, -1);
+        if (text !== label) text = text.slice(0, -1) + '…';
+        ctx.fillText(text, R - 18, 0);
+        ctx.restore();
+      });
+      ctx.beginPath();
+      ctx.arc(cx, cy, R * .12, 0, Math.PI * 2);
+      ctx.fillStyle = '#050805';
+      ctx.fill();
+      ctx.strokeStyle = '#39ff6a';
+      ctx.lineWidth = 4;
+      ctx.stroke();
+    }
+
+    function refresh() {
+      if (spinning) return;
+      items = parse();
+      $('count').textContent = `${items.length} 件` + (items.length >= 100 ? '(上限100件)' : '');
+      $('spin').disabled = items.length < 2;
+      try { localStorage.setItem(STORE, $('items').value); } catch (e) {}
+      draw();
+    }
+
+    function spin() {
+      if (spinning || items.length < 2) return;
+      spinning = true;
+      $('spin').disabled = true;
+      $('items').disabled = true;
+      $('result').textContent = '…';
+      const n = items.length, seg = Math.PI * 2 / n;
+      const win = randInt(n);
+      // 針(真上)に当たりの扇形が来る角度。扇形の中のどこに止まるかも少しばらつかせる
+      const offset = (randInt(1000) / 1000 - .5) * seg * .8;
+      const target = -win * seg + offset;
+      const cur = ((angle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+      let delta = ((target - cur) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
+      delta += Math.PI * 2 * (5 + randInt(3));
+      const from = angle, dur = 4200, t0 = performance.now();
+      (function frame(now) {
+        const t = Math.min(1, (now - t0) / dur);
+        angle = from + delta * (1 - Math.pow(1 - t, 4));
+        draw();
+        if (t < 1) { requestAnimationFrame(frame); return; }
+        finish(items[win]);
+      })(t0);
+    }
+
+    function finish(label) {
+      spinning = false;
+      $('items').disabled = false;
+      $('result').textContent = `🎉 ${label}`;
+      const li = document.createElement('li');
+      li.textContent = label;
+      $('history').prepend(li);
+      if ($('remove').checked) {
+        // 同じ名前が複数あれば1つだけ外す
+        const lines = $('items').value.split('\n');
+        const idx = lines.findIndex(s => s.trim() === label);
+        if (idx >= 0) lines.splice(idx, 1);
+        $('items').value = lines.join('\n');
+        angle = 0;
+      }
+      refresh();
+    }
+
+    $('spin').onclick = spin;
+    cv.onclick = spin;
+    $('shuffle').onclick = () => {
+      if (spinning) return;
+      const lines = parse();
+      for (let i = lines.length - 1; i > 0; i--) {
+        const j = randInt(i + 1);
+        [lines[i], lines[j]] = [lines[j], lines[i]];
+      }
+      $('items').value = lines.join('\n');
+      refresh();
+    };
+    $('clear').onclick = () => { $('history').innerHTML = ''; };
+    $('items').addEventListener('input', refresh);
+    refresh();
+  </script>
+</body>
+</html>

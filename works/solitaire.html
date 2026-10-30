@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SOLITAIRE | porkgorilla://</title>
+  <meta name="description" content="定番のソリティア(クロンダイク)。タップで選んでタップで移動、2回タップで自動移動。1枚めくり・3枚めくり対応。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBT4300J0L');
+  </script>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    main { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 24px 16px;
+      user-select: none; -webkit-user-select: none; text-align: center; }
+    h1 { margin: 0; font-size: 1.6rem; }
+    #info { display: flex; gap: 18px; font-size: 1.05rem; flex-wrap: wrap; justify-content: center; }
+    #table { position: relative; width: min(100%, 600px); min-height: 200px; }
+    .slot { position: absolute; border: 1px dashed var(--cyber-green-dim); border-radius: 6px; color: var(--cyber-green-dim);
+      display: flex; align-items: center; justify-content: center; font-size: calc(var(--fs) * 1.2); cursor: pointer; }
+    .card { position: absolute; border: 1px solid var(--cyber-green-dim); border-radius: 6px; background: #0e1a10;
+      color: var(--cyber-text); cursor: pointer; overflow: hidden; }
+    .card.down { background: repeating-linear-gradient(45deg, #0f3018 0 4px, #07140a 4px 8px); }
+    .card.red { color: var(--cyber-red); }
+    .card .tl { position: absolute; left: 7%; top: 2%; font-size: var(--fs); font-weight: bold; line-height: 1.15; white-space: nowrap; }
+    .card .big { position: absolute; left: 0; right: 0; bottom: 6%; font-size: calc(var(--fs) * 1.9); line-height: 1; }
+    .card.sel { border-color: #fff; box-shadow: 0 0 10px var(--cyber-green); background: #17331d; }
+    #msg { min-height: 1.5em; color: var(--cyber-green); }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; align-items: center; }
+    .row .btn { padding: .6rem 1rem; font-size: .9rem; }
+    select { font-family: var(--cyber-font); font-size: .9rem; padding: .55rem .5rem; background: var(--cyber-bg-panel);
+      color: var(--cyber-green); border: 1px solid var(--cyber-green-dim); }
+    .rule { font-size: .85rem; color: var(--cyber-green-dim); max-width: 460px; line-height: 1.7; }
+    .credit { font-size: 11px; color: var(--cyber-green-dim); margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>♠️ SOLITAIRE</h1>
+    <div id="info"><span>時間 <b id="time">0:00</b></span><span>手数 <b id="moves">0</b></span><span>勝利 <b id="wins">0</b></span><span>最速 <b id="best">-</b></span></div>
+    <div id="table"></div>
+    <div id="msg"></div>
+    <div class="row">
+      <button class="btn" id="undo" type="button">↶ 戻す</button>
+      <button class="btn" id="auto" type="button" disabled>自動で片付け</button>
+      <button class="btn" id="new" type="button">新しいゲーム</button>
+      <select id="draw" aria-label="めくる枚数"><option value="1">1枚めくり</option><option value="3">3枚めくり</option></select>
+    </div>
+    <p class="rule">カードをタップして選び、移動先の列をタップすると移動します。同じカードをもう一度タップすると、置ける場所へ自動で移動します。場札は赤黒交互に1つずつ小さく、空いた列にはKだけ。組札はAからKまで同じマークで積み上げます。左上の山札をタップでめくります。</p>
+    <div class="credit">porkgorilla — 2026</div>
+  </main>
+
+  <script src="/site.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    const SUITS = ['♠', '♥', '♦', '♣'];
+    const RANKS = ['', 'A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+    const isRed = s => s === 1 || s === 2;
+    const STORE = 'solitaire_stats';
+    let stats = { wins: 0, best: 0, draw: 1 };
+    try { Object.assign(stats, JSON.parse(localStorage.getItem(STORE) || '{}')); } catch (e) {}
+    const save = () => { try { localStorage.setItem(STORE, JSON.stringify(stats)); } catch (e) {} };
+
+    // drawN は配った時点の枚数。途中で設定を変えてもルールが混ざらないよう、次の配り直しで反映する
+    let st, hist, sel, moves, startT, elapsed, won, autoTimer, drawN;
+    const fmt = sec => `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`;
+
+    function deal() {
+      clearTimeout(autoTimer);
+      const deck = [];
+      for (let s = 0; s < 4; s++) for (let r = 1; r <= 13; r++) deck.push({ s, r, up: false });
+      for (let i = deck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+      }
+      st = { stock: [], waste: [], found: [[], [], [], []], tab: [[], [], [], [], [], [], []] };
+      for (let i = 0; i < 7; i++) for (let j = 0; j <= i; j++) {
+        const c = deck.pop();
+        c.up = j === i;
+        st.tab[i].push(c);
+      }
+      st.stock = deck;
+      hist = []; sel = null; moves = 0; startT = 0; elapsed = 0; won = false; drawN = stats.draw;
+      $('msg').textContent = '';
+      render();
+    }
+
+    function pile(ref) { return ref.t === 'tab' ? st.tab[ref.i] : ref.t === 'found' ? st.found[ref.i] : st.waste; }
+
+    function canDrop(cards, dst) {
+      const p = pile(dst), top = p[p.length - 1], c = cards[0];
+      if (dst.t === 'found') {
+        if (cards.length !== 1) return false;
+        return top ? top.s === c.s && top.r === c.r - 1 : c.r === 1;
+      }
+      if (dst.t === 'tab') return top ? top.up && isRed(top.s) !== isRed(c.s) && top.r === c.r + 1 : c.r === 13;
+      return false;
+    }
+
+    function snapshot() {
+      hist.push(JSON.stringify(st));
+      if (hist.length > 300) hist.shift();
+    }
+
+    // 動かした直後に呼ぶ。表になった場札をめくり、勝ち判定と再描画をまとめて行う
+    function commit() {
+      moves++;
+      if (!startT) startT = Date.now();
+      st.tab.forEach(p => { if (p.length && !p[p.length - 1].up) p[p.length - 1].up = true; });
+      sel = null;
+      if (st.found.every(f => f.length === 13)) {
+        won = true;
+        clearTimeout(autoTimer);
+        elapsed = Math.floor((Date.now() - startT) / 1000);
+        stats.wins++;
+        if (!stats.best || elapsed < stats.best) stats.best = elapsed;
+        save();
+        $('msg').textContent = `🎉 クリア! ${fmt(elapsed)} / ${moves}手`;
+      }
+      render();
+    }
+
+    function doMove(src, dst) {
+      const cards = pile(src).slice(src.k);
+      if (!cards.length || !canDrop(cards, dst)) return false;
+      snapshot();
+      pile(src).splice(src.k);
+      pile(dst).push(...cards);
+      commit();
+      return true;
+    }
+
+    // 2回タップしたときの移動先。組札を優先し、次にカードのある列、最後に空き列
+    function autoTarget(src) {
+      const cards = pile(src).slice(src.k);
+      if (cards.length === 1) for (let f = 0; f < 4; f++) if (canDrop(cards, { t: 'found', i: f })) return { t: 'found', i: f };
+      for (let i = 0; i < 7; i++) {
+        if (src.t === 'tab' && src.i === i) continue;
+        if (st.tab[i].length && canDrop(cards, { t: 'tab', i })) return { t: 'tab', i };
+      }
+      // 列の一番下にあるKを別の空き列へ動かしても意味がないので除外
+      if (src.t === 'tab' && src.k === 0) return null;
+      for (let i = 0; i < 7; i++) if (!st.tab[i].length && canDrop(cards, { t: 'tab', i })) return { t: 'tab', i };
+      return null;
+    }
+
+    function clickCard(ref) {
+      if (won) return;
+      if (sel) {
+        const same = sel.t === ref.t && sel.i === ref.i;
+        if (same && sel.k === ref.k) {
+          const d = autoTarget(sel);
+          if (!(d && doMove(sel, d))) { sel = null; render(); }
+          return;
+        }
+        if (!same && doMove(sel, { t: ref.t, i: ref.i })) return;
+      }
+      const p = pile(ref), c = p[ref.k];
+      if (!c || !c.up || (ref.t !== 'tab' && ref.k !== p.length - 1)) { sel = null; render(); return; }
+      sel = ref;
+      render();
+    }
+
+    function clickEmpty(t, i) {
+      if (won) return;
+      if (sel && doMove(sel, { t, i })) return;
+      sel = null;
+      render();
+    }
+
+    function clickStock() {
+      if (won) return;
+      sel = null;
+      if (!st.stock.length && !st.waste.length) { render(); return; }
+      snapshot();
+      if (st.stock.length) {
+        for (let n = 0; n < drawN && st.stock.length; n++) {
+          const c = st.stock.pop();
+          c.up = true;
+          st.waste.push(c);
+        }
+      } else {
+        st.stock = st.waste.reverse().map(c => { c.up = false; return c; });
+        st.waste = [];
+      }
+      commit();
+    }
+
+    function canAutoFinish() {
+      return !won && !st.stock.length && !st.waste.length && st.tab.every(p => p.every(c => c.up));
+    }
+
+    function autoStep() {
+      for (let i = 0; i < 7; i++) {
+        const p = st.tab[i];
+        if (!p.length) continue;
+        for (let f = 0; f < 4; f++) {
+          if (doMove({ t: 'tab', i, k: p.length - 1 }, { t: 'found', i: f })) {
+            if (!won) autoTimer = setTimeout(autoStep, 70);
+            return;
+          }
+        }
+      }
+    }
+
+    const T = $('table');
+    function render() {
+      const W = T.clientWidth;
+      const gap = Math.max(3, W * .012);
+      const cw = (W - gap * 8) / 7, ch = cw * 1.4;
+      const x = i => gap + i * (cw + gap);
+      T.style.setProperty('--fs', Math.max(10, cw * .3) + 'px');
+      T.innerHTML = '';
+
+      const place = (el, left, top) => {
+        el.style.left = left + 'px'; el.style.top = top + 'px';
+        el.style.width = cw + 'px'; el.style.height = ch + 'px';
+        T.appendChild(el);
+        return el;
+      };
+      const slot = (left, top, label, onClick) => {
+        const el = document.createElement('div');
+        el.className = 'slot';
+        el.textContent = label;
+        el.onclick = onClick;
+        return place(el, left, top);
+      };
+      const card = (c, left, top, onClick, selected) => {
+        const el = document.createElement('div');
+        el.className = 'card' + (c.up ? (isRed(c.s) ? ' red' : '') : ' down') + (selected ? ' sel' : '');
+        if (c.up) {
+          el.innerHTML = `<span class="tl">${RANKS[c.r]}${SUITS[c.s]}</span><span class="big">${SUITS[c.s]}</span>`;
+          el.setAttribute('aria-label', SUITS[c.s] + RANKS[c.r]);
+        }
+        if (onClick) el.onclick = e => { e.stopPropagation(); onClick(); };
+        return place(el, left, top);
+      };
+      const isSel = (t, i, k) => sel && sel.t === t && sel.i === i && (t === 'tab' ? k >= sel.k : k === sel.k);
+
+      slot(x(0), 0, st.waste.length ? '↺' : '', clickStock);
+      if (st.stock.length) card({ up: false }, x(0), 0, clickStock);
+
+      const show = st.waste.slice(drawN === 3 ? -3 : -1);
+      show.forEach((c, j) => {
+        const k = st.waste.length - show.length + j;
+        const last = j === show.length - 1;
+        card(c, x(1) + j * cw * .3, 0, last ? () => clickCard({ t: 'waste', i: 0, k }) : null, isSel('waste', 0, k));
+      });
+
+      for (let f = 0; f < 4; f++) {
+        const p = st.found[f];
+        slot(x(3 + f), 0, 'A', () => clickEmpty('found', f));
+        if (p.length) card(p[p.length - 1], x(3 + f), 0, () => clickCard({ t: 'found', i: f, k: p.length - 1 }), isSel('found', f, p.length - 1));
+      }
+
+      const tabY = ch + gap * 3;
+      let maxY = tabY + ch;
+      for (let i = 0; i < 7; i++) {
+        slot(x(i), tabY, 'K', () => clickEmpty('tab', i));
+        let y = tabY;
+        st.tab[i].forEach((c, k) => {
+          card(c, x(i), y, () => clickCard({ t: 'tab', i, k }), isSel('tab', i, k));
+          maxY = Math.max(maxY, y + ch);
+          y += c.up ? ch * .27 : ch * .12;
+        });
+      }
+      T.style.height = maxY + 'px';
+
+      $('moves').textContent = moves;
+      $('wins').textContent = stats.wins;
+      $('best').textContent = stats.best ? fmt(stats.best) : '-';
+      $('undo').disabled = !hist.length || won;
+      $('auto').disabled = !canAutoFinish();
+      tick();
+    }
+
+    function tick() {
+      const sec = won ? elapsed : startT ? Math.floor((Date.now() - startT) / 1000) : 0;
+      $('time').textContent = fmt(sec);
+    }
+    setInterval(tick, 1000);
+
+    $('undo').onclick = () => {
+      if (!hist.length || won) return;
+      st = JSON.parse(hist.pop());
+      sel = null;
+      moves++;
+      render();
+    };
+    $('auto').onclick = () => { if (canAutoFinish()) autoStep(); };
+
+    // 途中のゲームを誤って捨てないよう、遊んでいる最中は2回押しで確定
+    let confirmTimer = 0;
+    $('new').onclick = () => {
+      if (moves && !won && !confirmTimer) {
+        $('new').textContent = 'もう一度押すと配り直し';
+        confirmTimer = setTimeout(() => { confirmTimer = 0; $('new').textContent = '新しいゲーム'; }, 2500);
+        return;
+      }
+      clearTimeout(confirmTimer); confirmTimer = 0;
+      $('new').textContent = '新しいゲーム';
+      deal();
+    };
+
+    $('draw').value = String(stats.draw);
+    $('draw').onchange = () => {
+      stats.draw = +$('draw').value;
+      save();
+      $('msg').textContent = '次のゲームから反映されます';
+      if (!moves) { deal(); $('msg').textContent = ''; }
+    };
+    window.addEventListener('resize', () => render());
+    document.addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); $('undo').click(); }
+    });
+    deal();
+  </script>
+</body>
+</html>

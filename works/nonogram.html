@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NONOGRAM | porkgorilla://</title>
+  <meta name="description" content="定番のノノグラム(お絵かきロジック)。数字のヒントからマスを塗って絵を完成させる。毎回自動生成、5×5〜15×15。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBT4300J0L');
+  </script>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    main { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 24px 16px;
+      user-select: none; -webkit-user-select: none; text-align: center; }
+    h1 { margin: 0; font-size: 1.6rem; }
+    #info { display: flex; gap: 18px; font-size: 1.05rem; flex-wrap: wrap; justify-content: center; }
+    #wrap { width: 100%; max-width: 560px; display: flex; justify-content: center; }
+    #grid { display: grid; touch-action: none; }
+    .clue { color: var(--cyber-text); font-size: var(--cfs); line-height: 1.1; display: flex; gap: .35em; }
+    .clue.col { flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 3px; gap: 1px; }
+    .clue.row { justify-content: flex-end; align-items: center; padding-right: 5px; }
+    .clue.done { color: var(--cyber-green-dim); }
+    .cell { border-right: 1px solid #1a4a26; border-bottom: 1px solid #1a4a26; background: var(--cyber-bg-panel);
+      display: flex; align-items: center; justify-content: center; color: var(--cyber-green-dim); font-size: var(--cfs); cursor: pointer; }
+    .cell.top { border-top: 2px solid var(--cyber-green); }
+    .cell.left { border-left: 2px solid var(--cyber-green); }
+    .cell.b5r { border-right: 2px solid var(--cyber-green-dim); }
+    .cell.b5b { border-bottom: 2px solid var(--cyber-green-dim); }
+    .cell.edge-r { border-right: 2px solid var(--cyber-green); }
+    .cell.edge-b { border-bottom: 2px solid var(--cyber-green); }
+    .cell.hl { background: #102414; }
+    .cell.on { background: var(--cyber-green); box-shadow: inset 0 0 0 1px #0a3a16; }
+    .cell.x::after { content: '×'; }
+    #grid.solved .cell.x::after { content: ''; }
+    #grid.solved .cell.on { box-shadow: 0 0 8px var(--cyber-green); }
+    #msg { min-height: 1.5em; color: var(--cyber-green); }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; align-items: center; }
+    .row .btn { padding: .6rem 1rem; font-size: .9rem; }
+    .btn.active { background: var(--cyber-green); color: #000; }
+    select { font-family: var(--cyber-font); font-size: .9rem; padding: .55rem .5rem; background: var(--cyber-bg-panel);
+      color: var(--cyber-green); border: 1px solid var(--cyber-green-dim); }
+    .rule { font-size: .85rem; color: var(--cyber-green-dim); max-width: 440px; line-height: 1.7; }
+    .credit { font-size: 11px; color: var(--cyber-green-dim); margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>🖍️ NONOGRAM</h1>
+    <div id="info"><span>時間 <b id="time">0:00</b></span><span>最速 <b id="best">-</b></span></div>
+    <div class="row">
+      <button class="btn active" id="toolFill" type="button">■ 塗る</button>
+      <button class="btn" id="toolX" type="button">× 印</button>
+    </div>
+    <div id="wrap"><div id="grid"></div></div>
+    <div id="msg"></div>
+    <div class="row">
+      <select id="size" aria-label="盤面サイズ"><option value="5">5×5</option><option value="10" selected>10×10</option><option value="15">15×15</option></select>
+      <button class="btn" id="reset" type="button">↺ 消す</button>
+      <button class="btn" id="new" type="button">次の問題 ▶</button>
+    </div>
+    <p class="rule">数字は、その列・行に続けて塗るマスの数を順番に表しています(数字と数字の間は1マス以上あける)。ドラッグでまとめて塗れます。塗らないと分かったマスには×印をつけておくと便利です。PCでは右クリックでも×印。</p>
+    <div class="credit">porkgorilla — 2026</div>
+  </main>
+
+  <script src="/site.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    const STORE = 'nonogram_best';
+    let best = {};
+    try { best = JSON.parse(localStorage.getItem(STORE) || '{}'); } catch (e) {}
+
+    let n, rowClues, colClues, cells, cellEls, rowEls, colEls, solved, startT, endSec, tool = 1;
+    const fmt = sec => `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`;
+
+    const clueOf = line => {
+      const out = [];
+      let run = 0;
+      line.forEach(v => { if (v === 1) run++; else if (run) { out.push(run); run = 0; } });
+      if (run) out.push(run);
+      return out;
+    };
+
+    // 1行ぶんの推論。-1=未確定, 0=空, 1=塗り。どの並べ方でも同じになるマスを確定させる(矛盾なら null)
+    function solveLine(clue, line) {
+      const len = line.length, k = clue.length;
+      const canF = new Uint8Array(len), canE = new Uint8Array(len);
+      const memo = new Map();
+      function rec(i, j) {
+        const key = i * 32 + j;
+        if (memo.has(key)) return memo.get(key);
+        let ok = false;
+        if (j === k) {
+          ok = true;
+          for (let x = i; x < len; x++) if (line[x] === 1) { ok = false; break; }
+          if (ok) for (let x = i; x < len; x++) canE[x] = 1;
+        } else {
+          const b = clue[j];
+          let rest = 0;
+          for (let q = j + 1; q < k; q++) rest += clue[q] + 1;
+          for (let s = i; s + b + rest <= len; s++) {
+            if (s > i && line[s - 1] === 1) break;
+            let fits = true;
+            for (let x = s; x < s + b; x++) if (line[x] === 0) { fits = false; break; }
+            if (!fits) continue;
+            const end = s + b;
+            if (end < len && line[end] === 1) continue;
+            if (rec(end < len ? end + 1 : end, j + 1)) {
+              ok = true;
+              for (let x = i; x < s; x++) canE[x] = 1;
+              for (let x = s; x < end; x++) canF[x] = 1;
+              if (end < len) canE[end] = 1;
+            }
+          }
+        }
+        memo.set(key, ok);
+        return ok;
+      }
+      if (!rec(0, 0)) return null;
+      return line.map((v, x) => canF[x] && !canE[x] ? 1 : canE[x] && !canF[x] ? 0 : v);
+    }
+
+    // 行と列の推論を繰り返すだけで最後まで解けるか(=当て推量なしで解ける一意な問題か)
+    function logicSolvable(rc, cc) {
+      const g = new Array(n * n).fill(-1);
+      let changed = true;
+      while (changed) {
+        changed = false;
+        for (let r = 0; r < n; r++) {
+          const line = g.slice(r * n, r * n + n);
+          const res = solveLine(rc[r], line);
+          if (!res) return false;
+          res.forEach((v, c) => { if (v !== line[c]) { g[r * n + c] = v; changed = true; } });
+        }
+        for (let c = 0; c < n; c++) {
+          const line = [];
+          for (let r = 0; r < n; r++) line.push(g[r * n + c]);
+          const res = solveLine(cc[c], line);
+          if (!res) return false;
+          res.forEach((v, r) => { if (v !== line[r]) { g[r * n + c] = v; changed = true; } });
+        }
+      }
+      return g.every(v => v !== -1);
+    }
+
+    function generate() {
+      for (let tries = 0; tries < 400; tries++) {
+        const density = .5 + Math.random() * .15;
+        const sol = Array.from({ length: n * n }, () => Math.random() < density ? 1 : 0);
+        const rc = [], cc = [];
+        for (let r = 0; r < n; r++) rc.push(clueOf(sol.slice(r * n, r * n + n)));
+        for (let c = 0; c < n; c++) cc.push(clueOf(sol.filter((_, i) => i % n === c)));
+        if (logicSolvable(rc, cc) || tries === 399) return [rc, cc];
+      }
+    }
+
+    function newPuzzle() {
+      n = +$('size').value;
+      [rowClues, colClues] = generate();
+      cells = new Int8Array(n * n);
+      solved = false; startT = 0; endSec = 0;
+      $('msg').textContent = '';
+      build();
+      refresh();
+    }
+
+    function build() {
+      const g = $('grid');
+      g.innerHTML = '';
+      g.classList.toggle('solved', !!solved);
+      const maxRow = Math.max(...rowClues.map(c => Math.max(1, c.length)));
+      const maxCol = Math.max(...colClues.map(c => Math.max(1, c.length)));
+      const avail = Math.min($('wrap').clientWidth, 560);
+      const cs = Math.max(14, Math.min(36, Math.floor(avail / (n + maxRow * .62 + .4))));
+      const clueW = Math.ceil(maxRow * cs * .62 + 8);
+      g.style.setProperty('--cfs', Math.max(10, Math.round(cs * .55)) + 'px');
+      g.style.gridTemplateColumns = `${clueW}px repeat(${n}, ${cs}px)`;
+      g.style.gridTemplateRows = `${Math.ceil(maxCol * cs * .62 + 6)}px repeat(${n}, ${cs}px)`;
+
+      g.appendChild(document.createElement('div'));
+      colEls = colClues.map(c => {
+        const el = document.createElement('div');
+        el.className = 'clue col';
+        el.innerHTML = (c.length ? c : [0]).map(v => `<span>${v}</span>`).join('');
+        g.appendChild(el);
+        return el;
+      });
+      rowEls = [];
+      cellEls = [];
+      for (let r = 0; r < n; r++) {
+        const el = document.createElement('div');
+        el.className = 'clue row';
+        el.innerHTML = (rowClues[r].length ? rowClues[r] : [0]).map(v => `<span>${v}</span>`).join('');
+        g.appendChild(el);
+        rowEls.push(el);
+        for (let c = 0; c < n; c++) {
+          const d = document.createElement('div');
+          let cls = 'cell';
+          if (r === 0) cls += ' top';
+          if (c === 0) cls += ' left';
+          if (c === n - 1) cls += ' edge-r'; else if (c % 5 === 4) cls += ' b5r';
+          if (r === n - 1) cls += ' edge-b'; else if (r % 5 === 4) cls += ' b5b';
+          d.className = cls;
+          d.dataset.i = r * n + c;
+          g.appendChild(d);
+          cellEls.push(d);
+        }
+      }
+    }
+
+    function refresh() {
+      cellEls.forEach((el, i) => {
+        el.classList.toggle('on', cells[i] === 1);
+        el.classList.toggle('x', cells[i] === 2);
+      });
+      const filled = i => cells[i] === 1 ? 1 : 0;
+      let allOk = true;
+      for (let r = 0; r < n; r++) {
+        const ok = clueOf(Array.from({ length: n }, (_, c) => filled(r * n + c))).join() === rowClues[r].join();
+        rowEls[r].classList.toggle('done', ok);
+        if (!ok) allOk = false;
+      }
+      for (let c = 0; c < n; c++) {
+        const ok = clueOf(Array.from({ length: n }, (_, r) => filled(r * n + c))).join() === colClues[c].join();
+        colEls[c].classList.toggle('done', ok);
+        if (!ok) allOk = false;
+      }
+      if (allOk && !solved) {
+        solved = true;
+        endSec = startT ? Math.floor((Date.now() - startT) / 1000) : 0;
+        if (!best[n] || endSec < best[n]) { best[n] = endSec; try { localStorage.setItem(STORE, JSON.stringify(best)); } catch (e) {} }
+        $('grid').classList.add('solved');
+        $('msg').textContent = `🎉 完成! ${fmt(endSec)}`;
+      }
+      $('best').textContent = best[n] != null ? fmt(best[n]) : '-';
+      tick();
+    }
+
+    function tick() {
+      $('time').textContent = fmt(solved ? endSec : startT ? Math.floor((Date.now() - startT) / 1000) : 0);
+    }
+    setInterval(tick, 1000);
+
+    // ドラッグ塗り。最初のマスで「塗る/消す」を決め、動いた方向(行か列)に固定して塗り広げる
+    let drag = null;
+    const grid = $('grid');
+    const cellAt = e => {
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      return el && el.dataset && el.dataset.i != null ? +el.dataset.i : -1;
+    };
+    const highlight = i => cellEls.forEach((el, j) => el.classList.toggle('hl', i >= 0 && (j % n === i % n || Math.floor(j / n) === Math.floor(i / n))));
+    function apply(i) {
+      if (cells[i] === drag.val) return;
+      // 塗りドラッグで×を消したり、×ドラッグで塗りを消したりしないようにする
+      if (drag.val !== 0 && cells[i] !== 0) return;
+      if (drag.val === 0 && cells[i] !== drag.from) return;
+      cells[i] = drag.val;
+      refresh();
+    }
+    grid.addEventListener('pointerdown', e => {
+      const i = cellAt(e);
+      if (i < 0 || solved) return;
+      e.preventDefault();
+      const t = e.button === 2 ? 2 : tool;
+      if (!startT) startT = Date.now();
+      drag = { r: Math.floor(i / n), c: i % n, axis: null, from: cells[i], val: cells[i] === t ? 0 : t };
+      if (drag.val === 0) { cells[i] = 0; refresh(); } else apply(i);
+      highlight(i);
+    });
+    window.addEventListener('pointermove', e => {
+      if (!drag) return;
+      let i = cellAt(e);
+      if (i < 0) return;
+      const r = Math.floor(i / n), c = i % n;
+      if (!drag.axis && (r !== drag.r || c !== drag.c)) drag.axis = Math.abs(c - drag.c) >= Math.abs(r - drag.r) ? 'r' : 'c';
+      if (!drag.axis) return;
+      // 速く動かすと pointermove がマスを飛ばすので、前回の位置から今の位置までを全部塗る
+      const pos = drag.axis === 'r' ? c : r;
+      const prev = drag.last != null ? drag.last : (drag.axis === 'r' ? drag.c : drag.r);
+      const step = pos >= prev ? 1 : -1;
+      for (let p = prev; ; p += step) {
+        apply(drag.axis === 'r' ? drag.r * n + p : p * n + drag.c);
+        if (p === pos) break;
+      }
+      drag.last = pos;
+      highlight(drag.axis === 'r' ? drag.r * n + pos : pos * n + drag.c);
+    });
+    window.addEventListener('pointerup', () => { drag = null; highlight(-1); });
+    window.addEventListener('pointercancel', () => { drag = null; highlight(-1); });
+    grid.addEventListener('contextmenu', e => e.preventDefault());
+
+    const setTool = t => {
+      tool = t;
+      $('toolFill').classList.toggle('active', t === 1);
+      $('toolX').classList.toggle('active', t === 2);
+    };
+    $('toolFill').onclick = () => setTool(1);
+    $('toolX').onclick = () => setTool(2);
+    $('reset').onclick = () => { if (solved) return; cells.fill(0); refresh(); };
+    $('new').onclick = newPuzzle;
+    $('size').onchange = newPuzzle;
+    // スマホはスクロールでアドレスバーが動くだけでも resize が来るので、幅が変わったときだけ作り直す
+    let resizeT, lastW = $('wrap').clientWidth;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeT);
+      resizeT = setTimeout(() => {
+        if ($('wrap').clientWidth === lastW) return;
+        lastW = $('wrap').clientWidth;
+        build(); refresh();
+      }, 150);
+    });
+    newPuzzle();
+  </script>
+</body>
+</html>
