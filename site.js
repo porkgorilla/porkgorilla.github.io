@@ -374,6 +374,8 @@ window.renderWorkCards = function (container, works) {
 
   const footer = document.createElement('footer');
   footer.className = 'site-footer';
-  footer.innerHTML = '&copy; ' + new Date().getFullYear() + ' porkgorilla';
+  footer.innerHTML =
+    '<a href="/privacy.html">プライバシーポリシー</a><br>' +
+    '&copy; ' + new Date().getFullYear() + ' porkgorilla';
   document.body.append(footer);
 })();
