@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PADDLE | porkgorilla://</title>
+  <meta name="description" content="定番のパドル対戦。ボールを打ち返してCPUと7点先取の勝負。指・マウス・キーボードで操作、3段階の強さ。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBT4300J0L');
+  </script>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    main { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 24px 16px;
+      user-select: none; -webkit-user-select: none; text-align: center; }
+    h1 { margin: 0; font-size: 1.6rem; }
+    #wrap { position: relative; width: min(100%, 400px); aspect-ratio: 3 / 4; }
+    #cv { width: 100%; height: 100%; display: block; border: 2px solid var(--cyber-green); background: var(--cyber-bg-panel);
+      box-shadow: 0 0 12px rgba(57, 255, 106, .25); touch-action: none; cursor: none; }
+    #overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+      background: rgba(5, 8, 5, .82); }
+    #overlay[hidden], #overlay [hidden] { display: none; }
+    #overlay h2 { margin: 0; font-size: 1.5rem; }
+    #overlay p { margin: 0; line-height: 1.7; font-size: .9rem; }
+    #overlay .btn { padding: .7rem 1.6rem; }
+    #overlay .credit { position: absolute; bottom: 10px; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; align-items: center; }
+    .row .btn { padding: .6rem 1rem; font-size: .9rem; }
+    select { font-family: var(--cyber-font); font-size: .9rem; padding: .55rem .5rem; background: var(--cyber-bg-panel);
+      color: var(--cyber-green); border: 1px solid var(--cyber-green-dim); }
+    .rule { font-size: .85rem; color: var(--cyber-green-dim); max-width: 400px; line-height: 1.7; }
+    .credit { font-size: 11px; color: var(--cyber-green-dim); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>🏓 PADDLE</h1>
+    <div id="wrap">
+      <canvas id="cv" width="600" height="800" aria-label="ゲーム画面"></canvas>
+      <div id="overlay">
+        <h2 id="ovTitle">PADDLE</h2>
+        <p id="ovText">下のパドルを動かしてボールを打ち返そう。<br>7点先取で勝ち。</p>
+        <button class="btn" id="start" type="button">スタート</button>
+        <button class="btn" id="toTitle" type="button" hidden>タイトルへ</button>
+        <div class="credit">porkgorilla — 2026</div>
+      </div>
+    </div>
+    <div class="row">
+      <button class="btn" id="pause" type="button">一時停止</button>
+      <select id="level" aria-label="CPUの強さ"><option value="0">やさしい</option><option value="1" selected>ふつう</option><option value="2">つよい</option></select>
+    </div>
+    <p class="rule">画面の上を指でなぞる・マウスを動かす・←→キーでパドルを操作します。パドルの端で打つほどボールは斜めに飛び、打ち合うほど速くなります。</p>
+  </main>
+
+  <script src="/site.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    const cv = $('cv'), ctx = cv.getContext('2d');
+    const W = 600, H = 800, PW = 110, PH = 14, BR = 10, WIN = 7;
+    // CPUの強さごとの最高速度(px/秒)と、ボールの読みのずれ
+    // ずれはボールが速いほど大きくなるので、ラリーが続くとCPUも打ち損じるようになる
+    const LEVELS = [{ speed: 280, err: 140 }, { speed: 480, err: 78 }, { speed: 680, err: 52 }];
+    let you, cpu, ball, score, state = 'title', serveTimer = 0, keys = {}, lastT = 0, aim = 0, flash = 0;
+
+    function resetBall(towardYou) {
+      ball = { x: W / 2, y: H / 2, vx: 0, vy: 0 };
+      serveTimer = .9;
+      ball.dir = towardYou ? 1 : -1;
+    }
+
+    function startGame() {
+      you = { x: W / 2 }; cpu = { x: W / 2 };
+      score = { you: 0, cpu: 0 };
+      aim = 0;
+      resetBall(Math.random() < .5);
+      state = 'play';
+      $('overlay').hidden = true;
+      $('pause').disabled = false;
+      $('pause').textContent = '一時停止';
+    }
+
+    function showOverlay(title, text, startLabel, withTitle) {
+      $('ovTitle').textContent = title;
+      $('ovText').innerHTML = text;
+      $('start').textContent = startLabel;
+      $('toTitle').hidden = !withTitle;
+      $('overlay').hidden = false;
+    }
+
+    function hit(p, isYou) {
+      // 当たった位置が中心から離れるほど角度をつける。打つたびに少し速くする
+      const off = Math.max(-1, Math.min(1, (ball.x - p.x) / (PW / 2)));
+      const speed = Math.min(1150, Math.hypot(ball.vx, ball.vy) * 1.06 + 8);
+      const ang = off * 1.0;
+      ball.vx = Math.sin(ang) * speed;
+      ball.vy = Math.cos(ang) * speed * (isYou ? -1 : 1);
+      aim = (Math.random() * 2 - 1) * LEVELS[+$('level').value].err * speed / 600;
+      flash = .12;
+    }
+
+    function update(dt) {
+      if (serveTimer > 0) {
+        serveTimer -= dt;
+        if (serveTimer <= 0) {
+          const a = (Math.random() * .8 - .4);
+          ball.vx = Math.sin(a) * 380;
+          ball.vy = Math.cos(a) * 380 * ball.dir;
+        }
+      }
+      if (keys.ArrowLeft) you.x -= 620 * dt;
+      if (keys.ArrowRight) you.x += 620 * dt;
+      you.x = Math.max(PW / 2, Math.min(W - PW / 2, you.x));
+
+      // CPUはボールが自分へ向かっているときは着地点を、離れていくときは中央を目指す
+      const L = LEVELS[+$('level').value];
+      let target = W / 2;
+      if (ball.vy < 0) {
+        let t = (ball.y - 60) / -ball.vy, x = ball.x + ball.vx * t;
+        const span = W - 2 * BR;
+        x = ((x - BR) % (2 * span) + 2 * span) % (2 * span);
+        x = BR + (x > span ? 2 * span - x : x);
+        target = x + aim;
+      }
+      const d = target - cpu.x;
+      cpu.x += Math.sign(d) * Math.min(Math.abs(d), L.speed * dt);
+      cpu.x = Math.max(PW / 2, Math.min(W - PW / 2, cpu.x));
+
+      ball.x += ball.vx * dt;
+      ball.y += ball.vy * dt;
+      if (ball.x < BR) { ball.x = BR; ball.vx = Math.abs(ball.vx); }
+      if (ball.x > W - BR) { ball.x = W - BR; ball.vx = -Math.abs(ball.vx); }
+      const yourY = H - 60, cpuY = 60;
+      if (ball.vy > 0 && ball.y + BR >= yourY && ball.y + BR <= yourY + PH + 18 && Math.abs(ball.x - you.x) <= PW / 2 + BR) {
+        ball.y = yourY - BR;
+        hit(you, true);
+      }
+      if (ball.vy < 0 && ball.y - BR <= cpuY + PH && ball.y - BR >= cpuY - 18 && Math.abs(ball.x - cpu.x) <= PW / 2 + BR) {
+        ball.y = cpuY + PH + BR;
+        hit(cpu, false);
+      }
+      if (ball.y > H + BR) point('cpu');
+      if (ball.y < -BR) point('you');
+      if (flash > 0) flash -= dt;
+    }
+
+    function point(who) {
+      score[who]++;
+      if (score[who] >= WIN) {
+        state = 'over';
+        $('pause').disabled = true;
+        showOverlay(who === 'you' ? '🎉 YOU WIN' : 'CPU WIN',
+          `${score.you} - ${score.cpu}<br>${who === 'you' ? 'ナイスゲーム!' : 'もう一度挑戦しよう。'}`, 'もう一度', true);
+        return;
+      }
+      resetBall(who === 'you');
+    }
+
+    function draw() {
+      ctx.fillStyle = '#0a0f0a';
+      ctx.fillRect(0, 0, W, H);
+      ctx.strokeStyle = 'rgba(57,255,106,.25)';
+      ctx.setLineDash([14, 12]);
+      ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(0, H / 2); ctx.lineTo(W, H / 2); ctx.stroke();
+      ctx.setLineDash([]);
+      if (!you) return;
+      ctx.font = 'bold 64px "Courier New", monospace';
+      ctx.textAlign = 'right';
+      ctx.fillStyle = 'rgba(255,157,224,.35)';
+      ctx.fillText(score.cpu, W - 24, H / 2 - 24);
+      ctx.fillStyle = 'rgba(57,255,106,.35)';
+      ctx.fillText(score.you, W - 24, H / 2 + 70);
+      ctx.shadowBlur = 14;
+      ctx.shadowColor = '#ff9de0'; ctx.fillStyle = '#ff9de0';
+      ctx.fillRect(cpu.x - PW / 2, 60, PW, PH);
+      ctx.shadowColor = '#39ff6a'; ctx.fillStyle = '#39ff6a';
+      ctx.fillRect(you.x - PW / 2, H - 60, PW, PH);
+      ctx.fillStyle = flash > 0 ? '#fff' : '#c9ffd6';
+      ctx.shadowColor = '#fff';
+      ctx.beginPath(); ctx.arc(ball.x, ball.y, BR, 0, Math.PI * 2); ctx.fill();
+      ctx.shadowBlur = 0;
+      if (serveTimer > 0 && state === 'play') {
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#39ff6a';
+        ctx.font = 'bold 40px "Courier New", monospace';
+        ctx.fillText('READY', W / 2, H / 2 + (ball.dir > 0 ? 80 : -50));
+      }
+    }
+
+    function loop(t) {
+      requestAnimationFrame(loop);
+      const dt = Math.min(.033, (t - lastT) / 1000 || 0);
+      lastT = t;
+      if (state === 'play') update(dt);
+      draw();
+    }
+
+    // 指やマウスの位置へパドルを直接合わせる(キャンバスの外へ出ても追従)
+    function pointerX(e) {
+      const r = cv.getBoundingClientRect();
+      return (e.clientX - r.left) / r.width * W;
+    }
+    cv.addEventListener('pointerdown', e => { if (state === 'play') { you.x = pointerX(e); cv.setPointerCapture(e.pointerId); } });
+    cv.addEventListener('pointermove', e => { if (state === 'play' && (e.pointerType === 'mouse' || e.buttons)) you.x = pointerX(e); });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { keys[e.key] = true; e.preventDefault(); }
+      if (e.key === ' ' || e.key === 'Escape') { e.preventDefault(); togglePause(); }
+    });
+    document.addEventListener('keyup', e => { keys[e.key] = false; });
+
+    function togglePause() {
+      if (state === 'play') {
+        state = 'pause';
+        $('pause').textContent = '再開';
+        showOverlay('PAUSE', '一時停止中', '再開', true);
+      } else if (state === 'pause') {
+        resume();
+      }
+    }
+    function resume() {
+      state = 'play';
+      $('pause').textContent = '一時停止';
+      $('overlay').hidden = true;
+      $('toTitle').hidden = true;
+    }
+    // 一時停止中の「タイトルへ」は2回押しで確定
+    let titleTimer = 0;
+    $('toTitle').onclick = () => {
+      if (state === 'pause' && !titleTimer) {
+        $('toTitle').textContent = 'もう一度押すと戻る';
+        titleTimer = setTimeout(() => { titleTimer = 0; $('toTitle').textContent = 'タイトルへ'; }, 2500);
+        return;
+      }
+      clearTimeout(titleTimer); titleTimer = 0;
+      $('toTitle').textContent = 'タイトルへ';
+      state = 'title';
+      you = null;
+      $('pause').disabled = true;
+      showOverlay('PADDLE', '下のパドルを動かしてボールを打ち返そう。<br>7点先取で勝ち。', 'スタート', false);
+    };
+    $('start').onclick = () => { if (state === 'pause') resume(); else startGame(); };
+    $('pause').onclick = togglePause;
+    $('pause').disabled = true;
+    document.addEventListener('visibilitychange', () => { if (document.hidden && state === 'play') togglePause(); });
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>

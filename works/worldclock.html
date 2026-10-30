@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WORLD_CLOCK | porkgorilla://</title>
+  <meta name="description" content="世界時計と時差計算。好きな都市の現在時刻を並べ、日時を指定して各都市の時刻に変換。サマータイム対応。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBT4300J0L');
+  </script>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    main { padding: 24px 16px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+    h1 { margin: 0; font-size: 1.6rem; }
+    .box { width: 100%; max-width: 560px; padding: 18px 16px 16px; }
+    .box > * + * { margin-top: 10px; }
+    select, input { font-family: var(--cyber-font); font-size: 1rem; padding: 8px 10px; width: 100%; min-width: 0;
+      background: var(--cyber-bg-panel); color: var(--cyber-text); border: 1px solid var(--cyber-green-dim); color-scheme: dark; }
+    label { color: var(--cyber-green-dim); font-size: .85rem; display: block; margin-bottom: 4px; }
+    .seg { display: flex; }
+    .seg button { flex: 1; font-family: var(--cyber-font); font-size: .9rem; padding: 8px 4px; cursor: pointer;
+      background: var(--cyber-bg-panel); color: var(--cyber-green-dim); border: 1px solid var(--cyber-green-dim); }
+    .seg button + button { border-left: none; }
+    .seg button.on { background: var(--cyber-green); color: #000; font-weight: bold; }
+    #convert { display: none; }
+    #convert.show { display: block; }
+    #convert .row { display: flex; gap: 8px; }
+    #convert .row > * { flex: 1 1 0; }
+    .city { display: flex; align-items: center; gap: 10px; padding: 10px 4px; border-bottom: 1px dashed #1a4a26; }
+    .city .icon { font-size: 1.3rem; width: 1.6em; text-align: center; }
+    .city .name { flex: 1; min-width: 0; }
+    .city .name b { display: block; color: var(--cyber-text); font-weight: normal; }
+    .city .name small { color: var(--cyber-green-dim); font-size: .75rem; }
+    .city .time { text-align: right; }
+    .city .time b { display: block; font-size: 1.5rem; color: var(--cyber-green); font-variant-numeric: tabular-nums; }
+    .city .time small { font-size: .75rem; color: var(--cyber-green-dim); }
+    .city.base .time b { color: #fff; }
+    .city .del { border: none; background: none; color: var(--cyber-red); font-size: 1.1rem; cursor: pointer; padding: 4px 6px; }
+    .add-row { display: flex; gap: 8px; }
+    .add-row .btn { flex: 0 0 auto; padding: .5rem 1rem; font-size: .9rem; }
+    .note { font-size: .8rem; color: var(--cyber-green-dim); max-width: 560px; line-height: 1.7; margin: 0; }
+    .credit { font-size: 11px; color: var(--cyber-green-dim); margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>🌐 WORLD_CLOCK</h1>
+    <div class="box panel">
+      <div class="seg" id="mode"><button type="button" data-v="now" class="on">現在時刻</button><button type="button" data-v="conv">日時を指定して変換</button></div>
+      <div id="convert">
+        <label for="baseZone">この都市の</label>
+        <select id="baseZone"></select>
+        <div class="row" style="margin-top:8px">
+          <input id="baseDate" type="date" aria-label="日付">
+          <input id="baseTime" type="time" aria-label="時刻" value="09:00">
+        </div>
+      </div>
+    </div>
+    <div class="box panel">
+      <div id="list"></div>
+      <div class="add-row" style="margin-top:12px">
+        <select id="addZone" aria-label="追加する都市"></select>
+        <button class="btn" id="add" type="button">追加</button>
+      </div>
+    </div>
+    <p class="note">時差は端末の時刻を基準に表示しています。サマータイムはブラウザが持つタイムゾーン情報で自動的に反映されます。並べた都市はこの端末に保存されます。</p>
+    <div class="credit">porkgorilla — 2026</div>
+  </main>
+
+  <script src="/site.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    const CITIES = [
+      ['東京', 'Asia/Tokyo'], ['ソウル', 'Asia/Seoul'], ['北京', 'Asia/Shanghai'], ['台北', 'Asia/Taipei'], ['香港', 'Asia/Hong_Kong'],
+      ['マニラ', 'Asia/Manila'], ['バンコク', 'Asia/Bangkok'], ['ハノイ', 'Asia/Ho_Chi_Minh'], ['シンガポール', 'Asia/Singapore'],
+      ['ジャカルタ', 'Asia/Jakarta'], ['ニューデリー', 'Asia/Kolkata'], ['ドバイ', 'Asia/Dubai'], ['イスタンブール', 'Europe/Istanbul'],
+      ['モスクワ', 'Europe/Moscow'], ['カイロ', 'Africa/Cairo'], ['ヨハネスブルグ', 'Africa/Johannesburg'], ['アテネ', 'Europe/Athens'],
+      ['ベルリン', 'Europe/Berlin'], ['パリ', 'Europe/Paris'], ['ローマ', 'Europe/Rome'], ['マドリード', 'Europe/Madrid'],
+      ['アムステルダム', 'Europe/Amsterdam'], ['ロンドン', 'Europe/London'], ['UTC (協定世界時)', 'UTC'], ['レイキャビク', 'Atlantic/Reykjavik'],
+      ['サンパウロ', 'America/Sao_Paulo'], ['ブエノスアイレス', 'America/Argentina/Buenos_Aires'], ['ニューヨーク', 'America/New_York'],
+      ['トロント', 'America/Toronto'], ['シカゴ', 'America/Chicago'], ['メキシコシティ', 'America/Mexico_City'], ['デンバー', 'America/Denver'],
+      ['ロサンゼルス', 'America/Los_Angeles'], ['バンクーバー', 'America/Vancouver'], ['アンカレッジ', 'America/Anchorage'],
+      ['ホノルル', 'Pacific/Honolulu'], ['グアム', 'Pacific/Guam'], ['シドニー', 'Australia/Sydney'], ['パース', 'Australia/Perth'],
+      ['オークランド', 'Pacific/Auckland']
+    ].filter(([, z]) => { try { new Intl.DateTimeFormat('ja-JP', { timeZone: z }); return true; } catch (e) { return false; } });
+    const nameOf = z => (CITIES.find(c => c[1] === z) || [z])[0];
+    const STORE = 'worldclock_zones';
+    const localZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    let zones = ['Asia/Tokyo', 'Europe/London', 'America/New_York', 'America/Los_Angeles', 'Australia/Sydney'];
+    try { const s = JSON.parse(localStorage.getItem(STORE) || 'null'); if (Array.isArray(s) && s.length) zones = s; } catch (e) {}
+    let mode = 'now';
+
+    const fmtCache = {};
+    function partsOf(date, zone) {
+      if (!fmtCache[zone]) fmtCache[zone] = new Intl.DateTimeFormat('en-US', { timeZone: zone, hourCycle: 'h23',
+        year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', weekday: 'short' });
+      const o = {};
+      fmtCache[zone].formatToParts(date).forEach(p => { o[p.type] = p.value; });
+      return { y: +o.year, mo: +o.month, d: +o.day, h: +o.hour % 24, mi: +o.minute, s: +o.second, wd: o.weekday };
+    }
+    // そのタイムゾーンの UTC からのずれ(分)
+    function offsetMin(date, zone) {
+      const p = partsOf(date, zone);
+      return Math.round((Date.UTC(p.y, p.mo - 1, p.d, p.h, p.mi, p.s) - Math.floor(date.getTime() / 1000) * 1000) / 60000);
+    }
+    // 「その都市での壁時計の日時」から実際の瞬間を求める。サマータイムの切り替えに備えて2回補正する
+    function instantFor(y, mo, d, h, mi, zone) {
+      const wall = Date.UTC(y, mo - 1, d, h, mi);
+      let t = wall - offsetMin(new Date(wall), zone) * 60000;
+      t = wall - offsetMin(new Date(t), zone) * 60000;
+      return new Date(t);
+    }
+    const fmtOff = m => `UTC${m >= 0 ? '+' : '−'}${Math.floor(Math.abs(m) / 60)}${Math.abs(m) % 60 ? ':' + String(Math.abs(m) % 60).padStart(2, '0') : ''}`;
+    const WD = { Sun: '日', Mon: '月', Tue: '火', Wed: '水', Thu: '木', Fri: '金', Sat: '土' };
+
+    function fillSelects() {
+      $('addZone').innerHTML = CITIES.filter(([, z]) => !zones.includes(z)).map(([n, z]) => `<option value="${z}">${n}</option>`).join('');
+      const keep = $('baseZone').value || (zones.includes(localZone) ? localZone : zones[0]);
+      $('baseZone').innerHTML = zones.map(z => `<option value="${z}">${nameOf(z)}</option>`).join('');
+      $('baseZone').value = zones.includes(keep) ? keep : zones[0];
+    }
+
+    function render() {
+      let date = new Date(), base = null;
+      if (mode === 'conv') {
+        const [y, mo, d] = ($('baseDate').value || '').split('-').map(Number);
+        const [h, mi] = ($('baseTime').value || '0:0').split(':').map(Number);
+        base = $('baseZone').value;
+        if (y) date = instantFor(y, mo, d, h, mi, base);
+      }
+      const refZone = base || localZone;
+      const refP = partsOf(date, refZone), refOff = offsetMin(date, refZone);
+      const refDay = Date.UTC(refP.y, refP.mo - 1, refP.d);
+      const list = $('list');
+      list.innerHTML = '';
+      zones.forEach(z => {
+        const p = partsOf(date, z), off = offsetMin(date, z);
+        const diff = off - refOff;
+        const dayDiff = Math.round((Date.UTC(p.y, p.mo - 1, p.d) - refDay) / 86400000);
+        const night = p.h < 6 || p.h >= 19;
+        const diffText = diff === 0 ? '時差なし' : `${diff > 0 ? '+' : '−'}${Math.floor(Math.abs(diff) / 60)}時間${Math.abs(diff) % 60 ? Math.abs(diff) % 60 + '分' : ''}`;
+        const div = document.createElement('div');
+        div.className = 'city' + (z === base ? ' base' : '');
+        div.innerHTML = `<span class="icon">${night ? '🌙' : '☀️'}</span>` +
+          `<span class="name"><b>${nameOf(z)}</b><small>${fmtOff(off)} ／ ${base || z !== localZone ? diffText : 'この端末'}</small></span>` +
+          `<span class="time"><b>${String(p.h).padStart(2, '0')}:${String(p.mi).padStart(2, '0')}${mode === 'now' ? `<small>:${String(p.s).padStart(2, '0')}</small>` : ''}</b>` +
+          `<small>${p.mo}/${p.d}(${WD[p.wd]})${dayDiff ? (dayDiff > 0 ? ' 翌日' : ' 前日') : ''}</small></span>` +
+          `<button class="del" type="button" aria-label="${nameOf(z)}を外す">×</button>`;
+        div.querySelector('.del').onclick = () => {
+          if (zones.length <= 1) return;
+          zones = zones.filter(x => x !== z);
+          save(); fillSelects(); render();
+        };
+        list.appendChild(div);
+      });
+    }
+    const save = () => { try { localStorage.setItem(STORE, JSON.stringify(zones)); } catch (e) {} };
+
+    document.querySelectorAll('#mode button').forEach(b => {
+      b.onclick = () => {
+        mode = b.dataset.v;
+        document.querySelectorAll('#mode button').forEach(x => x.classList.toggle('on', x === b));
+        $('convert').classList.toggle('show', mode === 'conv');
+        render();
+      };
+    });
+    $('add').onclick = () => {
+      const z = $('addZone').value;
+      if (!z || zones.includes(z)) return;
+      zones.push(z);
+      save(); fillSelects(); render();
+    };
+    ['baseZone', 'baseDate', 'baseTime'].forEach(id => { $(id).addEventListener('input', render); $(id).addEventListener('change', render); });
+    const now = new Date();
+    $('baseDate').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    fillSelects();
+    render();
+    setInterval(() => { if (mode === 'now') render(); }, 1000);
+  </script>
+</body>
+</html>

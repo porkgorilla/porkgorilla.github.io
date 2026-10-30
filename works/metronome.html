@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>METRONOME | porkgorilla://</title>
+  <meta name="description" content="ブラウザで使えるメトロノーム。BPM 30〜250、拍子と細分化、1拍目のアクセント、タップでテンポ入力。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBT4300J0L');
+  </script>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    main { padding: 24px 16px; display: flex; flex-direction: column; align-items: center; gap: 14px; user-select: none; -webkit-user-select: none; }
+    h1 { margin: 0; font-size: 1.6rem; }
+    .box { width: 100%; max-width: 440px; padding: 20px 16px 16px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+    #bpm { font-size: 4rem; color: var(--cyber-green); text-shadow: 0 0 12px var(--cyber-green); line-height: 1; }
+    #bpm small { font-size: 1rem; color: var(--cyber-green-dim); text-shadow: none; margin-left: 6px; }
+    #tempoName { color: var(--cyber-green-dim); font-size: .85rem; min-height: 1.2em; }
+    .bpm-row { display: flex; align-items: center; gap: 8px; width: 100%; }
+    .bpm-row .btn { padding: .5rem 0; width: 52px; font-size: 1rem; flex: 0 0 auto; }
+    input[type=range] { flex: 1; accent-color: var(--cyber-green); min-width: 0; height: 32px; }
+    #dots { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; min-height: 34px; }
+    .dot { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--cyber-green-dim); transition: background .05s; }
+    .dot.accent { border-color: var(--cyber-green); }
+    .dot.on { background: var(--cyber-green); box-shadow: 0 0 14px var(--cyber-green); }
+    .dot.accent.on { background: #fff; box-shadow: 0 0 16px #fff; }
+    .opts { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+    select { font-family: var(--cyber-font); font-size: .95rem; padding: .55rem .5rem; background: var(--cyber-bg-panel);
+      color: var(--cyber-green); border: 1px solid var(--cyber-green-dim); }
+    label.inline { display: flex; align-items: center; gap: 6px; font-size: .9rem; cursor: pointer; }
+    .main-btns { display: flex; gap: 10px; width: 100%; max-width: 440px; }
+    #toggle { flex: 2; padding: .9rem; font-size: 1.15rem; }
+    #tap { flex: 1; padding: .9rem; font-size: 1rem; }
+    #tap.active { background: var(--cyber-green); color: #000; }
+    .note { font-size: .8rem; color: var(--cyber-green-dim); max-width: 440px; line-height: 1.7; margin: 0; }
+    .credit { font-size: 11px; color: var(--cyber-green-dim); margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>🎼 METRONOME</h1>
+    <div class="box panel">
+      <div id="bpm"><span id="bpmNum">120</span><small>BPM</small></div>
+      <div id="tempoName"></div>
+      <div class="bpm-row">
+        <button class="btn" id="minus" type="button" aria-label="BPMを1下げる">−</button>
+        <input id="slider" type="range" min="30" max="250" value="120" aria-label="BPM">
+        <button class="btn" id="plus" type="button" aria-label="BPMを1上げる">＋</button>
+      </div>
+      <div id="dots"></div>
+      <div class="opts">
+        <select id="beats" aria-label="拍子"></select>
+        <select id="sub" aria-label="細分化">
+          <option value="1">♩ 4分</option><option value="2">♪♪ 8分</option><option value="3">3連符</option><option value="4">16分</option>
+        </select>
+        <select id="sound" aria-label="音色"><option value="beep">電子音</option><option value="click">クリック</option><option value="wood">ウッド</option></select>
+      </div>
+      <label class="inline"><input id="accent" type="checkbox" checked> 1拍目を強く</label>
+    </div>
+    <div class="main-btns">
+      <button class="btn" id="toggle" type="button">▶ スタート</button>
+      <button class="btn" id="tap" type="button">TAP</button>
+    </div>
+    <p class="note">TAPを一定の間隔で何回か押すと、そのテンポに合わせます。キーボードは スペース=スタート/ストップ、↑↓=BPM、T=タップ。スマホは消音(マナー)モードだと音が出ない場合があります。</p>
+    <div class="credit">porkgorilla — 2026</div>
+  </main>
+
+  <script src="/site.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    const STORE = 'metronome_opts';
+    const TEMPO_NAMES = [[40, 'Grave'], [60, 'Largo'], [66, 'Larghetto'], [76, 'Adagio'], [108, 'Andante'], [120, 'Moderato'],
+      [156, 'Allegro'], [176, 'Vivace'], [200, 'Presto'], [999, 'Prestissimo']];
+    let bpm = 120, ac = null, playing = false, timer = 0, nextTime = 0, tick = 0, visualQueue = [], taps = [];
+
+    for (let i = 1; i <= 9; i++) $('beats').insertAdjacentHTML('beforeend', `<option value="${i}">${i}拍子</option>`);
+    $('beats').value = '4';
+    try {
+      const o = JSON.parse(localStorage.getItem(STORE) || '{}');
+      if (o.bpm) bpm = o.bpm;
+      ['beats', 'sub', 'sound'].forEach(k => { if (o[k]) $(k).value = o[k]; });
+      if (o.accent === false) $('accent').checked = false;
+    } catch (e) {}
+    const save = () => {
+      try { localStorage.setItem(STORE, JSON.stringify({ bpm, beats: $('beats').value, sub: $('sub').value, sound: $('sound').value, accent: $('accent').checked })); } catch (e) {}
+    };
+
+    function setBpm(v) {
+      bpm = Math.max(30, Math.min(250, Math.round(v)));
+      $('bpmNum').textContent = bpm;
+      $('slider').value = bpm;
+      $('tempoName').textContent = TEMPO_NAMES.find(([max]) => bpm < max)[1];
+      save();
+    }
+
+    function buildDots() {
+      const n = +$('beats').value;
+      $('dots').innerHTML = '';
+      for (let i = 0; i < n; i++) {
+        const d = document.createElement('div');
+        d.className = 'dot' + (i === 0 && $('accent').checked && n > 1 ? ' accent' : '');
+        $('dots').appendChild(d);
+      }
+    }
+
+    // level: 2=小節の頭, 1=拍, 0=細分化した裏
+    function click(time, level) {
+      const o = ac.createOscillator(), g = ac.createGain();
+      const sound = $('sound').value;
+      const freq = { beep: [800, 1000, 1500], click: [1800, 2400, 3200], wood: [500, 700, 900] }[sound][level];
+      o.type = sound === 'beep' ? 'sine' : sound === 'click' ? 'square' : 'triangle';
+      o.frequency.value = freq;
+      const vol = [.25, .55, .9][level] * (sound === 'click' ? .35 : 1);
+      const len = sound === 'wood' ? .07 : .04;
+      g.gain.setValueAtTime(vol, time);
+      g.gain.exponentialRampToValueAtTime(.001, time + len);
+      o.connect(g).connect(ac.destination);
+      o.start(time);
+      o.stop(time + len + .01);
+    }
+
+    // 25ミリ秒ごとに、少し先までの音を AudioContext の時計で予約する(setTimeout のぶれが音に出ない)。
+    // 裏のタブではタイマーが1秒に1回まで間引かれるので、そのときは1.5秒先まで予約しておく
+    function scheduler() {
+      const beats = +$('beats').value, sub = +$('sub').value;
+      const ahead = document.hidden ? 1.5 : .12;
+      // タイマーが大きく遅れたときは、過ぎた分をまとめて鳴らさずに今から刻み直す
+      if (nextTime < ac.currentTime - .05) nextTime = ac.currentTime + .05;
+      while (nextTime < ac.currentTime + ahead) {
+        const beat = Math.floor(tick / sub) % beats, isBeat = tick % sub === 0;
+        const level = !isBeat ? 0 : beat === 0 && $('accent').checked && beats > 1 ? 2 : 1;
+        click(nextTime, level);
+        if (isBeat) visualQueue.push({ time: nextTime, beat });
+        nextTime += 60 / bpm / sub;
+        tick++;
+      }
+    }
+
+    function drawLoop() {
+      if (!playing) return;
+      requestAnimationFrame(drawLoop);
+      let cur = null;
+      while (visualQueue.length && visualQueue[0].time <= ac.currentTime) cur = visualQueue.shift();
+      if (cur) [...$('dots').children].forEach((d, i) => d.classList.toggle('on', i === cur.beat));
+    }
+
+    function start() {
+      // iOS では裏に回すと AudioContext が黙って止まることがあるので、スタートのたびに作り直す
+      if (ac) ac.close().catch(() => {});
+      ac = new (window.AudioContext || window.webkitAudioContext)();
+      ac.resume();
+      playing = true;
+      tick = 0;
+      visualQueue = [];
+      nextTime = ac.currentTime + .06;
+      timer = setInterval(scheduler, 25);
+      scheduler();
+      $('toggle').textContent = '■ ストップ';
+      requestAnimationFrame(drawLoop);
+    }
+
+    function stop() {
+      playing = false;
+      clearInterval(timer);
+      [...$('dots').children].forEach(d => d.classList.remove('on'));
+      $('toggle').textContent = '▶ スタート';
+      if (ac) { ac.close().catch(() => {}); ac = null; }
+    }
+
+    function tap() {
+      const now = performance.now();
+      // 2秒以上あいたら数え直す
+      if (taps.length && now - taps[taps.length - 1] > 2000) taps = [];
+      taps.push(now);
+      if (taps.length > 6) taps.shift();
+      if (taps.length >= 2) {
+        const avg = (taps[taps.length - 1] - taps[0]) / (taps.length - 1);
+        setBpm(60000 / avg);
+      }
+      $('tap').classList.add('active');
+      setTimeout(() => $('tap').classList.remove('active'), 80);
+    }
+
+    $('toggle').onclick = () => (playing ? stop() : start());
+    $('tap').onclick = tap;
+    $('slider').oninput = () => setBpm(+$('slider').value);
+    // 長押しで連続して上げ下げできるようにする
+    [['minus', -1], ['plus', 1]].forEach(([id, d]) => {
+      let hold = 0, rep = 0;
+      const end = () => { clearTimeout(hold); clearInterval(rep); };
+      $(id).addEventListener('pointerdown', e => {
+        e.preventDefault();
+        setBpm(bpm + d);
+        hold = setTimeout(() => { rep = setInterval(() => setBpm(bpm + d), 60); }, 400);
+      });
+      ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => $(id).addEventListener(ev, end));
+    });
+    ['beats', 'accent'].forEach(id => $(id).addEventListener('change', () => { buildDots(); save(); }));
+    ['sub', 'sound'].forEach(id => $(id).addEventListener('change', save));
+    document.addEventListener('keydown', e => {
+      if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT' && e.target.type !== 'range' && e.target.type !== 'checkbox') return;
+      // ボタンにフォーカスがあるときのスペースはボタン自身が押されるので二重に動かさない
+      if (e.key === ' ' && e.target.tagName === 'BUTTON') return;
+      if (e.key === ' ') { e.preventDefault(); $('toggle').click(); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); setBpm(bpm + 1); }
+      else if (e.key === 'ArrowDown') { e.preventDefault(); setBpm(bpm - 1); }
+      else if (e.key === 't' || e.key === 'T') tap();
+    });
+    setBpm(bpm);
+    buildDots();
+  </script>
+</body>
+</html>

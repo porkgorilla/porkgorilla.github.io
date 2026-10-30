@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CHECKERS | porkgorilla://</title>
+  <meta name="description" content="定番のチェッカー(英国式ドラフツ)。斜めに進み、飛び越えて取る。取れるときは必ず取る、連続ジャンプあり。CPU対戦。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBT4300J0L');
+  </script>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    main { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 24px 16px;
+      user-select: none; -webkit-user-select: none; text-align: center; }
+    h1 { margin: 0; font-size: 1.6rem; }
+    #info { display: flex; gap: 18px; font-size: 1.05rem; flex-wrap: wrap; justify-content: center; }
+    #board { display: grid; grid-template-columns: repeat(8, 1fr); width: min(100%, 440px); aspect-ratio: 1;
+      border: 2px solid var(--cyber-green); box-shadow: 0 0 12px rgba(57, 255, 106, .25); }
+    .sq { position: relative; display: flex; align-items: center; justify-content: center; padding: 0; border: none; }
+    .sq.light { background: #0d1a10; }
+    .sq.dark { background: #1b3a22; cursor: pointer; }
+    .sq.from { background: #2c5a36; }
+    .sq.to::after { content: ''; position: absolute; width: 30%; height: 30%; border-radius: 50%; background: rgba(255, 255, 255, .5); }
+    .sq.last { box-shadow: inset 0 0 0 2px rgba(255, 216, 77, .7); }
+    .pc { width: 78%; height: 78%; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: clamp(12px, 4.5vw, 22px); line-height: 1; pointer-events: none; }
+    .pc.b { background: radial-gradient(circle at 35% 35%, #7dffa0, #1e8f3e); box-shadow: 0 2px 0 #0a3a16; color: #053010; }
+    .pc.w { background: radial-gradient(circle at 35% 35%, #ffd0ee, #c2509a); box-shadow: 0 2px 0 #5a1d44; color: #4a0d34; }
+    .pc.movable { outline: 2px solid #fff; outline-offset: 2px; }
+    #msg { min-height: 1.5em; color: var(--cyber-green); }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; align-items: center; }
+    .row .btn { padding: .6rem 1rem; font-size: .9rem; }
+    select { font-family: var(--cyber-font); font-size: .9rem; padding: .55rem .5rem; background: var(--cyber-bg-panel);
+      color: var(--cyber-green); border: 1px solid var(--cyber-green-dim); }
+    .rule { font-size: .85rem; color: var(--cyber-green-dim); max-width: 440px; line-height: 1.7; }
+    .credit { font-size: 11px; color: var(--cyber-green-dim); margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>⛀ CHECKERS</h1>
+    <div id="info"><span>あなた(緑) <b id="cntB">12</b></span><span>CPU(桃) <b id="cntW">12</b></span></div>
+    <div id="board"></div>
+    <div id="msg"></div>
+    <div class="row">
+      <button class="btn" id="undo" type="button">↶ 待った</button>
+      <button class="btn" id="new" type="button">新しいゲーム</button>
+      <select id="level" aria-label="CPUの強さ"><option value="2">やさしい</option><option value="4" selected>ふつう</option><option value="8">つよい</option></select>
+    </div>
+    <p class="rule">駒は斜め前の暗いマスへ1つ進みます。隣の相手の駒を飛び越えた先が空いていれば取れて、取れるときは必ず取らなければいけません。続けて飛び越えられるなら連続で取ります。一番奥まで進んだ駒は王(♛)になり、後ろにも進めます。相手が動けなくなったら勝ち。</p>
+    <div class="credit">porkgorilla — 2026</div>
+  </main>
+
+  <script src="/site.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    // 盤は64マス。1=あなたの駒, 2=あなたの王, -1=CPUの駒, -2=CPUの王。あなたは下から上へ進む
+    let board, turn, sel, partial, legal, over, hist, last, quiet, thinking;
+    const side = v => Math.sign(v);
+    const inb = (r, c) => r >= 0 && r < 8 && c >= 0 && c < 8;
+
+    function newGame() {
+      board = new Array(64).fill(0);
+      for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+        if ((r + c) % 2 !== 1) continue;
+        if (r < 3) board[r * 8 + c] = -1;
+        if (r > 4) board[r * 8 + c] = 1;
+      }
+      turn = 1; sel = -1; partial = null; over = false; hist = []; last = []; quiet = 0; thinking = false;
+      $('msg').textContent = '';
+      legal = genMoves(board, 1);
+      render();
+    }
+
+    // 手は {path: [出発, 着地, 着地…], caps: [取った駒の位置…]}。取れる手があれば取る手だけを返す
+    function genMoves(b, s) {
+      const jumps = [], steps = [];
+      for (let p = 0; p < 64; p++) {
+        if (side(b[p]) !== s) continue;
+        const king = Math.abs(b[p]) === 2;
+        const dirs = king ? [[1, 1], [1, -1], [-1, 1], [-1, -1]] : s === 1 ? [[-1, 1], [-1, -1]] : [[1, 1], [1, -1]];
+        const r = p >> 3, c = p & 7;
+        dirs.forEach(([dr, dc]) => {
+          if (inb(r + dr, c + dc) && b[(r + dr) * 8 + c + dc] === 0) steps.push({ path: [p, (r + dr) * 8 + c + dc], caps: [] });
+        });
+        const piece = b[p];
+        b[p] = 0;
+        (function dfs(pos, path, caps) {
+          const pr = pos >> 3, pc = pos & 7;
+          let extended = false;
+          // 駒が途中で奥に着いたら王になってその手は終わり
+          const crowned = !king && ((s === 1 && pr === 0) || (s === -1 && pr === 7)) && caps.length;
+          if (!crowned) dirs.forEach(([dr, dc]) => {
+            const or = pr + dr, oc = pc + dc, lr = pr + 2 * dr, lc = pc + 2 * dc;
+            if (!inb(lr, lc)) return;
+            const over = or * 8 + oc, land = lr * 8 + lc;
+            if (side(b[over]) === -s && !caps.includes(over) && b[land] === 0) {
+              extended = true;
+              dfs(land, path.concat(land), caps.concat(over));
+            }
+          });
+          if (!extended && caps.length) jumps.push({ path, caps });
+        })(p, [p], []);
+        b[p] = piece;
+      }
+      return jumps.length ? jumps : steps;
+    }
+
+    function apply(b, m) {
+      const nb = b.slice();
+      const from = m.path[0], to = m.path[m.path.length - 1];
+      nb[to] = nb[from];
+      nb[from] = 0;
+      m.caps.forEach(q => { nb[q] = 0; });
+      if (nb[to] === 1 && to < 8) nb[to] = 2;
+      if (nb[to] === -1 && to >= 56) nb[to] = -2;
+      return nb;
+    }
+
+    // CPU(白)から見た評価。駒100・王170、駒は前に進むほど少し加点、端の駒も少し加点
+    function evaluate(b) {
+      let v = 0;
+      for (let p = 0; p < 64; p++) {
+        const x = b[p];
+        if (!x) continue;
+        const r = p >> 3, c = p & 7;
+        let s = Math.abs(x) === 2 ? 170 : 100 + (x > 0 ? 7 - r : r) * 3;
+        if (c === 0 || c === 7) s += 4;
+        v += x < 0 ? s : -s;
+      }
+      return v;
+    }
+
+    function search(b, s, depth, alpha, beta) {
+      const moves = genMoves(b, s);
+      if (!moves.length) return s === -1 ? -100000 - depth : 100000 + depth;
+      if (depth === 0) return evaluate(b);
+      if (s === -1) {
+        let best = -Infinity;
+        for (const m of moves) {
+          best = Math.max(best, search(apply(b, m), 1, depth - 1, alpha, beta));
+          alpha = Math.max(alpha, best);
+          if (alpha >= beta) break;
+        }
+        return best;
+      }
+      let best = Infinity;
+      for (const m of moves) {
+        best = Math.min(best, search(apply(b, m), -1, depth - 1, alpha, beta));
+        beta = Math.min(beta, best);
+        if (alpha >= beta) break;
+      }
+      return best;
+    }
+
+    function cpuMove() {
+      const moves = genMoves(board, -1);
+      if (!moves.length) return endTurn();
+      const depth = +$('level').value;
+      let best = -Infinity, cands = [];
+      moves.forEach(m => {
+        const v = search(apply(board, m), 1, depth - 1, -Infinity, Infinity) + Math.random() * (depth <= 2 ? 40 : 3);
+        if (v > best) { best = v; cands = [m]; }
+      });
+      commitMove(cands[0]);
+    }
+
+    function commitMove(m) {
+      board = apply(board, m);
+      last = m.path.slice();
+      quiet = m.caps.length || Math.abs(board[m.path[m.path.length - 1]]) === 1 ? 0 : quiet + 1;
+      turn = -turn;
+      endTurn();
+    }
+
+    function endTurn() {
+      sel = -1; partial = null;
+      legal = genMoves(board, turn);
+      if (!legal.length) {
+        over = true;
+        $('msg').textContent = turn === 1 ? 'CPUの勝ち… 動かせる駒がなくなりました' : '🎉 あなたの勝ち!';
+      } else if (quiet >= 50) {
+        over = true;
+        $('msg').textContent = '王だけが50手動いて決着がつかないので引き分け';
+      } else if (turn === 1) {
+        $('msg').textContent = legal[0].caps.length ? '取れる駒があります(必ず取る)' : '';
+      }
+      render();
+      if (!over && turn === -1) {
+        thinking = true;
+        $('msg').textContent = 'CPU 考え中…';
+        setTimeout(() => { thinking = false; cpuMove(); }, 350);
+      }
+    }
+
+    // 選んだ駒について、今の途中経路から続けられる手だけを残す
+    const candidates = () => legal.filter(m => m.path[0] === sel && partial.every((p, i) => m.path[i] === p));
+
+    function tap(p) {
+      if (over || turn !== 1 || thinking) return;
+      if (partial && partial.length > 1) {
+        // 連続ジャンプの途中は、次の着地先しか選べない
+        const next = candidates().filter(m => m.path[partial.length] === p);
+        if (next.length) stepTo(p);
+        return;
+      }
+      if (sel >= 0) {
+        const next = candidates().filter(m => m.path[1] === p);
+        if (next.length) { stepTo(p); return; }
+      }
+      if (legal.some(m => m.path[0] === p)) { sel = p; partial = [p]; }
+      else { sel = -1; partial = null; }
+      render();
+    }
+
+    function stepTo(p) {
+      if (partial.length === 1) hist.push({ board: board.slice(), quiet, last });
+      partial.push(p);
+      // 続けて跳べるなら必ず跳ぶ決まりなので、ここで終わる手があればそれで確定
+      const done = candidates().find(m => m.path.length === partial.length);
+      if (done) { commitMove(done); return; }
+      render();
+    }
+
+    function render() {
+      const el = $('board');
+      el.innerHTML = '';
+      const tos = new Set();
+      const movable = new Set(turn === 1 && !over && !thinking ? legal.map(m => m.path[0]) : []);
+      if (sel >= 0 && partial) candidates().forEach(m => { if (m.path[partial.length]) tos.add(m.path[partial.length]); });
+      // 連続ジャンプ中は、取った駒を薄く、駒の位置を途中の着地点に描く
+      let view = board.slice();
+      if (partial && partial.length > 1) {
+        const m = candidates()[0];
+        view[partial[partial.length - 1]] = board[sel];
+        view[sel] = 0;
+        m.caps.slice(0, partial.length - 1).forEach(q => { view[q] = 0; });
+      }
+      for (let p = 0; p < 64; p++) {
+        const r = p >> 3, c = p & 7;
+        const b = document.createElement('button');
+        b.type = 'button';
+        const dark = (r + c) % 2 === 1;
+        b.className = 'sq ' + (dark ? 'dark' : 'light') + (p === (partial ? partial[partial.length - 1] : -1) ? ' from' : '') +
+          (tos.has(p) ? ' to' : '') + (last.includes(p) ? ' last' : '');
+        if (dark) {
+          b.onclick = () => tap(p);
+          b.setAttribute('aria-label', `${8 - r}${'abcdefgh'[c]}`);
+        } else b.tabIndex = -1;
+        if (view[p]) {
+          const pc = document.createElement('div');
+          pc.className = 'pc ' + (view[p] > 0 ? 'b' : 'w') + (movable.has(p) && !partial ? ' movable' : '');
+          if (Math.abs(view[p]) === 2) pc.textContent = '♛';
+          b.appendChild(pc);
+        }
+        el.appendChild(b);
+      }
+      $('cntB').textContent = board.filter(v => v > 0).length;
+      $('cntW').textContent = board.filter(v => v < 0).length;
+      $('undo').disabled = !hist.length || thinking;
+    }
+
+    $('undo').onclick = () => {
+      if (!hist.length || thinking) return;
+      const h = hist.pop();
+      board = h.board; quiet = h.quiet; last = h.last;
+      turn = 1; over = false;
+      $('msg').textContent = '';
+      sel = -1; partial = null;
+      legal = genMoves(board, 1);
+      render();
+    };
+    $('new').onclick = newGame;
+    newGame();
+  </script>
+</body>
+</html>

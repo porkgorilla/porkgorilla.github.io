@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>REGEX_TESTER | porkgorilla://</title>
+  <meta name="description" content="正規表現テスター。JavaScriptの正規表現でマッチ箇所をハイライトし、グループと置換結果を確認。よく使うパターンの例つき。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBT4300J0L');
+  </script>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    main { padding: 24px 16px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+    h1 { margin: 0; font-size: 1.6rem; }
+    .box { width: 100%; max-width: 720px; padding: 18px 16px 16px; }
+    .box > * + * { margin-top: 10px; }
+    label.head { color: var(--cyber-green-dim); font-size: .85rem; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    input[type=text], textarea, select { font-family: var(--cyber-font); font-size: 1rem; padding: 8px 10px; width: 100%; min-width: 0;
+      background: var(--cyber-bg-panel); color: var(--cyber-text); border: 1px solid var(--cyber-green-dim); }
+    input[type=text]:focus, textarea:focus { outline: none; border-color: var(--cyber-green); }
+    textarea { min-height: 130px; resize: vertical; }
+    .pattern { display: flex; align-items: center; gap: 4px; }
+    .pattern span { color: var(--cyber-green); font-size: 1.2rem; }
+    #pattern { color: #ffd84d; }
+    .flags { display: flex; gap: 6px 14px; flex-wrap: wrap; font-size: .85rem; }
+    .flags label { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+    .flags small { color: var(--cyber-green-dim); }
+    #err { color: var(--cyber-red); font-size: .9rem; min-height: 1.2em; }
+    #preview { white-space: pre-wrap; word-break: break-all; line-height: 1.7; min-height: 3em; font-size: .95rem; }
+    #preview mark { background: rgba(57, 255, 106, .3); color: #fff; border-bottom: 2px solid var(--cyber-green); padding: 0 1px; }
+    #preview mark:nth-of-type(even) { background: rgba(255, 216, 77, .28); border-color: #ffd84d; }
+    #preview mark.empty { padding: 0; border-left: 2px solid #ff9de0; background: none; border-bottom: none; }
+    table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+    th { text-align: left; color: var(--cyber-green); padding: 4px; border-bottom: 1px solid var(--cyber-green-dim); }
+    td { padding: 4px; border-bottom: 1px dashed #1a4a26; vertical-align: top; word-break: break-all; }
+    td.n { color: var(--cyber-green-dim); white-space: nowrap; width: 1%; }
+    .tbl-wrap { max-height: 260px; overflow-y: auto; }
+    #replaceOut { white-space: pre-wrap; word-break: break-all; line-height: 1.6; font-size: .95rem; min-height: 1.6em; }
+    .note { font-size: .8rem; color: var(--cyber-green-dim); max-width: 720px; line-height: 1.7; margin: 0; }
+    .credit { font-size: 11px; color: var(--cyber-green-dim); margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>🔍 REGEX_TESTER</h1>
+    <div class="box panel">
+      <label class="head" for="pattern"><span>正規表現</span>
+        <select id="preset" style="width:auto;font-size:.85rem;padding:4px 6px" aria-label="例から選ぶ"><option value="">例から選ぶ…</option></select></label>
+      <div class="pattern"><span>/</span><input id="pattern" type="text" spellcheck="false" autocomplete="off"><span>/</span></div>
+      <div class="flags" id="flags">
+        <label><input type="checkbox" value="g" checked>g <small>すべて</small></label>
+        <label><input type="checkbox" value="i">i <small>大小無視</small></label>
+        <label><input type="checkbox" value="m">m <small>複数行</small></label>
+        <label><input type="checkbox" value="s">s <small>. が改行にも</small></label>
+        <label><input type="checkbox" value="u">u <small>Unicode</small></label>
+      </div>
+      <div id="err"></div>
+    </div>
+    <div class="box panel">
+      <label class="head" for="text"><span>テスト文字列</span></label>
+      <textarea id="text" spellcheck="false"></textarea>
+    </div>
+    <div class="box panel">
+      <label class="head"><span>マッチ結果</span><span id="count"></span></label>
+      <div id="preview"></div>
+    </div>
+    <div class="box panel">
+      <label class="head"><span>マッチ一覧とグループ</span></label>
+      <div class="tbl-wrap"><table id="table"></table></div>
+    </div>
+    <div class="box panel">
+      <label class="head" for="replace"><span>置換 ($1, $&lt;name&gt;, $&amp; が使えます)</span></label>
+      <input id="replace" type="text" spellcheck="false" autocomplete="off">
+      <div id="replaceOut"></div>
+    </div>
+    <p class="note">JavaScript(ブラウザ)の正規表現で動きます。PCREやPythonとは細かい書き方が違う場合があります。表示するマッチは最大1000件までです。</p>
+    <div class="credit">porkgorilla — 2026</div>
+  </main>
+
+  <script src="/site.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    const escH = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const LIMIT = 1000;
+    const PRESETS = [
+      ['メールアドレス', '[\\w.+-]+@[\\w-]+(\\.[\\w-]+)+', 'g', '連絡先: info@example.com / sales.team+jp@example.co.jp'],
+      ['URL', 'https?:\\/\\/[\\w\\-.~:\\/?#\\[\\]@!$&\'()*+,;=%]+', 'g', '公式は https://porkgorilla.com/ です。http://example.com/path?q=1 も。'],
+      ['電話番号(日本)', '0\\d{1,4}-\\d{1,4}-\\d{3,4}', 'g', '代表 03-1234-5678、携帯 090-1234-5678'],
+      ['郵便番号', '\\d{3}-\\d{4}', 'g', '〒100-0001 東京都千代田区'],
+      ['日付 (名前つきグループ)', '(?<year>\\d{4})[-/](?<month>\\d{1,2})[-/](?<day>\\d{1,2})', 'g', '公開日 2026-09-21、更新日 2026/10/31'],
+      ['ひらがな', '[\\u3041-\\u309F]+', 'g', '漢字とひらがなとカタカナが混ざった文章'],
+      ['行頭の見出し (#)', '^#+\\s*(.+)$', 'gm', '# タイトル\n本文\n## 小見出し\n本文']
+    ];
+    PRESETS.forEach(([name], i) => $('preset').insertAdjacentHTML('beforeend', `<option value="${i}">${name}</option>`));
+
+    const flagBoxes = [...document.querySelectorAll('#flags input')];
+    const flags = () => flagBoxes.filter(b => b.checked).map(b => b.value).join('');
+
+    function run() {
+      const src = $('pattern').value, text = $('text').value;
+      $('err').textContent = '';
+      $('table').innerHTML = '';
+      $('replaceOut').textContent = '';
+      if (!src) { $('preview').textContent = text; $('count').textContent = ''; return; }
+      let re;
+      try { re = new RegExp(src, flags()); }
+      catch (e) { $('err').textContent = '⚠ ' + e.message; $('preview').textContent = text; $('count').textContent = ''; return; }
+
+      // g なしでも一覧を作れるよう、走査用には g をつけた正規表現を使う
+      const scan = new RegExp(src, flags().includes('g') ? flags() : flags() + 'g');
+      const matches = [];
+      for (const m of text.matchAll(scan)) {
+        matches.push(m);
+        if (matches.length >= LIMIT || !re.global) break;
+      }
+      $('count').textContent = matches.length ? `${matches.length}${matches.length >= LIMIT ? '+' : ''} 件` : 'マッチなし';
+
+      let html = '', pos = 0;
+      matches.forEach(m => {
+        html += escH(text.slice(pos, m.index));
+        html += m[0] ? `<mark>${escH(m[0])}</mark>` : '<mark class="empty"></mark>';
+        pos = m.index + m[0].length;
+      });
+      $('preview').innerHTML = html + escH(text.slice(pos));
+
+      if (matches.length) {
+        const groupCount = Math.max(0, ...matches.map(m => m.length - 1));
+        const names = matches[0].groups ? Object.keys(matches[0].groups) : [];
+        let t = '<tr><th>#</th><th>位置</th><th>マッチ</th>';
+        for (let g = 1; g <= groupCount; g++) t += `<th>$${g}</th>`;
+        names.forEach(n => { t += `<th>${escH(n)}</th>`; });
+        t += '</tr>';
+        matches.forEach((m, i) => {
+          t += `<tr><td class="n">${i + 1}</td><td class="n">${m.index}</td><td>${escH(m[0]) || '<i>(空)</i>'}</td>`;
+          for (let g = 1; g <= groupCount; g++) t += `<td>${m[g] == null ? '<i>-</i>' : escH(m[g])}</td>`;
+          names.forEach(n => { t += `<td>${m.groups[n] == null ? '<i>-</i>' : escH(m.groups[n])}</td>`; });
+          t += '</tr>';
+        });
+        $('table').innerHTML = t;
+      }
+      if ($('replace').value || $('replace') === document.activeElement) {
+        $('replaceOut').textContent = text.replace(re, $('replace').value);
+      }
+    }
+
+    $('preset').onchange = () => {
+      const p = PRESETS[$('preset').value];
+      if (!p) return;
+      $('pattern').value = p[1];
+      flagBoxes.forEach(b => { b.checked = p[2].includes(b.value); });
+      $('text').value = p[3];
+      $('preset').value = '';
+      run();
+    };
+    ['pattern', 'text', 'replace'].forEach(id => $(id).addEventListener('input', run));
+    flagBoxes.forEach(b => b.addEventListener('change', run));
+    $('pattern').value = PRESETS[4][1];
+    $('text').value = PRESETS[4][3];
+    $('replace').value = '$<month>月$<day>日($<year>)';
+    run();
+  </script>
+</body>
+</html>

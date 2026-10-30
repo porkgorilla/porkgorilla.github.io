@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KANA_CONVERTER | porkgorilla://</title>
+  <meta name="description" content="全角・半角とひらがな・カタカナの変換ツール。英数字・記号・スペース・カナをまとめて変換。ブラウザ内で処理し送信しない。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBT4300J0L');
+  </script>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    main { padding: 24px 16px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+    h1 { margin: 0; font-size: 1.6rem; }
+    .box { width: 100%; max-width: 560px; padding: 18px 16px 16px; }
+    .box > * + * { margin-top: 10px; }
+    textarea { font-family: var(--cyber-font); font-size: 1rem; padding: 8px 10px; width: 100%; min-height: 120px; resize: vertical;
+      background: var(--cyber-bg-panel); color: var(--cyber-text); border: 1px solid var(--cyber-green-dim); }
+    textarea:focus { outline: none; border-color: var(--cyber-green); }
+    label.head { color: var(--cyber-green-dim); font-size: .85rem; display: flex; justify-content: space-between; }
+    .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    @media (max-width: 420px) { .opts { grid-template-columns: 1fr; } }
+    .opt { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid #1a4a26; cursor: pointer; font-size: .9rem; }
+    .opt:has(input:checked) { border-color: var(--cyber-green); background: var(--cyber-green-faint); }
+    .opt small { color: var(--cyber-green-dim); margin-left: auto; white-space: nowrap; }
+    .actions { display: flex; gap: 8px; width: 100%; max-width: 560px; }
+    .actions .btn { flex: 1; padding: .6rem .5rem; font-size: .9rem; }
+    .note { font-size: .8rem; color: var(--cyber-green-dim); max-width: 560px; line-height: 1.7; margin: 0; }
+    .credit { font-size: 11px; color: var(--cyber-green-dim); margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>🔤 KANA_CONVERTER</h1>
+    <div class="box panel">
+      <label class="head" for="src"><span>変換前</span><span id="srcCount"></span></label>
+      <textarea id="src">ＰｏｒｋＧｏｒｉｌｌａ　２０２６！
+ｶﾀｶﾅﾃﾞｽ。ｶﾞｷﾞｸﾞ ﾊﾟﾋﾟﾌﾟ
+ひらがな⇔カタカナも変換できます。</textarea>
+    </div>
+    <div class="box panel">
+      <div class="opts" id="opts">
+        <label class="opt"><input type="checkbox" value="alnumHalf" checked>英数字・記号を半角に<small>Ａ１！→A1!</small></label>
+        <label class="opt"><input type="checkbox" value="alnumFull">英数字・記号を全角に<small>A1!→Ａ１！</small></label>
+        <label class="opt"><input type="checkbox" value="spaceHalf" checked>スペースを半角に<small>全角→半角</small></label>
+        <label class="opt"><input type="checkbox" value="spaceFull">スペースを全角に<small>半角→全角</small></label>
+        <label class="opt"><input type="checkbox" value="kanaFull" checked>半角カナを全角に<small>ｶﾞ→ガ</small></label>
+        <label class="opt"><input type="checkbox" value="kanaHalf">全角カナを半角に<small>ガ→ｶﾞ</small></label>
+        <label class="opt"><input type="checkbox" value="toKata">ひらがなをカタカナに<small>あ→ア</small></label>
+        <label class="opt"><input type="checkbox" value="toHira">カタカナをひらがなに<small>ア→あ</small></label>
+      </div>
+    </div>
+    <div class="box panel">
+      <label class="head" for="dst"><span>変換後</span><span id="dstCount"></span></label>
+      <textarea id="dst" readonly></textarea>
+    </div>
+    <div class="actions">
+      <button class="btn" id="copy" type="button">結果をコピー</button>
+      <button class="btn" id="move" type="button">結果を変換前へ</button>
+      <button class="btn" id="clear" type="button">クリア</button>
+    </div>
+    <p class="note">反対向きの変換(半角に/全角に など)は同時に選べません。片方を選ぶと、もう片方は外れます。テキストはこのページの中だけで処理されます。</p>
+    <div class="credit">porkgorilla — 2026</div>
+  </main>
+
+  <script src="/site.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    const HALF = 'ｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ｡｢｣､･';
+    const FULL = 'ヲァィゥェォャュョッーアイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワン。「」、・';
+    const OPPOSITE = { alnumHalf: 'alnumFull', alnumFull: 'alnumHalf', spaceHalf: 'spaceFull', spaceFull: 'spaceHalf',
+      kanaFull: 'kanaHalf', kanaHalf: 'kanaFull', toKata: 'toHira', toHira: 'toKata' };
+
+    const CONV = {
+      // 全角の ！〜～ は U+FF01〜FF5E で、半角の ! 〜 ~ と 0xFEE0 ずれている
+      alnumHalf: s => s.replace(/[！-～]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0)),
+      alnumFull: s => s.replace(/[!-~]/g, ch => String.fromCharCode(ch.charCodeAt(0) + 0xFEE0)),
+      spaceHalf: s => s.replace(/　/g, ' '),
+      spaceFull: s => s.replace(/ /g, '　'),
+      // 半角の濁点・半濁点は結合文字に置き換えてから NFC で「カ+゛→ガ」とまとめる
+      kanaFull: s => s.replace(/[｡-ﾟ]/g, ch => {
+        const i = HALF.indexOf(ch);
+        if (i >= 0) return FULL[i];
+        return ch === 'ﾞ' ? '゙' : ch === 'ﾟ' ? '゚' : ch;
+      }).normalize('NFC').replace(/゙/g, '゛').replace(/゚/g, '゜'),
+      kanaHalf: s => s.replace(/[ァ-ー。「」、・]/g, ch => {
+        const d = ch.normalize('NFD');
+        const i = FULL.indexOf(d[0]);
+        if (i < 0) return ch;
+        return HALF[i] + (d[1] === '゙' ? 'ﾞ' : d[1] === '゚' ? 'ﾟ' : '');
+      }),
+      toKata: s => s.replace(/[ぁ-ゖゝゞ]/g, ch => String.fromCharCode(ch.charCodeAt(0) + 0x60)),
+      toHira: s => s.replace(/[ァ-ヶヽヾ]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0x60))
+    };
+    // 半角カナにするときは、先にひらがな→カタカナを済ませておくと両方効く
+    const ORDER = ['toKata', 'toHira', 'kanaFull', 'kanaHalf', 'alnumHalf', 'alnumFull', 'spaceHalf', 'spaceFull'];
+
+    const boxes = [...document.querySelectorAll('#opts input')];
+    const STORE = 'kanaconv_opts';
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORE) || 'null');
+      if (Array.isArray(saved)) boxes.forEach(b => { b.checked = saved.includes(b.value); });
+    } catch (e) {}
+
+    const len = s => [...s].length;
+    function run() {
+      const on = boxes.filter(b => b.checked).map(b => b.value);
+      let s = $('src').value;
+      ORDER.forEach(k => { if (on.includes(k)) s = CONV[k](s); });
+      $('dst').value = s;
+      $('srcCount').textContent = len($('src').value) + ' 文字';
+      $('dstCount').textContent = len(s) + ' 文字';
+      try { localStorage.setItem(STORE, JSON.stringify(on)); } catch (e) {}
+    }
+
+    boxes.forEach(b => b.addEventListener('change', () => {
+      if (b.checked) boxes.find(x => x.value === OPPOSITE[b.value]).checked = false;
+      run();
+    }));
+    $('src').addEventListener('input', run);
+    $('copy').onclick = async () => {
+      try { await navigator.clipboard.writeText($('dst').value); $('copy').textContent = 'コピーしました ✓'; }
+      catch (e) { $('dst').select(); $('copy').textContent = '選択しました'; }
+      setTimeout(() => { $('copy').textContent = '結果をコピー'; }, 1200);
+    };
+    $('move').onclick = () => { $('src').value = $('dst').value; run(); };
+    $('clear').onclick = () => { $('src').value = ''; run(); $('src').focus(); };
+    run();
+  </script>
+</body>
+</html>

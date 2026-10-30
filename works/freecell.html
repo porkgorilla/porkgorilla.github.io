@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FREECELL | porkgorilla://</title>
+  <meta name="description" content="定番のフリーセル。全カードが表向きで、4つのフリーセルを使って組札へ集める。配り番号つきで同じ配りに再挑戦できる。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBT4300J0L');
+  </script>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    main { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 24px 16px;
+      user-select: none; -webkit-user-select: none; text-align: center; }
+    h1 { margin: 0; font-size: 1.6rem; }
+    #info { display: flex; gap: 16px; font-size: 1.05rem; flex-wrap: wrap; justify-content: center; }
+    #table { position: relative; width: min(100%, 640px); min-height: 200px; }
+    .slot { position: absolute; border: 1px dashed var(--cyber-green-dim); border-radius: 6px; color: var(--cyber-green-dim);
+      display: flex; align-items: center; justify-content: center; font-size: calc(var(--fs) * 1.1); cursor: pointer; }
+    .slot.found { border-style: solid; }
+    .card { position: absolute; border: 1px solid var(--cyber-green-dim); border-radius: 6px; background: #0e1a10;
+      color: var(--cyber-text); cursor: pointer; overflow: hidden; }
+    .card.red { color: var(--cyber-red); }
+    .card .tl { position: absolute; left: 7%; top: 2%; font-size: var(--fs); font-weight: bold; line-height: 1.15; white-space: nowrap; }
+    .card .big { position: absolute; left: 0; right: 0; bottom: 6%; font-size: calc(var(--fs) * 1.9); line-height: 1; }
+    .card.sel { border-color: #fff; box-shadow: 0 0 10px var(--cyber-green); background: #17331d; }
+    #msg { min-height: 1.5em; color: var(--cyber-green); }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; align-items: center; }
+    .row .btn { padding: .6rem 1rem; font-size: .9rem; }
+    .rule { font-size: .85rem; color: var(--cyber-green-dim); max-width: 460px; line-height: 1.7; }
+    .credit { font-size: 11px; color: var(--cyber-green-dim); margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>🗃️ FREECELL</h1>
+    <div id="info"><span>配り <b id="deal">#0</b></span><span>時間 <b id="time">0:00</b></span><span>手数 <b id="moves">0</b></span><span>勝利 <b id="wins">0</b></span></div>
+    <div id="table"></div>
+    <div id="msg"></div>
+    <div class="row">
+      <button class="btn" id="undo" type="button">↶ 戻す</button>
+      <button class="btn" id="collect" type="button">組札へ集める</button>
+      <button class="btn" id="retry" type="button">同じ配りで再挑戦</button>
+      <button class="btn" id="new" type="button">新しいゲーム</button>
+    </div>
+    <p class="rule">カードをタップして選び、移動先をタップします。同じカードをもう一度タップすると自動で移動。左上の4つのフリーセルにはカードを1枚ずつ置けます。場札は赤黒交互に1つずつ小さく重ね、組札はAからKまで同じマークで積みます。空きセルと空き列の数だけ、まとめて何枚も動かせます。</p>
+    <div class="credit">porkgorilla — 2026</div>
+  </main>
+
+  <script src="/site.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    const SUITS = ['♠', '♥', '♦', '♣'];
+    const RANKS = ['', 'A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+    const isRed = s => s === 1 || s === 2;
+    const STORE = 'freecell_stats';
+    let stats = { wins: 0 };
+    try { Object.assign(stats, JSON.parse(localStorage.getItem(STORE) || '{}')); } catch (e) {}
+    const save = () => { try { localStorage.setItem(STORE, JSON.stringify(stats)); } catch (e) {} };
+
+    let st, initial, hist, sel, moves, startT, elapsed, won, dealNo, collectTimer;
+    const fmt = sec => `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`;
+
+    // 配り番号から同じ並びを再現できるよう、シードつき乱数で切る
+    function rng(seed) {
+      return () => {
+        seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+        let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+        t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+      };
+    }
+
+    function deal(no) {
+      dealNo = no;
+      const rand = rng(no);
+      const deck = [];
+      for (let s = 0; s < 4; s++) for (let r = 1; r <= 13; r++) deck.push({ s, r });
+      for (let i = deck.length - 1; i > 0; i--) {
+        const j = Math.floor(rand() * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+      }
+      st = { cells: [null, null, null, null], found: [[], [], [], []], tab: [[], [], [], [], [], [], [], []] };
+      deck.forEach((c, i) => st.tab[i % 8].push(c));
+      initial = JSON.stringify(st);
+      restart();
+    }
+
+    function restart() {
+      clearTimeout(collectTimer);
+      st = JSON.parse(initial);
+      hist = []; sel = null; moves = 0; startT = 0; elapsed = 0; won = false;
+      $('msg').textContent = '';
+      render();
+    }
+
+    const isRun = cards => cards.every((c, i) => i === 0 || (isRed(c.s) !== isRed(cards[i - 1].s) && c.r === cards[i - 1].r - 1));
+    // 一度に動かせる枚数 = (空きセル+1) × 2^(空き列)。空き列へ動かすときはその列を数えない
+    const maxMove = toEmpty => (st.cells.filter(c => !c).length + 1) * 2 ** (st.tab.filter(p => !p.length).length - (toEmpty ? 1 : 0));
+
+    function cardsOf(ref) {
+      if (ref.t === 'tab') return st.tab[ref.i].slice(ref.k);
+      if (ref.t === 'cell') return st.cells[ref.i] ? [st.cells[ref.i]] : [];
+      return [];
+    }
+
+    function canDrop(cards, dst) {
+      const c = cards[0];
+      if (!c) return false;
+      if (dst.t === 'found') {
+        const p = st.found[dst.i], top = p[p.length - 1];
+        return cards.length === 1 && (top ? top.s === c.s && top.r === c.r - 1 : c.r === 1);
+      }
+      if (dst.t === 'cell') return cards.length === 1 && !st.cells[dst.i];
+      const p = st.tab[dst.i], top = p[p.length - 1];
+      if (!isRun(cards) || cards.length > maxMove(!top)) return false;
+      return top ? isRed(top.s) !== isRed(c.s) && top.r === c.r + 1 : true;
+    }
+
+    function snapshot() {
+      hist.push(JSON.stringify(st));
+      if (hist.length > 300) hist.shift();
+    }
+
+    function commit() {
+      moves++;
+      if (!startT) startT = Date.now();
+      sel = null;
+      if (st.found.every(f => f.length === 13)) {
+        won = true;
+        clearTimeout(collectTimer);
+        elapsed = Math.floor((Date.now() - startT) / 1000);
+        stats.wins++;
+        save();
+        $('msg').textContent = `🎉 クリア! 配り #${dealNo} を ${fmt(elapsed)} / ${moves}手で`;
+      } else if (!hasMoves()) {
+        $('msg').textContent = '動かせるカードがありません。「戻す」でやり直せます';
+      }
+      render();
+    }
+
+    function doMove(src, dst) {
+      const cards = cardsOf(src);
+      if (!canDrop(cards, dst) || (src.t === dst.t && src.i === dst.i)) return false;
+      snapshot();
+      if (src.t === 'tab') st.tab[src.i].splice(src.k);
+      else st.cells[src.i] = null;
+      if (dst.t === 'found') st.found[dst.i].push(cards[0]);
+      else if (dst.t === 'cell') st.cells[dst.i] = cards[0];
+      else st.tab[dst.i].push(...cards);
+      commit();
+      return true;
+    }
+
+    // 2回タップの移動先。組札 → カードのある列 → 空き列 → フリーセル の順
+    function autoTarget(src) {
+      const cards = cardsOf(src);
+      for (let f = 0; f < 4; f++) if (canDrop(cards, { t: 'found', i: f })) return { t: 'found', i: f };
+      for (let i = 0; i < 8; i++) if (!(src.t === 'tab' && src.i === i) && st.tab[i].length && canDrop(cards, { t: 'tab', i })) return { t: 'tab', i };
+      if (!(src.t === 'tab' && src.k === 0)) for (let i = 0; i < 8; i++) if (!st.tab[i].length && canDrop(cards, { t: 'tab', i })) return { t: 'tab', i };
+      if (src.t === 'tab') for (let i = 0; i < 4; i++) if (canDrop(cards, { t: 'cell', i })) return { t: 'cell', i };
+      return null;
+    }
+
+    function hasMoves() {
+      const srcs = [];
+      st.cells.forEach((c, i) => { if (c) srcs.push({ t: 'cell', i }); });
+      st.tab.forEach((p, i) => { if (p.length) srcs.push({ t: 'tab', i, k: p.length - 1 }); });
+      const dsts = [...[0, 1, 2, 3].map(i => ({ t: 'found', i })), ...[0, 1, 2, 3].map(i => ({ t: 'cell', i })), ...[...Array(8).keys()].map(i => ({ t: 'tab', i }))];
+      return srcs.some(s => dsts.some(d => !(s.t === d.t && s.i === d.i) && canDrop(cardsOf(s), d)));
+    }
+
+    function select(ref) {
+      const cards = cardsOf(ref);
+      if (!cards.length || (ref.t === 'tab' && !isRun(cards))) { sel = null; render(); return; }
+      sel = ref;
+      render();
+    }
+
+    function clickSpot(ref) {
+      if (won) return;
+      if (sel) {
+        const same = sel.t === ref.t && sel.i === ref.i;
+        if (same && (ref.k == null || ref.k === sel.k)) {
+          const d = autoTarget(sel);
+          if (!(d && doMove(sel, d))) { sel = null; render(); }
+          return;
+        }
+        if (!same && doMove(sel, { t: ref.t, i: ref.i })) return;
+      }
+      if (ref.t === 'found') { sel = null; render(); return; }
+      select(ref);
+    }
+
+    function collectStep() {
+      const srcs = [];
+      st.cells.forEach((c, i) => { if (c) srcs.push({ t: 'cell', i }); });
+      st.tab.forEach((p, i) => { if (p.length) srcs.push({ t: 'tab', i, k: p.length - 1 }); });
+      for (const s of srcs) for (let f = 0; f < 4; f++) {
+        if (doMove(s, { t: 'found', i: f })) {
+          if (!won) collectTimer = setTimeout(collectStep, 70);
+          return;
+        }
+      }
+    }
+
+    const T = $('table');
+    function render() {
+      const W = T.clientWidth;
+      const gap = Math.max(3, W * .01);
+      const cw = (W - gap * 9) / 8, ch = cw * 1.4;
+      const x = i => gap + i * (cw + gap);
+      T.style.setProperty('--fs', Math.max(10, cw * .3) + 'px');
+      T.innerHTML = '';
+      const place = (el, left, top) => {
+        el.style.left = left + 'px'; el.style.top = top + 'px';
+        el.style.width = cw + 'px'; el.style.height = ch + 'px';
+        T.appendChild(el);
+      };
+      const slot = (left, top, label, cls, onClick) => {
+        const el = document.createElement('div');
+        el.className = 'slot ' + cls;
+        el.textContent = label;
+        el.onclick = onClick;
+        place(el, left, top);
+      };
+      const card = (c, left, top, onClick, selected) => {
+        const el = document.createElement('div');
+        el.className = 'card' + (isRed(c.s) ? ' red' : '') + (selected ? ' sel' : '');
+        el.innerHTML = `<span class="tl">${RANKS[c.r]}${SUITS[c.s]}</span><span class="big">${SUITS[c.s]}</span>`;
+        el.setAttribute('aria-label', SUITS[c.s] + RANKS[c.r]);
+        el.onclick = e => { e.stopPropagation(); onClick(); };
+        place(el, left, top);
+      };
+
+      for (let i = 0; i < 4; i++) {
+        slot(x(i), 0, '', 'cell', () => clickSpot({ t: 'cell', i }));
+        if (st.cells[i]) card(st.cells[i], x(i), 0, () => clickSpot({ t: 'cell', i }), sel && sel.t === 'cell' && sel.i === i);
+        const p = st.found[i];
+        slot(x(4 + i), 0, 'A', 'found', () => clickSpot({ t: 'found', i }));
+        if (p.length) card(p[p.length - 1], x(4 + i), 0, () => clickSpot({ t: 'found', i }), false);
+      }
+      const tabY = ch + gap * 3;
+      let maxY = tabY + ch;
+      for (let i = 0; i < 8; i++) {
+        slot(x(i), tabY, '', '', () => clickSpot({ t: 'tab', i }));
+        const p = st.tab[i];
+        // 列が長くなったら重なりを詰めて縦に伸びすぎないようにする
+        const step = Math.min(ch * .27, p.length > 1 ? (ch * 3.6) / (p.length - 1) : ch);
+        p.forEach((c, k) => {
+          const y = tabY + k * step;
+          card(c, x(i), y, () => clickSpot({ t: 'tab', i, k }), sel && sel.t === 'tab' && sel.i === i && k >= sel.k);
+          maxY = Math.max(maxY, y + ch);
+        });
+      }
+      T.style.height = maxY + 'px';
+      $('deal').textContent = '#' + dealNo;
+      $('moves').textContent = moves;
+      $('wins').textContent = stats.wins;
+      $('undo').disabled = !hist.length || won;
+      tick();
+    }
+
+    function tick() {
+      $('time').textContent = fmt(won ? elapsed : startT ? Math.floor((Date.now() - startT) / 1000) : 0);
+    }
+    setInterval(tick, 1000);
+
+    $('undo').onclick = () => {
+      if (!hist.length || won) return;
+      clearTimeout(collectTimer);
+      st = JSON.parse(hist.pop());
+      sel = null;
+      moves++;
+      $('msg').textContent = '';
+      render();
+    };
+    $('collect').onclick = () => { if (!won) collectStep(); };
+    // 遊んでいる最中のやり直しは2回押しで確定
+    function confirmBtn(btn, label, action) {
+      let timer = 0;
+      btn.onclick = () => {
+        if (moves && !won && !timer) {
+          btn.textContent = 'もう一度押すと確定';
+          timer = setTimeout(() => { timer = 0; btn.textContent = label; }, 2500);
+          return;
+        }
+        clearTimeout(timer); timer = 0;
+        btn.textContent = label;
+        action();
+      };
+    }
+    confirmBtn($('retry'), '同じ配りで再挑戦', restart);
+    confirmBtn($('new'), '新しいゲーム', () => deal(1 + Math.floor(Math.random() * 999999)));
+    window.addEventListener('resize', () => render());
+    document.addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); $('undo').click(); }
+    });
+    deal(1 + Math.floor(Math.random() * 999999));
+  </script>
+</body>
+</html>

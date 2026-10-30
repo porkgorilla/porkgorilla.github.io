@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PEG_SOLITAIRE | porkgorilla://</title>
+  <meta name="description" content="定番のペグソリティア(33穴の十字盤)。ペグを飛び越えて取り、最後の1本を目指す一人遊びパズル。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBT4300J0L');
+  </script>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    main { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 24px 16px;
+      user-select: none; -webkit-user-select: none; text-align: center; }
+    h1 { margin: 0; font-size: 1.6rem; }
+    #info { display: flex; gap: 18px; font-size: 1.05rem; flex-wrap: wrap; justify-content: center; }
+    #board { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; width: min(100%, 400px); aspect-ratio: 1; padding: 10px;
+      border: 2px solid var(--cyber-green); border-radius: 50%; background: var(--cyber-bg-panel); box-shadow: 0 0 12px rgba(57, 255, 106, .25); }
+    .hole { border: none; padding: 0; background: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .hole::before { content: ''; width: 46%; height: 46%; border-radius: 50%; background: #040704; box-shadow: inset 0 2px 4px #000;
+      border: 1px solid #1a4a26; }
+    .hole.peg::before { width: 70%; height: 70%; background: radial-gradient(circle at 35% 35%, #b6ffc8, #1e8f3e);
+      box-shadow: 0 2px 0 #0a3a16; border: none; }
+    .hole.sel::before { background: radial-gradient(circle at 35% 35%, #fff, #39ff6a); box-shadow: 0 0 12px var(--cyber-green); }
+    .hole.to::before { border: 2px dashed #fff; }
+    .hole.off { visibility: hidden; pointer-events: none; }
+    #msg { min-height: 1.5em; color: var(--cyber-green); }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; align-items: center; }
+    .row .btn { padding: .6rem 1rem; font-size: .9rem; }
+    .rule { font-size: .85rem; color: var(--cyber-green-dim); max-width: 420px; line-height: 1.7; }
+    .credit { font-size: 11px; color: var(--cyber-green-dim); margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>📍 PEG_SOLITAIRE</h1>
+    <div id="info"><span>残り <b id="left">32</b> 本</span><span>自己ベスト <b id="best">-</b></span></div>
+    <div id="board"></div>
+    <div id="msg"></div>
+    <div class="row">
+      <button class="btn" id="undo" type="button">↶ 戻す</button>
+      <button class="btn" id="reset" type="button">↺ 最初から</button>
+    </div>
+    <p class="rule">ペグをタップして選び、縦か横に隣のペグを飛び越えた先の空き穴をタップします。飛び越えたペグは取り除かれます。最後に1本だけ残ればクリア、それが真ん中の穴なら完全クリアです。</p>
+    <div class="credit">porkgorilla — 2026</div>
+  </main>
+
+  <script src="/site.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    const STORE = 'pegsolitaire_best';
+    let best = 0;
+    try { best = parseInt(localStorage.getItem(STORE) || '0', 10) || 0; } catch (e) {}
+
+    // 7×7 のうち四隅の2×2を除いた33穴の十字盤
+    const onBoard = (r, c) => r >= 0 && r < 7 && c >= 0 && c < 7 && !((r < 2 || r > 4) && (c < 2 || c > 4));
+    const CENTER = 3 * 7 + 3;
+    let pegs, sel, hist, over;
+
+    function reset() {
+      pegs = new Array(49).fill(false);
+      for (let r = 0; r < 7; r++) for (let c = 0; c < 7; c++) if (onBoard(r, c)) pegs[r * 7 + c] = true;
+      pegs[CENTER] = false;
+      sel = -1; hist = []; over = false;
+      $('msg').textContent = '';
+      render();
+    }
+
+    function targets(p) {
+      const r = Math.floor(p / 7), c = p % 7, out = [];
+      [[0, 1], [0, -1], [1, 0], [-1, 0]].forEach(([dr, dc]) => {
+        const mr = r + dr, mc = c + dc, tr = r + 2 * dr, tc = c + 2 * dc;
+        if (onBoard(tr, tc) && pegs[mr * 7 + mc] && !pegs[tr * 7 + tc]) out.push({ to: tr * 7 + tc, mid: mr * 7 + mc });
+      });
+      return out;
+    }
+
+    function tap(p) {
+      if (over) return;
+      if (sel >= 0) {
+        const t = targets(sel).find(x => x.to === p);
+        if (t) {
+          hist.push(pegs.slice());
+          pegs[sel] = false; pegs[t.mid] = false; pegs[t.to] = true;
+          // 続けて同じペグで跳べるなら選んだままにする
+          sel = targets(t.to).length ? t.to : -1;
+          check();
+          render();
+          return;
+        }
+      }
+      sel = pegs[p] && targets(p).length && sel !== p ? p : -1;
+      render();
+    }
+
+    function check() {
+      const left = pegs.filter(Boolean).length;
+      const anyMove = pegs.some((v, p) => v && targets(p).length);
+      if (anyMove) { $('msg').textContent = ''; return; }
+      over = true;
+      sel = -1;
+      if (!best || left < best) { best = left; try { localStorage.setItem(STORE, String(best)); } catch (e) {} }
+      $('msg').textContent = left === 1 ? (pegs[CENTER] ? '🏆 完全クリア! 真ん中に最後の1本' : '🎉 クリア! 残り1本') :
+        `もう動かせません。残り ${left} 本`;
+    }
+
+    function render() {
+      const el = $('board');
+      el.innerHTML = '';
+      const tos = new Set(sel >= 0 ? targets(sel).map(t => t.to) : []);
+      for (let p = 0; p < 49; p++) {
+        const r = Math.floor(p / 7), c = p % 7;
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'hole' + (!onBoard(r, c) ? ' off' : '') + (pegs[p] ? ' peg' : '') + (p === sel ? ' sel' : '') + (tos.has(p) ? ' to' : '');
+        if (onBoard(r, c)) { b.onclick = () => tap(p); b.setAttribute('aria-label', `${r + 1}行${c + 1}列${pegs[p] ? ' ペグ' : ' 空き'}`); }
+        else b.tabIndex = -1;
+        el.appendChild(b);
+      }
+      $('left').textContent = pegs.filter(Boolean).length;
+      $('best').textContent = best ? best + ' 本' : '-';
+      $('undo').disabled = !hist.length;
+    }
+
+    $('undo').onclick = () => {
+      if (!hist.length) return;
+      pegs = hist.pop();
+      sel = -1; over = false;
+      $('msg').textContent = '';
+      render();
+    };
+    $('reset').onclick = reset;
+    reset();
+  </script>
+</body>
+</html>

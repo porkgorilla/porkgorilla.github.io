@@ -24,6 +24,11 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 | [NONOGRAM](https://porkgorilla.com/works/nonogram.html) | GAME | ノノグラム (自動生成) |
 | [HIT_AND_BLOW](https://porkgorilla.com/works/hitblow.html) | GAME | ヒット&ブロー (数当て) |
 | [HANOI](https://porkgorilla.com/works/hanoi.html) | GAME | ハノイの塔 |
+| [FREECELL](https://porkgorilla.com/works/freecell.html) | GAME | フリーセル |
+| [DOTS_AND_BOXES](https://porkgorilla.com/works/dotsboxes.html) | GAME | ドット&ボックス (対CPU) |
+| [CHECKERS](https://porkgorilla.com/works/checkers.html) | GAME | チェッカー (対CPU) |
+| [PEG_SOLITAIRE](https://porkgorilla.com/works/pegsolitaire.html) | GAME | ペグソリティア |
+| [PADDLE](https://porkgorilla.com/works/paddle.html) | GAME | パドル対戦 (対CPU) |
 | [TYPE_ATTACK](https://porkgorilla.com/works/typing.html) | GAME / LANGUAGE | 60秒英単語タイピング |
 | [VOCAB_QUIZ](https://porkgorilla.com/works/vocab.html) | LANGUAGE | 英単語4択クイズ |
 | [KANA_QUIZ](https://porkgorilla.com/works/kana.html) | LANGUAGE | ひらがな・カタカナ読み方クイズ |
@@ -45,6 +50,12 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 | [WAREKI](https://porkgorilla.com/works/wareki.html) | TOOL | 和暦・西暦変換と早見表 |
 | [ROULETTE](https://porkgorilla.com/works/roulette.html) | TOOL | 抽選ルーレット |
 | [TEXT_DIFF](https://porkgorilla.com/works/textdiff.html) | TOOL | テキスト差分比較 |
+| [KANA_CONVERTER](https://porkgorilla.com/works/kanaconv.html) | TOOL | 全角半角・かな変換 |
+| [DICE](https://porkgorilla.com/works/dice.html) | TOOL | サイコロ |
+| [METRONOME](https://porkgorilla.com/works/metronome.html) | TOOL | メトロノーム |
+| [REGEX_TESTER](https://porkgorilla.com/works/regex.html) | TOOL | 正規表現テスター |
+| [PRICE_CALC](https://porkgorilla.com/works/pricecalc.html) | TOOL | 消費税・割引計算 |
+| [WORLD_CLOCK](https://porkgorilla.com/works/worldclock.html) | TOOL | 世界時計・時差計算 |
 | [KAMOGAWA](https://porkgorilla.com/works/kamogawa.html) | GAME | 鴨川等間隔。河原のいちばん空いている場所にカップルを座らせるゲーム |
 | [台北∞観景台](https://porkgorilla.com/works/taipei-infinity.html) | GAME | 台北101の逆さ台形フロアを積み上げて、台北102、103…と数字を増やしていく積み上げゲーム |
 | [フラッピーばーちゃん](https://porkgorilla.com/works/flappy-baachan.html) | GAME | 焼き芋を食べたら屁で加速。竹林をくぐって飛ぶ、ばーちゃんのフラッピーゲーム |
@@ -116,6 +127,11 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
     ├── nonogram.html
     ├── hitblow.html
     ├── hanoi.html
+    ├── freecell.html
+    ├── dotsboxes.html
+    ├── checkers.html
+    ├── pegsolitaire.html
+    ├── paddle.html
     ├── calculator.html
     ├── stopwatch.html
     ├── password.html
@@ -129,6 +145,12 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
     ├── wareki.html
     ├── roulette.html
     ├── textdiff.html
+    ├── kanaconv.html
+    ├── dice.html
+    ├── metronome.html
+    ├── regex.html
+    ├── pricecalc.html
+    ├── worldclock.html
     ├── typing.html
     ├── vocab.html
     ├── kana.html

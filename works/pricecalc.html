@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PRICE_CALC | porkgorilla://</title>
+  <meta name="description" content="消費税と割引の計算ツール。税抜⇔税込(10%・8%)、端数の扱い、○%オフ・○円引き・二重割引の最終価格。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBT4300J0L');
+  </script>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    main { padding: 24px 16px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+    h1 { margin: 0; font-size: 1.6rem; }
+    h2 { margin: 0; font-size: 1rem; }
+    .box { width: 100%; max-width: 480px; padding: 18px 16px 16px; }
+    .box > * + * { margin-top: 12px; }
+    input, select { font-family: var(--cyber-font); font-size: 1rem; padding: 8px 10px; width: 100%; min-width: 0;
+      background: var(--cyber-bg-panel); color: var(--cyber-text); border: 1px solid var(--cyber-green-dim); }
+    input:focus, select:focus { outline: none; border-color: var(--cyber-green); }
+    label { color: var(--cyber-green-dim); font-size: .85rem; display: block; margin-bottom: 4px; }
+    .row { display: flex; gap: 8px; align-items: flex-end; }
+    .row > div { flex: 1 1 0; min-width: 0; }
+    .seg { display: flex; }
+    .seg button { flex: 1; font-family: var(--cyber-font); font-size: .9rem; padding: 8px 4px; cursor: pointer;
+      background: var(--cyber-bg-panel); color: var(--cyber-green-dim); border: 1px solid var(--cyber-green-dim); }
+    .seg button + button { border-left: none; }
+    .seg button.on { background: var(--cyber-green); color: #000; font-weight: bold; }
+    .result { border-top: 1px dashed var(--cyber-green-dim); padding-top: 12px; }
+    .big { font-size: 2rem; color: var(--cyber-green); text-shadow: 0 0 8px var(--cyber-green); }
+    .sub { font-size: .9rem; line-height: 1.8; }
+    .sub b { color: var(--cyber-green); }
+    #discounts > * + * { margin-top: 8px; }
+    .del { flex: 0 0 auto !important; padding: 8px 12px; border: 1px solid var(--cyber-red); background: none; color: var(--cyber-red);
+      font-family: var(--cyber-font); cursor: pointer; }
+    .add { width: 100%; padding: .5rem; font-size: .85rem; }
+    .note { font-size: .8rem; color: var(--cyber-green-dim); max-width: 480px; line-height: 1.7; margin: 0; }
+    .credit { font-size: 11px; color: var(--cyber-green-dim); margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>🧾 PRICE_CALC</h1>
+
+    <div class="box panel">
+      <h2>消費税</h2>
+      <div><label for="tPrice">金額 (円)</label><input id="tPrice" type="number" min="0" inputmode="decimal" value="1980"></div>
+      <div class="seg" id="tMode"><button type="button" data-v="ex" class="on">税抜 → 税込</button><button type="button" data-v="in">税込 → 税抜</button></div>
+      <div class="row">
+        <div><label for="tRate">税率</label><select id="tRate"><option value="10">10% (標準)</option><option value="8">8% (軽減)</option></select></div>
+        <div><label for="tRound">1円未満</label><select id="tRound"><option value="floor">切り捨て</option><option value="round">四捨五入</option><option value="ceil">切り上げ</option></select></div>
+      </div>
+      <div class="result">
+        <div class="big" id="tMain"></div>
+        <div class="sub" id="tSub"></div>
+      </div>
+    </div>
+
+    <div class="box panel">
+      <h2>割引</h2>
+      <div><label for="dPrice">元の価格 (円)</label><input id="dPrice" type="number" min="0" inputmode="decimal" value="12800"></div>
+      <div>
+        <label>割引 (上から順に適用)</label>
+        <div id="discounts"></div>
+      </div>
+      <button class="btn add" id="addDisc" type="button">+ 割引を追加 (二重割引)</button>
+      <div><label for="dTax">税</label><select id="dTax"><option value="none">そのまま</option><option value="10">割引後に10%を足す</option><option value="8">割引後に8%を足す</option></select></div>
+      <div class="result">
+        <div class="big" id="dMain"></div>
+        <div class="sub" id="dSub"></div>
+      </div>
+    </div>
+    <p class="note">消費税の端数の扱い(切り捨て・四捨五入・切り上げ)はお店ごとに決められます。二重割引は「30%オフからさらに10%オフ」なら合計37%オフのように、割引後の価格に次の割引をかけて計算します。</p>
+    <div class="credit">porkgorilla — 2026</div>
+  </main>
+
+  <script src="/site.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    const yen = n => Math.round(n).toLocaleString('ja-JP') + '円';
+    const R = { floor: Math.floor, round: Math.round, ceil: Math.ceil };
+    let tMode = 'ex';
+
+    // 小数の計算誤差(1100×10÷110 が 99.999… になる等)で端数処理がずれないよう、先に細かい桁で丸めておく
+    const clean = x => Math.round(x * 1e6) / 1e6;
+
+    function calcTax() {
+      const p = +$('tPrice').value || 0, rate = +$('tRate').value, round = R[$('tRound').value];
+      if (tMode === 'ex') {
+        const tax = round(clean(p * rate / 100));
+        $('tMain').textContent = '税込 ' + yen(p + tax);
+        $('tSub').innerHTML = `税抜 <b>${yen(p)}</b> + 消費税 <b>${yen(tax)}</b> (${rate}%)`;
+      } else {
+        // 税込から税抜を出すときは、税額を先に丸めて税込との差を税抜とする
+        const tax = round(clean(p * rate / (100 + rate)));
+        $('tMain').textContent = '税抜 ' + yen(p - tax);
+        $('tSub').innerHTML = `税込 <b>${yen(p)}</b> のうち 消費税 <b>${yen(tax)}</b> (${rate}%)`;
+      }
+    }
+
+    function addDiscount(kind, value) {
+      const row = document.createElement('div');
+      row.className = 'row';
+      row.innerHTML = '<div><input class="d-val" type="number" min="0" inputmode="decimal" aria-label="割引の値"></div>' +
+        '<div><select class="d-kind" aria-label="割引の種類"><option value="pct">% オフ</option><option value="yen">円 引き</option></select></div>' +
+        '<button class="del" type="button" aria-label="削除">×</button>';
+      row.querySelector('.d-val').value = value;
+      row.querySelector('.d-kind').value = kind;
+      row.querySelector('.del').onclick = () => { row.remove(); refreshDel(); calcDisc(); };
+      row.addEventListener('input', calcDisc);
+      row.addEventListener('change', calcDisc);
+      $('discounts').appendChild(row);
+      refreshDel();
+    }
+    function refreshDel() {
+      const rows = [...$('discounts').children];
+      rows.forEach(r => { r.querySelector('.del').disabled = rows.length <= 1; r.querySelector('.del').style.opacity = rows.length <= 1 ? .3 : 1; });
+    }
+
+    function calcDisc() {
+      const orig = +$('dPrice').value || 0;
+      let p = orig;
+      const steps = [];
+      [...$('discounts').children].forEach(r => {
+        const v = +r.querySelector('.d-val').value || 0;
+        if (!v) return;
+        if (r.querySelector('.d-kind').value === 'pct') { p = Math.floor(clean(p * (100 - Math.min(100, v)) / 100)); steps.push(`${v}%オフ → ${yen(p)}`); }
+        else { p = Math.max(0, p - v); steps.push(`${yen(v)}引き → ${yen(p)}`); }
+      });
+      const off = orig - p, pct = orig ? off / orig * 100 : 0;
+      let html = `元値 <b>${yen(orig)}</b>` + steps.map(s => `<br>${s}`).join('') +
+        `<br>割引額 <b>${yen(off)}</b> (合計 <b>${pct.toFixed(pct % 1 ? 1 : 0)}%</b> オフ)`;
+      let final = p;
+      const tax = $('dTax').value;
+      if (tax !== 'none') {
+        const t = Math.floor(clean(p * +tax / 100));
+        final = p + t;
+        html += `<br>消費税 ${tax}% <b>${yen(t)}</b>`;
+      }
+      $('dMain').textContent = yen(final);
+      $('dSub').innerHTML = html;
+    }
+
+    document.querySelectorAll('#tMode button').forEach(b => {
+      b.onclick = () => {
+        tMode = b.dataset.v;
+        document.querySelectorAll('#tMode button').forEach(x => x.classList.toggle('on', x === b));
+        calcTax();
+      };
+    });
+    ['tPrice', 'tRate', 'tRound'].forEach(id => { $(id).addEventListener('input', calcTax); $(id).addEventListener('change', calcTax); });
+    ['dPrice', 'dTax'].forEach(id => { $(id).addEventListener('input', calcDisc); $(id).addEventListener('change', calcDisc); });
+    $('addDisc').onclick = () => { addDiscount('pct', ''); calcDisc(); };
+    addDiscount('pct', 30);
+    calcTax();
+    calcDisc();
+  </script>
+</body>
+</html>
