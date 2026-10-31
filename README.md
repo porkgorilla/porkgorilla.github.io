@@ -103,6 +103,7 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 | [ポン出しP](https://porkgorilla.com/works/pondashi.html) | GAME | 生成AIにプロンプト一発でゲームを作らせてリリースするゲーム |
 | [リアクションガイイ](https://porkgorilla.com/works/reactionguy.html) | APP | ボタンひとつで兄さんが全力リアクションしてくれる3Dアプリ |
 | [駅弁100](https://porkgorilla.com/works/ekiben100.html) | GAME | 加熱式駅弁の紐の二択を100駅ぶん当て続けるゲーム |
+| [インフィニットゲーム](https://porkgorilla.com/works/infinitegame.html) | GAME | ゲーム機の中のゲーム機の中へ、どこまでも潜っていくジャンプゲーム |
 
 ## 構成
 
@@ -209,7 +210,8 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
     ├── papaya-zutsuki.html
     ├── pondashi.html
     ├── reactionguy.html
-    └── ekiben100.html
+    ├── ekiben100.html
+    └── infinitegame.html
 ```
 
 `theme.css` / `site.js` / `favicon.svg` はルート直下に置き、各作品ページからは絶対パス(`/theme.css` など)で読み込みます。404.html も GitHub Pages の仕様上ルート直下が必須です。
