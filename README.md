@@ -99,6 +99,7 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 | [近いの口](https://porkgorilla.com/works/chikainokuchi.html) | GAME | 上司のヤニを、ゴムの体でぐにゃっと避けるゲーム |
 | [スリリンゴ](https://porkgorilla.com/works/surilingo.html) | APP | 誰もいない台所で、ロボットがリンゴをすりおろし続けるのを眺めるアプリ |
 | [かぼちゃ彫刻室](https://porkgorilla.com/works/kabocha.html) | GAME | 3Dのかぼちゃを彫ると、黒タイツの男がかぶって踊るゲーム |
+| [パパイヤ頭突き](https://porkgorilla.com/works/papaya-zutsuki.html) | GAME | 飛んでくるパパイヤをおでこで割るゲーム |
 
 ## 構成
 
@@ -201,7 +202,8 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
     ├── fanta-register.html
     ├── chikainokuchi.html
     ├── surilingo.html
-    └── kabocha.html
+    ├── kabocha.html
+    └── papaya-zutsuki.html
 ```
 
 `theme.css` / `site.js` / `favicon.svg` はルート直下に置き、各作品ページからは絶対パス(`/theme.css` など)で読み込みます。404.html も GitHub Pages の仕様上ルート直下が必須です。
