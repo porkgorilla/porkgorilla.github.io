@@ -101,6 +101,7 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 | [かぼちゃ彫刻室](https://porkgorilla.com/works/kabocha.html) | GAME | 3Dのかぼちゃを彫ると、黒タイツの男がかぶって踊るゲーム |
 | [パパイヤ頭突き](https://porkgorilla.com/works/papaya-zutsuki.html) | GAME | 飛んでくるパパイヤをおでこで割るゲーム |
 | [ポン出しP](https://porkgorilla.com/works/pondashi.html) | GAME | 生成AIにプロンプト一発でゲームを作らせてリリースするゲーム |
+| [リアクションガイイ](https://porkgorilla.com/works/reactionguy.html) | APP | ボタンひとつで兄さんが全力リアクションしてくれる3Dアプリ |
 
 ## 構成
 
@@ -205,7 +206,8 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
     ├── surilingo.html
     ├── kabocha.html
     ├── papaya-zutsuki.html
-    └── pondashi.html
+    ├── pondashi.html
+    └── reactionguy.html
 ```
 
 `theme.css` / `site.js` / `favicon.svg` はルート直下に置き、各作品ページからは絶対パス(`/theme.css` など)で読み込みます。404.html も GitHub Pages の仕様上ルート直下が必須です。
