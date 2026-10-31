@@ -90,12 +90,15 @@ body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:"Hir
 @keyframes rise{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
 #clearCard .ct{font-size:26px;font-weight:900;letter-spacing:.06em;margin:0}
 #clearCard .cs{font-size:13px;color:var(--sub);margin:2px 0 10px}
+#pauseOv{z-index:9}   /* 一時停止画面は、ほかのどの画面・演出よりも前面 */
+.pgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;margin:12px auto 0;max-width:280px}
+.pgrid>*{width:100%;min-width:0;white-space:nowrap;overflow:hidden;text-align:center;padding-left:10px;padding-right:10px;box-sizing:border-box}
 </style>
 </head>
 <body>
 <div id="app">
   <div id="top">
-    <a class="home" href="/">&lt; porkgorilla</a>
+    <a class="home" id="homeLink" href="/">&lt; porkgorilla</a>
     <div id="pillBox"><div id="pill">駅弁</div></div>
     <button class="ib" id="sndBtn" aria-label="音のオン・オフ"></button>
     <button class="ib" id="pauseBtn" aria-label="一時停止" hidden><svg viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor"/></svg></button>
@@ -122,9 +125,10 @@ body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:"Hir
       <div class="card">
         <div class="rt mincho">一時停止</div>
         <p class="rs" id="pauseInfo"></p>
-        <div class="actions">
+        <div class="pgrid">
           <button class="go" id="resumeBtn">続ける</button>
           <button class="go ghost" id="quitBtn">タイトルへ</button>
+          <button class="go ghost" id="siteBtn">サイトのトップへ</button>
         </div>
         <a class="share" id="sharePause" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M18.2 2.3h3.4l-7.4 8.4 8.7 11.5h-6.8l-5.3-7-6.1 7H1.3l7.9-9L.9 2.3h7l4.8 6.4 5.5-6.4zm-1.2 17.9h1.9L7.1 4.2H5.1l11.9 16z"/></svg>Xでシェア</a>
       </div>
@@ -1032,9 +1036,21 @@ function update(dt){
   if (S.shake > 0){ const a = S.shake * S.shake * .8; camera.position.x += rand(-a, a); camera.position.y += rand(-a, a); }
   camera.lookAt(CAM_TGT.x, CAM_TGT.y - S.zoom * .15, CAM_TGT.z);
 }
+// 左上のサイトトップへのリンクは、タイトル画面とリザルト画面だけで押せる(一時停止中は消す)
+let homeOn = null;
+function refreshHome(){
+  const on = (S.mode === 'title' || S.mode === 'over') && !S.paused;
+  if (on === homeOn) return;
+  homeOn = on;
+  const a = $('homeLink');
+  a.style.visibility = on ? '' : 'hidden';
+  a.tabIndex = on ? 0 : -1;
+  if (on) a.removeAttribute('aria-hidden'); else a.setAttribute('aria-hidden', 'true');
+}
 let last = performance.now();
 function loop(now){
   requestAnimationFrame(loop);
+  refreshHome();
   const dt = Math.min(.033, Math.max(0, (now - last) / 1000)); last = now;
   if (cv.clientWidth < 1 || cv.clientHeight < 1) return;
   try {
@@ -1129,18 +1145,33 @@ $('pauseBtn').addEventListener('click', () => {
   $('pauseInfo').textContent = `${S.stage + 1}駅目・${b.name}(${S.cleared}駅クリア)`;
   setShare($('sharePause'), `「駅弁」で${S.stage + 1}駅目の${b.name}に挑戦中。紐はどっちだ…(${S.cleared}駅クリア)`);
   $('pauseOv').hidden = false;
+  disarm();
 });
 $('resumeBtn').addEventListener('click', () => { $('pauseOv').hidden = true; S.paused = false; disarm(); initAudio(); last = performance.now(); });
-let armed = false, armTimer = null;
-const quitBtn = $('quitBtn');
-function disarm(){ armed = false; clearTimeout(armTimer); quitBtn.textContent = 'タイトルへ'; quitBtn.classList.remove('danger'); }
-quitBtn.addEventListener('click', () => {
-  if (!armed){
-    armed = true; quitBtn.textContent = '本当に？(もう一度)'; quitBtn.classList.add('danger');
-    clearTimeout(armTimer); armTimer = setTimeout(disarm, 3000); return;
-  }
-  disarm(); backToTitle();
-});
+// 押すと文字が変わるボタンは、枠に収まるよう文字を縮める
+function fitBtns(){
+  document.querySelectorAll('.pgrid>*').forEach(b => {
+    b.style.fontSize = '';
+    let fs = parseFloat(getComputedStyle(b).fontSize) || 16, k = 0;
+    while (k++ < 8 && fs > 10 && b.scrollWidth > b.clientWidth + 1){ fs -= 1; b.style.fontSize = fs + 'px'; }
+  });
+}
+// 2回押しで確認するボタン(3秒で元に戻る)
+function twoPress(btn, label, action){
+  let armed = false, timer = null;
+  const dis = () => { armed = false; clearTimeout(timer); btn.textContent = label; btn.classList.remove('danger'); fitBtns(); };
+  btn.addEventListener('click', () => {
+    if (!armed){
+      armed = true; btn.textContent = '本当に？(もう一度)'; btn.classList.add('danger'); fitBtns();
+      clearTimeout(timer); timer = setTimeout(dis, 3000); return;
+    }
+    dis(); action();
+  });
+  return dis;
+}
+const disarmQuit = twoPress($('quitBtn'), 'タイトルへ', () => backToTitle());
+const disarmSite = twoPress($('siteBtn'), 'サイトのトップへ', () => { location.href = '/'; });
+function disarm(){ disarmQuit(); disarmSite(); }
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible'){ initAudio(); last = performance.now(); }
 });
@@ -1151,6 +1182,9 @@ resize();
 placeBento(0, 0); S.answer = -1;
 refreshTitle();
 requestAnimationFrame(loop);
+function refit(){ fitHUD(); if (typeof fitAsk === 'function') fitAsk(); fitBtns(); }
+window.addEventListener('load', () => requestAnimationFrame(refit));
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => requestAnimationFrame(refit));
 </script>
 </body>
 </html>
