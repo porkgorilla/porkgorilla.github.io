@@ -558,7 +558,7 @@ function start(){audioInit(true);$('end2').hidden=true;$('l1').textContent='距�
 function finish(){state='end';whoosh(0,300);$('capwrap').hidden=true;$('hud').hidden=true;$('end').hidden=false;
   blip(523,.25,'triangle',.3,0);blip(659,.25,'triangle',.3,.15);blip(784,.5,'triangle',.3,.3);$('again').focus({preventScroll:true});refreshHome();}
 $('start').onclick=start;$('again').onclick=start;$('toTitle2').onclick=backToTitle;$('eat').onclick=startEat;$('eatAgain').onclick=startEat;
-const GAME_URL='https://porkgorilla.com/works/byosoku-gyaku-pocky-kanshoku.html';const OG_CACHE_VERSION=2;const SHARE_URL=GAME_URL+'?ogv='+OG_CACHE_VERSION;
+const GAME_URL='https://porkgorilla.com/works/byosoku-gyaku-pocky-kanshoku.html';const OG_CACHE_VERSION=1;const SHARE_URL=GAME_URL+'?ogv='+OG_CACHE_VERSION;
 function shareHref(t){return 'https://x.com/intent/post?text='+encodeURIComponent(t)+'&url='+encodeURIComponent(SHARE_URL);}
 $('shareBtn').href=shareHref('秒速逆ポッキーをしたら、相手が10万光年先まで押し出された。 #秒速逆ポッキー');
 $('shareTitle').href=shareHref('ボタンを押すと、相手が銀河の果てまで押し出される逆ポッキーゲーム。 #秒速逆ポッキー');
