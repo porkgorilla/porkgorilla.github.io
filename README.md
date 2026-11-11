@@ -104,6 +104,7 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 | [リアクションガイイ](https://porkgorilla.com/works/reactionguy.html) | APP | ボタンひとつで兄さんが全力リアクションしてくれる3Dアプリ |
 | [駅弁100](https://porkgorilla.com/works/ekiben100.html) | GAME | 加熱式駅弁の紐の二択を100駅ぶん当て続けるゲーム |
 | [インフィニットゲーム](https://porkgorilla.com/works/infinitegame.html) | GAME | ゲーム機の中のゲーム機の中へ、どこまでも潜っていくジャンプゲーム |
+| [秒速逆ポッキー 完食編](https://porkgorilla.com/works/byosoku-gyaku-pocky-kanshoku.html) | GAME | 相手を銀河の果てまで押し出して、10万光年ぶんのポッキーを完食する逆ポッキーゲーム |
 
 ## 構成
 
@@ -211,7 +212,8 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
     ├── pondashi.html
     ├── reactionguy.html
     ├── ekiben100.html
-    └── infinitegame.html
+    ├── infinitegame.html
+    └── byosoku-gyaku-pocky-kanshoku.html
 ```
 
 `theme.css` / `site.js` / `favicon.svg` はルート直下に置き、各作品ページからは絶対パス(`/theme.css` など)で読み込みます。404.html も GitHub Pages の仕様上ルート直下が必須です。
