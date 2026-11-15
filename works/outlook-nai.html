@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OUTとLOOKが使えないゲーム | porkgorilla://</title>
+<meta name="description" content="メールが落ちた朝のオフィス。ついでに「LOOK(みる)」と「OUT(でる)」のコマンドも落ちた。きく・かぐ・さわるで手さぐりして復旧させるテキストアドベンチャー。">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-MBT4300J0L');
+</script>
+<meta property="og:type" content="website">
+<meta property="og:title" content="OUTとLOOKが使えないゲーム">
+<meta property="og:description" content="メールが落ちた朝、ついでに「LOOK」と「OUT」のコマンドも落ちた。手さぐりで復旧させるテキストアドベンチャー。">
+<meta property="og:url" content="https://porkgorilla.com/works/outlook-nai.html">
+<meta property="og:image" content="https://porkgorilla.com/assets/og-outlook-nai.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="OUTとLOOKが使えないゲーム">
+<meta name="twitter:description" content="メールが落ちた朝、ついでに「LOOK」と「OUT」のコマンドも落ちた。手さぐりで復旧させるテキストアドベンチャー。">
+<meta name="twitter:image" content="https://porkgorilla.com/assets/og-outlook-nai.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+<style>
+[hidden]{display:none!important}
+*,*::before,*::after{box-sizing:border-box}
+:root{
+  --bg:#070a1c; --panel:#0e1433; --line:#2c3a8c; --ink:#e8f0ff; --sub:#8b96c9;
+  --cyan:#38d6ff; --yel:#ffd23f; --red:#ff5a6a; --grn:#5be37a;
+  --f:"DotGothic16","Osaka-Mono","MS Gothic",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+html{height:100%;box-sizing:border-box}
+body{height:100%;margin:0;position:relative;overflow:hidden;background:var(--bg);color:var(--ink);
+  font-family:var(--f);font-size:16px;line-height:1.55;-webkit-text-size-adjust:100%;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation}
+button{font:inherit;color:inherit;cursor:pointer}
+#app{position:absolute;inset:0;display:grid;grid-template-rows:auto minmax(0,1fr);grid-template-columns:minmax(0,1fr)}
+#app>*{min-width:0}
+
+/* 上部バー */
+#top{display:flex;align-items:center;gap:8px;min-height:48px;border-bottom:1px solid var(--line);background:#050716;
+  padding:calc(env(safe-area-inset-top,0px) + 2px) max(10px,env(safe-area-inset-right,0px)) 2px max(10px,env(safe-area-inset-left,0px))}
+.home{color:var(--sub);text-decoration:none;font-size:12px;letter-spacing:.04em;white-space:nowrap;padding:14px 4px}
+.home:hover{color:var(--ink)}
+#turns{margin-left:auto;font-size:13px;color:var(--yel);white-space:nowrap}
+.ib{min-width:44px;min-height:44px;display:grid;place-items:center;background:transparent;border:1px solid var(--line);border-radius:6px;padding:0}
+.ib svg{width:20px;height:20px;display:block}
+.bars{display:flex;gap:5px}.bars i{display:block;width:5px;height:16px;background:var(--ink)}
+
+/* ゲーム画面 */
+#game{position:relative;overflow:hidden;width:100%;max-width:520px;justify-self:center}
+@media (min-width:540px){#game{border-left:1px solid var(--line);border-right:1px solid var(--line)}}
+#play{position:absolute;inset:0;display:grid;grid-template-columns:minmax(0,1fr);
+  grid-template-rows:auto auto minmax(0,1fr) auto auto;gap:6px;padding:8px 10px max(8px,env(safe-area-inset-bottom,0px))}
+#play>*{min-width:0}
+#picWrap{position:relative;border:2px solid var(--cyan);background:#000;line-height:0}
+#pic{width:100%;height:auto;aspect-ratio:320/112;display:block;image-rendering:pixelated}
+#here{font-size:13px;color:var(--cyan);border-bottom:1px dashed var(--line);padding-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#log{overflow-y:auto;overscroll-behavior:contain;font-size:15px;padding-right:2px}
+#log p{margin:0 0 8px;white-space:pre-wrap;overflow-wrap:anywhere}
+#log p.cmd{color:var(--cyan)}
+#log p.sys{color:var(--yel)}
+#log p.err{color:var(--red)}
+#log p.old{opacity:.55}
+#inv{font-size:13px;color:var(--sub);border-top:1px dashed var(--line);padding-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#inv b{color:var(--ink);font-weight:400}
+#cmd{height:162px}
+#verbs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:6px;height:100%}
+.vb{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:2px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;min-width:0;line-height:1.15}
+.vb b{font-weight:400;font-size:17px;letter-spacing:.06em}
+.vb small{font-size:11px;color:var(--sub)}
+.vb:active{background:#1a2460}
+.vb.down{border-color:#5a2030;background:#170810}
+.vb.down b{color:#8a4a56;text-decoration:line-through}
+.vb.down small{color:var(--red)}
+.vb.up{border-color:var(--grn);box-shadow:0 0 0 1px var(--grn) inset}
+.vb.up b{color:var(--grn)}
+.vb.shake{animation:shake .25s}
+.vb.pop{animation:pop .9s 3}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+@keyframes pop{50%{transform:scale(1.08);box-shadow:0 0 14px var(--grn)}}
+#tgt{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr);gap:4px}
+#tgtQ{font-size:13px;color:var(--yel)}
+#tgtList{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;overflow-y:auto;align-content:start}
+.tb{min-height:44px;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:4px 6px;font-size:14px;line-height:1.25;
+  min-width:0;overflow:hidden;text-align:center}
+.tb:active{background:#1a2460}
+.tb.unk{color:var(--yel);border-style:dashed}
+.tb.cancel{color:var(--sub);border-color:#2a2f4f}
+@media (max-height:600px) and (orientation:portrait){#picWrap{display:none}#play{grid-template-rows:auto minmax(0,1fr) auto auto}#cmd{height:150px}}
+@media (max-height:480px) and (orientation:landscape){
+  #game{max-width:none}
+  #play{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto;column-gap:10px}
+  #picWrap{display:none}
+  #here{grid-column:1;grid-row:1}#log{grid-column:1;grid-row:2}#inv{grid-column:1;grid-row:3}
+  #cmd{grid-column:2;grid-row:1 / span 3;height:auto;min-height:0}
+}
+
+/* ポップアップ */
+.ov{position:absolute;inset:0;z-index:5;background:rgba(5,7,22,.94);display:flex;flex-direction:column;align-items:center;
+  overflow-y:auto;overscroll-behavior:contain;padding:14px 14px}
+#pauseOv{z-index:9}
+.card{margin-block:auto;flex-shrink:0;width:100%;max-width:440px;border:2px solid var(--cyan);background:var(--panel);padding:18px 18px 14px}
+.card h1{margin:0 0 10px;font-weight:400;font-size:27px;line-height:1.3;letter-spacing:.03em}
+.card h1 s{color:var(--red);text-decoration-thickness:2px}
+.card h2{margin:0 0 6px;font-weight:400;font-size:24px;color:var(--grn)}
+.card p{margin:0 0 10px;font-size:14px}
+.card ul{margin:0 0 12px;padding-left:1.2em;font-size:13.5px;color:#c9d3ff}
+.card li{margin-bottom:3px}
+.best{font-size:13px;color:var(--yel)}
+.best:empty{display:none}
+.acts .credit{margin-top:4px}
+.go{display:block;width:100%;min-height:48px;border:2px solid var(--yel);background:var(--yel);color:#101010;border-radius:6px;font-size:17px;
+  text-align:center;text-decoration:none;padding:9px 6px;white-space:nowrap;overflow:hidden}
+.go.ghost{background:transparent;color:var(--yel);border-color:rgba(255,210,63,.55)}
+.go.x{background:transparent;color:var(--ink);border-color:var(--line);font-size:15px}
+.go.danger{border-color:var(--red);color:var(--red)}
+.rgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.rgrid>*{min-width:0}
+.rgrid>.wide{grid-column:1 / -1}
+.credit{font-size:11px;color:#6b75a8;margin-top:14px;letter-spacing:.05em;text-align:center}
+.big{font-size:40px;color:var(--yel);line-height:1.1;margin:2px 0 4px}
+.big small{font-size:15px;color:var(--ink)}
+.rank{font-size:16px;color:var(--cyan);margin-bottom:8px}
+.rows{font-size:13.5px;margin:0 0 12px;border-top:1px dashed var(--line)}
+.rows div{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--line);padding:4px 0}
+.rows span:last-child{color:var(--yel);white-space:nowrap}
+.acts{display:flex;flex-direction:column;gap:10px}
+@media (max-height:600px){.card p{font-size:13px;margin-bottom:6px}.card ul{font-size:12.5px}.card li{margin-bottom:1px}.acts{gap:8px}.go{min-height:44px;padding:7px 6px}.card{padding:12px 14px 10px}.card h1{font-size:22px}.card ul{margin-bottom:8px}.big{font-size:32px}}
+@media (max-height:480px) and (orientation:landscape){
+  .result{max-width:680px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-auto-flow:dense;column-gap:18px;align-items:center}
+  .result>h2,.result>.big,.result>.rank,.result>.rows{grid-column:1}
+  .result>.acts{grid-column:2;grid-row:1 / span 4}
+  .result>.rows{margin-bottom:0}
+  .two{max-width:700px;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);column-gap:18px;align-items:center}
+  .two ul{margin-bottom:0}
+  .pz{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .card h1{font-size:20px;margin-bottom:6px}.card p{font-size:13px;margin-bottom:6px}.card ul{font-size:12.5px}
+  .credit{margin-top:2px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="top">
+    <a class="home" id="homeLink" href="/">&lt; porkgorilla</a>
+    <span id="turns" hidden>手数 0</span>
+    <button class="ib" id="sndBtn" aria-label="音のオン・オフ"></button>
+    <button class="ib" id="pauseBtn" aria-label="一時停止" hidden><span class="bars"><i></i><i></i></span></button>
+  </div>
+  <div id="game">
+    <div id="play">
+      <div id="picWrap"><canvas id="pic" width="320" height="112"></canvas></div>
+      <div id="here"></div>
+      <div id="log" aria-live="polite"></div>
+      <div id="inv"></div>
+      <div id="cmd">
+        <div id="verbs"></div>
+        <div id="tgt" hidden><div id="tgtQ"></div><div id="tgtList"></div></div>
+      </div>
+    </div>
+
+    <div class="ov" id="titleOv">
+      <div class="card two">
+        <div class="tx">
+        <h1><s>OUT</s>と<s>LOOK</s>が<br>使えないゲーム</h1>
+        <p>メールが落ちた朝のオフィス。<br>ついでにこのゲームの「LOOK(みる)」と「OUT(でる)」も落ちました。</p>
+        <ul>
+          <li>見ることができないので、<b>きく・かぐ・さわる</b>で正体をつきとめる</li>
+          <li>コマンドを押して、相手をえらぶ</li>
+          <li>情シスを手伝って、OUT と LOOK を復旧させよう</li>
+        </ul>
+        </div>
+        <div class="acts">
+          <div class="best" id="bestLine"></div>
+          <button class="go" id="startBtn">スタート</button>
+          <a class="go x" id="shareTitle" target="_blank" rel="noopener">Xでシェア</a>
+          <div class="credit">porkgorilla — 2026</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ov" id="resultOv" hidden>
+      <div class="card result">
+        <h2>退勤！(OUT)</h2>
+        <div class="big"><span id="rTurns">0</span><small> 手で復旧</small></div>
+        <div class="rank" id="rRank"></div>
+        <div class="rows">
+          <div><span>使えない LOOK を押した回数</span><span id="rLook"></span></div>
+          <div><span>使えない OUT を押した回数</span><span id="rOut"></span></div>
+          <div><span>復旧後に LOOK した場所</span><span id="rSeen"></span></div>
+          <div><span>退勤時刻</span><span>午前10時</span></div>
+        </div>
+        <div class="acts">
+          <div class="rgrid">
+            <button class="go" id="againBtn">もう一度</button>
+            <button class="go ghost" id="titleBtn">タイトルへ</button>
+          </div>
+          <a class="go x" id="shareResult" target="_blank" rel="noopener">Xでシェア</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="ov" id="pauseOv" hidden>
+      <div class="card">
+        <h2 style="color:var(--ink)">一時停止</h2>
+        <div class="acts pz">
+          <button class="go" id="resumeBtn">つづける</button>
+          <a class="go x" id="sharePause" target="_blank" rel="noopener">Xでシェア</a>
+          <button class="go ghost" id="pTitleBtn">タイトルへ</button>
+          <button class="go ghost" id="pSiteBtn">サイトのトップへ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const GAME_NAME = 'OUTとLOOKが使えないゲーム';
+const GAME_URL = 'https://porkgorilla.com/works/outlook-nai.html';
+const OG_CACHE_VERSION = 1;
+const SHARE_URL = GAME_URL + '?ogv=' + OG_CACHE_VERSION;
+const HASHTAG = '#OUTとLOOKが使えないゲーム';
+const K_BEST = 'outlook-nai-best', K_SND = 'outlook-nai-sound';
+function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
+function lsSet(k, v){ try { localStorage.setItem(k, v); } catch(e){} }
+
+/* ---------- 音 ---------- */
+let AC = null, soundOn = lsGet(K_SND) !== '0';
+function initAudio(force){
+  if (AC && force){ try { AC.close().catch(() => {}); } catch(e){} AC = null; }
+  else if (AC){ if (AC.state === 'closed') AC = null; else { if (AC.state === 'suspended') AC.resume(); return; } }
+  try { const C = window.AudioContext || window.webkitAudioContext; if (C) AC = new C(); } catch(e){ AC = null; }
+}
+function beep(f, d, type, v, when){
+  if (!AC || !soundOn || mode !== 'play' || paused) return;
+  try {
+    const t = AC.currentTime + (when || 0), o = AC.createOscillator(), g = AC.createGain();
+    o.type = type || 'square'; o.frequency.setValueAtTime(f, t);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v || .05, t + .008); g.gain.exponentialRampToValueAtTime(.0001, t + d);
+    o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t + d + .02);
+  } catch(e){}
+}
+function sfx(k){
+  if (k === 'key') beep(880, .05, 'square', .03);
+  else if (k === 'ng'){ beep(150, .16, 'sawtooth', .05); beep(110, .2, 'sawtooth', .05, .1); }
+  else if (k === 'id'){ beep(660, .08, 'square', .04); beep(990, .12, 'square', .04, .08); }
+  else if (k === 'get'){ beep(523, .07, 'square', .04); beep(659, .07, 'square', .04, .07); beep(784, .12, 'square', .04, .14); }
+  else if (k === 'fix'){ [523, 659, 784, 1047, 784, 1047, 1319].forEach((f, i) => beep(f, .16, 'square', .05, i * .11)); }
+}
+const SND_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 9c1.5 1.5 1.5 4.5 0 6M18.5 6.5c3 3 3 8 0 11"/></svg>';
+const SND_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 9l5 6M21 9l-5 6"/></svg>';
+function drawSnd(){ $('sndBtn').innerHTML = soundOn ? SND_ON : SND_OFF; $('sndBtn').setAttribute('aria-pressed', soundOn ? 'true' : 'false'); }
+
+/* ---------- データ ---------- */
+const VERBS = [
+  ['look', 'LOOK', 'みる'], ['out', 'OUT', 'でる'], ['go', 'GO', 'いく'],
+  ['listen', 'LISTEN', 'きく'], ['smell', 'SMELL', 'かぐ'], ['touch', 'TOUCH', 'さわる'],
+  ['take', 'TAKE', 'とる'], ['use', 'USE', 'つかう'], ['talk', 'TALK', 'はなす']
+];
+const VNAME = {}; VERBS.forEach(v => VNAME[v[0]] = v[1]);
+const ITEMS = { fusen:'付箋', pen:'ボールペン', cup:'紙コップ', coffee:'コーヒー', memo:'承認依頼メモ', memoOK:'承認ずみメモ' };
+const ROOMS = {
+  desk:    { alias:'自分の席', name:'自分の席', things:['pc', 'fusen', 'tel'] },
+  corridor:{ alias:'足音がひびくところ', name:'廊下', things:['plant'] },
+  kitchen: { alias:'コーヒーのにおいがするところ', name:'給湯室', key:'maker', things:['maker', 'cup', 'sato'] },
+  copy:    { alias:'ゴウンゴウン鳴るところ', name:'複合機コーナー', key:'copier', things:['copier', 'pen', 'bin'] },
+  meet:    { alias:'ぼそぼそ声がするところ', name:'会議室の前', key:'door', things:['door'] },
+  server:  { alias:'冷たい風がふくところ', name:'サーバー室', key:'server', things:['server', 'tanaka'] }
+};
+const ROOM_ORDER = ['desk', 'corridor', 'kitchen', 'copy', 'meet', 'server'];
+const AROUND = {
+  desk:{
+    listen:{ t:'キーボードの音がしない。メールが使えず、フロアじゅうが固まっているらしい。\nうしろのほうで、足音がひびいている。', ex:['corridor'] },
+    smell:{ t:'遠くからコーヒーのにおい。うしろの通路のほうからだ。', ex:['corridor'] },
+    touch:{ t:'机のふちをつたっていくと、うしろに通路がありそうだ。', ex:['corridor'] }
+  },
+  corridor:{
+    listen:{ t:'左から「ゴウン、ゴウン、ピー」。\n奥からは、ドアごしに ぼそぼそと話し声。', ex:['copy', 'meet'] },
+    smell:{ t:'右のほうからコーヒーのにおいがする。', ex:['kitchen'] },
+    touch:{ t:'壁をつたって歩いた。\n途中、ドアのすきまから冷たい風がふいてくる。', ex:['server'] }
+  },
+  kitchen:{
+    listen:{ t:'コポコポという音と、だれかが何かをすする音。' },
+    smell:{ t:'コーヒーのにおいが強すぎて、ほかがわからない。' },
+    touch:{ t:'流し台のふちがぬれている。' }
+  },
+  copy:{
+    listen:{ t:'「ゴウン、ゴウン、ピー」。機械が1台、はたらいている。' },
+    smell:{ t:'トナーのにおいと、みかんのにおい。' },
+    touch:{ t:'棚に紙のたばが積んである。' }
+  },
+  meet:{
+    listen:{ t:'ドアごしに、終わらない会議の気配がする。' },
+    smell:{ t:'整髪料のにおいが、どこかからもれている。' },
+    touch:{ t:'壁。壁。壁。……取っ手のついたなにか。' }
+  },
+  server:{
+    listen:{ t:'ファンの轟音。そのすきまに、キーボードの音。' },
+    smell:{ t:'冷えた空気と、機械のにおい。' },
+    touch:{ t:'寒い。床にケーブルがはっている。' }
+  }
+};
+const T = {
+  pc:{ n:'パソコン',
+    listen:{ t:'ブーンと低い音。ときどき「ポーン」と不吉な音がする。' },
+    smell:{ t:'あたたまったほこりのにおい。' },
+    touch:{ t:'ボタンがたくさん並んだ板。その奥に、あたたかい板が立っている。\n……パソコンだ。', id:1 },
+    take:'机からはがれない。はがしてはいけない気もする。',
+    use: () => S.fixed ? 'メールソフトを起動した。\n未読 347件。\nそっと閉じた。'
+      : 'メールソフトを起動した。\n「OUT と LOOK が使えません」\n……このゲームと同じ症状だ。' },
+  fusen:{ n:'付箋', item:'fusen',
+    listen:{ t:'しずかだ。紙のような気配がする。' },
+    smell:{ t:'かすかに、のりのにおい。' },
+    touch:{ t:'小さな紙のたば。1枚めくると、ふちがぺたぺたする。\n……付箋だ。', id:1 },
+    use: () => '手に持たないと使えない。' },
+  tel:{ n:'電話',
+    listen:{ t:'耳をあてると「ツー」。\n……電話だ。', id:1 },
+    smell:{ t:'前に使った人の、のど飴のにおい。' },
+    touch:{ t:'くるくるしたコードが指にからまった。\n……電話だ。', id:1 },
+    take:'コードがのびきったところで、あきらめた。',
+    use: () => S.fixed ? '情シスに内線をかけた。\n田中「直りましたよ。未読は自分で読んでくださいね」'
+      : '情シスに内線をかけた。\n田中「はい……サーバー室に来てください……。場所？ 冷たい風がふいてくるほうです……ぐぅ」' },
+  plant:{ n:'観葉植物', n2:'山本さん',
+    listen:{ t:'「……すー……すー……」\n空調の音だろう。' },
+    smell:{ t:'土のにおい……と、ほんのり整髪料。' },
+    touch:{ t:'かさかさした葉っぱ。その下に、太い幹。\n……観葉植物だ。', id:1 },
+    take:'重くて持ち上がらない。植木鉢にしては、やわらかい。',
+    use: () => '水をやる道具がない。',
+    talk: () => S.seen.corridor ? '山本「……むにゃ……メール……送りました……」\n寝言で仕事をしている。' : '「……むにゃ……」\n……気のせいだろう。観葉植物はしゃべらない。' },
+  maker:{ n:'コーヒーメーカー',
+    listen:{ t:'「コポコポ……」\n……コーヒーメーカーだ。', id:1 },
+    smell:{ t:'コーヒーのにおいの発生源。\n……コーヒーメーカーだ。', id:1 },
+    touch:{ t:'あつっ！\n……コーヒーメーカーだ。', id:1 },
+    take:'あつくて持てない。',
+    use: () => '注ぐには、入れものがいる。' },
+  cup:{ n:'紙コップ', item:'cup', stay:1,
+    listen:{ t:'つつくと「ポコ」と軽い音がする。' },
+    smell:{ t:'紙のにおい。' },
+    touch:{ t:'かるくて、重ねてある、紙の筒。\n……紙コップだ。', id:1 },
+    use: () => '手に持たないと使えない。' },
+  sato:{ n:'佐藤さん', person:1,
+    listen:{ t:'「ズズッ……はぁ」\nなにかをすする音。……人だ。だれかいる。' },
+    smell:{ t:'柔軟剤のにおい。……これ以上かぐのは失礼な気がする。' },
+    touch:{ t:'「わっ、なに！？」\n……佐藤さんの声だ。すみません。', id:1 },
+    take:'人事部に怒られる。',
+    use: () => '人を使うのは、えらくなってからにする。',
+    talk: () => {
+      const f = S.f;
+      if (S.fixed) return '佐藤「直ったねえ。見えるって、いいねえ」';
+      if (!f.need) return '佐藤「おつかれ、佐藤だよ。メール落ちてるねえ。\n情シスの田中くんがサーバー室でがんばってるよ。寒い部屋。壁をさわって歩けば、風でわかるよ」';
+      if (!f.approved && !has('memo') && !has('memoOK')) return '佐藤「部長の承認？ 部長は朝からずっと会議室だよ。\n入れないから、紙に書いてドアの下から入れたら？\n付箋は席に、ペンは複合機のところにあったはず」';
+      if (!f.approved && has('memo')) return '佐藤「書けた？ じゃあ会議室のドアの下から入れてみなよ。\n廊下で耳をすませば、会議室はわかるよ」';
+      if (!f.coffee) return '佐藤「田中くん、コーヒーあげると元気でるよ。\n紙コップはそのへんにあるよ。……どのへんかは言えないけど。見えないし」';
+      return '佐藤「あとは田中くんにまかせよう」';
+    } },
+  copier:{ n:'複合機',
+    listen:{ t:'「ゴウン、ゴウン、ピー」\n……複合機だ。', id:1 },
+    smell:{ t:'トナーのにおい。\n……複合機だ。', id:1 },
+    touch:{ t:'あたたかい大きな箱。上にフタがある。\n……複合機だ。', id:1 },
+    take:'リース品だ。',
+    use: () => S.fixed ? '「スキャンしてメール送信」を押した。\n自分あてに白紙が届いた。' : '「スキャンしてメール送信」を押した。\nピー。「OUT と LOOK が使えません」' },
+  pen:{ n:'ボールペン', item:'pen',
+    listen:{ t:'ふると、かすかに「カチャ」。' },
+    smell:{ t:'インクのにおいが少し。' },
+    touch:{ t:'細い棒。はしを押すと「カチッ」。\n……ボールペンだ。', id:1 },
+    use: () => '手に持たないと使えない。' },
+  bin:{ n:'ゴミ箱', n2:'部長のかばん',
+    listen:{ t:'しずかだ。' },
+    smell:{ t:'みかんの皮のにおい。\n……ゴミ箱だ。', id:1 },
+    touch:{ t:'口のあいた入れもの。中はごちゃごちゃしている。' },
+    take: () => S.seen.copy ? '部長のかばんを持ち歩く理由がない。' : 'ゴミ箱を持ち歩く理由がない。',
+    use: () => S.seen.copy ? 'これ以上、なにも入れてはいけない。' : 'すてるものがない。' },
+  door:{ n:'会議室のドア',
+    listen:{ t:'ドアごしに声がする。\n部長「……で、この会議はどうやって終わるんだ」\n部下「退出の OUT が使えなくて……」\n……会議室のドアだ。', id:1 },
+    smell:{ t:'ほんのり整髪料。部長のにおいだ。' },
+    touch:{ t:'ひんやりした板に、取っ手。\n……ドアだ。下に、指1本ぶんのすきまがある。', id:1 },
+    take:'ちょうつがいが、がんばっている。',
+    use: () => S.fixed ? 'ノックした。\n部長「おお、やっと OUT できる！」\n部長たちが、ぞろぞろ出ていった。' : 'ノックした。\n部長「会議中だ！ 終わらんのだ！ OUT が使えなくて！」\n入るのはやめておく。' },
+  server:{ n:'サーバー',
+    listen:{ t:'ゴォォォ……というファンの音。\n……サーバーだ。', id:1 },
+    smell:{ t:'機械のにおい。' },
+    touch:{ t:'あつい鉄の箱。ランプらしき出っぱりがある。\n……サーバーだ。', id:1 },
+    take:'情シスに怒られる。',
+    use: () => 'さわると会社が止まる気がする。もう止まっているが。' },
+  tanaka:{ n:'田中さん', person:1,
+    listen:{ t:'「カタカタ……カタ……ぐぅ」\nキーボードの音と、寝息。……人だ。' },
+    smell:{ t:'エナジードリンクのにおい。' },
+    touch:{ t:'「ひっ」\n……情シスの田中さんの声だ。すみません。', id:1 },
+    take:'情シスを持ち出してはいけない。',
+    use: () => '人を使うのは、えらくなってからにする。',
+    talk: () => {
+      const f = S.f;
+      if (S.fixed) return '田中「直りました。未読は自分で読んでくださいね」';
+      if (!f.need){ f.need = true;
+        return '田中「情シスの田中です。OUT と LOOK を直してます……。\n再起動には部長の承認がいるんです。いつもはメールで依頼するんですが、そのメールが落ちてて。\n紙でいいので、承認をもらってきてください。……あと、眠いです」'; }
+      if (!f.approved) return '田中「部長の承認、紙でおねがいします。\n部長は会議室です。会議から OUT できなくて、朝からずっと」' + (f.coffee ? '' : '\n田中「あと……コーヒー……」');
+      return '田中「承認はもらいました。でも眠くて、パスワードが思い出せない……。\nコーヒーがあれば……」';
+    } }
+};
+
+/* ---------- 状態 ---------- */
+let mode = 'title', paused = false;
+let S = newState();
+function newState(){
+  return { room:'desk', known:{}, roomKnown:{ desk:true }, visited:{ desk:true }, exits:{}, gone:{}, inv:[], f:{},
+    turns:0, lookTry:0, outTry:0, fixed:false, seen:{}, coffeeMade:false, pick:null };
+}
+const has = it => S.inv.includes(it);
+function give(it){ if (!has(it)) S.inv.push(it); }
+function drop(it){ S.inv = S.inv.filter(x => x !== it); }
+function thingsHere(){ return ROOMS[S.room].things.filter(id => !S.gone[id]); }
+function tLabel(id){
+  if (S.known[id]){ const t = T[id]; return (t.n2 && S.seen[roomOf(id)]) ? t.n2 : t.n; }
+  const all = ROOMS[roomOf(id)].things; return 'なにか' + 'ＡＢＣＤ'[all.indexOf(id)];
+}
+function roomOf(id){ return ROOM_ORDER.find(r => ROOMS[r].things.includes(id)); }
+function rLabel(r){ return S.roomKnown[r] ? ROOMS[r].name : ROOMS[r].alias; }
+function exitsHere(){
+  const r = S.room, out = [];
+  if (r === 'desk'){ if (S.exits.corridor) out.push('corridor'); }
+  else if (r === 'corridor'){ out.push('desk'); ['kitchen', 'copy', 'meet', 'server'].forEach(x => { if (S.exits[x]) out.push(x); }); }
+  else out.push('corridor');
+  return out;
+}
+
+/* ---------- 表示 ---------- */
+const logEl = $('log');
+function say(txt, cls){
+  const p = document.createElement('p'); if (cls) p.className = cls; p.textContent = txt; logEl.appendChild(p);
+  while (logEl.children.length > 90) logEl.removeChild(logEl.firstChild);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+function dimOld(){ logEl.querySelectorAll('p:not(.old)').forEach(p => p.classList.add('old')); }
+function refresh(){
+  $('here').textContent = 'ここ：' + rLabel(S.room) + (S.roomKnown[S.room] ? '' : '(？)');
+  $('inv').innerHTML = 'もちもの：' + (S.inv.length ? '<b>' + S.inv.map(i => ITEMS[i]).join('、') + '</b>' : 'なし');
+  $('turns').textContent = '手数 ' + S.turns;
+  document.querySelectorAll('.vb').forEach(b => {
+    const k = b.dataset.v;
+    if (k === 'look' || k === 'out'){
+      b.classList.toggle('down', !S.fixed); b.classList.toggle('up', S.fixed);
+      b.querySelector('small').textContent = S.fixed ? (k === 'look' ? 'みる' : 'でる') : '障害中';
+    }
+  });
+}
+function buildVerbs(){
+  const box = $('verbs'); box.innerHTML = '';
+  VERBS.forEach(([k, en, ja]) => {
+    const b = document.createElement('button'); b.className = 'vb'; b.dataset.v = k;
+    b.innerHTML = '<b>' + en + '</b><small>' + ja + '</small>';
+    b.addEventListener('click', () => onVerb(k, b));
+    box.appendChild(b);
+  });
+}
+function showTargets(q, list){
+  $('tgtQ').textContent = q;
+  const box = $('tgtList'); box.innerHTML = '';
+  list.concat([{ k:'__cancel', label:'× やめる', cls:'cancel' }]).forEach(o => {
+    const b = document.createElement('button'); b.className = 'tb' + (o.cls ? ' ' + o.cls : ''); b.dataset.k = o.k; b.textContent = o.label;
+    b.addEventListener('click', () => { if (o.k === '__cancel'){ sfx('key'); closeTargets(); } else o.fn(); });
+    box.appendChild(b);
+  });
+  $('verbs').hidden = true; $('tgt').hidden = false; box.scrollTop = 0;
+}
+function closeTargets(){ $('tgt').hidden = true; $('verbs').hidden = false; S.pick = null; }
+function thingOpts(fn, withAround){
+  const o = [];
+  if (withAround) o.push({ k:'around', label:'まわり', fn: () => fn('around') });
+  thingsHere().forEach(id => o.push({ k:id, label:tLabel(id), cls:S.known[id] ? '' : 'unk', fn: () => fn(id) }));
+  return o;
+}
+
+/* ---------- コマンド ---------- */
+const LOOK_NG = ['LOOK は使えません。', 'LOOK は現在、障害中です。', '見ようとしないでください。', '目はあいています。コマンドが落ちているだけです。', 'LOOK は使えません。耳と鼻と手があります。', '何度押しても LOOK は使えません。'];
+const OUT_NG = ['OUT は使えません。', 'OUT は現在、障害中です。', '部屋を出るときは GO を使ってください。OUT ではありません。', '退勤もできません。', 'ログアウトもできません。', '何度押しても OUT は使えません。'];
+function onVerb(k, btn){
+  if (mode !== 'play' || paused) return;
+  if ((k === 'look' || k === 'out') && !S.fixed){
+    const n = k === 'look' ? S.lookTry++ : S.outTry++, arr = k === 'look' ? LOOK_NG : OUT_NG;
+    sfx('ng'); btn.classList.remove('shake'); void btn.offsetWidth; btn.classList.add('shake');
+    say('> ' + VNAME[k], 'cmd'); say(arr[Math.min(n, arr.length - 1)], 'err'); return;
+  }
+  sfx('key');
+  if (k === 'look'){ doLook(); return; }
+  if (k === 'out'){
+    showTargets('OUT：退勤しますか？', [{ k:'yes', label:'退勤する', fn: () => { closeTargets(); finish(); } }]); return;
+  }
+  if (k === 'go'){
+    const ex = exitsHere();
+    if (!ex.length){ echo('GO'); say('どっちへ行けばいいか、わからない。\nまわりを きく・かぐ・さわる で手がかりをさがそう。'); return; }
+    showTargets('GO：どこへ？', ex.map(r => ({ k:r, label:(S.room !== 'corridor' && r === 'corridor' && S.roomKnown.corridor ? '廊下へもどる' : rLabel(r) + 'へ'), cls:S.roomKnown[r] ? '' : 'unk', fn: () => doGo(r) }))); return;
+  }
+  if (k === 'listen' || k === 'smell' || k === 'touch'){ showTargets(VNAME[k] + '：なにを？', thingOpts(id => doSense(k, id), true)); return; }
+  if (k === 'take'){ showTargets('TAKE：なにを？', thingOpts(doTake)); return; }
+  if (k === 'talk'){ showTargets('TALK：だれに？', thingOpts(doTalk)); return; }
+  if (k === 'use'){
+    const o = S.inv.map(it => ({ k:'i:' + it, label:ITEMS[it], fn: () => pickUseTarget(it) })).concat(thingOpts(doUseThing));
+    showTargets('USE：なにを？', o); return;
+  }
+}
+function echo(txt){ dimOld(); say('> ' + txt, 'cmd'); }
+function turn(){ S.turns++; }
+function identify(id){
+  if (S.known[id]) return false; S.known[id] = true; sfx('id');
+  const r = roomOf(id);
+  if (ROOMS[r].key === id && !S.roomKnown[r]){ S.roomKnown[r] = true; say('ここは' + ROOMS[r].name + 'らしい。', 'sys'); }
+  return true;
+}
+function doSense(v, id){
+  closeTargets(); turn();
+  if (id === 'around'){
+    echo(VNAME[v] + ' まわり');
+    const a = AROUND[S.room][v]; say(a.t);
+    if (a.ex){
+      let nu = false; a.ex.forEach(r => { if (!S.exits[r]){ S.exits[r] = true; nu = true; } });
+      if (nu){ sfx('id'); say('GO で行ける場所がふえた。', 'sys'); }
+      if (S.room === 'corridor' && !S.roomKnown.corridor){ S.roomKnown.corridor = true; say('ここは廊下らしい。', 'sys'); }
+    }
+  } else {
+    echo(VNAME[v] + ' ' + tLabel(id));
+    const r = T[id][v]; say(r.t); if (r.id) identify(id);
+  }
+  refresh();
+}
+function doTake(id){
+  closeTargets(); turn(); echo('TAKE ' + tLabel(id));
+  const t = T[id];
+  if (!S.known[id]) say('正体のわからないものを持ち歩くのは、こわい。\nまずは きく・かぐ・さわる。');
+  else if (t.item){
+    if (id === 'cup' && (has('cup') || has('coffee'))) say('紙コップは、もう持っている。');
+    else { give(t.item); if (!t.stay) S.gone[id] = true; sfx('get'); say(ITEMS[t.item] + 'を手に入れた。', 'sys'); }
+  } else say(typeof t.take === 'function' ? t.take() : t.take);
+  refresh();
+}
+function doTalk(id){
+  closeTargets(); turn(); echo('TALK ' + tLabel(id));
+  const t = T[id];
+  if (t.talk){ if (t.person) identify(id); say(t.talk()); }
+  else if (S.known[id]) say(t.n + 'に話しかけた。\n返事はない。');
+  else say('話しかけてみた。\n返事がない。人ではないらしい。');
+  refresh();
+}
+function doUseThing(id){
+  closeTargets(); turn(); echo('USE ' + tLabel(id));
+  if (!S.known[id]) say('なにかわからないものを使うのは、こわい。\nまずは きく・かぐ・さわる。');
+  else say(T[id].use());
+  refresh();
+}
+function pickUseTarget(it){
+  sfx('key');
+  const o = S.inv.filter(x => x !== it).map(x => ({ k:'i:' + x, label:ITEMS[x], fn: () => doUseOn(it, 'i:' + x) }))
+    .concat(thingOpts(id => doUseOn(it, id)));
+  showTargets('USE ' + ITEMS[it] + '：なにに？', o);
+}
+function doUseOn(it, tg){
+  closeTargets(); turn();
+  const isItem = tg.startsWith('i:'), tid = isItem ? tg.slice(2) : tg;
+  echo('USE ' + ITEMS[it] + ' → ' + (isItem ? ITEMS[tid] : tLabel(tid)));
+  if (!isItem && !S.known[tid]){ say('なにかわからないものに使うのは、こわい。\nまずは きく・かぐ・さわる。'); refresh(); return; }
+  const pair = (a, b) => (it === a && tid === b) || (it === b && tid === a && isItem);
+  const f = S.f;
+  if (isItem && pair('pen', 'fusen')){
+    if (!f.need) say('書くことが、まだない。\nメールなら書くことは山ほどあるのに。');
+    else { drop('fusen'); give('memo'); sfx('get'); say('付箋に「サーバー再起動の承認をおねがいします」と書いた。\n字がまっすぐ書けたかは、わからない。'); say('承認依頼メモを手に入れた。', 'sys'); }
+  }
+  else if (it === 'pen' && tid === 'fusen') say('付箋を手に取ってからにしよう。');
+  else if (isItem && pair('pen', 'memo')) say('もう書いてある。たぶん。');
+  else if (it === 'memo' && tid === 'door'){
+    drop('memo'); give('memoOK'); sfx('get');
+    say('ドアの下のすきまに、メモをすべりこませた。\n……\n部長「なんだこの字は。……まあいい」\nポン、という音。\nメモがすべり出てきた。朱肉のにおいがする。承認されたらしい。'); say('承認ずみメモを手に入れた。', 'sys');
+  }
+  else if (it === 'memoOK' && tid === 'door') say('もう承認はもらった。朱肉のにおいがその証拠だ。');
+  else if ((it === 'fusen' || it === 'pen') && tid === 'door') say(f.need ? '先に、付箋になにか書いたほうがよさそうだ。' : 'ドアに用事はまだない。');
+  else if (it === 'memo' && tid === 'tanaka'){ identify('tanaka'); say('田中「これ、部長のハンコがないと……。朱肉のにおいがしません」'); }
+  else if (it === 'memoOK' && tid === 'tanaka'){
+    identify('tanaka'); drop('memoOK'); f.approved = true; if (!f.need) f.need = true;
+    say('田中「(クンクン)……朱肉のにおい。承認、たしかに」');
+    if (f.coffee) recover(); else say('田中「あとはパスワードを打つだけ……なんですが、眠くて思い出せない……。\nコーヒーがあれば……」');
+  }
+  else if (it === 'cup' && tid === 'maker'){ drop('cup'); give('coffee'); S.coffeeMade = true; sfx('get'); say('紙コップにコーヒーを注いだ。\nあふれたかどうかは、手があつくなったのでわかった。'); say('コーヒーを手に入れた。', 'sys'); }
+  else if (it === 'coffee' && tid === 'maker') say('もどすのは、やめておく。');
+  else if (it === 'coffee' && tid === 'tanaka'){
+    identify('tanaka'); drop('coffee'); f.coffee = true;
+    say('田中「あっ、コーヒー……(ズズッ)……目がさめました」');
+    if (f.approved) recover(); else say(f.need ? '田中「でも、部長の承認がないと再起動できないんです」' : '田中「ところで、どちらさまですか。見えなくて」');
+  }
+  else if (it === 'coffee' && tid === 'sato'){ identify('sato'); say('佐藤「あ、もう飲んでるんで」'); }
+  else if (it === 'coffee' && tid === 'door') say('すきまから流しこむのは、さすがにまずい。');
+  else if (it === 'coffee' && (tid === 'pc' || tid === 'server' || tid === 'copier')) say('それだけは、やめておく。');
+  else if (it === 'coffee' && tid === 'plant') say(S.seen.corridor ? '山本さんにかけるのは、やめておく。' : 'コーヒーをやるのは、植物によくない。');
+  else if (it === 'cup' && tid === 'tanaka'){ identify('tanaka'); say('田中「……からっぽですね」'); }
+  else if (!isItem && T[tid].person){ identify(tid); say(T[tid].n + '「？ ……いえ、けっこうです」'); }
+  else say('うまく使えない。');
+  refresh();
+}
+function doGo(r){
+  closeTargets(); turn(); echo('GO ' + rLabel(r));
+  const first = !S.visited[r]; S.room = r; S.visited[r] = true;
+  sfx('key');
+  if (S.fixed) say(rLabel(r) + 'に来た。');
+  else if (first) say(rLabel(r) + 'に来た。\nなにかが ' + thingsHere().length + 'つ ある気配がする。');
+  else say(rLabel(r) + 'に来た。');
+  refresh(); picDirty = true;
+}
+const LOOK_T = {
+  desk: () => 'はじめて、自分の席を見た。\nモニターのふちに付箋が47枚。ぜんぶ「あとでメールする」と書いてある。',
+  corridor: () => 'ふつうの廊下だ。\n' + (S.known.plant ? '観葉植物だと思っていたものは、' : 'すみにあったものは、') + '立ったまま寝ている営業の山本さんだった。頭に葉っぱがのっている。',
+  kitchen: () => '給湯室だ。佐藤さんが手をふっている。\n' + (S.coffeeMade ? '床に、コーヒーが点々とこぼれている。犯人は自分だ。' : '床はきれいだ。'),
+  copy: () => '複合機コーナーだ。\n' + (S.known.bin ? 'ゴミ箱だと思っていたものは、' : 'みかんのにおいがしていたものは、') + '部長のかばんだった。\nみかんの皮は……見なかったことにした。',
+  meet: () => '会議室の前だ。ドアに札がかかっている。\n「空室」\n……部長たちは、ただ出られなかっただけらしい。',
+  server: () => 'サーバー室だ。田中さんがコーヒーをかかげている。\nモニターには、設定ファイルの「OUT LOOK」から空白を消したあとが残っている。'
+};
+function doLook(){
+  turn(); echo('LOOK');
+  const r = S.room; S.seen[r] = true; S.roomKnown[r] = true; ROOMS[r].things.forEach(id => S.known[id] = true);
+  sfx('id'); say(LOOK_T[r]());
+  if (Object.keys(S.seen).length === 1) say('OUT を押すと、いつでも退勤できる。', 'sys');
+  refresh(); picDirty = true;
+}
+function recover(){
+  S.fixed = true; S.known.server = true; S.known.tanaka = true; S.roomKnown.server = true;
+  say('田中「思い出した……Enter！」\nサーバーが「ポーン」と鳴った。\n田中「あ。設定の OUT と LOOK のあいだに、空白が入ってました」');
+  say('「OUT」と「LOOK」が復旧しました。', 'sys');
+  say('LOOK を押してみよう。', 'sys');
+  sfx('fix'); picDirty = true; flashT = 0;
+  document.querySelectorAll('.vb').forEach(b => { if (b.dataset.v === 'look' || b.dataset.v === 'out'){ b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop'); } });
+}
+
+/* ---------- 画面の切り替え ---------- */
+function refreshHome(){
+  const on = (mode === 'title' || mode === 'result') && !paused, a = $('homeLink');
+  a.style.visibility = on ? '' : 'hidden'; a.tabIndex = on ? 0 : -1;
+  if (on) a.removeAttribute('aria-hidden'); else a.setAttribute('aria-hidden', 'true');
+}
+function shareHref(text){ return 'https://x.com/intent/post?text=' + encodeURIComponent(text + ' ' + HASHTAG) + '&url=' + encodeURIComponent(SHARE_URL); }
+function setShare(el, text){
+  el.href = shareHref(text);
+  if (matchMedia('(pointer: coarse)').matches){ el.removeAttribute('target'); el.removeAttribute('rel'); }
+}
+function show(m){
+  mode = m;
+  $('titleOv').hidden = m !== 'title'; $('resultOv').hidden = m !== 'result';
+  $('pauseBtn').hidden = m !== 'play'; $('turns').hidden = m !== 'play';
+  if (m === 'title'){
+    const b = parseInt(lsGet(K_BEST), 10);
+    $('bestLine').textContent = b > 0 ? '最少記録：' + b + ' 手' : '';
+    setShare($('shareTitle'), '「' + GAME_NAME + '」メールが落ちた朝、ゲームの LOOK と OUT も落ちた。手さぐりで復旧させるテキストアドベンチャー');
+  }
+  refreshHome(); fitBtns();
+}
+function start(){
+  initAudio(true);
+  S = newState(); logEl.innerHTML = ''; closeTargets();
+  document.querySelectorAll('.vb').forEach(b => b.classList.remove('pop', 'shake'));
+  show('play'); refresh(); picDirty = true;
+  say('午前9時。メールソフトが落ちた。\nついでに、このゲームの「LOOK」と「OUT」も落ちた。', 'sys');
+  say('あなたは自分の席にすわっている。それだけは、おしりでわかる。\nまわりに、なにかが 3つ ある気配がする。');
+  say('まずは LISTEN・SMELL・TOUCH で、まわりや「なにか」をしらべよう。', 'sys');
+  sfx('key');
+}
+function rankOf(n){ return n <= 34 ? '心眼の社員' : n <= 48 ? '手さぐり上手' : n <= 70 ? 'ふつうの会社員' : '迷える会社員'; }
+function finish(){
+  turn();
+  const n = S.turns, rank = rankOf(n), seen = Object.keys(S.seen).length;
+  const b = parseInt(lsGet(K_BEST), 10); if (!(b > 0) || n < b) lsSet(K_BEST, String(n));
+  $('rTurns').textContent = n; $('rRank').textContent = '称号：' + rank;
+  $('rLook').textContent = S.lookTry + ' 回'; $('rOut').textContent = S.outTry + ' 回'; $('rSeen').textContent = seen + ' / 6';
+  setShare($('shareResult'), '「' + GAME_NAME + '」を ' + n + ' 手で復旧して、午前10時に退勤した(称号：' + rank + '、使えないLOOKを押した回数：' + S.lookTry + '回)');
+  show('result');
+}
+function backToTitle(){ paused = false; $('pauseOv').hidden = true; disarmAll(); show('title'); picDirty = true; }
+function openPause(){
+  if (mode !== 'play') return; paused = true; $('pauseOv').hidden = false; disarmAll();
+  setShare($('sharePause'), '「' + GAME_NAME + '」で手さぐり中(' + S.turns + '手目、' + (S.fixed ? '復旧ずみ' : 'LOOK と OUT はまだ使えない') + ')');
+  refreshHome(); fitBtns();
+}
+function closePause(){ paused = false; $('pauseOv').hidden = true; disarmAll(); refreshHome(); if (AC && AC.state === 'suspended') AC.resume(); }
+const armed = {};
+function twoTap(btn, label, fn){
+  btn.addEventListener('click', () => {
+    const a = armed[btn.id];
+    if (!a || !a.on){
+      armed[btn.id] = { on:true, label, btn, timer:setTimeout(() => disarm(btn.id), 3000) };
+      btn.textContent = '本当に？(もう一度)'; btn.classList.add('danger'); fitBtns(); return;
+    }
+    disarm(btn.id); fn();
+  });
+}
+function disarm(id){ const a = armed[id]; if (!a) return; clearTimeout(a.timer); a.on = false; a.btn.textContent = a.label; a.btn.classList.remove('danger'); fitBtns(); }
+function disarmAll(){ Object.keys(armed).forEach(disarm); }
+function fitBtns(){
+  document.querySelectorAll('.go').forEach(b => {
+    b.style.fontSize = ''; if (!b.offsetParent) return;
+    let fs = parseFloat(getComputedStyle(b).fontSize) || 15, k = 0;
+    while (k++ < 8 && fs > 10 && b.scrollWidth > b.clientWidth + 1){ fs -= 1; b.style.fontSize = fs + 'px'; }
+  });
+}
+
+/* ---------- 絵の窓 ---------- */
+const cv = $('pic'), cx = cv.getContext('2d'), PW = 320, PH = 112;
+let picDirty = true, noiseAcc = 0, flashT = 9, last = 0;
+const R = (x, y, w, h, c) => { cx.fillStyle = c; cx.fillRect(x, y, w, h); };
+function fitFont(size, txt, maxW){
+  cx.font = size + 'px ' + '"DotGothic16",monospace';
+  const w = cx.measureText(txt).width;
+  if (w > maxW && w > 0){ size = Math.max(6, size * maxW / w); cx.font = size + 'px "DotGothic16",monospace'; }
+  return size;
+}
+function label(txt, y, c, size){
+  cx.textAlign = 'center'; cx.textBaseline = 'middle'; const s = fitFont(size || 16, txt, PW - 24);
+  const w = cx.measureText(txt).width; R(PW / 2 - w / 2 - 6, y - s / 2 - 3, w + 12, s + 6, 'rgba(0,0,0,.78)');
+  cx.fillStyle = c; cx.fillText(txt, PW / 2, y + 1);
+}
+function person(x, y, shirt, hair){ R(x, y, 10, 10, '#f0c9a0'); R(x, y, 10, 3, hair || '#222'); R(x - 3, y + 10, 16, 22, shirt); R(x - 1, y + 32, 5, 12, '#223'); R(x + 6, y + 32, 5, 12, '#223'); }
+function room(wall, floor){ R(0, 0, PW, 76, wall); R(0, 76, PW, PH - 76, floor); R(0, 74, PW, 2, '#0006'); }
+const SCENE = {
+  desk(){ room('#1d2a6b', '#3a3550'); R(40, 62, 240, 8, '#a36b3a'); R(50, 70, 6, 30, '#7a4d26'); R(264, 70, 6, 30, '#7a4d26');
+    R(120, 22, 80, 40, '#111'); R(124, 26, 72, 32, '#38d6ff'); R(154, 62, 12, 3, '#555');
+    for (let i = 0; i < 14; i++) R(118 + (i % 7) * 12, i < 7 ? 16 : 60, 9, 7, i % 2 ? '#ffd23f' : '#ff9fd0');
+    R(60, 52, 22, 10, '#ddd'); R(62, 48, 8, 5, '#bbb'); R(226, 56, 16, 6, '#ffd23f'); },
+  corridor(){ room('#2a3470', '#4a4a5a'); for (let i = 0; i < 4; i++){ R(20 + i * 80, 20, 34, 56, '#16204f'); R(48 + i * 80, 48, 3, 5, '#ffd23f'); }
+    person(262, 34, '#7d8aa8', '#333'); R(259, 30, 6, 4, '#5be37a'); R(266, 27, 5, 5, '#5be37a'); cx.fillStyle = '#fff'; cx.font = '10px monospace'; cx.textAlign = 'left'; cx.fillText('z z', 278, 30); },
+  kitchen(){ room('#3a5a4a', '#555a5a'); R(20, 50, 180, 26, '#ddd'); R(20, 50, 180, 4, '#aaa'); R(40, 26, 26, 24, '#222'); R(46, 38, 14, 12, '#6b3a1a'); R(44, 22, 18, 4, '#444');
+    R(90, 38, 10, 12, '#fff'); R(104, 38, 10, 12, '#fff'); R(150, 44, 30, 6, '#99a'); person(240, 34, '#e88', '#422'); R(254, 44, 8, 3, '#f0c9a0'); R(260, 38, 6, 8, '#fff');
+    if (S.coffeeMade) for (let i = 0; i < 6; i++) R(60 + i * 34, 86 + (i % 2) * 8, 5, 3, '#6b3a1a'); },
+  copy(){ room('#4a3a6a', '#55505f'); R(40, 30, 70, 46, '#e0e0e0'); R(40, 30, 70, 8, '#bbb'); R(48, 44, 22, 10, '#38d6ff'); R(44, 66, 62, 4, '#999'); R(110, 52, 18, 3, '#fff');
+    R(170, 40, 60, 36, '#a36b3a'); R(174, 34, 52, 6, '#fff'); R(174, 28, 52, 6, '#eee');
+    R(256, 54, 34, 24, '#3a2a1a'); R(264, 46, 18, 8, '#3a2a1a'); R(266, 48, 14, 6, '#4a3a6a'); R(262, 52, 8, 4, '#ff9a2a'); R(274, 51, 7, 4, '#ff9a2a'); },
+  meet(){ room('#5a4a3a', '#5f5a50'); R(120, 10, 80, 66, '#7a4d26'); R(124, 14, 72, 60, '#8f5d30'); R(186, 44, 5, 8, '#ffd23f'); R(140, 22, 40, 14, '#fff');
+    cx.fillStyle = '#c00'; cx.font = '11px "DotGothic16",monospace'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText('空室', 160, 30); R(120, 76, 80, 2, '#000'); },
+  server(){ room('#10202a', '#2a3a40'); for (let i = 0; i < 3; i++){ R(20 + i * 50, 12, 40, 64, '#111'); for (let j = 0; j < 7; j++){ R(24 + i * 50, 16 + j * 8, 32, 5, '#223'); R(26 + i * 50, 17 + j * 8, 3, 3, (i + j) % 3 ? '#5be37a' : '#ffd23f'); } }
+    R(190, 58, 60, 6, '#666'); R(200, 34, 36, 24, '#111'); R(203, 37, 30, 18, '#38d6ff'); person(268, 34, '#4a7', '#111'); R(262, 26, 6, 9, '#fff'); R(264, 35, 3, 10, '#f0c9a0'); }
+};
+function drawPic(dt){
+  if (cv.clientWidth < 1 || cv.clientHeight < 1) return;
+  if (!S.fixed || mode !== 'play'){
+    noiseAcc += dt; if (noiseAcc < .12 && !picDirty) return; noiseAcc = 0; picDirty = false;
+    R(0, 0, PW, PH, '#05060c');
+    for (let i = 0; i < 70; i++){ const g = 20 + Math.random() * 50 | 0; R(Math.random() * PW | 0, Math.random() * PH | 0, 2 + Math.random() * 14 | 0, 2, 'rgb(' + g + ',' + g + ',' + (g + 20) + ')'); }
+    label('LOOK できません', PH / 2 - 10, '#ff5a6a', 18); label('(画面が見えないのは仕様です)', PH / 2 + 14, '#8b96c9', 11); return;
+  }
+  if (flashT < 2.2){ flashT += dt; picDirty = true; }
+  if (!picDirty) return; picDirty = false;
+  if (S.seen[S.room]){ SCENE[S.room](); label(ROOMS[S.room].name, PH - 11, '#ffd23f', 12); }
+  else { R(0, 0, PW, PH, '#0b1030'); label('LOOK を押してください', PH / 2, '#5be37a', 16); }
+  if (flashT < 2.2 && Math.floor(flashT * 6) % 2 === 0){ R(0, 0, PW, PH, 'rgba(91,227,122,.25)'); label('OUT + LOOK 復旧', 16, '#5be37a', 14); }
+}
+function loop(now){
+  requestAnimationFrame(loop);
+  const dt = Math.min(.05, Math.max(0, (now - last) / 1000)); last = now;
+  if (paused) return;
+  try { drawPic(dt); } catch(e){ console.error(e); }
+}
+
+/* ---------- 起動 ---------- */
+buildVerbs(); drawSnd(); refresh(); show('title');
+$('startBtn').addEventListener('click', start);
+$('againBtn').addEventListener('click', start);
+$('titleBtn').addEventListener('click', backToTitle);
+$('pauseBtn').addEventListener('click', openPause);
+$('resumeBtn').addEventListener('click', closePause);
+twoTap($('pTitleBtn'), 'タイトルへ', backToTitle);
+twoTap($('pSiteBtn'), 'サイトのトップへ', () => { location.href = '/'; });
+$('sndBtn').addEventListener('click', () => { soundOn = !soundOn; lsSet(K_SND, soundOn ? '1' : '0'); drawSnd(); if (soundOn){ initAudio(); } });
+document.addEventListener('visibilitychange', () => { if (!document.hidden && AC) initAudio(); });
+window.addEventListener('resize', () => { picDirty = true; fitBtns(); });
+window.addEventListener('load', () => requestAnimationFrame(fitBtns));
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { picDirty = true; requestAnimationFrame(fitBtns); });
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
