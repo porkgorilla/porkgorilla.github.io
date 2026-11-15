@@ -106,6 +106,7 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 | [インフィニットゲーム](https://porkgorilla.com/works/infinitegame.html) | GAME | ゲーム機の中のゲーム機の中へ、どこまでも潜っていくジャンプゲーム |
 | [秒速逆ポッキー 完食編](https://porkgorilla.com/works/byosoku-gyaku-pocky-kanshoku.html) | GAME | 相手を銀河の果てまで押し出して、10万光年ぶんのポッキーを完食する逆ポッキーゲーム |
 | [OUTとLOOKが使えないゲーム](https://porkgorilla.com/works/outlook-nai.html) | GAME | LOOKとOUTのコマンドが落ちたオフィスを、手さぐりで復旧させるテキストアドベンチャー |
+| [ダレダレ四天王](https://porkgorilla.com/works/daredare.html) | GAME | ヒントを読んで、4人のうち誰の話かを当てる肩書きクイズ |
 
 ## 構成
 
@@ -215,7 +216,8 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
     ├── ekiben100.html
     ├── infinitegame.html
     ├── byosoku-gyaku-pocky-kanshoku.html
-    └── outlook-nai.html
+    ├── outlook-nai.html
+    └── daredare.html
 ```
 
 `theme.css` / `site.js` / `favicon.svg` はルート直下に置き、各作品ページからは絶対パス(`/theme.css` など)で読み込みます。404.html も GitHub Pages の仕様上ルート直下が必須です。
