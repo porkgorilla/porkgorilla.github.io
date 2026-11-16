@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>スーパーメトロ井戸 | porkgorilla://</title>
+<meta name="description" content="スーパーと地下鉄の駅と井戸をグリッドに置く3D街づくり。点数を競う街づくりと、置き放題の打ち上げの2モード">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-MBT4300J0L');
+</script>
+<meta property="og:type" content="website">
+<meta property="og:title" content="スーパーメトロ井戸">
+<meta property="og:description" content="スーパーと地下鉄の駅と井戸をグリッドに置く3D街づくり。点数を競う街づくりと、置き放題の打ち上げの2モード">
+<meta property="og:url" content="https://porkgorilla.com/works/supermetroido.html">
+<meta property="og:image" content="https://porkgorilla.com/assets/og-supermetroido.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="スーパーメトロ井戸">
+<meta name="twitter:description" content="スーパーと地下鉄の駅と井戸をグリッドに置く3D街づくり。点数を競う街づくりと、置き放題の打ち上げの2モード">
+<meta name="twitter:image" content="https://porkgorilla.com/assets/og-supermetroido.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap" rel="stylesheet">
+<style>
+[hidden]{display:none!important}
+*,*::before,*::after{box-sizing:border-box}
+:root{--ink:#1d2433;--sub:#5d6a80;--line:#cfd8e6;--card:#fffffff2;--s:#e8413a;--m:#f29a1f;--w:#2e8bff;--go:#1d2433}
+html{height:100%;box-sizing:border-box}
+body{height:100%;margin:0;position:relative;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;color:var(--ink);
+  background:linear-gradient(#aee0ff,#e9f7ff 60%,#f7fbef);-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+body[data-sky="1"]{background:linear-gradient(#ff9a6b,#ffd38a 55%,#fff1c9)}
+body[data-sky="2"]{background:linear-gradient(#3a1670,#b0308f 60%,#ff7a59)}
+body[data-sky="3"]{background:radial-gradient(circle at 20% 18%,#fff 0 1.5px,transparent 2px),radial-gradient(circle at 78% 30%,#fff 0 1.5px,transparent 2px),radial-gradient(circle at 55% 62%,#fff 0 1px,transparent 2px),radial-gradient(circle at 12% 74%,#fff 0 1px,transparent 2px),radial-gradient(circle at 88% 80%,#fff 0 1.5px,transparent 2px),linear-gradient(#050514,#14143a 70%,#2a1a4a)}
+#app{position:absolute;inset:0;display:flex;flex-direction:column}
+#top{flex:0 0 auto;display:flex;align-items:center;gap:8px;padding:6px 10px;padding-top:calc(6px + env(safe-area-inset-top,0px));min-height:56px;background:#ffffffb8;border-bottom:1px solid var(--line)}
+.home{color:var(--sub);text-decoration:none;font-size:12px;letter-spacing:.04em;white-space:nowrap;padding:14px 4px}
+.home:hover{color:var(--ink)}
+#hud{margin-left:auto;font-weight:800;font-size:14px;white-space:nowrap;background:#1d2433;color:#fff;border-radius:999px;padding:7px 13px;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.ib{flex:0 0 auto;min-width:44px;min-height:44px;border:1px solid var(--line);background:#fff;border-radius:12px;display:grid;place-items:center;cursor:pointer;color:var(--ink);padding:0}
+.ib svg{width:20px;height:20px}
+#main{flex:1 1 auto;min-height:0;position:relative;display:flex;flex-direction:column}
+#stage{flex:1 1 auto;min-height:0;position:relative;overflow:hidden}
+#cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:2}
+#flash.go{animation:fl .7s ease-out}
+@keyframes fl{0%{opacity:.85}100%{opacity:0}}
+.panel{flex:0 0 auto;background:#fffffff2;border-top:1px solid var(--line);padding:8px 10px calc(10px + env(safe-area-inset-bottom,0px));display:grid;gap:8px;width:100%;max-width:560px;align-self:center}
+#panelT{grid-template-columns:repeat(4,minmax(0,1fr))}
+.queue{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--sub);min-width:0;white-space:nowrap}
+.chip{display:inline-block;border-radius:8px;padding:4px 9px;font-weight:800;color:#fff;font-size:13px}
+.chip.S{background:var(--s)}.chip.M{background:var(--m)}.chip.W{background:var(--w)}
+.chip.now{font-size:17px;padding:6px 12px;box-shadow:0 2px 0 #0002}
+.chip.sm{opacity:.75;font-size:12px}
+.hint{margin-left:auto;font-size:11px;color:var(--sub);overflow:hidden;text-overflow:ellipsis}
+.row2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:8px}
+button.b:disabled{opacity:.35;cursor:default}
+button.b.xon{background:#dff0ff}
+ul.rules{margin:6px 0 10px;padding:0;list-style:none;font-size:12.5px;display:grid;gap:4px}
+ul.rules li{display:flex;gap:8px;align-items:baseline}
+ul.rules b{white-space:nowrap}
+.pt{margin-left:auto;font-weight:800;white-space:nowrap}
+.pt.neg{color:#c62828}
+details{margin:0 0 10px;font-size:13px}
+summary{cursor:pointer;color:var(--sub);padding:8px 0;min-height:44px;display:flex;align-items:center}
+.best{font-size:12px;color:var(--sub);margin:0 0 10px}
+.big{font-family:"Dela Gothic One",sans-serif;font-size:54px;line-height:1}
+.big small{font-size:18px;margin-left:4px}
+.rank{font-weight:800;margin:6px 0 10px}
+.rows{font-size:13px;display:grid;gap:3px;margin-bottom:12px}
+.rows div{display:flex}
+.mode small{display:block;font-weight:600;font-size:11px;opacity:.8}
+button.b.mode{min-height:60px;line-height:1.3}
+button.b.toy{background:linear-gradient(90deg,#e8413a,#f29a1f,#2e8bff);border-color:#1d2433}
+#viewBar{position:absolute;left:0;right:0;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:4;display:flex;justify-content:center}
+#viewBar button{width:auto;padding:0 22px;background:#fff;color:var(--go)}
+button.b,a.b{min-height:46px;border-radius:12px;border:2px solid var(--go);background:var(--go);color:#fff;font-weight:800;font-size:clamp(12px,3.9vw,15px);cursor:pointer;width:100%;white-space:nowrap;overflow:hidden;padding:0 6px;font-family:inherit}
+a.b{display:grid;place-items:center;text-decoration:none;background:transparent;color:var(--go)}
+button.b.ghost{background:transparent;color:var(--go)}
+button.b.danger{background:#c62828;border-color:#c62828;color:#fff}
+button.t{min-height:52px;background:#fff}
+button.t.S{border-color:var(--s);color:var(--s)}button.t.M{border-color:var(--m);color:#b96a00}button.t.W{border-color:var(--w);color:var(--w)}
+button.t.S.on{background:var(--s);color:#fff}button.t.M.on{background:var(--m);color:#fff}button.t.W.on{background:var(--w);color:#fff}
+button.t.on{box-shadow:0 3px 0 #0003;transform:translateY(-2px)}
+#autoBtn{background:#fff;color:var(--go)}
+#autoBtn.on{background:linear-gradient(90deg,#e8413a,#f29a1f,#2e8bff);color:#fff;border-color:#1d2433}
+.ov{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;overflow-y:auto;overscroll-behavior:contain;padding:12px 14px}
+#pauseOv{z-index:9;background:#1d2433aa}
+.card{margin-block:auto;flex-shrink:0;width:100%;max-width:440px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 10px 30px #1d243322}
+#titleOv .card{margin-top:auto;margin-bottom:8px}
+h1{font-family:"Dela Gothic One",sans-serif;font-weight:400;font-size:clamp(26px,8.6vw,40px);line-height:1.1;margin:0 0 6px}
+h1 .s{color:var(--s)}h1 .m{color:var(--m)}h1 .w{color:var(--w)}
+h2{font-family:"Dela Gothic One",sans-serif;font-weight:400;font-size:22px;margin:0 0 4px}
+.lead{font-size:13px;color:var(--sub);margin:0 0 10px;line-height:1.6}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.grid2>.wide{grid-column:1 / -1}
+.credit{font-size:11px;color:#8a94a6;margin-top:12px;letter-spacing:.05em;text-align:center}
+.zukan{font-size:12.5px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px 10px;margin:0 0 12px;padding:0;list-style:none}
+.zukan li{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#9aa3b2}
+.zukan li.got{color:var(--ink);font-weight:700}
+#toast{position:absolute;left:50%;top:10px;transform:translateX(-50%);z-index:3;background:#1d2433e6;color:#fff;font-weight:800;font-size:13px;border-radius:999px;padding:7px 14px;white-space:nowrap;max-width:94%;overflow:hidden;text-overflow:ellipsis;pointer-events:none;opacity:0;transition:opacity .25s}
+#toast.show{opacity:1}
+#banner{position:absolute;left:0;right:0;top:22%;z-index:4;text-align:center;pointer-events:none;font-family:"Dela Gothic One",sans-serif;font-size:clamp(24px,8.4vw,56px);color:#fff;-webkit-text-stroke:2px #1d2433;paint-order:stroke fill;text-shadow:0 4px 0 #1d2433;opacity:0}
+#banner.go{animation:ban 1.7s ease-out}
+@keyframes ban{0%{opacity:0;transform:scale(.3) rotate(-8deg)}12%{opacity:1;transform:scale(1.2) rotate(3deg)}22%{transform:scale(1) rotate(-1deg)}80%{opacity:1}100%{opacity:0;transform:scale(1.1)}}
+@media (max-height:560px){ .card{padding:12px 14px} h1{font-size:26px} .lead{margin-bottom:6px;font-size:12px} button.t{min-height:44px} button.b,a.b{min-height:44px} .grid2{gap:6px} .panel{padding-top:4px;gap:4px} .big{font-size:38px} button.b.mode{min-height:50px} }
+@media (max-height:560px) and (orientation:landscape){
+  .card{max-width:700px;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);grid-auto-flow:dense;column-gap:16px;align-items:center}
+  .card>*{grid-column:1}
+  .card>.acts{grid-column:2;grid-row:1 / span 6}
+}
+</style>
+</head>
+<body data-sky="0">
+<div id="app">
+  <div id="top">
+    <a class="home" id="homeLink" href="/">&lt; porkgorilla</a>
+    <div id="hud" hidden></div>
+    <button class="ib" id="sndBtn" aria-label="音の切り替え" style="margin-left:auto"></button>
+    <button class="ib" id="menuBtn" aria-label="メニュー" hidden><svg viewBox="0 0 20 20"><rect x="3" y="4" width="14" height="2.400" rx="1" fill="currentColor"/><rect x="3" y="8.800" width="14" height="2.400" rx="1" fill="currentColor"/><rect x="3" y="13.600" width="14" height="2.400" rx="1" fill="currentColor"/></svg></button>
+  </div>
+  <div id="main">
+    <div id="stage">
+      <canvas id="cv"></canvas>
+      <div id="flash"></div>
+      <div id="toast"></div>
+      <div id="banner">スーパーメトロ井戸！</div>
+      <div id="viewBar" hidden><button class="b ghost" id="backResBtn">結果に戻る</button></div>
+    </div>
+    <div class="panel" id="panelP" hidden>
+      <div class="queue"><span>いま</span><span id="nowChip"></span><span>つぎ</span><span id="nextChips"></span><span class="hint" id="hint"></span></div>
+      <div class="row2">
+        <button class="b ghost" id="xrayBtn">地下を見る</button>
+        <button class="b" id="putBtn" disabled>ここに置く</button>
+      </div>
+    </div>
+    <div class="panel" id="panelT" hidden>
+      <button class="b t S on" data-t="S">スーパー</button>
+      <button class="b t M" data-t="M">メトロ</button>
+      <button class="b t W" data-t="W">井戸</button>
+      <button class="b" id="autoBtn">自動</button>
+    </div>
+
+    <div class="ov" id="titleOv">
+      <div class="card">
+        <h1><span class="s">スーパー</span><span class="m">メトロ</span><span class="w">井戸</span></h1>
+        <p class="lead">スーパーと地下鉄の駅と井戸を、グリッドに置く。モードは2つ。</p>
+        <details><summary>街づくりのルール</summary><ul class="rules" id="rulesT"></ul></details>
+        <p class="best" id="bestLine"></p>
+        <div class="grid2 acts">
+          <button class="b mode" id="startPBtn">街づくり<small>18手で点数を競う</small></button>
+          <button class="b mode toy" id="startTBtn">打ち上げ<small>点数なし・置き放題</small></button>
+          <a class="b wide" id="titleShare" target="_blank" rel="noopener">Xでシェア</a>
+        </div>
+        <div class="credit">porkgorilla — 2026</div>
+      </div>
+    </div>
+
+    <div class="ov" id="resultOv" hidden>
+      <div class="card">
+        <h2>竣工！</h2>
+        <div class="big"><span id="resScore">0</span><small>点</small></div>
+        <div class="rank" id="resRank"></div>
+        <div class="rows" id="resRows"></div>
+        <div class="grid2 acts">
+          <button class="b" id="againBtn">もう一度</button>
+          <button class="b ghost" id="titleBtn">タイトルへ</button>
+          <button class="b ghost" id="viewBtn">街を眺める</button>
+          <a class="b" id="resShare" target="_blank" rel="noopener">Xでシェア</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="ov" id="pauseOv" hidden>
+      <div class="card">
+        <div id="pToy"><h2>不条理図鑑 <span id="zukanN"></span></h2>
+        <ul class="zukan" id="zukan"></ul></div>
+        <div id="pPuz"><h2>一時停止</h2><p class="lead" id="pauseInfo"></p><ul class="rules" id="rulesP"></ul></div>
+        <div class="grid2 acts">
+          <button class="b wide" id="resumeBtn">つづける</button>
+          <button class="b ghost" id="pSndBtn">音：ON</button>
+          <a class="b" id="pauseShare" target="_blank" rel="noopener">Xでシェア</a>
+          <button class="b ghost wide" id="pResetBtn">更地にする</button>
+          <button class="b ghost wide" id="pTitleBtn">タイトルへ</button>
+          <button class="b ghost wide" id="pHomeBtn">サイトのトップへ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const GAME_NAME = 'スーパーメトロ井戸', HASHTAG = '#スーパーメトロ井戸';
+const GAME_URL = 'https://porkgorilla.com/works/supermetroido.html';
+const OG_CACHE_VERSION = 1, SHARE_URL = GAME_URL + '?ogv=' + OG_CACHE_VERSION;
+/*LOGIC*/
+const N = 7, HOUSES = 12, TURNS = 18;
+const PT = { house:[0,1,3,6], tunnel:2, direct:3, flood:8, feud:4, combo:12 };
+function at(g, x, z){ return (x < 0 || z < 0 || x >= N || z >= N) ? undefined : g[z][x]; }
+function evaluate(g){
+  const r = { houses:0, tunnel:0, direct:0, flood:0, feud:0, combo:0, total:0, dots:{}, tunnels:[], combos:[], nCombo:0, nTunnel:0, happy:0 };
+  for (let z = 0; z < N; z++) for (let x = 0; x < N; x++){
+    const c = g[z][x];
+    if (c === 'H'){
+      let w = 0, s = 0, m = 0;
+      for (let dz = -3; dz <= 3; dz++) for (let dx = -3; dx <= 3; dx++){
+        const t = at(g, x + dx, z + dz); if (!t || t === 'H') continue;
+        const d = Math.max(Math.abs(dx), Math.abs(dz));
+        if (t === 'W' && d <= 1) w = 1; else if (t === 'S' && d <= 2) s = 1; else if (t === 'M' && d <= 3) m = 1;
+      }
+      r.dots[x + ',' + z] = [w, s, m];
+      r.houses += PT.house[w + s + m]; if (w + s + m === 3) r.happy++;
+    }
+    if (c === 'M'){
+      for (const [dx, dz] of [[1,0],[0,1]]){
+        let k = 1, nW = 0, nS = 0, hit = false;
+        for (;; k++){ const t = at(g, x + dx * k, z + dz * k); if (t === undefined) break; if (t === 'M'){ hit = true; break; } if (t === 'W') nW++; if (t === 'S') nS++; }
+        if (hit){
+          r.tunnels.push({ x1:x, z1:z, x2:x + dx * k, z2:z + dz * k, flooded:nW > 0 });
+          if (nW > 0) r.flood -= PT.flood * nW; else { r.tunnel += PT.tunnel; r.direct += PT.direct * nS; r.nTunnel++; }
+        }
+      }
+    }
+    if (c === 'W'){ if (at(g, x + 1, z) === 'W') r.feud -= PT.feud; if (at(g, x, z + 1) === 'W') r.feud -= PT.feud; }
+    for (const [dx, dz] of [[1,0],[0,1]]){
+      const a = c, b = at(g, x + dx, z + dz), d = at(g, x + dx * 2, z + dz * 2);
+      if (b === 'M' && ((a === 'S' && d === 'W') || (a === 'W' && d === 'S'))){ r.combo += PT.combo; r.nCombo++; r.combos.push([x, z, dx, dz]); }
+    }
+  }
+  r.total = r.houses + r.tunnel + r.direct + r.flood + r.feud + r.combo;
+  return r;
+}
+function shuffle(a){ for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function newGrid(){
+  const g = []; for (let z = 0; z < N; z++) g.push(new Array(N).fill(null));
+  const cells = []; for (let i = 0; i < N * N; i++) cells.push(i);
+  shuffle(cells).slice(0, HOUSES).forEach(i => { g[Math.floor(i / N)][i % N] = 'H'; });
+  return g;
+}
+function newQueue(){ const q = []; for (let i = 0; i < TURNS / 3; i++) q.push(...shuffle(['S','M','W'])); return q; }
+function bestMove(g, p){
+  let best = null, bs = -1e9;
+  for (let z = 0; z < N; z++) for (let x = 0; x < N; x++){
+    if (g[z][x]) continue;
+    g[z][x] = p; const s = evaluate(g).total + Math.random() * .5; g[z][x] = null;
+    if (s > bs){ bs = s; best = { x, z }; }
+  }
+  return best;
+}
+function rankOf(s){
+  return s < 60 ? '更地に毛が生えた村' : s < 90 ? 'ふつうの町' : s < 120 ? '住みたい街ランキング圏内' : s < 150 ? 'スーパーメトロ井戸シティ' : '伝説の井戸端メトロポリス';
+}
+/*ENDLOGIC*/
+const LH = .82, MAXH = 6, RANGE = { S:2, M:3, W:1 };
+const NAME = { S:'スーパー', M:'メトロ', W:'井戸' }, COL = { S:0xe8413a, M:0xf29a1f, W:0x2e8bff };
+const ZUKAN = [['well','井戸水、噴出'],['sale','特売品が湧く井戸'],['trainwell','電車が湧く井戸'],['train','イルカ路線'],['tower','積めてしまう'],['towerup','高すぎて発射'],['line','スーパーメトロ井戸'],['disco','街のディスコ化'],['space','宇宙進出']];
+function lsGet(k, d){ try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } }
+function lsSet(k, v){ try { localStorage.setItem(k, v); } catch (e) {} }
+const rnd = (a, b) => a + Math.random() * (b - a), pickOf = a => a[Math.floor(Math.random() * a.length)];
+
+const S = { mode:'title', game:'toy', cur:'S', count:0, auto:false, autoT:0, queue:[], turn:0, sel:null, score:0, ev:null, endT:0 };
+let best = +lsGet('supermetroido-best', '0') || 0, xrayOn = false, xrayPulse = 0, ghost = null;
+let paused = false, soundOn = lsGet('supermetroido-sound', '1') === '1';
+let found = {}; try { found = JSON.parse(lsGet('supermetroido-found', '{}')) || {}; } catch (e) { found = {}; }
+let stacks = [];
+const inB = (x, z) => x >= 0 && z >= 0 && x < N && z < N;
+const topT = (x, z) => { if (!inB(x, z)) return null; const s = stacks[z][x]; return s.length ? s[s.length - 1].t : null; };
+
+/* ---------- 音 ---------- */
+let AC = null, noiseBuf = null, lastSfx = {};
+function initAudio(force){
+  if (AC && force){ try { AC.close().catch(() => {}); } catch (e) {} AC = null; }
+  else if (AC){ if (AC.state === 'closed') AC = null; else { if (AC.state === 'suspended') AC.resume(); return; } }
+  try {
+    AC = new (window.AudioContext || window.webkitAudioContext)();
+    noiseBuf = AC.createBuffer(1, AC.sampleRate * .5, AC.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  } catch (e) { AC = null; }
+}
+function tone(f, t0, d, type, vol, f2){
+  const o = AC.createOscillator(), g = AC.createGain(), t = AC.currentTime + t0;
+  o.type = type || 'sine'; o.frequency.setValueAtTime(f, t); if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + d);
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol || .12, t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + d);
+  o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t + d + .02);
+}
+function noise(t0, d, vol, freq){
+  const s = AC.createBufferSource(), g = AC.createGain(), f = AC.createBiquadFilter(), t = AC.currentTime + t0;
+  s.buffer = noiseBuf; f.type = 'lowpass'; f.frequency.value = freq; g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + d);
+  s.connect(f); f.connect(g); g.connect(AC.destination); s.start(t); s.stop(t + d + .02);
+}
+function sfx(k, gap){
+  if (!AC || !soundOn || S.mode !== 'play' || paused) return;
+  const now = performance.now(); if (gap && now - (lastSfx[k] || 0) < gap) return; lastSfx[k] = now;
+  try {
+    if (k === 'put'){ tone(180, 0, .14, 'sine', .2, 70); tone(520, .02, .08, 'triangle', .05); }
+    else if (k === 'gey') noise(0, .35, .05, 2400);
+    else if (k === 'hop') tone(330, 0, .1, 'triangle', .05, 660);
+    else if (k === 'launch'){ tone(140, .3, 1.1, 'sawtooth', .07, 1500); noise(.3, 1.1, .1, 900); [523,659,784,1047,1319].forEach((f, i) => tone(f, i * .08, .28, 'square', .05)); }
+    else if (k === 'boom'){ noise(0, .5, .22, 700); tone(90, 0, .4, 'sine', .2, 40); }
+    else if (k === 'kick') tone(120, 0, .16, 'sine', .16, 45);
+    else if (k === 'hat') noise(0, .04, .03, 9000);
+    else if (k === 'sel') tone(880, 0, .06, 'triangle', .06);
+    else if (k === 'line'){ tone(659, 0, .16, 'triangle', .1); tone(523, .16, .22, 'triangle', .1); }
+    else if (k === 'flood'){ tone(420, 0, .5, 'sine', .14, 90); tone(300, .12, .5, 'sine', .1, 60); noise(0, .5, .1, 1200); }
+    else if (k === 'feud') tone(160, 0, .25, 'sawtooth', .07, 110);
+    else if (k === 'combo'){ [523,659,784,1047,1319].forEach((f, i) => tone(f, i * .09, .3, 'square', .06)); noise(.3, .5, .15, 700); }
+    else if (k === 'end') [392,523,659,784].forEach((f, i) => tone(f, i * .14, .45, 'triangle', .1));
+    else if (k === 'found'){ tone(784, 0, .12, 'triangle', .08); tone(1175, .1, .2, 'triangle', .08); }
+  } catch (e) {}
+}
+
+/* ---------- 3D ---------- */
+const stageEl = $('stage'), cv = $('cv');
+const renderer = new THREE.WebGLRenderer({ canvas:cv, antialias:true, alpha:true });
+const scene = new THREE.Scene(), world = new THREE.Group(); scene.add(world);
+const camera = new THREE.PerspectiveCamera(45, 1, .1, 120);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x9a8a70, .8));
+const sun = new THREE.DirectionalLight(0xffffff, .6); sun.position.set(4, 9, 3); scene.add(sun);
+const cam = { th:.7, ph:.6, dist:18 };
+let W = 0, H = 0, shake = 0;
+function resize(){
+  const w = stageEl.clientWidth || 0, h = stageEl.clientHeight || 0;
+  if (w < 1 || h < 1) return;
+  W = w; H = h;
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h; camera.updateProjectionMatrix();
+  const v = camera.fov * Math.PI / 180, hf = 2 * Math.atan(Math.tan(v / 2) * camera.aspect);
+  cam.dist = Math.min(46, Math.max(4.7 / Math.sin(hf / 2), 5.6 / Math.sin(v / 2)));
+}
+function placeCam(){
+  const cp = Math.cos(cam.ph), ty = 1.3;
+  camera.position.set(Math.sin(cam.th) * cp * cam.dist + rnd(-1, 1) * shake, ty + Math.sin(cam.ph) * cam.dist + rnd(-1, 1) * shake, Math.cos(cam.th) * cp * cam.dist);
+  camera.lookAt(0, ty, 0);
+}
+const L = (c, o) => new THREE.MeshLambertMaterial(Object.assign({ color:c }, o || {}));
+const B = (c, o) => new THREE.MeshBasicMaterial(Object.assign({ color:c }, o || {}));
+function box(w, h, d, m, x, y, z){ const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); o.position.set(x || 0, y || 0, z || 0); return o; }
+function cyl(r1, r2, h, seg, m, x, y, z){ const o = new THREE.Mesh(new THREE.CylinderGeometry(r1, r2, h, seg), m); o.position.set(x || 0, y || 0, z || 0); return o; }
+const texCache = {};
+function label(txt, bg, fg){
+  const k = txt + bg; if (texCache[k]) return texCache[k];
+  const c = document.createElement('canvas'); c.width = 256; c.height = 80; const g = c.getContext('2d');
+  g.fillStyle = bg; g.fillRect(0, 0, 256, 80); g.fillStyle = fg; g.textAlign = 'center'; g.textBaseline = 'middle';
+  let fs = 56; g.font = '900 ' + fs + 'px sans-serif'; const w = g.measureText(txt).width;
+  if (w > 232){ fs = fs * 232 / w; g.font = '900 ' + fs + 'px sans-serif'; }
+  g.fillText(txt, 128, 43);
+  return (texCache[k] = new THREE.CanvasTexture(c));
+}
+function dispose(o){ o.traverse(c => { if (c.geometry) c.geometry.dispose(); if (c.material) c.material.dispose(); }); }
+function clearGroup(g){ while (g.children.length){ const c = g.children.pop(); dispose(c); } }
+const wx = x => x - (N - 1) / 2;
+
+const tiles = [];
+(function(){
+  for (let z = 0; z < N; z++){ tiles.push([]); for (let x = 0; x < N; x++){
+    const base = (x + z) % 2 ? 0x8fd36b : 0x7fc65c;
+    const t = box(.96, .12, .96, L(base, { transparent:true }), wx(x), -.06, wx(z)); t.userData.base = base; world.add(t); tiles[z].push(t);
+  } }
+  world.add(box(N + .6, .14, N + .6, L(0x6b4a2f), 0, -2.0, 0));
+  const e = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(N + .1, 1.95, N + .1)), new THREE.LineBasicMaterial({ color:0x8a6a48 }));
+  e.position.y = -1.0; world.add(e);
+})();
+
+function mkSuper(){
+  const g = new THREE.Group();
+  g.add(box(.84, .42, .7, L(0xfafafa), 0, .21, 0));
+  g.add(box(.9, .08, .76, L(COL.S), 0, .46, 0));
+  g.add(box(.5, .26, .02, L(0x9fd8ff), 0, .16, .355)); g.add(box(.5, .26, .02, L(0x9fd8ff), 0, .16, -.355));
+  g.add(box(.8, .24, .07, new THREE.MeshBasicMaterial({ map:label('スーパー', '#e8413a', '#ffffff') }), 0, .63, 0));
+  return g;
+}
+function mkMetro(under){
+  const g = new THREE.Group();
+  g.add(box(.7, .06, .7, L(0xcfd3d8), 0, .03, 0));
+  g.add(box(.34, .02, .46, B(0x222831), 0, .065, 0));
+  g.add(box(.42, .05, .54, L(COL.M), 0, .4, 0));
+  [[-.19,-.25],[.19,-.25],[-.19,.25],[.19,.25]].forEach(p => g.add(box(.04, .36, .04, L(0x555555), p[0], .22, p[1])));
+  g.add(cyl(.02, .02, .7, 6, L(0x555555), .28, .35, .28));
+  g.add(box(.3, .3, .06, new THREE.MeshBasicMaterial({ map:label('M', '#f29a1f', '#ffffff') }), .28, .62, .28));
+  if (under){ g.add(box(.2, 1.0, .2, L(0x9aa3ad), 0, -.5, 0)); g.add(box(.62, .3, .62, B(0xffd98a), 0, -1.05, 0)); }
+  return g;
+}
+function mkWell(under){
+  const g = new THREE.Group();
+  g.add(cyl(.27, .3, .24, 14, L(0x9a9a9a), 0, .12, 0));
+  g.add(cyl(.2, .2, .02, 14, B(0x2e8bff), 0, .245, 0));
+  g.add(box(.05, .46, .05, L(0x7a5230), -.25, .35, 0)); g.add(box(.05, .46, .05, L(0x7a5230), .25, .35, 0));
+  const roof = new THREE.Mesh(new THREE.ConeGeometry(.42, .2, 4), L(0x5a3d24)); roof.position.y = .68; roof.rotation.y = Math.PI / 4; g.add(roof);
+  if (under){ g.add(cyl(.11, .11, 1.62, 10, L(0x4aa8ff, { transparent:true, opacity:.75 }), 0, -.93, 0)); g.add(cyl(.34, .34, .06, 14, B(0x2e8bff), 0, -1.76, 0)); }
+  return g;
+}
+function mkHouse(x, z){
+  const g = new THREE.Group(), i = (x * 7 + z * 13) % 4;
+  g.add(box(.5, .38, .5, L([0xfff3d6,0xffe6e1,0xe4f0ff,0xecffe4][i]), 0, .19, 0));
+  const roof = new THREE.Mesh(new THREE.ConeGeometry(.46, .32, 4), L([0xc0563b,0x3b6fc0,0x4a9a56,0x8a5bc0][i])); roof.position.y = .54; roof.rotation.y = Math.PI / 4; g.add(roof);
+  g.add(box(.12, .2, .02, L(0x7a5230), 0, .1, .26));
+  g.userData.dots = [COL.W, COL.S, COL.M].map((c, k) => { const d = new THREE.Mesh(new THREE.SphereGeometry(.07, 10, 8), B(0x777777)); d.position.set((k - 1) * .19, .92, 0); d.userData.on = c; g.add(d); return d; });
+  return g;
+}
+const mk = (t, under, x, z) => t === 'H' ? mkHouse(x, z) : t === 'S' ? mkSuper() : t === 'M' ? mkMetro(under) : mkWell(under);
+
+const objGroup = new THREE.Group(), underGroup = new THREE.Group(), trainGroup = new THREE.Group(), peopleGroup = new THREE.Group();
+world.add(objGroup, underGroup, trainGroup, peopleGroup);
+
+/* 粒 */
+const PN = 900, pm = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({ color:0xffffff }), PN);
+pm.frustumCulled = false; world.add(pm);
+const P = { p:new Float32Array(PN * 3), v:new Float32Array(PN * 3), life:new Float32Array(PN), max:new Float32Array(PN), size:new Float32Array(PN), g:new Float32Array(PN), next:0 };
+const dummy = new THREE.Object3D(), tmpC = new THREE.Color();
+(function(){ dummy.scale.set(0, 0, 0); dummy.updateMatrix(); for (let i = 0; i < PN; i++){ pm.setMatrixAt(i, dummy.matrix); pm.setColorAt(i, tmpC.set(0xffffff)); } })();
+function spawn(x, y, z, vx, vy, vz, life, size, color, grav){
+  const i = P.next; P.next = (i + 1) % PN;
+  P.p[i * 3] = x; P.p[i * 3 + 1] = y; P.p[i * 3 + 2] = z; P.v[i * 3] = vx; P.v[i * 3 + 1] = vy; P.v[i * 3 + 2] = vz;
+  P.life[i] = P.max[i] = life; P.size[i] = size; P.g[i] = grav;
+  pm.setColorAt(i, tmpC.set(color)); pm.instanceColor.needsUpdate = true;
+}
+function burst(x, y, z, n, colors, sp, up, size, grav){
+  for (let i = 0; i < n; i++){ const a = Math.random() * 6.283, r = Math.random() * sp; spawn(x, y, z, Math.cos(a) * r, up * rnd(.6, 1.1), Math.sin(a) * r, rnd(.7, 1.3), size * rnd(.7, 1.3), pickOf(colors), grav); }
+}
+function firework(x, y, z){
+  const h0 = Math.random();
+  for (let i = 0; i < 70; i++){
+    const u = Math.random() * 2 - 1, a = Math.random() * 6.283, s = Math.sqrt(1 - u * u), sp = rnd(3, 7);
+    tmpC.setHSL((h0 + Math.random() * .25) % 1, 1, .6);
+    spawn(x, y, z, Math.cos(a) * s * sp, u * sp, Math.sin(a) * s * sp, rnd(.9, 1.6), .16, tmpC.getHex(), 4);
+  }
+}
+function updParticles(dt){
+  for (let i = 0; i < PN; i++){
+    if (P.life[i] <= 0) continue;
+    P.life[i] -= dt; const k = i * 3;
+    if (P.life[i] <= 0){ dummy.scale.set(0, 0, 0); dummy.position.set(0, -50, 0); }
+    else {
+      P.v[k + 1] -= P.g[i] * dt; P.p[k] += P.v[k] * dt; P.p[k + 1] += P.v[k + 1] * dt; P.p[k + 2] += P.v[k + 2] * dt;
+      const s = P.size[i] * Math.min(1, P.life[i] / P.max[i] * 2.5);
+      dummy.position.set(P.p[k], P.p[k + 1], P.p[k + 2]); dummy.scale.set(s, s, s); dummy.rotation.set(P.life[i] * 5, P.life[i] * 3, 0);
+    }
+    dummy.updateMatrix(); pm.setMatrixAt(i, dummy.matrix);
+  }
+  pm.instanceMatrix.needsUpdate = true;
+}
+
+/* 住民 */
+const people = [];
+(function(){
+  for (let i = 0; i < 18; i++){
+    const g = new THREE.Group();
+    g.add(cyl(.06, .08, .2, 8, L(pickOf([0xe8413a,0x2e8bff,0xf29a1f,0x4a9a56,0x8a5bc0,0xffffff])), 0, .1, 0));
+    const h = new THREE.Mesh(new THREE.SphereGeometry(.07, 10, 8), L(0xffd9a0)); h.position.y = .27; g.add(h);
+    peopleGroup.add(g);
+    people.push({ o:g, x:rnd(-3, 3), z:rnd(-3, 3), tx:rnd(-3, 3), tz:rnd(-3, 3), y:0, vy:0, ph:Math.random() * 6 });
+  }
+})();
+let lastPut = null;
+function updPeople(dt){
+  people.forEach(p => {
+    const dx = p.tx - p.x, dz = p.tz - p.z, d = Math.hypot(dx, dz);
+    if (d < .15){
+      if (lastPut && Math.random() < .6){ p.tx = wx(lastPut.x) + rnd(-.7, .7); p.tz = wx(lastPut.z) + rnd(-.7, .7); }
+      else { p.tx = rnd(-3.3, 3.3); p.tz = rnd(-3.3, 3.3); }
+    } else { const sp = 1.6 * dt / d; p.x += dx * sp; p.z += dz * sp; p.o.rotation.y = Math.atan2(dx, dz); }
+    if (p.y > 0 || p.vy > 0){ p.vy -= 14 * dt; p.y += p.vy * dt; p.o.rotation.x += dt * 9; if (p.y <= 0){ p.y = 0; p.vy = 0; p.o.rotation.x = 0; } }
+    p.o.position.set(p.x, p.y + Math.abs(Math.sin(time * 9 + p.ph)) * .1, p.z);
+  });
+}
+function fling(){ people.forEach(p => { p.vy = rnd(5, 10); p.y = .01; }); }
+
+/* ---------- 街 ---------- */
+let fly = [], trains = [], wells = [], time = 0, beatT = 0, beatN = 0, pulse = 0;
+function resetCity(){
+  clearGroup(objGroup); fly.forEach(f => dispose(f.o)); fly = [];
+  stacks = []; for (let z = 0; z < N; z++){ stacks.push([]); for (let x = 0; x < N; x++) stacks[z].push([]); }
+  S.count = 0; S.sel = null; S.endT = 0; lastPut = null; if (ghost){ world.remove(ghost); dispose(ghost); ghost = null; } routes(); setSky();
+}
+function setSky(){ document.body.setAttribute('data-sky', S.count >= 6 ? 3 : S.count >= 3 ? 2 : S.count >= 1 ? 1 : 0); }
+function trainMesh(){
+  const g = new THREE.Group();
+  for (let i = -1; i <= 1; i++){ g.add(box(.2, .18, .36, L(0xffffff), 0, 0, i * .4)); g.add(box(.21, .05, .37, L(COL.M), 0, -.03, i * .4)); }
+  return g;
+}
+function gridNow(){ return stacks.map(r => r.map(s => s.length ? s[0].t : null)); }
+function refreshPuzzle(){
+  const ev = S.ev = evaluate(gridNow()); S.score = ev.total;
+  clearGroup(trainGroup); clearGroup(underGroup); trains = []; wells = [];
+  for (let z = 0; z < N; z++) for (let x = 0; x < N; x++){
+    const s = stacks[z][x]; if (!s.length) continue; const e = s[0];
+    if (e.t === 'W') wells.push({ x, z, t:rnd(.8, 3) });
+    if (e.t === 'H'){ const d = ev.dots[x + ',' + z] || [0,0,0]; e.o.userData.dots.forEach((m, k) => m.material.color.setHex(d[k] ? m.userData.on : 0x777777)); e.o.userData.happy = d[0] + d[1] + d[2] === 3; }
+  }
+  ev.tunnels.forEach(t => {
+    const hz = t.z1 === t.z2, len = hz ? t.x2 - t.x1 : t.z2 - t.z1;
+    underGroup.add(box(hz ? len : .3, .22, hz ? .3 : len, t.flooded ? L(0x3a9cff, { transparent:true, opacity:.85 }) : L(0xe9a13a), (wx(t.x1) + wx(t.x2)) / 2, -1.05, (wx(t.z1) + wx(t.z2)) / 2));
+    if (!t.flooded){ const o = box(hz ? .34 : .16, .13, hz ? .16 : .34, B(0xffffff), 0, -.86, 0); trainGroup.add(o); trains.push({ under:true, o, t, ph:Math.random() * 6 }); }
+  });
+}
+function setGhost(sel){
+  if (ghost){ world.remove(ghost); dispose(ghost); ghost = null; }
+  const p = S.queue[S.turn];
+  for (let z = 0; z < N; z++) for (let x = 0; x < N; x++){
+    const t = tiles[z][x]; let c = t.userData.base;
+    if (sel && p){ const d = Math.max(Math.abs(x - sel.x), Math.abs(z - sel.z)); if (d === 0) c = 0xffe45c; else if (d <= RANGE[p]) c = new THREE.Color(c).lerp(new THREE.Color(COL[p]), .3).getHex(); }
+    t.material.color.setHex(c);
+  }
+  if (!sel || !p) return;
+  ghost = mk(p, true); ghost.position.set(wx(sel.x), 0, wx(sel.z));
+  ghost.traverse(c => { if (c.material){ c.material.transparent = true; c.material.opacity = .55; } });
+  world.add(ghost);
+}
+function putObj(t, x, z){
+  const s = stacks[z][x], o = mk(t, true, x, z); o.position.set(wx(x), 0, wx(z)); o.userData.pop = t === 'H' ? 1 : 0; o.userData.sq = 0; o.userData.k = x + z;
+  objGroup.add(o); s.push({ t, o });
+}
+function place(x, z){
+  const p = S.queue[S.turn]; if (!p || stacks[z][x].length || S.endT > 0) return;
+  const a = S.ev;
+  putObj(p, x, z); lastPut = { x, z };
+  burst(wx(x), .05, wx(z), 12, [0xffffff, 0xe8e2d0, COL[p]], 1.8, 1.8, .09, 6);
+  S.turn++; S.sel = null; setGhost(null); refreshPuzzle();
+  const b = S.ev, msg = [];
+  if (b.nCombo > a.nCombo) msg.push('スーパーメトロ井戸 ' + sgn(b.combo - a.combo));
+  if (b.houses !== a.houses) msg.push('住民 ' + sgn(b.houses - a.houses));
+  if (b.tunnel !== a.tunnel) msg.push(b.tunnel > a.tunnel ? '路線開通 ' + sgn(b.tunnel - a.tunnel) : '路線 ' + sgn(b.tunnel - a.tunnel));
+  if (b.direct !== a.direct) msg.push('地下直結 ' + sgn(b.direct - a.direct));
+  if (b.flood < a.flood) msg.push('浸水！ ' + sgn(b.flood - a.flood));
+  if (b.feud < a.feud) msg.push('井戸げんか ' + sgn(b.feud - a.feud));
+  toast(msg.length ? msg.join('　') : NAME[p] + 'を置いた ±0');
+  if (b.tunnels.length !== a.tunnels.length || b.flood < a.flood) xrayPulse = 2.4;
+  if (b.nCombo > a.nCombo){
+    const bn = $('banner'); bn.classList.remove('go'); void bn.offsetWidth; bn.classList.add('go');
+    firework(wx(x), 3.6, wx(z)); firework(wx(x) + rnd(-1.5, 1.5), 4.6, wx(z) + rnd(-1.5, 1.5)); fling(); shake = .25; sfx('combo');
+  } else if (b.flood < a.flood){ burst(wx(x), .2, wx(z), 46, [0x2e8bff, 0x7cc4ff, 0xd8f0ff], 2.6, 7, .16, 9); shake = .3; sfx('flood'); }
+  else if (b.feud < a.feud) sfx('feud');
+  else if (b.tunnel > a.tunnel) sfx('line');
+  else sfx('put');
+  if (p === 'W') geyser(x, z);
+  if (S.turn >= TURNS) S.endT = 1.8;
+  updateUI();
+}
+function finish(){
+  sfx('end');
+  const e = S.ev, s = S.score, rec = s > best;
+  if (rec){ best = s; lsSet('supermetroido-best', String(best)); }
+  $('resScore').textContent = s; $('resRank').textContent = '「' + rankOf(s) + '」' + (rec ? '　ベスト更新！' : '');
+  const row = (k, v, n) => '<div><span>' + k + '</span><span class="pt' + (v < 0 ? ' neg' : '') + '">' + (n || '') + sgn(v) + '</span></div>';
+  $('resRows').innerHTML = row('住民の満足', e.houses, '大満足' + e.happy + '軒　') + row('路線', e.tunnel, e.nTunnel + '本　') + row('地下直結', e.direct) + row('浸水', e.flood) + row('井戸げんか', e.feud) + row('スーパーメトロ井戸', e.combo, '×' + e.nCombo + '　');
+  setShare($('resShare'), GAME_NAME + 'の街づくりで' + s + '点「' + rankOf(s) + '」（スーパーメトロ井戸×' + e.nCombo + '、浸水' + (-e.flood / PT.flood) + '件）');
+  for (let i = 0; i < 4; i++) firework(rnd(-3, 3), rnd(3, 5.5), rnd(-3, 3));
+  show('result');
+}
+function routes(){
+  if (S.game === 'puzzle'){ refreshPuzzle(); return; }
+  clearGroup(trainGroup); clearGroup(underGroup); trains = []; wells = [];
+  for (let z = 0; z < N; z++) for (let x = 0; x < N; x++){
+    const t = topT(x, z);
+    if (t === 'W') wells.push({ x, z, t:rnd(.3, 1.5) });
+    if (t !== 'M') continue;
+    for (const [dx, dz] of [[1,0],[0,1]]){
+      let k = 1, well = null;
+      for (;; k++){ const u = topT(x + dx * k, z + dz * k); if (!inB(x + dx * k, z + dz * k)){ k = 0; break; } if (u === 'M') break; if (u === 'W' && !well) well = { x:x + dx * k, z:z + dz * k }; }
+      if (!k) continue;
+      const o = trainMesh(); trainGroup.add(o);
+      trains.push({ o, a:{ x, z }, b:{ x:x + dx * k, z:z + dz * k }, len:k, u:Math.random(), well });
+      if (stacks[z][x][0].t === 'M' && stacks[z + dz * k][x + dx * k][0].t === 'M')
+        underGroup.add(box(dx ? k : .3, .22, dz ? k : .3, L(0xe9a13a), wx(x) + dx * k / 2, -1.05, wx(z) + dz * k / 2));
+    }
+  }
+  if (trains.length) discover('train');
+}
+const hTop = c => stacks[c.z][c.x].length * LH;
+function updTrains(dt){
+  trains.forEach(t => {
+    if (t.under){ const k = .5 + .5 * Math.sin(time * 1.4 + t.ph), q = t.t; t.o.position.x = wx(q.x1) + (wx(q.x2) - wx(q.x1)) * k; t.o.position.z = wx(q.z1) + (wx(q.z2) - wx(q.z1)) * k; return; }
+    t.u += dt / (.7 + t.len * .22);
+    if (t.u >= 1){
+      t.u = 0; const c = t.a; t.a = t.b; t.b = c;
+      burst(wx(t.a.x), hTop(t.a), wx(t.a.z), 8, [0xffffff, COL.M, 0xffe08a], 1.6, 2.5, .1, 9);
+      const s = stacks[t.a.z][t.a.x]; if (s.length) s[s.length - 1].o.userData.sq = 1;
+      if (t.well) geyser(t.well.x, t.well.z);
+      sfx('hop', 180);
+    }
+    const pos = u => { const y = hTop(t.a) + (hTop(t.b) - hTop(t.a)) * u + Math.sin(Math.PI * u) * (1 + t.len * .45) * (t.well ? 1.8 : 1) + .1; return [wx(t.a.x) + (wx(t.b.x) - wx(t.a.x)) * u, y, wx(t.a.z) + (wx(t.b.z) - wx(t.a.z)) * u]; };
+    const p = pos(t.u), q = pos(Math.min(1, t.u + .03));
+    t.o.position.set(p[0], p[1], p[2]); if (t.u < .97) t.o.lookAt(world.localToWorld(new THREE.Vector3(q[0], q[1], q[2])));
+  });
+}
+function geyser(x, z){
+  if (topT(x, z) !== 'W') return;
+  const nb = [[1,0],[-1,0],[0,1],[0,-1]].map(d => topT(x + d[0], z + d[1]));
+  const cols = [0x2e8bff, 0x7cc4ff, 0xd8f0ff]; let size = .1, n = 14;
+  if (nb.includes('S')){ cols.push(0x4caf50, 0xff8a1f, 0xffffff, 0xe8413a, 0x9bd94a); size = .15; n = 20; discover('sale'); }
+  if (nb.includes('M')){ cols.push(0xffffff, 0xf29a1f, 0xffe08a); size = .19; n = 22; discover('trainwell'); }
+  burst(wx(x), hTop({ x, z }) - LH + .3, wx(z), n, cols, 1.1, 6.5, size, 9);
+  sfx('gey', 260);
+}
+function findLine(x, z){
+  for (const [dx, dz] of [[1,0],[0,1]]) for (let k = -2; k <= 0; k++){
+    const c = [0, 1, 2].map(i => ({ x:x + dx * (k + i), z:z + dz * (k + i) })), t = c.map(q => topT(q.x, q.z));
+    if (t[1] === 'M' && ((t[0] === 'S' && t[2] === 'W') || (t[0] === 'W' && t[2] === 'S'))) return t[0] === 'S' ? c : c.reverse();
+  }
+  return null;
+}
+function add(t, x, z){
+  const s = stacks[z][x], lvl = s.length;
+  const o = mk(t, lvl === 0); o.position.set(wx(x), lvl * LH, wx(z)); o.userData.pop = 0; o.userData.sq = 0; o.userData.k = x + z + lvl;
+  objGroup.add(o); s.push({ t, o }); lastPut = { x, z };
+  burst(wx(x), lvl * LH + .05, wx(z), 10, [0xffffff, 0xe8e2d0, COL[t]], 1.8, 1.6, .09, 6);
+  sfx('put', 40);
+  if (t === 'W'){ discover('well'); }
+  if (s.length >= 3) discover('tower');
+  const line = findLine(x, z);
+  if (line) launchLine(line);
+  else if (s.length >= MAXH) launchTower(x, z);
+  routes();
+  if (t === 'W' && !line) geyser(x, z);
+  updateUI();
+}
+function launchLine(cells){
+  cells.forEach((c, i) => { const e = stacks[c.z][c.x].pop(); fly.push({ o:e.o, vy:0, delay:.45 + i * .16, spin:7 + i * 3, x0:e.o.position.x }); });
+  S.count++; setSky(); fling(); shake = .35;
+  if (S.mode === 'play'){
+    const b = $('banner'); b.classList.remove('go'); void b.offsetWidth; b.classList.add('go');
+    const f = $('flash'); f.classList.remove('go'); void f.offsetWidth; f.classList.add('go');
+    sfx('launch'); discover('line');
+    if (S.count === 1) toast('街が踊りはじめた');
+    if (S.count === 3){ discover('disco'); toast('街がディスコ化した'); }
+    if (S.count === 6){ discover('space'); toast('街ごと宇宙に出た'); }
+  }
+}
+function launchTower(x, z){
+  const s = stacks[z][x];
+  while (s.length){ const e = s.shift(); fly.push({ o:e.o, vy:0, delay:.5, spin:5, x0:e.o.position.x }); }
+  shake = .25; fling(); if (S.mode === 'play'){ sfx('launch'); discover('towerup'); }
+}
+function updFly(dt){
+  for (let i = fly.length - 1; i >= 0; i--){
+    const f = fly[i], o = f.o;
+    if (f.delay > 0){ f.delay -= dt; o.position.x = f.x0 + rnd(-.05, .05); o.rotation.y += dt * 3; continue; }
+    f.vy += 24 * dt; o.position.y += f.vy * dt; o.rotation.y += f.spin * dt;
+    for (let k = 0; k < 2; k++) spawn(o.position.x + rnd(-.15, .15), o.position.y - .1, o.position.z + rnd(-.15, .15), rnd(-.4, .4), -rnd(1.5, 3), rnd(-.4, .4), rnd(.3, .55), .16, pickOf([0xffe45c, 0xff8a1f, 0xff4a2a, 0xffffff]), 0);
+    if (o.position.y > 8.5){ firework(o.position.x, o.position.y, o.position.z); firework(o.position.x + rnd(-1.5, 1.5), o.position.y - rnd(0, 2), o.position.z + rnd(-1.5, 1.5)); objGroup.remove(o); dispose(o); fly.splice(i, 1); shake = Math.max(shake, .15); sfx('boom', 90); }
+  }
+}
+function autoStep(){
+  const free = []; for (let z = 0; z < N; z++) for (let x = 0; x < N; x++) if (stacks[z][x].length < MAXH - 1) free.push({ x, z });
+  if (!free.length) return;
+  if (Math.random() < .3){
+    for (const c of free.sort(() => Math.random() - .5)) for (const t of ['S','M','W']){
+      const s = stacks[c.z][c.x]; s.push({ t }); const l = findLine(c.x, c.z); s.pop();
+      if (l){ add(t, c.x, c.z); return; }
+    }
+  }
+  const c = pickOf(free); add(pickOf(['S','M','W']), c.x, c.z);
+}
+
+/* ---------- 画面 ---------- */
+function show(mode){
+  S.mode = mode; const pz = S.game === 'puzzle';
+  $('titleOv').hidden = mode !== 'title'; $('resultOv').hidden = mode !== 'result';
+  $('panelP').hidden = !(mode === 'play' && pz); $('panelT').hidden = !(mode === 'play' && !pz);
+  $('hud').hidden = mode === 'title'; $('menuBtn').hidden = mode !== 'play'; $('sndBtn').hidden = mode === 'play';
+  $('sndBtn').style.marginLeft = mode === 'title' ? 'auto' : '0'; $('viewBar').hidden = true;
+  refreshHome(); updateUI(); requestAnimationFrame(resize);
+}
+function refreshHome(){
+  const on = (S.mode === 'title' || S.mode === 'result') && !paused, a = $('homeLink');
+  a.style.visibility = on ? '' : 'hidden'; a.tabIndex = on ? 0 : -1;
+  if (on) a.removeAttribute('aria-hidden'); else a.setAttribute('aria-hidden', 'true');
+}
+const nFound = () => ZUKAN.filter(z => found[z[0]]).length;
+function chip(t, cls){ return '<span class="chip ' + t + ' ' + (cls || '') + '">' + NAME[t] + '</span>'; }
+function sgn(n){ return (n > 0 ? '+' : n < 0 ? '−' : '±') + Math.abs(n); }
+function updateUI(){
+  if (S.game === 'puzzle'){
+    $('hud').textContent = S.score + '点' + (S.mode === 'play' ? '　のこり' + (TURNS - S.turn) : '');
+    const p = S.queue[S.turn], b = $('putBtn');
+    $('nowChip').innerHTML = p ? chip(p, 'now') : '';
+    $('nextChips').innerHTML = S.queue.slice(S.turn + 1, S.turn + 3).map(t => chip(t, 'sm')).join(' ');
+    if (S.sel && p){
+      const g = gridNow(); g[S.sel.z][S.sel.x] = p; const d = evaluate(g).total - S.score;
+      b.disabled = false; b.textContent = 'ここに置く（' + sgn(d) + '）'; $('hint').textContent = 'もう一度タップでも置ける';
+    } else { b.disabled = true; b.textContent = 'ここに置く'; $('hint').textContent = p ? 'マスをタップ・ドラッグで回転' : ''; }
+    $('xrayBtn').classList.toggle('xon', xrayOn);
+  } else $('hud').textContent = '打ち上げ ' + S.count + '回';
+  document.querySelectorAll('button.t').forEach(b => b.classList.toggle('on', b.dataset.t === S.cur));
+  $('autoBtn').classList.toggle('on', S.auto); $('autoBtn').textContent = S.auto ? '自動中' : '自動';
+  $('bestLine').textContent = best > 0 ? '街づくりのベスト：' + best + '点（' + rankOf(best) + '）' : '';
+  setSnd();
+}
+let toastT = null;
+function toast(msg){ const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2400); }
+function discover(k){
+  if (S.mode !== 'play' || S.game !== 'toy' || found[k]) return;
+  found[k] = 1; lsSet('supermetroido-found', JSON.stringify(found));
+  const z = ZUKAN.find(q => q[0] === k); toast('発見 ' + nFound() + '/' + ZUKAN.length + '：' + z[1]); sfx('found');
+}
+function startToy(){ initAudio(true); S.game = 'toy'; resetCity(); setGhost(null); S.auto = false; S.cur = 'S'; cam.ph = .6; show('play'); toast('マスをタップ。同じマスには積める'); }
+function startPuzzle(){
+  initAudio(true); S.game = 'puzzle'; S.auto = false; resetCity();
+  const g = newGrid(); for (let z = 0; z < N; z++) for (let x = 0; x < N; x++) if (g[z][x] === 'H') putObj('H', x, z);
+  S.queue = newQueue(); S.turn = 0; xrayPulse = 0; refreshPuzzle(); setGhost(null); cam.ph = .78; show('play');
+  toast('スーパー → メトロ → 井戸 を一直線に');
+}
+function backToTitle(){ paused = false; $('pauseOv').hidden = true; S.game = 'toy'; S.queue = []; resetCity(); setGhost(null); show('title'); }
+function shareHref(text){ return 'https://x.com/intent/post?text=' + encodeURIComponent(text + ' ' + HASHTAG) + '&url=' + encodeURIComponent(SHARE_URL); }
+function setShare(el, text){ el.href = shareHref(text); if (matchMedia('(pointer: coarse)').matches){ el.removeAttribute('target'); el.removeAttribute('rel'); } }
+const SND_ON = '<svg viewBox="0 0 20 20"><path d="M3 8h3l4-3v10l-4-3H3z" fill="currentColor"/><path d="M13 7c1.200 1.600 1.200 4.400 0 6M15 5c2.200 2.800 2.200 7.200 0 10" fill="none" stroke="currentColor" stroke-width="1.600" stroke-linecap="round"/></svg>';
+const SND_OFF = '<svg viewBox="0 0 20 20"><path d="M3 8h3l4-3v10l-4-3H3z" fill="currentColor"/><path d="M13 8l4 4M17 8l-4 4" fill="none" stroke="currentColor" stroke-width="1.600" stroke-linecap="round"/></svg>';
+function setSnd(){ $('sndBtn').innerHTML = soundOn ? SND_ON : SND_OFF; $('pSndBtn').textContent = '音：' + (soundOn ? 'ON' : 'OFF'); }
+function toggleSnd(){ soundOn = !soundOn; lsSet('supermetroido-sound', soundOn ? '1' : '0'); if (soundOn) initAudio(); setSnd(); }
+function arm2(btn, label, fn){
+  let armed = false, tm = null;
+  const dis = () => { armed = false; clearTimeout(tm); btn.textContent = label; btn.classList.remove('danger'); };
+  btn.addEventListener('click', () => {
+    if (!armed){ armed = true; btn.textContent = '本当に？（もう一度）'; btn.classList.add('danger'); clearTimeout(tm); tm = setTimeout(dis, 3000); return; }
+    dis(); fn();
+  });
+}
+function setPause(on){
+  if (S.mode !== 'play') return;
+  paused = on; $('pauseOv').hidden = !on; $('menuBtn').hidden = on;
+  if (on){
+    const pz = S.game === 'puzzle'; $('pToy').hidden = pz; $('pPuz').hidden = !pz; $('pResetBtn').hidden = pz;
+    $('zukanN').textContent = nFound() + '/' + ZUKAN.length;
+    $('zukan').innerHTML = ZUKAN.map(z => found[z[0]] ? '<li class="got">' + z[1] + '</li>' : '<li>？？？</li>').join('');
+    $('pauseInfo').textContent = 'いま' + S.score + '点・のこり' + (TURNS - S.turn) + '手';
+    setShare($('pauseShare'), pz ? GAME_NAME + 'で街づくり中（いま' + S.score + '点・のこり' + (TURNS - S.turn) + '手）' : GAME_NAME + 'を' + S.count + '回打ち上げた（不条理図鑑 ' + nFound() + '/' + ZUKAN.length + '）');
+  } else initAudio();
+  refreshHome();
+}
+const RULES = '<li><b>住民</b>井戸(1マス)・スーパー(2マス)・駅(3マス)が近いほど満足<span class="pt">1 / 3 / 6</span></li><li><b>路線</b>同じ列の駅は地下でつながる<span class="pt">+2</span></li><li><b>地下直結</b>路線の真上にスーパー<span class="pt">+3</span></li><li><b>浸水</b>路線の真上に井戸<span class="pt neg">−8</span></li><li><b>井戸げんか</b>井戸どうしが隣<span class="pt neg">−4</span></li><li><b>スーパーメトロ井戸</b>この順に一直線<span class="pt">+12</span></li>';
+$('rulesT').innerHTML = RULES; $('rulesP').innerHTML = RULES;
+$('startPBtn').addEventListener('click', startPuzzle);
+$('startTBtn').addEventListener('click', startToy);
+$('againBtn').addEventListener('click', startPuzzle);
+$('titleBtn').addEventListener('click', backToTitle);
+$('putBtn').addEventListener('click', () => { if (S.sel) place(S.sel.x, S.sel.z); });
+$('xrayBtn').addEventListener('click', () => { xrayOn = !xrayOn; updateUI(); });
+$('viewBtn').addEventListener('click', () => { $('resultOv').hidden = true; $('viewBar').hidden = false; });
+$('backResBtn').addEventListener('click', () => { $('resultOv').hidden = false; $('viewBar').hidden = true; });
+$('sndBtn').addEventListener('click', toggleSnd);
+$('pSndBtn').addEventListener('click', toggleSnd);
+$('menuBtn').addEventListener('click', () => setPause(true));
+$('resumeBtn').addEventListener('click', () => setPause(false));
+arm2($('pResetBtn'), '更地にする', () => { resetCity(); S.auto = false; setPause(false); updateUI(); });
+arm2($('pTitleBtn'), 'タイトルへ', backToTitle);
+arm2($('pHomeBtn'), 'サイトのトップへ', () => { location.href = '/'; });
+document.querySelectorAll('button.t').forEach(b => b.addEventListener('click', () => { S.cur = b.dataset.t; updateUI(); }));
+$('autoBtn').addEventListener('click', () => { S.auto = !S.auto; S.autoT = 0; updateUI(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden && AC) initAudio(); });
+
+/* ---------- 入力 ---------- */
+const ray = new THREE.Raycaster(), plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), hitP = new THREE.Vector3(), inv = new THREE.Matrix4();
+let ptr = null;
+function pick(e){
+  const r = cv.getBoundingClientRect(); if (r.width < 1 || r.height < 1) return null;
+  ray.setFromCamera({ x:(e.clientX - r.left) / r.width * 2 - 1, y:-((e.clientY - r.top) / r.height * 2 - 1) }, camera);
+  world.updateMatrixWorld(true); inv.copy(world.matrixWorld).invert(); ray.ray.applyMatrix4(inv);
+  if (!ray.ray.intersectPlane(plane, hitP)) return null;
+  const x = Math.round(hitP.x + (N - 1) / 2), z = Math.round(hitP.z + (N - 1) / 2);
+  return inB(x, z) ? { x, z } : null;
+}
+cv.addEventListener('pointerdown', e => {
+  if (ptr) return;
+  try { cv.setPointerCapture(e.pointerId); } catch (er) {}
+  ptr = { id:e.pointerId, x0:e.clientX, y0:e.clientY, x:e.clientX, y:e.clientY, drag:false };
+});
+cv.addEventListener('pointermove', e => {
+  if (!ptr || ptr.id !== e.pointerId) return;
+  if (!ptr.drag && Math.hypot(e.clientX - ptr.x0, e.clientY - ptr.y0) > 9) ptr.drag = true;
+  if (ptr.drag){ cam.th -= (e.clientX - ptr.x) * .008; cam.ph = Math.max(.25, Math.min(1.3, cam.ph + (e.clientY - ptr.y) * .006)); }
+  ptr.x = e.clientX; ptr.y = e.clientY;
+});
+function endPtr(e){
+  if (!ptr || ptr.id !== e.pointerId) return;
+  const tap = !ptr.drag && e.type === 'pointerup'; ptr = null;
+  if (!tap || S.mode !== 'play' || paused) return;
+  const c = pick(e); if (!c) return;
+  if (S.game !== 'puzzle'){ add(S.cur, c.x, c.z); return; }
+  if (S.endT > 0 || stacks[c.z][c.x].length) return;
+  if (S.sel && S.sel.x === c.x && S.sel.z === c.z){ place(c.x, c.z); return; }
+  S.sel = c; setGhost(c); sfx('sel'); updateUI();
+}
+['pointerup', 'pointercancel', 'lostpointercapture'].forEach(n => cv.addEventListener(n, endPtr));
+
+/* ---------- ループ ---------- */
+const popS = p => p < .6 ? p / .6 * 1.2 : 1.2 - (p - .6) / .4 * .2;
+function tick(dt){
+  time += dt;
+  if (S.mode !== 'play' && !ptr) cam.th += dt * .2;
+  shake = Math.max(0, shake - dt * .6);
+  beatT += dt; pulse = Math.max(0, pulse - dt * 4);
+  if (beatT >= .234){ beatT -= .234; beatN++;
+    if (S.count >= 1 && beatN % 2 === 0){ pulse = 1; sfx('kick'); }
+    if (S.count >= 3 && beatN % 2 === 1) sfx('hat');
+    if (S.count >= 3 && soundOn && AC && S.mode === 'play' && !paused && beatN % 2 === 0){ try { tone([110,110,165,147,110,131,165,196][(beatN / 2) % 8], 0, .16, 'sawtooth', .04); } catch (e) {} }
+  }
+  const dance = S.count >= 1 ? .13 : 0;
+  for (let z = 0; z < N; z++) for (let x = 0; x < N; x++){
+    const s = stacks[z][x];
+    for (let i = 0; i < s.length; i++){
+      const o = s[i].o, u = o.userData; if (u.pop < 1) u.pop = Math.min(1, u.pop + dt * 2.8); u.sq = Math.max(0, u.sq - dt * 5);
+      const d = dance * pulse * (u.k % 2 ? 1 : -.7) - u.sq * .25, p = popS(u.pop);
+      o.scale.set(p * (1 - d * .5), p * (1 + d), p * (1 - d * .5));
+      if (u.dots) o.position.y = u.happy ? Math.abs(Math.sin(time * 4 + u.k)) * .1 : 0;
+      if (S.count >= 3) o.rotation.y = Math.sin(time * 3 + u.k) * .25 * (i + 1) / 3; else o.rotation.y = 0;
+    }
+    const m = tiles[z][x].material;
+    if (S.count >= 3) m.color.setHSL((time * .12 + (x + z) * .07 + Math.floor(beatN / 2) * .11) % 1, .75, .62); else if (S.game !== 'puzzle') m.color.setHex(tiles[z][x].userData.base);
+    const op = (S.game === 'puzzle' && (xrayOn || xrayPulse > 0)) ? .22 : 1; m.opacity += (op - m.opacity) * Math.min(1, dt * 7); m.depthWrite = m.opacity > .9;
+  }
+  if (S.count >= 6){ world.rotation.z = Math.sin(time * .8) * .06; world.rotation.x = Math.cos(time * .6) * .05; world.position.y = Math.sin(time * 1.2) * .3; }
+  else { world.rotation.set(0, 0, 0); world.position.y = 0; }
+  wells.forEach(w => { w.t -= dt; if (w.t <= 0){ w.t = rnd(1.2, 3.2); geyser(w.x, w.z); } });
+  updTrains(dt); updFly(dt); updPeople(dt); updParticles(dt);
+  if (xrayPulse > 0) xrayPulse -= dt;
+  if (ghost) ghost.position.y = .12 + Math.sin(time * 5) * .05;
+  if (S.endT > 0){ S.endT -= dt; if (S.endT <= 0){ S.endT = 0; finish(); } }
+  if (S.auto || S.mode === 'title'){ S.autoT -= dt; if (S.autoT <= 0){ S.autoT = S.mode === 'title' ? .5 : .28; autoStep(); } }
+}
+let last = 0;
+function loop(now){
+  requestAnimationFrame(loop);
+  const dt = Math.min(.033, Math.max(0, (now - last) / 1000)); last = now;
+  if ((stageEl.clientWidth || 0) < 1 || (stageEl.clientHeight || 0) < 1) return;
+  if (W !== stageEl.clientWidth || H !== stageEl.clientHeight) resize();
+  if (W < 1 || H < 1) return;
+  try { if (!paused) tick(dt); placeCam(); renderer.render(scene, camera); } catch (e) { console.error(e); }
+}
+window.addEventListener('resize', resize);
+if (window.ResizeObserver) new ResizeObserver(resize).observe(stageEl);
+setShare($('titleShare'), 'スーパーと駅と井戸を並べる街づくり「' + GAME_NAME + '」');
+resetCity(); show('title'); resize();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
