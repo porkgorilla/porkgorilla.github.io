@@ -109,6 +109,7 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 | [ダレダレ四天王](https://porkgorilla.com/works/daredare.html) | GAME | ヒントを読んで、4人のうち誰の話かを当てる肩書きクイズ |
 | [眠らない眼](https://porkgorilla.com/works/nemuranaime.html) | GAME | 眼窩にコーヒーフレッシュを挟んでパカッと開ける3Dシミュレーター |
 | [スーパーメトロ井戸](https://porkgorilla.com/works/supermetroido.html) | GAME | スーパーと地下鉄の駅と井戸をグリッドに置く3D街づくり |
+| [熟女戦記](https://porkgorilla.com/works/jukujosenki.html) | GAME | パーマのおばちゃんが布団たたきでカラスを迎え撃つ3D空中シューティング |
 
 ## 構成
 
@@ -221,7 +222,8 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
     ├── outlook-nai.html
     ├── daredare.html
     ├── nemuranaime.html
-    └── supermetroido.html
+    ├── supermetroido.html
+    └── jukujosenki.html
 ```
 
 `theme.css` / `site.js` / `favicon.svg` はルート直下に置き、各作品ページからは絶対パス(`/theme.css` など)で読み込みます。404.html も GitHub Pages の仕様上ルート直下が必須です。
