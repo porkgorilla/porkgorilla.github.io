@@ -110,6 +110,7 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 | [眠らない眼](https://porkgorilla.com/works/nemuranaime.html) | GAME | 眼窩にコーヒーフレッシュを挟んでパカッと開ける3Dシミュレーター |
 | [スーパーメトロ井戸](https://porkgorilla.com/works/supermetroido.html) | GAME | スーパーと地下鉄の駅と井戸をグリッドに置く3D街づくり |
 | [熟女戦記](https://porkgorilla.com/works/jukujosenki.html) | GAME | パーマのおばちゃんが布団たたきでカラスを迎え撃つ3D空中シューティング |
+| [描画即撃](https://porkgorilla.com/works/quickdraw.html) | GAME | 先に写真が表示されたほうが撃つ、爆速ホームページの早撃ちゲーム |
 
 ## 構成
 
@@ -223,7 +224,8 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
     ├── daredare.html
     ├── nemuranaime.html
     ├── supermetroido.html
-    └── jukujosenki.html
+    ├── jukujosenki.html
+    └── quickdraw.html
 ```
 
 `theme.css` / `site.js` / `favicon.svg` はルート直下に置き、各作品ページからは絶対パス(`/theme.css` など)で読み込みます。404.html も GitHub Pages の仕様上ルート直下が必須です。
