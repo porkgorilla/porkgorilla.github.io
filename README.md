@@ -111,6 +111,7 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
 | [スーパーメトロ井戸](https://porkgorilla.com/works/supermetroido.html) | GAME | スーパーと地下鉄の駅と井戸をグリッドに置く3D街づくり |
 | [熟女戦記](https://porkgorilla.com/works/jukujosenki.html) | GAME | パーマのおばちゃんが布団たたきでカラスを迎え撃つ3D空中シューティング |
 | [描画即撃](https://porkgorilla.com/works/quickdraw.html) | GAME | 先に写真が表示されたほうが撃つ、爆速ホームページの早撃ちゲーム |
+| [花だけ撮らせろ！](https://porkgorilla.com/works/hanadake.html) | GAME | 花を撮りたいのに人が群がってくる、おしおきビームつき3D撮影ゲーム |
 
 ## 構成
 
@@ -225,7 +226,8 @@ porkgorilla の実験場。ブラウザだけで動く小さな Web アプリを
     ├── nemuranaime.html
     ├── supermetroido.html
     ├── jukujosenki.html
-    └── quickdraw.html
+    ├── quickdraw.html
+    └── hanadake.html
 ```
 
 `theme.css` / `site.js` / `favicon.svg` はルート直下に置き、各作品ページからは絶対パス(`/theme.css` など)で読み込みます。404.html も GitHub Pages の仕様上ルート直下が必須です。

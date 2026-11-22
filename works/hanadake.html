@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>花だけ撮らせろ！ | porkgorilla://</title>
+<meta name="description" content="小さな花を撮りたいだけなのに、カメラを構えると人がワラワラ寄ってきてポーズを決め、花を踏み散らす。写り込んだ人にはおしおきビーム。">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-MBT4300J0L');
+</script>
+<meta property="og:type" content="website">
+<meta property="og:title" content="花だけ撮らせろ！">
+<meta property="og:description" content="花を撮りたいだけなのに、人がワラワラ寄ってきて花を踏む。写り込んだ人にはおしおきビーム。">
+<meta property="og:url" content="https://porkgorilla.com/works/hanadake.html">
+<meta property="og:image" content="https://porkgorilla.com/assets/og-hanadake.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="花だけ撮らせろ！">
+<meta name="twitter:description" content="花を撮りたいだけなのに、人がワラワラ寄ってきて花を踏む。写り込んだ人にはおしおきビーム。">
+<meta name="twitter:image" content="https://porkgorilla.com/assets/og-hanadake.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+[hidden]{display:none!important}
+*,*::before,*::after{box-sizing:border-box}
+:root{--ink:#2d2a22;--sub:#6f6a5c;--paper:#fffaf0;--accent:#e8577a;--leaf:#4f8a3c;--line:rgba(45,42,34,.14)}
+html{height:100%;box-sizing:border-box;background:#cfe8f3}
+body{height:100%;margin:0;position:relative;overflow:hidden;font-family:"Zen Kaku Gothic New",system-ui,-apple-system,"Hiragino Sans",sans-serif;color:var(--ink);-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;touch-action:none}
+button{font-family:inherit;cursor:pointer}
+#stage{position:absolute;inset:0;overflow:hidden}
+#cv{position:absolute;inset:0;width:100%;height:100%;display:block}
+#labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.bub{position:absolute;left:0;top:0;transform:translate(-50%,-100%);background:#fff;color:#2d2a22;font-weight:700;font-size:13px;padding:4px 9px;border-radius:12px;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.18);opacity:0;transition:opacity .15s}
+.bub::after{content:"";position:absolute;left:50%;bottom:-5px;margin-left:-5px;border:5px solid transparent;border-top-color:#fff;border-bottom:0}
+.bub.on{opacity:1}
+.bub.ex{background:#ffd23f;font-size:16px;font-weight:900;padding:2px 9px}
+.bub.ex::after{border-top-color:#ffd23f}
+.bub.bad{background:#e8577a;color:#fff}
+.bub.bad::after{border-top-color:#e8577a}
+.flt{position:absolute;left:0;top:0;transform:translate(-50%,-50%);font-weight:900;font-size:17px;white-space:nowrap;color:#8a5a2b;text-shadow:0 0 4px #fff,0 0 2px #fff}
+.flt.pun{color:#e8577a;font-size:20px}
+
+/* viewfinder */
+#finder{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .18s}
+#finder.on{opacity:1}
+.mask{position:absolute;background:rgba(14,16,14,.78)}
+#frame{position:absolute;border:1px solid rgba(255,255,255,.35)}
+#frame .c{position:absolute;width:22px;height:22px;border:3px solid #fff}
+#frame .c1{left:-3px;top:-3px;border-right:0;border-bottom:0}
+#frame .c2{right:-3px;top:-3px;border-left:0;border-bottom:0}
+#frame .c3{left:-3px;bottom:-3px;border-right:0;border-top:0}
+#frame .c4{right:-3px;bottom:-3px;border-left:0;border-top:0}
+#frame .g{position:absolute;background:rgba(255,255,255,.16)}
+#af{position:absolute;left:50%;top:50%;width:64px;height:64px;margin:-32px 0 0 -32px;border:2px solid rgba(255,255,255,.75);border-radius:6px;transition:border-color .1s}
+#af.ok{border-color:#59e07a;box-shadow:0 0 0 1px rgba(89,224,122,.4)}
+#fwarn{position:absolute;left:50%;top:10px;transform:translateX(-50%);font-weight:900;font-size:15px;padding:3px 12px;border-radius:999px;white-space:nowrap;background:rgba(232,87,122,.9);color:#fff}
+#fwarn.clean{background:rgba(70,180,100,.9)}
+#finfo{position:absolute;left:0;right:0;bottom:8px;text-align:center;font:600 12px/1 ui-monospace,Menlo,Consolas,monospace;color:#fff;letter-spacing:.08em;text-shadow:0 1px 2px #000}
+#flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+
+/* HUD */
+#hud{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;gap:8px;padding:8px 10px;pointer-events:none;z-index:3}
+.home{color:#2d2a22;text-decoration:none;font-size:12px;letter-spacing:.04em;white-space:nowrap;pointer-events:auto;background:rgba(255,250,240,.82);padding:6px 10px;border-radius:999px;font-weight:700}
+.home:hover{color:var(--accent)}
+#pill{flex:1;min-width:0;display:flex;justify-content:center}
+#pillIn{display:flex;gap:12px;align-items:center;background:rgba(30,32,28,.68);color:#fff;border-radius:999px;padding:6px 14px;font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;max-width:100%}
+#pillIn b{font-weight:900;color:#ffd6e0}
+.ib{pointer-events:auto;min-width:44px;min-height:44px;border:0;border-radius:999px;background:rgba(255,250,240,.88);display:grid;place-items:center;padding:0;color:#2d2a22}
+.ib svg{width:20px;height:20px;display:block}
+
+/* controls */
+.ctl{position:absolute;inset:0;pointer-events:none;z-index:2}
+#aimBtn{position:absolute;right:18px;bottom:22px;width:96px;height:96px;border-radius:50%;border:4px solid #fff;background:var(--accent);color:#fff;font-weight:900;font-size:16px;line-height:1.15;pointer-events:auto;box-shadow:0 6px 16px rgba(0,0,0,.25);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+#aimBtn svg{width:30px;height:30px}
+#joy{position:absolute;width:110px;height:110px;margin:-55px 0 0 -55px;border-radius:50%;border:3px solid rgba(255,255,255,.7);background:rgba(255,255,255,.18);pointer-events:none}
+#joyK{position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:rgba(255,255,255,.85)}
+#hint{position:absolute;left:12px;bottom:26px;max-width:calc(100% - 140px);font-size:12px;font-weight:700;color:#2d2a22;background:rgba(255,250,240,.82);padding:6px 10px;border-radius:10px;pointer-events:none}
+#shutBtn{position:absolute;left:50%;bottom:24px;width:88px;height:88px;margin-left:-44px;border-radius:50%;border:5px solid #fff;background:#e23b3b;box-shadow:0 0 0 4px rgba(0,0,0,.35);pointer-events:auto}
+#shutBtn:active{transform:scale(.94)}
+#shutBtn.chg{background:conic-gradient(#e23b3b calc(var(--p,0)*1turn),#6b6b6b 0);filter:saturate(.7)}
+#shutBtn.chg::after{content:"充電中";position:absolute;inset:0;display:grid;place-items:center;color:#fff;font-weight:900;font-size:13px;text-shadow:0 1px 2px rgba(0,0,0,.6)}
+#backBtn{position:absolute;left:16px;bottom:40px;min-width:76px;min-height:48px;border-radius:999px;border:2px solid rgba(255,255,255,.8);background:rgba(0,0,0,.35);color:#fff;font-weight:700;font-size:14px;pointer-events:auto}
+#zoomBox{position:absolute;right:14px;bottom:30px;display:flex;gap:8px;pointer-events:auto}
+#zoomBox button{width:48px;height:48px;border-radius:50%;border:2px solid rgba(255,255,255,.8);background:rgba(0,0,0,.35);color:#fff;font-weight:900;font-size:16px}
+#zoomLbl{position:absolute;right:14px;bottom:84px;width:104px;text-align:center;color:#fff;font:700 12px ui-monospace,Menlo,monospace;text-shadow:0 1px 2px #000}
+
+/* photo toast */
+#photo{position:absolute;right:12px;top:64px;width:150px;background:#fff;padding:7px 7px 8px;box-shadow:0 6px 18px rgba(0,0,0,.35);transform:translateX(180px) rotate(4deg);transition:transform .28s cubic-bezier(.2,.9,.3,1.3);pointer-events:none;z-index:4;border-radius:3px}
+#photo.show{transform:translateX(0) rotate(4deg)}
+#photo img{width:100%;display:block;background:#ddd}
+#photo .v{font-weight:900;font-size:14px;margin-top:5px;text-align:center;white-space:nowrap;overflow:hidden}
+#photo .v.good{color:#2f8a4a}
+#photo .v.bad{color:#d0405f}
+#photo .p{font-size:12px;text-align:center;color:var(--sub);font-weight:700}
+#cry{position:absolute;left:50%;bottom:150px;transform:translateX(-50%);color:#fff;font-weight:900;font-size:20px;text-shadow:0 2px 4px rgba(0,0,0,.6);opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;z-index:3}
+#cry.show{opacity:1}
+
+/* overlays */
+.ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;overflow-y:auto;overscroll-behavior:contain;padding:calc(env(safe-area-inset-top,0px) + 64px) 14px 18px;z-index:5;touch-action:pan-y}
+.ov.dim{background:rgba(30,40,30,.35)}
+.card{margin-block:auto;flex-shrink:0;width:100%;max-width:460px;background:var(--paper);border-radius:20px;padding:20px 20px 16px;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.card h1{margin:0 0 6px;font-weight:900;font-size:38px;line-height:1.1;letter-spacing:.02em;color:var(--accent);text-shadow:2px 2px 0 #ffe3ea}
+.card h2{margin:0 0 8px;font-weight:900;font-size:26px;color:var(--accent)}
+.lead{margin:0 0 12px;font-size:14px;line-height:1.65;font-weight:500}
+.how{margin:0 0 12px;padding:10px 12px;background:#f3eddc;border-radius:12px;font-size:13px;line-height:1.7}
+.how b{color:var(--accent)}
+.how ul{margin:0;padding-left:1.2em}
+.go{display:block;width:100%;border:0;border-radius:14px;background:var(--accent);color:#fff;font-weight:900;font-size:18px;padding:14px 10px;box-shadow:0 4px 0 #b83d5c;min-height:48px;white-space:nowrap;overflow:hidden}
+.go:active{transform:translateY(2px);box-shadow:0 2px 0 #b83d5c}
+.go.ghost{background:transparent;color:var(--accent);box-shadow:none;border:2px solid rgba(232,87,122,.55)}
+.go.sub{background:#5a8f4a;box-shadow:0 4px 0 #3c6a30}
+.go.x{background:#111;box-shadow:0 4px 0 #444;text-decoration:none;text-align:center;font-size:15px;display:flex;align-items:center;justify-content:center}
+.go.danger{background:#c23b3b;color:#fff;border-color:#c23b3b}
+.rgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px}
+.rgrid>*{width:100%;min-width:0}
+.rgrid>.wide{grid-column:1 / -1}
+.best{font-size:13px;color:var(--sub);text-align:center;margin:10px 0 0;font-weight:700}
+.credit{font-size:11px;color:#9a917c;margin-top:14px;letter-spacing:.05em;text-align:center}
+.result{max-width:560px}
+.score{font-weight:900;font-size:52px;line-height:1;color:var(--ink);text-align:center;margin:4px 0}
+.score small{font-size:18px;margin-left:4px}
+.rank{text-align:center;font-weight:900;font-size:18px;color:var(--leaf);margin-bottom:8px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:6px 0 12px}
+.stats div{background:#f3eddc;border-radius:10px;padding:6px 4px;text-align:center;font-size:11px;font-weight:700;color:var(--sub)}
+.stats b{display:block;font-size:20px;color:var(--ink);font-weight:900}
+.album-best{background:#fff;padding:8px 8px 10px;box-shadow:0 4px 14px rgba(0,0,0,.18);transform:rotate(-1.5deg);margin:4px auto 14px;max-width:min(230px,60%)}
+.album-best .v{font-size:13px}
+.album-best img{width:100%;display:block}
+.album-best .v{text-align:center;font-weight:900;margin-top:6px}
+.album{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.album figure{margin:0;background:#fff;padding:4px 4px 5px;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.album figure img{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:#ddd}
+.album figcaption{font-size:10px;font-weight:700;text-align:center;white-space:nowrap;overflow:hidden;margin-top:3px}
+.album .good{color:#2f8a4a}.album .bad{color:#d0405f}
+.empty{font-size:13px;color:var(--sub);text-align:center;padding:10px}
+#pauseOv{z-index:9;background:rgba(20,24,20,.55)}
+#pauseOv .card{max-width:360px}
+@media (max-width:380px){.card h1{font-size:32px}.album{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-height:600px){.card{padding:14px 16px}.card h1{font-size:28px}.lead{font-size:13px;margin-bottom:8px}.how{font-size:12px;line-height:1.55}}
+@media (max-height:560px) and (orientation:landscape){
+  #aimBtn{width:80px;height:80px;bottom:14px}
+  #shutBtn{width:74px;height:74px;margin-left:-37px;bottom:12px}
+  #backBtn{bottom:22px}#zoomBox{bottom:18px}#zoomLbl{bottom:70px}
+  #hint{bottom:16px}
+  .album{grid-template-columns:repeat(6,minmax(0,1fr))}
+  #shutBtn{left:auto;right:22px;top:50%;bottom:auto;margin:-37px 0 0 0}
+  #zoomBox{right:14px;bottom:12px}#zoomLbl{display:none}
+  #backBtn{left:14px;bottom:14px}
+  #photo{right:auto;left:12px;top:58px;width:120px;transform:translateX(-160px) rotate(4deg)}
+  #cry{bottom:30px}
+  #titleOv .card{max-width:760px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:16px;grid-auto-flow:dense;align-items:start}
+  #titleOv .card>*{grid-column:1}
+  #titleOv .card>.how{grid-column:2;grid-row:1 / span 2}
+  #titleOv .card>.rgrid{grid-column:2;margin-top:0}
+  #titleOv .card>.credit{grid-column:2;margin-top:8px}
+  #pauseOv .card{max-width:520px}
+  .card h1{font-size:26px}.card h2{font-size:20px;margin-bottom:4px}.lead{font-size:12px;line-height:1.55}.how{font-size:11.5px;line-height:1.5;padding:8px 10px}
+  .go{padding:9px 10px;min-height:44px;font-size:16px}.rgrid{gap:8px;margin-top:8px}.ov{padding-top:52px}
+  #pTitleBtn,#pTopBtn{grid-column:auto}
+}
+</style>
+</head>
+<body>
+<div id="stage"><canvas id="cv"></canvas></div>
+<div id="labels"></div>
+<div id="finder">
+  <div class="mask" id="mT"></div><div class="mask" id="mB"></div><div class="mask" id="mL"></div><div class="mask" id="mR"></div>
+  <div id="frame">
+    <div class="g" id="g1"></div><div class="g" id="g2"></div><div class="g" id="g3"></div><div class="g" id="g4"></div>
+    <div class="c c1"></div><div class="c c2"></div><div class="c c3"></div><div class="c c4"></div>
+    <div id="af"></div>
+    <div id="fwarn">写り込み 0人</div>
+    <div id="finfo">F2.8 1/500 ISO100</div>
+  </div>
+</div>
+<div id="flash"></div>
+<div id="cry">ああっ…！</div>
+
+<div class="ctl" id="topCtl" hidden>
+  <div id="joy" hidden><div id="joyK"></div></div>
+  <div id="hint">ドラッグで歩く。花に近づいたら「構える」</div>
+  <button id="aimBtn" aria-label="カメラを構える"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13.5" r="3.6"/><path d="M8 7l1.5-3h5L16 7"/></svg>構える</button>
+</div>
+<div class="ctl" id="finCtl" hidden>
+  <button id="backBtn">やめる</button>
+  <button id="shutBtn" aria-label="シャッター"></button>
+  <div id="zoomLbl">×1</div>
+  <div id="zoomBox"><button id="zOut" aria-label="ワイド">W</button><button id="zIn" aria-label="ズーム">T</button></div>
+</div>
+
+<div id="photo"><img id="photoImg" alt=""><div class="v" id="photoV"></div><div class="p" id="photoP"></div></div>
+
+<div id="hud">
+  <a class="home" id="homeLink" href="/">&lt; porkgorilla</a>
+  <div id="pill"><div id="pillIn"><span id="hT">120秒</span><span id="hF">フィルム 24</span><span><b id="hS">0</b>点</span></div></div>
+  <button class="ib" id="sndBtn" aria-label="音"></button>
+  <button class="ib" id="pauseBtn" aria-label="一時停止" hidden><svg viewBox="0 0 20 20"><rect x="4" y="3" width="4" height="14" rx="1" fill="#2d2a22"/><rect x="12" y="3" width="4" height="14" rx="1" fill="#2d2a22"/></svg></button>
+</div>
+
+<div class="ov" id="titleOv">
+  <div class="card">
+    <h1>花だけ撮らせろ！</h1>
+    <p class="lead">小さな花を撮りたいだけなのに、カメラを構えると近くの人がワラワラ寄ってきてポーズを決め、あまつさえ花を踏み散らす。シャッターを押すと、写り込んだ人には<b style="color:#e8577a">おしおきビーム</b>。</p>
+    <div class="how"><ul>
+      <li>ドラッグ / WASD で歩き、花に近づいたら<b>「構える」</b>(Space)</li>
+      <li>ファインダーはドラッグ / 矢印で向きを変え、W・T / ホイールでズーム</li>
+      <li>シャッター(Space)で撮影。写り込んだ人はビームで消える(撃ったあとは少し充電)</li>
+      <li>人が写っていない<b>花だけの写真</b>ほど高得点。花を踏んだ人(赤い輪)を消すと<b>おしおきボーナス</b></li>
+      <li>120秒・フィルム24枚</li>
+    </ul></div>
+    <button class="go" id="startBtn">撮りにいく</button>
+    <div class="rgrid"><a class="go x wide" id="shareTitle" target="_blank" rel="noopener">Xでシェア</a></div>
+    <p class="best" id="bestTxt"></p>
+    <div class="credit">porkgorilla — 2026</div>
+  </div>
+</div>
+
+<div class="ov dim" id="pauseOv" hidden>
+  <div class="card">
+    <h2>一時停止</h2>
+    <div class="rgrid">
+      <button class="go wide" id="resumeBtn">つづける</button>
+      <button class="go sub" id="pSndBtn">音：ON</button>
+      <a class="go x" id="sharePause" target="_blank" rel="noopener">Xでシェア</a>
+      <button class="go ghost wide" id="pTitleBtn">タイトルへ</button>
+      <button class="go ghost wide" id="pTopBtn">サイトのトップへ</button>
+    </div>
+  </div>
+</div>
+
+<div class="ov dim" id="resultOv" hidden>
+  <div class="card result">
+    <h2 id="rHead">撮影終了</h2>
+    <div class="score"><span id="rScore">0</span><small>点</small></div>
+    <div class="rank" id="rRank"></div>
+    <div class="stats">
+      <div><b id="rClean">0</b>花だけ写真</div>
+      <div><b id="rPun">0</b>おしおき</div>
+      <div><b id="rTrample">0</b>踏まれた花</div>
+    </div>
+    <div class="rgrid" style="margin:0 0 6px">
+      <button class="go" id="againBtn">もう一度</button>
+      <button class="go ghost" id="titleBtn">タイトルへ</button>
+      <a class="go x wide" id="shareResult" target="_blank" rel="noopener">Xでシェア</a>
+    </div>
+    <p class="best" id="rBestTxt" style="margin:4px 0 14px"></p>
+    <div id="rBest"></div>
+    <div class="album" id="rAlbum"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+const $ = id => document.getElementById(id);
+const GAME_NAME = '花だけ撮らせろ！', HASHTAG = '#花だけ撮らせろ';
+const GAME_URL = 'https://porkgorilla.com/works/hanadake.html';
+const OG_CACHE_VERSION = 1, SHARE_URL = GAME_URL + '?ogv=' + OG_CACHE_VERSION;
+const KEY_BEST = 'hanadake-best', KEY_SOUND = 'hanadake-sound';
+const PLAY_TIME = 120, FILM = 24;
+const rand = (a, b) => a + Math.random() * (b - a), clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const col = h => new THREE.Color(h).convertSRGBToLinear();
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+  set(k, v){ try { localStorage.setItem(k, v); } catch(e){} }
+};
+
+/* ---------------- renderer / scene ---------------- */
+const stage = $('stage'), cv = $('cv');
+const renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true, preserveDrawingBuffer: true });
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+const scene = new THREE.Scene();
+const SKY = col('#cfe8f3');
+scene.background = SKY;
+scene.fog = new THREE.Fog(SKY, 32, 75);
+const camera = new THREE.PerspectiveCamera(45, 1, 0.05, 200);
+
+const hemi = new THREE.HemisphereLight(col('#f1f8ff'), col('#6f9a4e'), 0.95);
+scene.add(hemi);
+const sun = new THREE.DirectionalLight(col('#fff3d6'), 0.95);
+sun.castShadow = true;
+sun.shadow.mapSize.set(1024, 1024);
+const sc = sun.shadow.camera; sc.left = -16; sc.right = 16; sc.top = 16; sc.bottom = -16; sc.near = 1; sc.far = 60;
+scene.add(sun); scene.add(sun.target);
+
+// glow texture: white RGB + alpha only (avoids colored speckles on iOS)
+const glowTex = (() => {
+  const N = 64, d = new Uint8Array(N * N * 4);
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++){
+    const r = Math.hypot(x + .5 - N / 2, y + .5 - N / 2) / (N / 2);
+    const a = r >= 1 ? 0 : r < .25 ? 1 - r * 1.8 : .55 * Math.pow((1 - r) / .75, 2);
+    const i = (y * N + x) * 4; d[i] = d[i+1] = d[i+2] = 255; d[i+3] = Math.round(clamp(a, 0, 1) * 255);
+  }
+  const t = new THREE.DataTexture(d, N, N, THREE.RGBAFormat);
+  t.magFilter = THREE.LinearFilter; t.minFilter = THREE.LinearMipmapLinearFilter; t.generateMipmaps = true; t.needsUpdate = true;
+  return t;
+})();
+
+/* ---------------- world ---------------- */
+const FIELD_R = 22;
+(function buildWorld(){
+  // ground (opaque canvas noise is fine)
+  const c = document.createElement('canvas'); c.width = c.height = 256;
+  const g = c.getContext('2d');
+  g.fillStyle = '#8cc46a'; g.fillRect(0, 0, 256, 256);
+  for (let i = 0; i < 2600; i++){
+    const s = Math.random();
+    g.fillStyle = s < .5 ? '#7db75c' : s < .8 ? '#9bd078' : '#6faa52';
+    g.fillRect(Math.random() * 256, Math.random() * 256, 2 + Math.random() * 3, 2 + Math.random() * 3);
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(28, 28); tex.encoding = THREE.sRGBEncoding;
+  tex.anisotropy = 4;
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(160, 160), new THREE.MeshLambertMaterial({ map: tex }));
+  ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true;
+  scene.add(ground);
+
+  // grass tufts
+  const tuftGeo = new THREE.ConeGeometry(.03, .14, 3); tuftGeo.translate(0, .07, 0);
+  const tufts = new THREE.InstancedMesh(tuftGeo, new THREE.MeshLambertMaterial({ color: col('#6aa64b') }), 2200);
+  const m = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), s = new THREE.Vector3(), p = new THREE.Vector3();
+  for (let i = 0; i < 2200; i++){
+    const a = Math.random() * Math.PI * 2, r = Math.sqrt(Math.random()) * 30;
+    p.set(Math.cos(a) * r, 0, Math.sin(a) * r);
+    e.set(rand(-.25, .25), rand(0, 6), rand(-.25, .25)); q.setFromEuler(e);
+    const k = rand(.6, 1.4); s.set(k, k * rand(.7, 1.3), k);
+    m.compose(p, q, s); tufts.setMatrixAt(i, m);
+  }
+  scene.add(tufts);
+
+  // fence posts
+  const postGeo = new THREE.BoxGeometry(.12, .7, .12); postGeo.translate(0, .35, 0);
+  const posts = new THREE.InstancedMesh(postGeo, new THREE.MeshLambertMaterial({ color: col('#a77b4f') }), 70);
+  for (let i = 0; i < 70; i++){
+    const a = i / 70 * Math.PI * 2;
+    p.set(Math.cos(a) * (FIELD_R + 1.5), 0, Math.sin(a) * (FIELD_R + 1.5));
+    q.setFromEuler(e.set(0, -a, 0)); s.set(1, 1, 1); m.compose(p, q, s); posts.setMatrixAt(i, m);
+  }
+  posts.castShadow = true; scene.add(posts);
+  // rail
+  const rail = new THREE.Mesh(new THREE.TorusGeometry(FIELD_R + 1.5, .04, 4, 120), new THREE.MeshLambertMaterial({ color: col('#b88a5c') }));
+  rail.rotation.x = Math.PI / 2; rail.position.y = .55; scene.add(rail);
+
+  // trees
+  const trunkM = new THREE.MeshLambertMaterial({ color: col('#7a5434') });
+  const leafMs = ['#5d9e46', '#6cad4f', '#4f8f3c', '#7fb85a'].map(h => new THREE.MeshLambertMaterial({ color: col(h) }));
+  const pinkM = new THREE.MeshLambertMaterial({ color: col('#f4b6c8') });
+  for (let i = 0; i < 34; i++){
+    const a = i / 34 * Math.PI * 2 + rand(-.06, .06), r = rand(26, 36);
+    const t = new THREE.Group();
+    const h = rand(1.4, 2.4);
+    const tr = new THREE.Mesh(new THREE.CylinderGeometry(.16, .24, h, 6), trunkM); tr.position.y = h / 2; tr.castShadow = true; t.add(tr);
+    const lm = Math.random() < .25 ? pinkM : pick(leafMs);
+    for (let k = 0; k < 3; k++){
+      const b = new THREE.Mesh(new THREE.IcosahedronGeometry(rand(1.1, 1.7), 0), lm);
+      b.position.set(rand(-.6, .6), h + rand(.4, 1.3), rand(-.6, .6)); b.castShadow = true; t.add(b);
+    }
+    t.position.set(Math.cos(a) * r, 0, Math.sin(a) * r);
+    scene.add(t);
+  }
+  // bushes inside edge
+  const bushM = new THREE.MeshLambertMaterial({ color: col('#6aa84f') });
+  for (let i = 0; i < 16; i++){
+    const a = rand(0, Math.PI * 2), r = rand(19.5, 21.5);
+    const b = new THREE.Mesh(new THREE.IcosahedronGeometry(rand(.5, .8), 0), bushM);
+    b.position.set(Math.cos(a) * r, .35, Math.sin(a) * r); b.scale.y = .7; b.castShadow = true; scene.add(b);
+  }
+})();
+
+/* ---------------- flowers ---------------- */
+const KINDS = {
+  daisy:  { name: 'デイジー',     pts: 60,  r: .085, h: [.22, .34] },
+  violet: { name: 'スミレ',       pts: 90,  r: .05,  h: [.1, .15] },
+  tulip:  { name: 'チューリップ', pts: 60,  r: .06,  h: [.3, .42] },
+  poppy:  { name: 'ポピー',       pts: 70,  r: .075, h: [.28, .4] },
+  rare:   { name: 'ホシアカリ',   pts: 300, r: .07,  h: [.2, .26] }
+};
+const G = {
+  stem: (() => { const g = new THREE.CylinderGeometry(.008, .011, 1, 5); g.translate(0, .5, 0); return g; })(),
+  leaf: (() => { const g = new THREE.SphereGeometry(1, 6, 4); g.scale(.055, .012, .022); g.translate(.05, 0, 0); return g; })(),
+  sph: new THREE.SphereGeometry(1, 10, 7)
+};
+const M = {
+  stem: new THREE.MeshLambertMaterial({ color: col('#4c8a35') }),
+  white: new THREE.MeshLambertMaterial({ color: col('#fbfbf4') }),
+  yellow: new THREE.MeshLambertMaterial({ color: col('#f6c531') }),
+  violet: new THREE.MeshLambertMaterial({ color: col('#7b4fc9') }),
+  dark: new THREE.MeshLambertMaterial({ color: col('#2a2320') }),
+  tulips: ['#e8394f', '#ff8ab0', '#ffd23f', '#ff7a2e'].map(h => new THREE.MeshLambertMaterial({ color: col(h) })),
+  poppy: new THREE.MeshLambertMaterial({ color: col('#f04a26') }),
+  rare: new THREE.MeshLambertMaterial({ color: col('#bfe6ff'), emissive: col('#4aa8ff'), emissiveIntensity: .55 }),
+  brown: new THREE.MeshLambertMaterial({ color: col('#7a5a36') }),
+  brownStem: new THREE.MeshLambertMaterial({ color: col('#5d6b2e') })
+};
+function petalRing(bloom, n, mat, rad, sx, sy, sz, tilt){
+  for (let i = 0; i < n; i++){
+    const a = i / n * Math.PI * 2;
+    const piv = new THREE.Group(); piv.rotation.y = a;
+    const p = new THREE.Mesh(G.sph, mat);
+    p.scale.set(sx, sy, sz); p.position.x = rad; p.rotation.z = tilt || 0;
+    piv.add(p); bloom.add(piv);
+  }
+}
+function makeFlower(kind){
+  const K = KINDS[kind], g = new THREE.Group();
+  const h = rand(K.h[0], K.h[1]);
+  const stem = new THREE.Mesh(G.stem, M.stem); stem.scale.y = h; g.add(stem);
+  for (let i = 0; i < 2; i++){
+    const lf = new THREE.Mesh(G.leaf, M.stem); lf.position.y = h * rand(.1, .35); lf.rotation.y = rand(0, 6.28); lf.rotation.z = .4; g.add(lf);
+  }
+  const bloom = new THREE.Group(); bloom.position.y = h;
+  if (kind === 'daisy'){
+    petalRing(bloom, 11, M.white, .05, .042, .01, .016, .12);
+    const c = new THREE.Mesh(G.sph, M.yellow); c.scale.set(.027, .016, .027); bloom.add(c);
+  } else if (kind === 'violet'){
+    petalRing(bloom, 5, M.violet, .026, .028, .009, .022, .25);
+    const c = new THREE.Mesh(G.sph, M.yellow); c.scale.set(.009, .008, .009); bloom.add(c);
+  } else if (kind === 'tulip'){
+    const m = pick(M.tulips);
+    petalRing(bloom, 4, m, .018, .028, .06, .022, -.18);
+    bloom.children.forEach(pv => { pv.children[0].position.y = .045; });
+  } else if (kind === 'poppy'){
+    petalRing(bloom, 5, M.poppy, .042, .045, .012, .04, .35);
+    const c = new THREE.Mesh(G.sph, M.dark); c.scale.set(.018, .014, .018); bloom.add(c);
+  } else {
+    petalRing(bloom, 6, M.rare, .04, .04, .011, .02, .3);
+    const c = new THREE.Mesh(G.sph, M.white); c.scale.set(.016, .014, .016); bloom.add(c);
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color: col('#7cc4ff'), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
+    sp.scale.set(.55, .55, .55); bloom.add(sp); g.userData.glow = sp;
+  }
+  bloom.rotation.x = rand(-.25, .25); bloom.rotation.z = rand(-.25, .25);
+  g.add(bloom);
+  g.traverse(o => { if (o.isMesh){ o.userData.m0 = o.material; o.castShadow = false; } });
+  return { kind, g, bloom, h, alive: true, id: 0, x: 0, z: 0, bloomPos: new THREE.Vector3() };
+}
+const flowers = [];
+(function plantFlowers(){
+  const pts = [];
+  const ok = (x, z) => Math.hypot(x, z) < FIELD_R - 2 && pts.every(p => Math.hypot(p[0] - x, p[1] - z) > .32);
+  const patches = [];
+  for (let i = 0; i < 10; i++){
+    let x, z, n = 0;
+    do { const a = rand(0, 6.28), r = rand(2, 16); x = Math.cos(a) * r; z = Math.sin(a) * r; n++; }
+    while (n < 50 && patches.some(p => Math.hypot(p[0] - x, p[1] - z) < 4.5));
+    patches.push([x, z]);
+  }
+  const kinds = ['daisy', 'violet', 'tulip', 'poppy'];
+  patches.forEach((pc, i) => {
+    const main = kinds[i % 4], cnt = 6 + Math.floor(Math.random() * 5);
+    for (let k = 0; k < cnt; k++){
+      for (let t = 0; t < 20; t++){
+        const x = pc[0] + rand(-1.7, 1.7), z = pc[1] + rand(-1.7, 1.7);
+        if (ok(x, z)){ pts.push([x, z, Math.random() < .8 ? main : pick(kinds)]); break; }
+      }
+    }
+  });
+  for (let k = 0; k < 10; k++){
+    for (let t = 0; t < 20; t++){
+      const a = rand(0, 6.28), r = rand(1, 19), x = Math.cos(a) * r, z = Math.sin(a) * r;
+      if (ok(x, z)){ pts.push([x, z, pick(kinds)]); break; }
+    }
+  }
+  // rare one, at a patch edge
+  const rp = pick(patches);
+  for (let t = 0; t < 40; t++){
+    const x = rp[0] + rand(-2.3, 2.3), z = rp[1] + rand(-2.3, 2.3);
+    if (ok(x, z)){ pts.push([x, z, 'rare']); break; }
+  }
+  pts.forEach((p, i) => {
+    const f = makeFlower(p[2]); f.id = i; f.x = p[0]; f.z = p[1];
+    f.g.position.set(p[0], 0, p[1]); f.g.rotation.y = rand(0, 6.28);
+    f.rot0 = f.g.rotation.y;
+    scene.add(f.g); flowers.push(f);
+  });
+})();
+function updateBloomPos(f){ f.bloom.getWorldPosition(f.bloomPos); }
+flowers.forEach(f => { f.g.updateMatrixWorld(true); updateBloomPos(f); });
+function trampleFlower(f){
+  f.alive = false;
+  f.g.rotation.set(rand(1.2, 1.45) * (Math.random() < .5 ? -1 : 1), f.g.rotation.y, rand(-.3, .3), 'YXZ');
+  f.g.scale.set(1.1, .55, 1.1);
+  f.bloom.scale.set(1.15, .3, 1.15);
+  f.g.traverse(o => { if (o.isMesh) o.material = (o.userData.m0 === M.stem) ? M.brownStem : M.brown; });
+  if (f.g.userData.glow) f.g.userData.glow.visible = false;
+  f.g.updateMatrixWorld(true); updateBloomPos(f);
+}
+function restoreFlowers(){
+  flowers.forEach(f => {
+    f.alive = true; f.g.rotation.set(0, f.rot0, 0); f.g.scale.set(1, 1, 1); f.bloom.scale.set(1, 1, 1);
+    f.g.traverse(o => { if (o.isMesh) o.material = o.userData.m0; });
+    if (f.g.userData.glow) f.g.userData.glow.visible = true;
+    f.g.updateMatrixWorld(true); updateBloomPos(f);
+  });
+}
+
+/* ---------------- player ---------------- */
+const player = (() => {
+  const g = new THREE.Group();
+  const shirt = new THREE.MeshLambertMaterial({ color: col('#f2efe4') });
+  const vest = new THREE.MeshLambertMaterial({ color: col('#8a7a4a') });
+  const pants = new THREE.MeshLambertMaterial({ color: col('#4c5a6e') });
+  const skin = new THREE.MeshLambertMaterial({ color: col('#f0c9a4') });
+  const hatM = new THREE.MeshLambertMaterial({ color: col('#d9c58a') });
+  const blackM = new THREE.MeshLambertMaterial({ color: col('#222222') });
+  const add = (geo, mat, x, y, z) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = true; g.add(m); return m; };
+  add(new THREE.BoxGeometry(.16, .8, .18), pants, .11, .4, 0);
+  add(new THREE.BoxGeometry(.16, .8, .18), pants, -.11, .4, 0);
+  add(new THREE.BoxGeometry(.44, .56, .26), shirt, 0, 1.08, 0);
+  add(new THREE.BoxGeometry(.46, .42, .28), vest, 0, 1.12, 0);
+  add(new THREE.SphereGeometry(.16, 12, 10), skin, 0, 1.55, 0);
+  const brim = add(new THREE.CylinderGeometry(.3, .3, .03, 16), hatM, 0, 1.66, 0);
+  add(new THREE.CylinderGeometry(.15, .17, .14, 14), hatM, 0, 1.74, 0);
+  // camera in hands
+  add(new THREE.BoxGeometry(.24, .15, .12), blackM, 0, 1.15, .24);
+  add(new THREE.CylinderGeometry(.05, .05, .1, 10), blackM, 0, 1.15, .34).rotation.x = Math.PI / 2;
+  add(new THREE.BoxGeometry(.1, .1, .3), skin, .2, 1.15, .14);
+  add(new THREE.BoxGeometry(.1, .1, .3), skin, -.2, 1.15, .14);
+  scene.add(g);
+  return { g, pos: g.position, yaw: 0, legs: [g.children[0], g.children[1]], walk: 0 };
+})();
+
+/* ---------------- people ---------------- */
+const SHIRTS = ['#ff6b6b', '#ffb347', '#4ecdc4', '#ffe66d', '#a06cd5', '#ff8fab', '#5aa9e6', '#7bd389', '#f7f7f7', '#2e2e3a'];
+const PANTS = ['#2f3e5c', '#3a3a3a', '#6b4f3a', '#d8d0bb', '#4a6fa5', '#7a2e3a'];
+const SKINS = ['#f2d0b0', '#e8b98f', '#c98f62', '#8d5a3b', '#f7dcc4'];
+const HAIRS = ['#1d1612', '#3b2a1e', '#6b4226', '#c9a25b', '#e9d6a4', '#8e2f2f', '#d78fb0'];
+const LINES = ['撮って〜！', 'ピース！', '盛れてる？', 'わたしも！', 'インスタあげて！', 'いぇーい', 'こっちこっち', '目線ください', 'もう一枚！', 'キメッ', '映えてる？', 'はいチーズ'];
+const POSES = {
+  peace:   { A: [-.35, 2.55], B: [0, -.15], fA: 1, fB: 0, lean: 0, tilt: .2 },
+  banzai:  { A: [0, 2.85], B: [0, -2.85], fA: 0, fB: 0, lean: 0, tilt: 0 },
+  dpeace:  { A: [-1.25, 1.75], B: [-1.25, -1.75], fA: 1, fB: 1, lean: 0, tilt: -.15 },
+  gravure: { A: [.45, 2.7], B: [-.2, -.5], fA: 0, fB: 0, lean: .2, tilt: .25 },
+  point:   { A: [-1.5, .15], B: [0, -.1], fA: 0, fB: 0, lean: -.05, tilt: 0 },
+  heart:   { A: [-2.4, .75], B: [-2.4, -.75], fA: 0, fB: 0, lean: 0, tilt: .1 },
+  jump:    { A: [0, 2.7], B: [0, -2.7], fA: 1, fB: 1, lean: 0, tilt: 0, jump: 1 }
+};
+const POSE_NAMES = Object.keys(POSES);
+const people = [];
+const labelsEl = $('labels');
+const armGeo = (() => { const g = new THREE.BoxGeometry(.11, .58, .11); g.translate(0, -.29, 0); return g; })();
+const legGeo = (() => { const g = new THREE.BoxGeometry(.15, .84, .16); g.translate(0, -.42, 0); return g; })();
+const fingerGeo = (() => { const g = new THREE.BoxGeometry(.025, .1, .025); g.translate(0, -.05, 0); return g; })();
+const ringGeo = new THREE.RingGeometry(.34, .44, 28);
+const ringMat = new THREE.MeshBasicMaterial({ color: col('#ff2d55'), transparent: true, opacity: .85, depthWrite: false });
+
+function makePerson(){
+  const root = new THREE.Group();
+  const mats = {
+    shirt: new THREE.MeshLambertMaterial({ color: col(pick(SHIRTS)) }),
+    pants: new THREE.MeshLambertMaterial({ color: col(pick(PANTS)) }),
+    skin: new THREE.MeshLambertMaterial({ color: col(pick(SKINS)) }),
+    hair: new THREE.MeshLambertMaterial({ color: col(pick(HAIRS)) })
+  };
+  const hit = [];
+  const mk = (geo, mat, parent, x, y, z) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = true; parent.add(m); return m; };
+  root.rotation.order = 'YXZ';
+  const hips = new THREE.Group(); hips.position.y = .86; root.add(hips);
+  const legA = new THREE.Group(); legA.position.set(.1, 0, 0); hips.add(legA); hit.push(mk(legGeo, mats.pants, legA, 0, 0, 0));
+  const legB = new THREE.Group(); legB.position.set(-.1, 0, 0); hips.add(legB); hit.push(mk(legGeo, mats.pants, legB, 0, 0, 0));
+  const body = new THREE.Group(); hips.add(body);
+  const wide = Math.random() < .3 ? 1.2 : 1;
+  const torso = mk(new THREE.BoxGeometry(.44 * wide, .58, .26 * wide), mats.shirt, body, 0, .29, 0); hit.push(torso);
+  const head = new THREE.Group(); head.position.y = .76; body.add(head);
+  hit.push(mk(new THREE.SphereGeometry(.16, 12, 10), mats.skin, head, 0, 0, 0));
+  const hairStyle = Math.random();
+  const hairM = mk(new THREE.SphereGeometry(.17, 12, 8, 0, Math.PI * 2, 0, Math.PI * .55), mats.hair, head, 0, .015, -.01);
+  if (hairStyle < .35){ const tail = mk(new THREE.SphereGeometry(.08, 8, 6), mats.hair, head, 0, -.05, -.17); tail.scale.set(1, 1.6, 1); }
+  else if (hairStyle < .55){
+    const capM = new THREE.MeshLambertMaterial({ color: col(pick(SHIRTS)) }); mats.cap = capM;
+    mk(new THREE.SphereGeometry(.175, 12, 8, 0, Math.PI * 2, 0, Math.PI * .5), capM, head, 0, .03, 0);
+    const vis = mk(new THREE.BoxGeometry(.2, .02, .14), capM, head, 0, .06, .17);
+  } else if (hairStyle < .65){
+    const hatM = new THREE.MeshLambertMaterial({ color: col('#f2e2b0') }); mats.cap = hatM;
+    mk(new THREE.CylinderGeometry(.3, .3, .02, 18), hatM, head, 0, .1, 0);
+    mk(new THREE.CylinderGeometry(.15, .17, .12, 14), hatM, head, 0, .16, 0);
+  }
+  // eyes
+  const eyeM = new THREE.MeshBasicMaterial({ color: 0x1a1a1a });
+  mk(new THREE.SphereGeometry(.021, 6, 5), eyeM, head, .055, .025, .145).castShadow = false;
+  mk(new THREE.SphereGeometry(.021, 6, 5), eyeM, head, -.055, .025, .145).castShadow = false;
+  const mouth = mk(new THREE.TorusGeometry(.045, .011, 5, 12, Math.PI), new THREE.MeshBasicMaterial({ color: 0x7a2630 }), head, 0, -.035, .148);
+  mouth.rotation.z = Math.PI; mouth.castShadow = false;
+  const blushM = new THREE.MeshBasicMaterial({ color: 0xff9aa8 });
+  [-1, 1].forEach(sd => { const b = mk(new THREE.SphereGeometry(.024, 6, 4), blushM, head, sd * .095, -.02, .128); b.scale.z = .35; b.castShadow = false; });
+  const armA = new THREE.Group(); armA.position.set(.27 * wide, .54, 0); body.add(armA);
+  const armB = new THREE.Group(); armB.position.set(-.27 * wide, .54, 0); body.add(armB);
+  hit.push(mk(armGeo, mats.shirt, armA, 0, 0, 0)); hit.push(mk(armGeo, mats.shirt, armB, 0, 0, 0));
+  mk(new THREE.SphereGeometry(.06, 8, 6), mats.skin, armA, 0, -.62, 0);
+  mk(new THREE.SphereGeometry(.06, 8, 6), mats.skin, armB, 0, -.62, 0);
+  const fingers = (arm) => {
+    const fg = new THREE.Group(); fg.position.y = -.66; arm.add(fg);
+    const f1 = mk(fingerGeo, mats.skin, fg, .012, 0, 0); f1.rotation.z = .3;
+    const f2 = mk(fingerGeo, mats.skin, fg, -.012, 0, 0); f2.rotation.z = -.3;
+    fg.visible = false; return fg;
+  };
+  const fA = fingers(armA), fB = fingers(armB);
+  const ring = new THREE.Mesh(ringGeo, ringMat); ring.rotation.x = -Math.PI / 2; ring.position.y = .03; ring.visible = false; root.add(ring);
+  scene.add(root);
+  const bub = document.createElement('div'); bub.className = 'bub'; labelsEl.appendChild(bub);
+  return {
+    g: root, pos: root.position.clone(), hips, body, head, armA, armB, legA, legB, fA, fB, ring, mats, hit, bub,
+    state: 'wander', target: new THREE.Vector3(), speed: rand(1, 1.4), timer: 0, walk: rand(0, 6), yaw: rand(0, 6.28),
+    pose: 'peace', poseT: 0, slotD: 2.5, slotL: 0, stomper: false, line: '', lineT: 0, coolT: 0,
+    rot: { A: [0, .1], B: [0, -.1], lean: 0, tilt: 0 }, zt: 0, downKind: Math.random() < .5 ? 'peek' : 'lie', downPose: null, peekK: 0, lieK: 0, lieStomped: false, bubTxt: '', bubCls: '', bubT: 0, moving: false
+  };
+}
+function removePerson(p){
+  scene.remove(p.g);
+  p.g.traverse(o => { if (o.isMesh && o.geometry !== armGeo && o.geometry !== legGeo && o.geometry !== fingerGeo && o.geometry !== ringGeo) o.geometry.dispose(); });
+  Object.values(p.mats).forEach(m => m.dispose());
+  p.bub.remove();
+  const i = people.indexOf(p); if (i >= 0) people.splice(i, 1);
+}
+function wanderTarget(p){
+  const a = rand(0, 6.28), r = Math.sqrt(Math.random()) * (FIELD_R - 2);
+  p.target.set(Math.cos(a) * r, 0, Math.sin(a) * r);
+}
+function spawnPerson(edge){
+  const p = makePerson();
+  if (edge){
+    const a = rand(0, 6.28); p.pos.set(Math.cos(a) * (FIELD_R + 4), 0, Math.sin(a) * (FIELD_R + 4));
+  } else {
+    let x, z, n = 0;
+    do { const a = rand(0, 6.28), r = rand(4.5, 12); x = player.pos.x + Math.cos(a) * r; z = player.pos.z + Math.sin(a) * r; n++; }
+    while (n < 30 && Math.hypot(x, z) > FIELD_R - 1);
+    p.pos.set(x, 0, z);
+  }
+  p.state = 'wander'; wanderTarget(p);
+  people.push(p); return p;
+}
+function say(p, txt, cls, t){ p.bubTxt = txt; p.bubCls = cls || ''; p.bubT = t || 2; }
+
+/* ---------------- state ---------------- */
+let mode = 'title', view = 'top', paused = false;
+const S = {
+  time: PLAY_TIME, film: FILM, score: 0, elapsed: 0, best: {}, shots: [], punished: 0, trampled: 0, clean: 0,
+  yaw: 0, pitch: -.4, zi: 0, endT: -1, spawnT: 0, cryT: 0, toastT: 0, charge: 0, chargeMax: 1, down: false
+};
+const ZOOMS = [{ fov: 52, l: '×1' }, { fov: 34, l: '×1.5' }, { fov: 22, l: '×2.4' }, { fov: 14, l: '×4' }];
+let soundOn = store.get(KEY_SOUND) !== '0';
+let bestScore = parseInt(store.get(KEY_BEST) || '0', 10) || 0;
+let W = 0, H = 0, frameRect = { x: 0, y: 0, w: 1, h: 1 };
+
+/* ---------------- audio ---------------- */
+let AC = null;
+function initAudio(force){
+  if (AC && force){ try { AC.close().catch(() => {}); } catch(e){} AC = null; }
+  else if (AC){ if (AC.state === 'closed') AC = null; else { if (AC.state === 'suspended') AC.resume(); return; } }
+  try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){ AC = null; }
+}
+function canSnd(){ return AC && soundOn && mode === 'play'; }
+function tone(type, f0, f1, dur, vol, delay){
+  if (!canSnd()) return;
+  const t = AC.currentTime + (delay || 0), o = AC.createOscillator(), g = AC.createGain();
+  o.type = type; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(Math.max(20, f1), t + dur);
+  g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  o.connect(g).connect(AC.destination); o.start(t); o.stop(t + dur + .02);
+}
+function noise(dur, vol, freq, q, delay){
+  if (!canSnd()) return;
+  const t = AC.currentTime + (delay || 0), n = Math.floor(AC.sampleRate * dur), b = AC.createBuffer(1, n, AC.sampleRate), d = b.getChannelData(0);
+  for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+  const s = AC.createBufferSource(); s.buffer = b;
+  const f = AC.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = freq; f.Q.value = q || 1;
+  const g = AC.createGain(); g.gain.value = vol;
+  s.connect(f).connect(g).connect(AC.destination); s.start(t);
+}
+const SFX = {
+  shutter(){ noise(.05, .5, 3000, .8); noise(.06, .4, 1800, .9, .07); },
+  zap(n){ tone('sawtooth', 1400, 180, .45, .12); tone('square', 900, 120, .4, .06, .02); if (n > 2) tone('sawtooth', 2000, 300, .3, .06, .05); },
+  poof(){ tone('sine', 600, 1600, .18, .1); },
+  gusha(){ noise(.16, .5, 380, 1.5); tone('triangle', 160, 60, .14, .12); },
+  hey(){ tone('sine', 880, 1320, .09, .07); },
+  zoom(){ tone('sine', 500, 700, .06, .05); },
+  good(){ tone('triangle', 880, 880, .12, .12); tone('triangle', 1320, 1320, .2, .12, .1); },
+  pun(){ tone('square', 660, 990, .1, .07); },
+  deny(){ tone('square', 220, 180, .08, .05); },
+  ready(){ tone('sine', 1200, 1500, .07, .05); }
+};
+
+/* ---------------- labels (DOM floaters) ---------------- */
+const floaters = [];
+function floatAt(pos3, txt, cls){
+  const el = document.createElement('div'); el.className = 'flt' + (cls ? ' ' + cls : ''); el.textContent = txt; labelsEl.appendChild(el);
+  floaters.push({ el, p: pos3.clone(), t: 0 });
+}
+const _v = new THREE.Vector3();
+function toScreen(p3){
+  _v.copy(p3).project(camera);
+  return { x: (_v.x + 1) / 2 * W, y: (1 - _v.y) / 2 * H, on: _v.z > -1 && _v.z < 1 };
+}
+
+/* ---------------- finder layout ---------------- */
+function layoutFinder(){
+  const low = H < 560 && W > H;
+  const topM = low ? 50 : 60, botM = low ? 10 : 140, side = low ? 112 : 12;
+  const aw = Math.max(10, W - side * 2), ah = Math.max(10, H - topM - botM);
+  const ar = W > H ? 4 / 3 : 3 / 4;
+  let fw = aw, fh = fw / ar; if (fh > ah){ fh = ah; fw = fh * ar; }
+  const fx = (W - fw) / 2, fy = topM + (ah - fh) / 2;
+  frameRect = { x: fx, y: fy, w: fw, h: fh };
+  const set = (el, x, y, w, h) => { el.style.left = x + 'px'; el.style.top = y + 'px'; el.style.width = Math.max(0, w) + 'px'; el.style.height = Math.max(0, h) + 'px'; };
+  set($('mT'), 0, 0, W, fy); set($('mB'), 0, fy + fh, W, H - fy - fh);
+  set($('mL'), 0, fy, fx, fh); set($('mR'), fx + fw, fy, W - fx - fw, fh);
+  set($('frame'), fx, fy, fw, fh);
+  set($('g1'), fw / 3, 0, 1, fh); set($('g2'), fw * 2 / 3, 0, 1, fh);
+  set($('g3'), 0, fh / 3, fw, 1); set($('g4'), 0, fh * 2 / 3, fw, 1);
+}
+
+/* ---------------- views ---------------- */
+function camFwd(out){
+  const cp = Math.cos(S.pitch);
+  return out.set(Math.sin(S.yaw) * cp, Math.sin(S.pitch), Math.cos(S.yaw) * cp);
+}
+const EYE = .55;
+function enterFinder(){
+  if (mode !== 'play' || view === 'finder' || S.endT >= 0) return;
+  view = 'finder';
+  // auto aim at nearest healthy flower
+  let best = null, bd = 6;
+  flowers.forEach(f => {
+    if (!f.alive) return;
+    const d = Math.hypot(f.x - player.pos.x, f.z - player.pos.z);
+    const ang = Math.abs(((Math.atan2(f.x - player.pos.x, f.z - player.pos.z) - player.yaw + Math.PI * 3) % (Math.PI * 2)) - Math.PI);
+    const sc = d + ang * .6;
+    if (d < 6 && sc < bd){ bd = sc; best = f; }
+  });
+  if (best){
+    const dx = best.bloomPos.x - player.pos.x, dz = best.bloomPos.z - player.pos.z, dy = best.bloomPos.y - EYE;
+    S.yaw = Math.atan2(dx, dz); S.pitch = clamp(Math.atan2(dy, Math.max(.15, Math.hypot(dx, dz))), -1.35, .3);
+  } else { S.yaw = player.yaw; S.pitch = -.35; }
+  player.yaw = S.yaw;
+  player.g.visible = false;
+  $('finder').classList.add('on');
+  showControls();
+  notifyPeople();
+}
+function exitFinder(){
+  if (view !== 'finder') return;
+  view = 'top'; S.down = false;
+  player.g.visible = true;
+  $('finder').classList.remove('on');
+  showControls();
+  people.forEach(p => {
+    if (p.state === 'approach' || p.state === 'pose' || p.state === 'notice'){
+      const wasPosing = p.state !== 'notice';
+      p.state = 'wander'; p.downPose = null; wanderTarget(p); p.coolT = 1.2; p.speed = rand(1, 1.4);
+      if (wasPosing && Math.random() < .5) say(p, pick(['えー', 'なんだ', 'あれ？']), '', 1.2);
+    }
+  });
+}
+function notifyPeople(){
+  people.forEach(p => {
+    if (p.state === 'wander' || p.state === 'idle'){
+      if (p.coolT > 0) return;
+      const d = Math.hypot(p.pos.x - player.pos.x, p.pos.z - player.pos.z);
+      if (d < 17){
+        p.state = 'notice'; p.timer = .35 + d * .04 + rand(0, .45); p.noticed = false;
+        p.slotD = rand(.8, 2.6); p.slotL = rand(-.8, .8); p.speed = rand(3.2, 4.4);
+      }
+    }
+  });
+}
+function showControls(){
+  const play = mode === 'play';
+  $('topCtl').hidden = !(play && view === 'top');
+  $('finCtl').hidden = !(play && view === 'finder');
+  $('pauseBtn').hidden = !play;
+  $('photo').hidden = !play;
+  $('hud').querySelector('#pill').style.visibility = play ? '' : 'hidden';
+  refreshHome();
+}
+function refreshHome(){
+  const on = (mode === 'title' || mode === 'result') && !paused;
+  const a = $('homeLink');
+  a.style.visibility = on ? '' : 'hidden';
+  a.tabIndex = on ? 0 : -1;
+  if (on) a.removeAttribute('aria-hidden'); else a.setAttribute('aria-hidden', 'true');
+}
+
+/* ---------------- photo evaluation ---------------- */
+const ray = new THREE.Raycaster();
+const _f = new THREE.Vector3(), _c = new THREE.Vector3(), _d = new THREE.Vector3();
+function inFrame(sx, sy){ return sx >= frameRect.x && sx <= frameRect.x + frameRect.w && sy >= frameRect.y && sy <= frameRect.y + frameRect.h; }
+const _box = new THREE.Box3(), _cr = new THREE.Vector3();
+function personOnScreen(p){
+  p.g.updateMatrixWorld(true);
+  const fx0 = frameRect.x, fx1 = frameRect.x + frameRect.w, fy0 = frameRect.y, fy1 = frameRect.y + frameRect.h;
+  for (const m of p.hit){
+    if (!m.geometry.boundingBox) m.geometry.computeBoundingBox();
+    _box.copy(m.geometry.boundingBox).applyMatrix4(m.matrixWorld);
+    let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9, n = 0;
+    for (let i = 0; i < 8; i++){
+      _cr.set(i & 1 ? _box.max.x : _box.min.x, i & 2 ? _box.max.y : _box.min.y, i & 4 ? _box.max.z : _box.min.z);
+      _cr.applyMatrix4(camera.matrixWorldInverse);
+      if (_cr.z > -.04) continue;
+      _cr.applyMatrix4(camera.projectionMatrix);
+      const sx = (_cr.x + 1) / 2 * W, sy = (1 - _cr.y) / 2 * H; n++;
+      if (sx < x0) x0 = sx; if (sx > x1) x1 = sx; if (sy < y0) y0 = sy; if (sy > y1) y1 = sy;
+    }
+    if (n && x1 >= fx0 && x0 <= fx1 && y1 >= fy0 && y0 <= fy1) return true;
+  }
+  return false;
+}
+function peopleInFrame(){
+  const list = [];
+  camera.updateMatrixWorld(true);
+  people.forEach(p => {
+    if (p.state === 'zap' || p.state === 'gone') return;
+    if (camera.position.distanceTo(p.pos) > 40) return;
+    if (personOnScreen(p)) list.push(p);
+  });
+  return list;
+}
+function occluded(target, dist){
+  _d.copy(target).sub(camera.position).normalize();
+  ray.set(camera.position, _d); ray.far = dist - .03;
+  const meshes = [];
+  people.forEach(p => { if (p.state !== 'zap' && p.state !== 'gone') meshes.push(...p.hit); });
+  return ray.intersectObjects(meshes, false).length > 0;
+}
+function evalSubject(){
+  // best visible flower in frame
+  const F = camera.fov * Math.PI / 180, th = Math.tan(F / 2);
+  const cx = frameRect.x + frameRect.w / 2, cy = frameRect.y + frameRect.h / 2, half = Math.min(frameRect.w, frameRect.h) / 2;
+  let best = null;
+  for (const f of flowers){
+    if (!f.alive) continue;
+    const d = camera.position.distanceTo(f.bloomPos);
+    if (d > 14) continue;
+    const s = toScreen(f.bloomPos);
+    if (!s.on || !inFrame(s.x, s.y)) continue;
+    const rpx = KINDS[f.kind].r / (d * th) * H / 2;
+    const sz = clamp(rpx / half / .2, 0, 1);
+    const off = clamp(Math.hypot((s.x - cx) / (frameRect.w / 2), (s.y - cy) / (frameRect.h / 2)) / 1.2, 0, 1);
+    const c = 1 - .55 * off;
+    const q = sz * c;
+    if (!best || q > best.q) best = { f, d, sz, c, q, sx: s.x, sy: s.y };
+  }
+  if (best){
+    best.occ = occluded(best.f.bloomPos, best.d);
+    best.blur = best.d < .3;
+  }
+  return best;
+}
+function judge(sub, nPeople){
+  if (!sub) return { pts: 0, v: nPeople ? `人しか写ってない(${nPeople}人)` : '花がない…', good: false, clean: false };
+  if (sub.occ) return { pts: 0, v: '人で花が見えない', good: false, clean: false };
+  const K = KINDS[sub.f.kind];
+  let q = sub.q * (sub.blur ? .4 : 1);
+  const mult = nPeople === 0 ? 1 : nPeople === 1 ? .35 : nPeople === 2 ? .18 : .08;
+  const pts = Math.round(K.pts * q * mult);
+  let v, good = false, clean = false;
+  if (nPeople > 0) v = `写り込み ${nPeople}人`;
+  else if (sub.blur) v = 'ピンボケ…';
+  else if (sub.sz < .35) v = `${K.name} 小さい…`;
+  else { v = `花だけ！ ${K.name}`; good = true; clean = true; }
+  return { pts, v, good, clean };
+}
+
+/* ---------------- shooting & laser ---------------- */
+let pendingShot = false;
+const beams = [], sparks = [];
+const beamGeo = (() => { const g = new THREE.CylinderGeometry(1, .12, 1, 8, 1, true); g.translate(0, .5, 0); return g; })();
+function shutter(){
+  if (mode !== 'play' || view !== 'finder' || paused || S.film <= 0 || pendingShot || S.endT >= 0) return;
+  if (S.charge > 0){ SFX.deny(); return; }
+  pendingShot = true;
+}
+const thumbC = document.createElement('canvas'), thumbX = thumbC.getContext('2d');
+function doShot(){
+  pendingShot = false;
+  S.film--;
+  const inF = peopleInFrame();
+  const sub = evalSubject();
+  const J = judge(sub, inF.length);
+  // capture frame region
+  const pr = cv.width / Math.max(1, W);
+  const tw = 240, th = Math.round(tw * frameRect.h / frameRect.w);
+  thumbC.width = tw; thumbC.height = th;
+  let img = '';
+  try {
+    thumbX.drawImage(cv, frameRect.x * pr, frameRect.y * pr, frameRect.w * pr, frameRect.h * pr, 0, 0, tw, th);
+    img = thumbC.toDataURL('image/jpeg', .82);
+  } catch(e){ img = ''; }
+  // record (best per flower)
+  if (sub && J.pts > 0){
+    const id = sub.f.id;
+    if (!S.best[id] || S.best[id] < J.pts) S.best[id] = J.pts;
+  }
+  if (J.clean) S.clean++;
+  S.shots.push({ img, v: J.v, pts: J.pts, good: J.good, rare: sub && sub.f.kind === 'rare' });
+  SFX.shutter();
+  const fl = $('flash'); fl.style.transition = 'none'; fl.style.opacity = '.85';
+  requestAnimationFrame(() => { fl.style.transition = 'opacity .35s'; fl.style.opacity = '0'; });
+  // toast
+  $('photoImg').src = img; const pv = $('photoV');
+  pv.textContent = J.v; pv.className = 'v ' + (J.good ? 'good' : 'bad');
+  $('photoP').textContent = J.pts > 0 ? `+${J.pts}点` : '0点';
+  $('photo').classList.add('show'); S.toastT = 2.2;
+  if (J.good) SFX.good();
+  // laser
+  if (inF.length){ fireLaser(inF); S.chargeMax = S.charge = Math.max(.7, .62 + inF.length * .04); }
+  else { S.chargeMax = S.charge = .25; }
+  recomputeScore();
+  if (S.film <= 0) S.endT = 1.6;
+}
+function fireLaser(list){
+  camFwd(_f);
+  const right = new THREE.Vector3().crossVectors(_f, new THREE.Vector3(0, 1, 0)).normalize();
+  const origin = camera.position.clone().addScaledVector(_f, .5).add(new THREE.Vector3(0, -.2, 0)).addScaledVector(right, .02);
+  list.forEach((p, i) => {
+    const tgt = p.hit[2].getWorldPosition(new THREE.Vector3());
+    const dir = tgt.clone().sub(origin), len = dir.length(); dir.normalize();
+    const q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
+    const outer = new THREE.Mesh(beamGeo, new THREE.MeshBasicMaterial({ color: col('#ff2d6f'), transparent: true, opacity: .75, blending: THREE.AdditiveBlending, depthWrite: false }));
+    const inner = new THREE.Mesh(beamGeo, new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: .95, blending: THREE.AdditiveBlending, depthWrite: false }));
+    [outer, inner].forEach((m, k) => { m.position.copy(origin); m.quaternion.copy(q); m.scale.set(k ? .014 : .045, len, k ? .014 : .045); scene.add(m); });
+    const hitG = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color: col('#ff5d8f'), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
+    hitG.position.copy(tgt); hitG.scale.set(1.4, 1.4, 1.4); scene.add(hitG);
+    beams.push({ meshes: [outer, inner, hitG], t: -i * .04 });
+    p.state = 'zap'; p.zt = -i * .04; p.bubT = 0;
+    if (p.stomper){
+      S.punished++; floatAt(new THREE.Vector3(p.pos.x, 2.1, p.pos.z), 'おしおき！ +50', 'pun');
+    }
+  });
+  SFX.zap(list.length);
+  if (list.some(p => p.stomper)) SFX.pun();
+}
+function updateBeams(dt){
+  for (let i = beams.length - 1; i >= 0; i--){
+    const b = beams[i]; b.t += dt;
+    const k = clamp(1 - b.t / .45, 0, 1);
+    b.meshes.forEach((m, j) => { m.material.opacity = (j === 1 ? .95 : j === 0 ? .75 : 1) * k; if (j < 2) { m.scale.x = m.scale.z = (j ? .014 : .045) * (.5 + k); } });
+    if (b.t > .45){ b.meshes.forEach(m => { scene.remove(m); m.material.dispose(); }); beams.splice(i, 1); }
+  }
+  for (let i = sparks.length - 1; i >= 0; i--){
+    const s = sparks[i]; s.t += dt;
+    s.m.position.addScaledVector(s.v, dt); s.v.y += .6 * dt;
+    s.m.material.opacity = clamp(1 - s.t / s.life, 0, 1);
+    if (s.t > s.life){ scene.remove(s.m); s.m.material.dispose(); sparks.splice(i, 1); }
+  }
+}
+function spawnSparks(p){
+  const cols = ['#ff7aa8', '#ffd1e0', '#fff1a8', '#a8e6ff'];
+  for (let i = 0; i < 14; i++){
+    const m = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color: col(pick(cols)), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
+    const s = rand(.12, .28); m.scale.set(s, s, s);
+    p.hit[2].getWorldPosition(m.position); m.position.x += rand(-.3, .3); m.position.y = Math.max(.1, m.position.y + rand(-.6, .6)); m.position.z += rand(-.3, .3);
+    scene.add(m); sparks.push({ m, v: new THREE.Vector3(rand(-.6, .6), rand(.4, 1.6), rand(-.6, .6)), t: 0, life: rand(.5, .9) });
+  }
+}
+function recomputeScore(){
+  let s = 0; for (const k in S.best) s += S.best[k];
+  S.score = s + S.punished * 50;
+}
+
+/* ---------------- updates ---------------- */
+const tmpV = new THREE.Vector3(), tmpF = new THREE.Vector3(), _rv = new THREE.Vector3();
+function personTargetSlot(p, out){
+  camFwd(tmpF); tmpF.y = 0; if (tmpF.lengthSq() < 1e-4) tmpF.set(0, 0, 1); tmpF.normalize();
+  if (S.down && view === 'finder'){
+    // camera looks down: peekers bow over the view, liers lie with their face next to the flower
+    // aim the head at the upper part of the frame: cast a ray through that screen point down to head height
+    const peek = p.downKind === 'peek';
+    // peek: face pokes in from the top edge. lie: face pokes in from a side edge, body outside the frame
+    const side = p.slotL >= 0 ? 1 : -1;
+    const sx = peek ? frameRect.x + frameRect.w * (.5 + p.slotL * .5) : frameRect.x + frameRect.w * (side > 0 ? .98 : .02);
+    const sy = peek ? frameRect.y + frameRect.h * .1 : frameRect.y + frameRect.h * (.08 + Math.abs(p.slotL) * .25);
+    camera.updateMatrixWorld();
+    _rv.set(sx / Math.max(1, W) * 2 - 1, -(sy / Math.max(1, H) * 2 - 1), .5).unproject(camera).sub(camera.position).normalize();
+    const hh = peek ? .08 : .15;
+    let hx, hz;
+    if (_rv.y < -.05){ const t = (hh - camera.position.y) / _rv.y; hx = camera.position.x + _rv.x * t; hz = camera.position.z + _rv.z * t; }
+    else { hx = player.pos.x + tmpF.x * .5; hz = player.pos.z + tmpF.z * .5; }
+    let dx = hx - player.pos.x, dz = hz - player.pos.z, dl = Math.hypot(dx, dz);
+    if (dl < .05){ dx = tmpF.x; dz = tmpF.z; dl = 1; }
+    if (peek){ out.set(hx + dx / dl * .69, 0, hz + dz / dl * .69); return out; }
+    let ox = -tmpF.z * side + tmpF.x * .7, oz = tmpF.x * side + tmpF.z * .7;   // out of the frame: sideways and away
+    const ol = Math.hypot(ox, oz); ox /= ol; oz /= ol;
+    p.lieYaw = Math.atan2(ox, oz);
+    out.set(hx + ox * .76, 0, hz + oz * .76);
+    return out;
+  }
+  const gd = EYE / Math.tan(Math.max(.12, -S.pitch));   // where the view center hits ground
+  const d = clamp(gd, .8, 4) + p.slotD;
+  const halfW = d * Math.tan(camera.fov * Math.PI / 360) * (frameRect.w / Math.max(1, H));
+  const rx = tmpF.z, rz = -tmpF.x;   // left/right
+  const lat = p.slotL * Math.max(.35, halfW);
+  out.set(player.pos.x + tmpF.x * d + rx * lat, 0, player.pos.z + tmpF.z * d + rz * lat);
+  return out;
+}
+function stepToward(p, tgt, speed, dt){
+  if (p.lieK > .25 || p.peekK > .25){ p.moving = false; return 99; }   // get up first
+  const dx = tgt.x - p.pos.x, dz = tgt.z - p.pos.z, d = Math.hypot(dx, dz);
+  if (d < .05){ p.moving = false; return d; }
+  const st = Math.min(d, speed * dt);
+  p.pos.x += dx / d * st; p.pos.z += dz / d * st;
+  p.yaw = lerpAng(p.yaw, Math.atan2(dx, dz), dt * 10);
+  p.moving = true;
+  return d;
+}
+function lerpAng(a, b, t){
+  let d = ((b - a + Math.PI * 3) % (Math.PI * 2)) - Math.PI;
+  return a + d * clamp(t, 0, 1);
+}
+function animPerson(p, dt){
+  const R = p.rot;
+  let tA = [0, .08], tB = [0, -.08], lean = 0, tilt = 0, legA = 0, legB = 0, hop = 0, fa = false, fb = false;
+  if (p.moving){
+    p.walk += dt * p.speed * 5.2;
+    const s = Math.sin(p.walk);
+    legA = s * .65; legB = -s * .65; tA = [-s * .55, .1]; tB = [s * .55, -.1];
+    hop = Math.abs(Math.cos(p.walk)) * .04;
+  }
+  if (p.state === 'pose'){
+    const P = POSES[p.pose];
+    tA = P.A; tB = P.B; lean = P.lean; tilt = P.tilt; fa = !!P.fA; fb = !!P.fB;
+    const w = Math.sin(p.poseT * 3);
+    tilt += w * .08;
+    if (P.jump) hop = Math.max(0, Math.sin(p.poseT * 7)) * .35;
+    else hop = Math.max(0, Math.sin(p.poseT * 4)) * .03;
+  }
+  if (p.state === 'notice' && p.noticed){ hop = Math.max(0, Math.sin(p.timer * 18)) * .18; tA = [0, .6]; tB = [0, -.6]; }
+  const dp = p.state === 'pose' ? p.downPose : null;
+  if (dp === 'peek'){ tA = [-.3, 2.55]; tB = [-.5, -.5]; fa = true; fb = false; lean = 0; hop = 0; }
+  if (dp === 'lie'){ tA = [-.2, 2.6]; tB = [-.2, -2.6]; fa = fb = true; lean = 0; hop = 0; tilt = .25 * Math.sin(p.poseT * 2.2); }
+  const kd = clamp(dt * 6, 0, 1);
+  p.peekK += ((dp === 'peek' ? 1 : 0) - p.peekK) * kd;
+  p.lieK += ((dp === 'lie' ? 1 : 0) - p.lieK) * kd;
+  const k = clamp(dt * 12, 0, 1);
+  R.A[0] += (tA[0] - R.A[0]) * k; R.A[1] += (tA[1] - R.A[1]) * k;
+  R.B[0] += (tB[0] - R.B[0]) * k; R.B[1] += (tB[1] - R.B[1]) * k;
+  R.lean += (lean - R.lean) * k; R.tilt += (tilt - R.tilt) * k;
+  p.armA.rotation.set(R.A[0], 0, R.A[1]); p.armB.rotation.set(R.B[0], 0, R.B[1]);
+  p.legA.rotation.x = legA + 1.05 * p.peekK; p.legB.rotation.x = legB + 1.05 * p.peekK;
+  p.body.rotation.z = R.lean; p.head.rotation.z = R.tilt;
+  p.body.rotation.x = 2 * p.peekK; p.head.rotation.x = -2.8 * p.peekK - .85 * p.lieK;
+  p.hips.position.y = .86 + hop - .46 * p.peekK;
+  p.fA.visible = fa; p.fB.visible = fb;
+  p.g.rotation.y = p.yaw;
+  p.g.rotation.x = -Math.PI / 2 * p.lieK;
+  p.ring.visible = p.stomper && p.lieK < .3 && p.peekK < .5;
+  // lying: hips stay on the anchor (p.pos), root slides toward the feet
+  p.g.position.set(p.pos.x + Math.sin(p.yaw) * .86 * p.lieK, p.pos.y + .14 * p.lieK, p.pos.z + Math.cos(p.yaw) * .86 * p.lieK);
+}
+function trampleCheck(p, live){
+  if (!p.moving) return;
+  for (const f of flowers){
+    if (!f.alive) continue;
+    if (Math.abs(f.x - p.pos.x) > .3 || Math.abs(f.z - p.pos.z) > .3) continue;
+    if (Math.hypot(f.x - p.pos.x, f.z - p.pos.z) < .27){
+      if (!live) continue;
+      trampleOne(f, p);
+    }
+  }
+}
+function lieStomp(p, live){
+  if (!live) return;
+  // body from chest (toward the head) to the feet; the head end stays clear
+  const fx = Math.sin(p.yaw), fz = Math.cos(p.yaw);
+  const ax = p.pos.x - fx * .35, az = p.pos.z - fz * .35, bx = p.pos.x + fx * .84, bz = p.pos.z + fz * .84;
+  const vx = bx - ax, vz = bz - az, L2 = vx * vx + vz * vz;
+  for (const f of flowers){
+    if (!f.alive) continue;
+    const t = clamp(((f.x - ax) * vx + (f.z - az) * vz) / L2, 0, 1);
+    if (Math.hypot(f.x - (ax + vx * t), f.z - (az + vz * t)) < .22) trampleOne(f, p);
+  }
+}
+function trampleOne(f, p){
+  trampleFlower(f); S.trampled++;
+  p.stomper = true;
+  floatAt(new THREE.Vector3(f.x, .4, f.z), 'グシャ');
+  SFX.gusha();
+  if (Math.random() < .4) say(p, pick(['あ', 'ん？', 'なんか踏んだ']), 'bad', 1.1);
+  if (view === 'finder'){
+    const s = toScreen(f.bloomPos);
+    if (s.on && camera.position.distanceTo(f.bloomPos) < 9){ $('cry').classList.add('show'); S.cryT = 1.1; }
+  }
+}
+function updatePeople(dt, live){
+  for (let i = people.length - 1; i >= 0; i--){
+    const p = people[i];
+    p.coolT = Math.max(0, p.coolT - dt);
+    if (p.bubT > 0) p.bubT -= dt;
+    switch (p.state){
+      case 'wander': {
+        const d = stepToward(p, p.target, p.speed, dt);
+        if (d < .2){ p.state = 'idle'; p.timer = rand(.8, 3); p.moving = false; }
+        if (live && view === 'finder' && p.coolT <= 0 && Math.hypot(p.pos.x - player.pos.x, p.pos.z - player.pos.z) < 17){
+          p.state = 'notice'; p.timer = .35 + rand(0, .5); p.noticed = false;
+          p.slotD = rand(.8, 2.6); p.slotL = rand(-.8, .8); p.speed = rand(3.2, 4.4);
+        }
+        break;
+      }
+      case 'idle':
+        p.moving = false; p.timer -= dt;
+        if (p.timer <= 0){ p.state = 'wander'; wanderTarget(p); p.speed = rand(1, 1.4); }
+        if (live && view === 'finder' && p.coolT <= 0 && Math.hypot(p.pos.x - player.pos.x, p.pos.z - player.pos.z) < 17){
+          p.state = 'notice'; p.timer = .35 + rand(0, .5); p.noticed = false;
+          p.slotD = rand(.8, 2.6); p.slotL = rand(-.8, .8); p.speed = rand(3.2, 4.4);
+        }
+        break;
+      case 'notice':
+        p.moving = false; p.timer -= dt;
+        if (!p.noticed && p.timer <= .35){
+          p.noticed = true; say(p, '！', 'ex', .6);
+          p.yaw = Math.atan2(player.pos.x - p.pos.x, player.pos.z - p.pos.z);
+          if (live) SFX.hey();
+        }
+        if (p.timer <= 0){ p.state = 'approach'; say(p, pick(['撮って撮って！', 'わたしも！', 'カメラだ！', 'まって〜']), '', 1.2); }
+        break;
+      case 'approach': {
+        personTargetSlot(p, tmpV);
+        const d = stepToward(p, tmpV, p.speed, dt);
+        const wantD = (S.down && view === 'finder') ? p.downKind : null;
+        if (d < (wantD ? .12 : .25)){
+          p.state = 'pose'; p.pose = pick(POSE_NAMES); p.poseT = 0; p.lineT = rand(.2, 1.2);
+          p.downPose = wantD; p.lieStomped = false;
+          if (wantD) say(p, wantD === 'peek' ? pick(['のぞきこみピース', '上からも〜', 'ここ入る？']) : pick(['寝そべりピース！', '下からどうぞ', 'よいしょっと']), '', 1.5);
+        }
+        break;
+      }
+      case 'pose': {
+        p.moving = false; p.poseT += dt; p.lineT -= dt;
+        const wantD = (S.down && view === 'finder') ? p.downKind : null;
+        if (p.downPose !== wantD){ p.downPose = null; p.state = 'approach'; break; }
+        if (p.downPose === 'lie'){
+          p.yaw = lerpAng(p.yaw, p.lieYaw || 0, dt * 8);   // head toward the frame
+          if (p.lieK > .5 && !p.lieStomped){ p.lieStomped = true; lieStomp(p, live && mode === 'play'); }
+        } else {
+          p.yaw = lerpAng(p.yaw, Math.atan2(player.pos.x - p.pos.x, player.pos.z - p.pos.z), dt * 8);   // face camera
+        }
+        personTargetSlot(p, tmpV);
+        if (Math.hypot(tmpV.x - p.pos.x, tmpV.z - p.pos.z) > (p.downPose ? .35 : .8)){ p.downPose = null; p.state = 'approach'; }
+        if (p.lineT <= 0){ say(p, pick(LINES), '', 1.8); p.lineT = rand(2.2, 4); if (Math.random() < .35){ p.pose = pick(POSE_NAMES); p.poseT = 0; } }
+        break;
+      }
+      case 'zap': {
+        p.zt += dt; p.moving = false;
+        if (p.zt > 0 && !p.flashed){
+          p.flashed = true;
+          Object.values(p.mats).forEach(m => { m.emissive = col('#ffffff'); m.emissiveIntensity = 1; });
+        }
+        if (p.zt > .14){
+          const k = clamp((p.zt - .14) / .4, 0, 1);
+          p.g.scale.set(1 - k, 1 + k * .9, 1 - k);
+          if (!p.sparked){ p.sparked = true; spawnSparks(p); if (live) SFX.poof(); }
+        }
+        if (p.zt > .58){ removePerson(p); continue; }
+        break;
+      }
+    }
+    trampleCheck(p, live && mode === 'play');
+    animPerson(p, dt);
+  }
+  // separation
+  for (let i = 0; i < people.length; i++){
+    const a = people[i]; if (a.state === 'zap' || a.downPose || a.lieK > .05 || a.peekK > .05) continue;
+    for (let j = i + 1; j < people.length; j++){
+      const b = people[j]; if (b.state === 'zap' || b.downPose || b.lieK > .05 || b.peekK > .05) continue;
+      const dx = b.pos.x - a.pos.x, dz = b.pos.z - a.pos.z, d = Math.hypot(dx, dz);
+      if (d < .55 && d > 1e-4){ const push = (.55 - d) / 2; a.pos.x -= dx / d * push; a.pos.z -= dz / d * push; b.pos.x += dx / d * push; b.pos.z += dz / d * push; }
+    }
+    if (S.down && view === 'finder' && a.state === 'approach') continue;
+    const dx = a.pos.x - player.pos.x, dz = a.pos.z - player.pos.z, d = Math.hypot(dx, dz);
+    if (d < .6 && d > 1e-4){ a.pos.x += dx / d * (.6 - d); a.pos.z += dz / d * (.6 - d); }
+  }
+}
+const keys = {};
+const joy = { on: false, id: null, sx: 0, sy: 0, dx: 0, dy: 0 };
+function updatePlayer(dt){
+  let mx = 0, mz = 0;
+  if (view === 'top'){
+    if (keys.KeyW || keys.ArrowUp) mz -= 1;
+    if (keys.KeyS || keys.ArrowDown) mz += 1;
+    if (keys.KeyA || keys.ArrowLeft) mx -= 1;
+    if (keys.KeyD || keys.ArrowRight) mx += 1;
+    if (joy.on){ mx += joy.dx; mz += joy.dy; }
+    const m = Math.hypot(mx, mz);
+    if (m > .08){
+      const sp = 4 * Math.min(1, m);
+      player.pos.x += mx / m * sp * dt; player.pos.z += mz / m * sp * dt;
+      const r = Math.hypot(player.pos.x, player.pos.z);
+      if (r > FIELD_R){ player.pos.x *= FIELD_R / r; player.pos.z *= FIELD_R / r; }
+      player.yaw = lerpAng(player.yaw, Math.atan2(mx, mz), dt * 12);
+      player.walk += dt * 11;
+      player.legs[0].rotation.x = Math.sin(player.walk) * .5; player.legs[1].rotation.x = -Math.sin(player.walk) * .5;
+    } else { player.legs[0].rotation.x *= .8; player.legs[1].rotation.x *= .8; }
+    player.g.rotation.y = player.yaw;
+  } else {
+    // keyboard aim
+    const ka = .9 * dt * (camera.fov / 52);
+    if (keys.ArrowLeft || keys.KeyA) S.yaw += ka * 1.6;
+    if (keys.ArrowRight || keys.KeyD) S.yaw -= ka * 1.6;
+    if (keys.ArrowUp || keys.KeyW) S.pitch += ka;
+    if (keys.ArrowDown || keys.KeyS) S.pitch -= ka;
+    S.pitch = clamp(S.pitch, -1.45, .35);
+    if (S.pitch < -.85) S.down = true; else if (S.pitch > -.7) S.down = false;
+    player.yaw = S.yaw;
+  }
+}
+function updateCamera(dt){
+  if (mode === 'play' && view === 'finder'){
+    camera.fov += (ZOOMS[S.zi].fov - camera.fov) * clamp(dt * 12, 0, 1);
+    camera.updateProjectionMatrix();
+    camera.position.set(player.pos.x, EYE, player.pos.z);
+    camFwd(_f); camera.lookAt(camera.position.x + _f.x, camera.position.y + _f.y, camera.position.z + _f.z);
+  } else if (mode === 'play'){
+    if (Math.abs(camera.fov - 45) > .01){ camera.fov = 45; camera.updateProjectionMatrix(); }
+    const portrait = H > W;
+    const hgt = portrait ? 15 : 12, back = portrait ? 8 : 7.5;
+    tmpV.set(player.pos.x, hgt, player.pos.z + back);
+    if (camera.position.distanceTo(tmpV) > 6) camera.position.copy(tmpV); else camera.position.lerp(tmpV, clamp(dt * 6, 0, 1));
+    camera.lookAt(camera.position.x, 0, camera.position.z - back);
+  } else {
+    // title / result orbit
+    if (Math.abs(camera.fov - 45) > .01){ camera.fov = 45; camera.updateProjectionMatrix(); }
+    const t = performance.now() / 1000 * .06;
+    camera.position.set(Math.sin(t) * 17, 11, Math.cos(t) * 17);
+    camera.lookAt(0, 0, 0);
+  }
+  sun.position.set(camera.position.x + 8, 18, camera.position.z + 4);
+  sun.target.position.set(camera.position.x, 0, camera.position.z - 4);
+}
+function update(dt){
+  S.elapsed += dt;
+  if (S.endT < 0){ S.time -= dt; if (S.time <= 0){ S.time = 0; S.endT = .4; } }
+  else { S.endT -= dt; if (S.endT <= 0){ endGame(); return; } }
+  if (S.charge > 0){ const big = S.chargeMax > .5; S.charge = Math.max(0, S.charge - dt); if (S.charge === 0 && big && view === 'finder') SFX.ready(); }
+  updateShutUI();
+  updatePlayer(dt);
+  // spawning
+  const want = Math.min(15, 6 + Math.floor(S.elapsed / 11));
+  S.spawnT -= dt;
+  if (people.filter(p => p.state !== 'zap').length < want && S.spawnT <= 0){ spawnPerson(true); S.spawnT = rand(.8, 2.2); }
+  updatePeople(dt, true);
+  updateBeams(dt);
+  if (S.toastT > 0){ S.toastT -= dt; if (S.toastT <= 0) $('photo').classList.remove('show'); }
+  if (S.cryT > 0){ S.cryT -= dt; if (S.cryT <= 0) $('cry').classList.remove('show'); }
+}
+function demo(dt){
+  while (people.length < 8) spawnPerson(false);
+  updatePeople(dt, false);
+  updateBeams(dt);
+}
+function updateShutUI(){
+  const b = $('shutBtn'), on = S.charge > 0 && S.chargeMax > .5;
+  if (on){ b.classList.add('chg'); b.style.setProperty('--p', (1 - S.charge / S.chargeMax).toFixed(3)); }
+  else if (b.classList.contains('chg')) b.classList.remove('chg');
+}
+let hudKey = '';
+function updateHUD(){
+  const k = Math.ceil(S.time) + '|' + S.film + '|' + S.score;
+  if (k === hudKey) return; hudKey = k;
+  $('hT').textContent = Math.ceil(S.time) + '秒';
+  $('hF').textContent = 'フィルム ' + S.film;
+  $('hS').textContent = S.score.toLocaleString();
+  fitHUD();
+}
+function fitHUD(){
+  const pill = $('pillIn'), box = $('pill');
+  pill.style.fontSize = '';
+  let fs = parseFloat(getComputedStyle(pill).fontSize) || 15, n = 0;
+  while (n++ < 10 && fs > 9 && (pill.scrollWidth > box.clientWidth || pill.scrollWidth > pill.clientWidth + 1)){ fs -= 1; pill.style.fontSize = fs + 'px'; }
+}
+let finderTick = 0;
+function updateFinderInfo(dt){
+  finderTick -= dt; if (finderTick > 0) return; finderTick = .1;
+  const n = peopleInFrame().length;
+  const sub = evalSubject();
+  const w = $('fwarn');
+  const ok = sub && !sub.occ && !sub.blur && sub.sz >= .35;
+  if (S.charge > 0 && S.chargeMax > .5){ w.textContent = 'ビーム充電中…'; w.className = ''; w.style.background = 'rgba(40,40,40,.75)'; $('af').className = ''; return; }
+  if (n > 0){ w.textContent = `写り込み ${n}人`; w.className = ''; }
+  else if (ok){ w.textContent = '花だけ！'; w.className = 'clean'; }
+  else if (sub && sub.occ){ w.textContent = '花が隠れてる'; w.className = ''; }
+  else { w.textContent = sub ? 'もっと寄って' : '花を探して'; w.className = 'clean'; w.style.background = 'rgba(40,40,40,.7)'; }
+  if (n > 0 || ok || (sub && sub.occ)) w.style.background = '';
+  $('af').className = ok ? 'ok' : '';
+  const d = sub ? sub.d.toFixed(1) + 'm' : '--';
+  $('finfo').textContent = `AF ${d}   F2.8 1/500   [${S.film}]`;
+}
+function updateLabels(dt){
+  // bubbles
+  for (const p of people){
+    const show = p.bubT > 0 && p.state !== 'zap';
+    if (show){
+      p.head.getWorldPosition(_c); _c.y += .4;
+      const s = toScreen(_c);
+      const near = camera.position.distanceTo(_c) < (view === 'finder' && mode === 'play' ? 22 : 30);
+      if (s.on && near){
+        if (p.bub.textContent !== p.bubTxt) p.bub.textContent = p.bubTxt;
+        const cls = 'bub on' + (p.bubCls ? ' ' + p.bubCls : '');
+        if (p.bub.className !== cls) p.bub.className = cls;
+        p.bub.style.transform = `translate(${s.x.toFixed(1)}px,${s.y.toFixed(1)}px) translate(-50%,-100%)`;
+        continue;
+      }
+    }
+    if (p.bub.className !== 'bub') p.bub.className = 'bub';
+  }
+  for (let i = floaters.length - 1; i >= 0; i--){
+    const f = floaters[i]; f.t += dt;
+    f.p.y += dt * .6;
+    const s = toScreen(f.p);
+    f.el.style.transform = `translate(${s.x.toFixed(1)}px,${s.y.toFixed(1)}px) translate(-50%,-50%)`;
+    f.el.style.opacity = s.on ? clamp(1.4 - f.t, 0, 1) : 0;
+    if (f.t > 1.4){ f.el.remove(); floaters.splice(i, 1); }
+  }
+}
+
+/* ---------------- game flow ---------------- */
+function clearPeople(){ while (people.length) removePerson(people[0]); }
+function clearFx(){
+  beams.forEach(b => b.meshes.forEach(m => { scene.remove(m); m.material.dispose(); })); beams.length = 0;
+  sparks.forEach(s => { scene.remove(s.m); s.m.material.dispose(); }); sparks.length = 0;
+  floaters.forEach(f => f.el.remove()); floaters.length = 0;
+}
+function startGame(){
+  initAudio(true);
+  clearPeople(); clearFx(); restoreFlowers();
+  Object.assign(S, { time: PLAY_TIME, film: FILM, score: 0, elapsed: 0, best: {}, shots: [], punished: 0, trampled: 0, clean: 0, zi: 0, endT: -1, spawnT: 1, cryT: 0, toastT: 0, charge: 0, chargeMax: 1, down: false });
+  player.pos.set(0, 0, 0);
+  // start next to a patch
+  const f0 = flowers.filter(f => f.kind !== 'rare').sort((a, b) => Math.hypot(a.x, a.z) - Math.hypot(b.x, b.z))[0];
+  if (f0){ player.pos.set(f0.x + 1.6, 0, f0.z + 1.6); player.yaw = Math.atan2(-1.6, -1.6); }
+  for (let i = 0; i < 6; i++) spawnPerson(false);
+  mode = 'play'; view = 'top'; paused = false; pendingShot = false; hudKey = '';
+  player.g.visible = true;
+  $('finder').classList.remove('on'); $('photo').classList.remove('show'); $('cry').classList.remove('show');
+  $('titleOv').hidden = true; $('resultOv').hidden = true; $('pauseOv').hidden = true;
+  $('zoomLbl').textContent = ZOOMS[0].l;
+  updateShutUI(); showControls(); updateHUD();
+}
+const RANKS = [[0, '通りすがり'], [250, '花好き'], [600, '花撮り見習い'], [1100, '花撮り職人'], [1800, '花だけマイスター'], [2600, '花の守護者']];
+function rankOf(s){ let r = RANKS[0][1]; RANKS.forEach(([t, n]) => { if (s >= t) r = n; }); return r; }
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+function endGame(){
+  if (view === 'finder') exitFinder();
+  mode = 'result'; paused = false;
+  recomputeScore();
+  const sc = S.score, isBest = sc > bestScore;
+  if (isBest){ bestScore = sc; store.set(KEY_BEST, String(sc)); }
+  const rank = rankOf(sc);
+  $('rHead').textContent = S.film <= 0 ? 'フィルム切れ！' : '撮影終了';
+  $('rScore').textContent = sc.toLocaleString();
+  $('rRank').textContent = `称号「${rank}」`;
+  $('rClean').textContent = S.clean; $('rPun').textContent = S.punished; $('rTrample').textContent = S.trampled;
+  $('rBestTxt').textContent = isBest && sc > 0 ? '自己ベスト更新！' : `自己ベスト ${bestScore.toLocaleString()}点`;
+  // album
+  const shots = S.shots;
+  let top = null; shots.forEach(s => { if (s.img && (!top || s.pts > top.pts)) top = s; });
+  $('rBest').innerHTML = top && top.pts > 0
+    ? `<div class="album-best"><img src="${top.img}" alt="ベストショット"><div class="v ${top.good ? 'good' : 'bad'}" style="color:${top.good ? '#2f8a4a' : '#d0405f'}">ベストショット：${esc(top.v)} +${top.pts}</div></div>` : '';
+  $('rAlbum').innerHTML = shots.length
+    ? shots.map(s => `<figure><img src="${s.img}" alt=""><figcaption class="${s.good ? 'good' : 'bad'}">${esc(s.v)}</figcaption></figure>`).join('')
+    : '<div class="empty" style="grid-column:1/-1">1枚も撮らなかった…</div>';
+  setShare($('shareResult'), `${GAME_NAME}で${sc.toLocaleString()}点！ 花だけ写真${S.clean}枚・おしおき${S.punished}人・踏まれた花${S.trampled}本。称号「${rank}」`);
+  $('resultOv').hidden = false; $('resultOv').scrollTop = 0;
+  clearFx();
+  showControls();
+}
+function backToTitle(){
+  mode = 'title'; paused = false;
+  if (view === 'finder') exitFinder();
+  view = 'top';
+  clearPeople(); clearFx(); restoreFlowers();
+  $('resultOv').hidden = true; $('pauseOv').hidden = true; $('titleOv').hidden = false;
+  $('photo').classList.remove('show'); $('cry').classList.remove('show');
+  refreshTitle(); showControls();
+}
+function refreshTitle(){
+  $('bestTxt').textContent = bestScore > 0 ? `自己ベスト ${bestScore.toLocaleString()}点` : '';
+  setShare($('shareTitle'), `${GAME_NAME}　花を撮りたいだけなのに、カメラを構えると人がワラワラ寄ってきて花を踏む。写り込んだ人にはおしおきビーム。`);
+}
+function shareHref(text){ return 'https://x.com/intent/post?text=' + encodeURIComponent(text + ' ' + HASHTAG) + '&url=' + encodeURIComponent(SHARE_URL); }
+function setShare(el, text){
+  el.href = shareHref(text);
+  if (matchMedia('(pointer: coarse)').matches){ el.removeAttribute('target'); el.removeAttribute('rel'); }
+}
+function openPause(){
+  if (mode !== 'play' || paused) return;
+  paused = true; for (const k in keys) keys[k] = false; joy.on = false; $('joy').hidden = true;
+  $('pauseOv').hidden = false;
+  $('pSndBtn').textContent = '音：' + (soundOn ? 'ON' : 'OFF');
+  setShare($('sharePause'), `${GAME_NAME}で花を撮影中(いま${S.score.toLocaleString()}点・フィルム残り${S.film}枚)。人がワラワラ寄ってくる…`);
+  refreshHome();
+}
+function closePause(){ paused = false; $('pauseOv').hidden = true; disarmAll(); refreshHome(); last = performance.now(); }
+// two-press buttons
+const armed = new Map();
+function twoPress(btn, label, fn){
+  btn.addEventListener('click', () => {
+    if (!armed.get(btn)){
+      armed.set(btn, setTimeout(() => disarm(btn, label), 3000));
+      btn.textContent = '本当に？(もう一度)'; btn.classList.add('danger'); return;
+    }
+    disarm(btn, label); fn();
+  });
+  btn.dataset.label = label;
+}
+function disarm(btn, label){ clearTimeout(armed.get(btn)); armed.delete(btn); btn.textContent = label; btn.classList.remove('danger'); }
+function disarmAll(){ [...armed.keys()].forEach(b => disarm(b, b.dataset.label)); }
+
+/* ---------------- sound button ---------------- */
+function drawSnd(){
+  $('sndBtn').innerHTML = soundOn
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="#2d2a22" stroke-width="2"><path d="M4 9h4l5-4v14l-5-4H4z" fill="#2d2a22"/><path d="M16 8.5a5 5 0 010 7M18.5 6a8.5 8.5 0 010 12"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="#2d2a22" stroke-width="2"><path d="M4 9h4l5-4v14l-5-4H4z" fill="#2d2a22"/><path d="M16 9l6 6M22 9l-6 6"/></svg>';
+  $('sndBtn').setAttribute('aria-label', soundOn ? '音をオフ' : '音をオン');
+}
+function toggleSnd(){ soundOn = !soundOn; store.set(KEY_SOUND, soundOn ? '1' : '0'); drawSnd(); if (soundOn) initAudio(false); $('pSndBtn').textContent = '音：' + (soundOn ? 'ON' : 'OFF'); }
+
+/* ---------------- input ---------------- */
+let drag = null;
+stage.addEventListener('pointerdown', e => {
+  if (mode !== 'play' || paused) return;
+  try { stage.setPointerCapture(e.pointerId); } catch(err){}
+  if (view === 'top'){
+    joy.on = true; joy.id = e.pointerId; joy.sx = e.clientX; joy.sy = e.clientY; joy.dx = joy.dy = 0;
+    const j = $('joy'); j.hidden = false; j.style.left = e.clientX + 'px'; j.style.top = e.clientY + 'px';
+    $('joyK').style.transform = '';
+  } else {
+    drag = { id: e.pointerId, x: e.clientX, y: e.clientY };
+  }
+});
+stage.addEventListener('pointermove', e => {
+  if (joy.on && e.pointerId === joy.id){
+    let dx = e.clientX - joy.sx, dy = e.clientY - joy.sy; const m = Math.hypot(dx, dy), R = 50;
+    if (m > R){ dx *= R / m; dy *= R / m; }
+    joy.dx = dx / R; joy.dy = dy / R;
+    $('joyK').style.transform = `translate(${dx}px,${dy}px)`;
+  } else if (drag && e.pointerId === drag.id && view === 'finder'){
+    const F = camera.fov * Math.PI / 180, k = F / Math.max(1, H) * 1.1;
+    S.yaw -= (e.clientX - drag.x) * k; S.pitch = clamp(S.pitch - (e.clientY - drag.y) * k, -1.45, .35);
+    drag.x = e.clientX; drag.y = e.clientY;
+  }
+});
+function endPtr(e){
+  if (joy.on && e.pointerId === joy.id){ joy.on = false; joy.dx = joy.dy = 0; $('joy').hidden = true; }
+  if (drag && e.pointerId === drag.id) drag = null;
+}
+['pointerup', 'pointercancel', 'lostpointercapture'].forEach(ev => stage.addEventListener(ev, endPtr));
+stage.addEventListener('wheel', e => {
+  if (mode !== 'play' || view !== 'finder' || paused) return;
+  e.preventDefault(); zoom(e.deltaY < 0 ? 1 : -1);
+}, { passive: false });
+function zoom(d){
+  const z = clamp(S.zi + d, 0, ZOOMS.length - 1); if (z === S.zi) return;
+  S.zi = z; $('zoomLbl').textContent = ZOOMS[z].l; SFX.zoom();
+}
+$('aimBtn').addEventListener('click', enterFinder);
+$('backBtn').addEventListener('click', exitFinder);
+$('shutBtn').addEventListener('click', shutter);
+$('zIn').addEventListener('click', () => zoom(1));
+$('zOut').addEventListener('click', () => zoom(-1));
+$('startBtn').addEventListener('click', startGame);
+$('againBtn').addEventListener('click', startGame);
+$('titleBtn').addEventListener('click', backToTitle);
+$('pauseBtn').addEventListener('click', openPause);
+$('resumeBtn').addEventListener('click', closePause);
+$('sndBtn').addEventListener('click', toggleSnd);
+$('pSndBtn').addEventListener('click', toggleSnd);
+twoPress($('pTitleBtn'), 'タイトルへ', () => { closePause(); backToTitle(); });
+twoPress($('pTopBtn'), 'サイトのトップへ', () => { location.href = '/'; });
+document.addEventListener('keydown', e => {
+  const t = e.target;
+  if (t && (t.isContentEditable || t.tagName === 'TEXTAREA' || (t.tagName === 'INPUT' && !['checkbox', 'radio', 'button', 'range'].includes(t.type)))) return;
+  if (mode === 'play' && !paused){
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) e.preventDefault();
+    keys[e.code] = true;
+    if (e.repeat) return;
+    if (e.code === 'Space' || e.code === 'Enter'){ if (view === 'top') enterFinder(); else shutter(); }
+    else if (e.code === 'Escape' || e.code === 'KeyQ' || e.code === 'ShiftLeft' || e.code === 'ShiftRight'){ if (view === 'finder') exitFinder(); else if (e.code === 'Escape') openPause(); }
+    else if (e.code === 'KeyT' || e.code === 'Equal' || e.code === 'KeyE'){ if (view === 'finder') zoom(1); }
+    else if (e.code === 'KeyG' || e.code === 'Minus' || e.code === 'KeyR'){ if (view === 'finder') zoom(-1); }
+    else if (e.code === 'KeyP') openPause();
+  } else if (mode === 'play' && paused){
+    if (!e.repeat && (e.code === 'KeyP' || e.code === 'Escape')) closePause();
+  } else if (mode === 'title' && !e.repeat && (e.code === 'Space' || e.code === 'Enter') && document.activeElement === document.body){
+    e.preventDefault(); startGame();
+  }
+});
+document.addEventListener('keyup', e => { keys[e.code] = false; });
+window.addEventListener('blur', () => { for (const k in keys) keys[k] = false; });
+document.addEventListener('visibilitychange', () => { if (document.hidden) openPause(); else initAudio(false); });
+
+/* ---------------- loop ---------------- */
+function resize(){
+  const w = stage.clientWidth || 0, h = stage.clientHeight || 0;
+  if (w < 1 || h < 1) return;
+  W = w; H = h;
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(W, H, false);
+  camera.aspect = W / H; camera.updateProjectionMatrix();
+  layoutFinder(); fitHUD();
+}
+window.addEventListener('resize', resize);
+if (window.ResizeObserver) new ResizeObserver(resize).observe(stage);
+let last = performance.now();
+function tick(dt){
+  if (mode === 'play' && !paused) update(dt);
+  else if (mode === 'title' || mode === 'result') demo(dt);
+  if (!(mode === 'play' && paused)) updateCamera(dt);
+}
+function render(){
+  renderer.render(scene, camera);
+  if (pendingShot && mode === 'play') doShot();
+  updateLabels(mode === 'play' && paused ? 0 : 1 / 60);
+  if (mode === 'play'){ updateHUD(); if (view === 'finder' && !paused) updateFinderInfo(1 / 60); }
+}
+function loop(now){
+  requestAnimationFrame(loop);
+  const dt = Math.min(.05, Math.max(0, (now - last) / 1000)); last = now;
+  if (W < 1 || H < 1){ resize(); return; }
+  try { tick(dt); render(); } catch(e){ console.error(e); }
+}
+drawSnd(); refreshTitle(); showControls();
+window.addEventListener('load', () => requestAnimationFrame(fitHUD));
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => requestAnimationFrame(fitHUD));
+resize();
+requestAnimationFrame(loop);
+
+})();
+</script>
+</body>
+</html>
