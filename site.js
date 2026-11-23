@@ -144,7 +144,7 @@ window.SITE_WORKS = [
     og: '/assets/og-chikainouchi.jpg',
     tags: ['GAME', 'APP'] },
   { id: 'seikimatsu_derby', href: '/works/seikimatsu-derby.html', icon: '🐎', title: 'SEIKIMATSU_DERBY', date: '2026-10-25',
-    desc: '予想した馬だけが覇者の巨馬、ロボ、装甲車、UFO、怪獣、そしておじさんに変身して、絶対に勝つ競馬予想ゲーム。',
+    desc: '予想した馬だけが覇者の巨馬、ロボ、装甲車、UFO、怪獣に変身して、絶対に勝つ競馬予想ゲーム。',
     og: '/assets/og-seikimatsu-derby.jpg',
     tags: ['GAME', 'APP'] },
   { id: 'tezukami_steak', href: '/works/tezukami-steak.html', icon: '🥩', title: 'TEZUKAMI_STEAK', date: '2026-10-25',

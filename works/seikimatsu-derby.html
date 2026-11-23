@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>世紀末ダービー | porkgorilla://</title>
-<meta name="description" content="予想した馬だけが覇者の巨馬、ロボ、装甲車、UFO、怪獣、そしておじさんに変身して、絶対に勝つ競馬予想ゲーム">
+<meta name="description" content="予想した馬だけが覇者の巨馬、ロボ、装甲車、UFO、怪獣に変身して、絶対に勝つ競馬予想ゲーム">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBT4300J0L"></script>
@@ -16,14 +16,14 @@
 </script>
 <meta property="og:type" content="website">
 <meta property="og:title" content="世紀末ダービー">
-<meta property="og:description" content="予想した馬だけが覇者の巨馬、ロボ、装甲車、UFO、怪獣、そしておじさんに変身して、絶対に勝つ競馬予想ゲーム">
+<meta property="og:description" content="予想した馬だけが覇者の巨馬、ロボ、装甲車、UFO、怪獣に変身して、絶対に勝つ競馬予想ゲーム">
 <meta property="og:url" content="https://porkgorilla.com/works/seikimatsu-derby.html">
 <meta property="og:image" content="https://porkgorilla.com/assets/og-seikimatsu-derby.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="世紀末ダービー">
-<meta name="twitter:description" content="予想した馬だけが覇者の巨馬、ロボ、装甲車、UFO、怪獣、そしておじさんに変身して、絶対に勝つ競馬予想ゲーム">
+<meta name="twitter:description" content="予想した馬だけが覇者の巨馬、ロボ、装甲車、UFO、怪獣に変身して、絶対に勝つ競馬予想ゲーム">
 <meta name="twitter:image" content="https://porkgorilla.com/assets/og-seikimatsu-derby.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -40,21 +40,23 @@
   color-scheme:dark;
 }
 *{box-sizing:border-box}
-html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);overflow:hidden;-webkit-tap-highlight-color:transparent}
-#cv{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:manipulation;cursor:pointer}
+html{height:100%;box-sizing:border-box;background:var(--bg)}
+body{height:100%;margin:0;position:relative;background:var(--bg);color:var(--ink);font-family:var(--body);overflow:hidden;-webkit-tap-highlight-color:transparent}
+#cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:manipulation;cursor:pointer}
 button,select{font-family:inherit}
 button:focus-visible,a:focus-visible,select:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 
-.hud{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;gap:10px;
+.hud{position:absolute;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;gap:10px;
   padding:max(6px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) 6px max(12px,env(safe-area-inset-left));pointer-events:none;
   background:linear-gradient(rgba(10,6,7,.7),rgba(10,6,7,0))}
 .home{pointer-events:auto;color:var(--sub);text-decoration:none;font-size:12px;letter-spacing:.04em;white-space:nowrap}
 .home:hover{color:var(--ink)}
+.home.off{visibility:hidden;pointer-events:none}
 .raceinfo{font-size:12px;color:var(--ink);opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .money{margin-left:auto;font-weight:900;color:var(--gold);font-size:15px;white-space:nowrap;font-variant-numeric:tabular-nums;text-shadow:0 1px 0 #000}
 .snd{pointer-events:auto;min-width:44px;min-height:44px;background:transparent;border:1px solid var(--line);color:var(--ink);font-size:12px;border-radius:6px;cursor:pointer}
 
-.ov{position:fixed;inset:0;z-index:20;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;
+.ov{position:absolute;inset:0;z-index:20;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;
   padding:calc(62px + env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(20px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));
   background:rgba(8,5,6,.62)}
 .ov>.inner{margin:auto 0;width:min(640px,100%)}
@@ -152,10 +154,10 @@ button:focus-visible,a:focus-visible,select:focus-visible{outline:2px solid var(
 .zc.locked b{color:#8a7b70}
 
 /* commentary */
-.talk{position:fixed;left:50%;transform:translateX(-50%);bottom:max(16px,env(safe-area-inset-bottom));z-index:8;
+.talk{position:absolute;left:50%;transform:translateX(-50%);bottom:max(16px,env(safe-area-inset-bottom));z-index:8;
   width:min(640px,calc(100% - 32px));background:rgba(12,8,8,.86);border-left:4px solid var(--blood);padding:10px 14px;font-weight:700;font-size:15px;line-height:1.5;pointer-events:none}
 .talk small{display:block;font-size:10px;color:var(--gold);letter-spacing:.2em;font-weight:500}
-.hint{position:fixed;left:50%;transform:translateX(-50%);top:calc(64px + env(safe-area-inset-top));z-index:8;font-weight:900;font-size:18px;color:var(--gold);
+.hint{position:absolute;left:50%;transform:translateX(-50%);top:calc(64px + env(safe-area-inset-top));z-index:8;font-weight:900;font-size:18px;color:var(--gold);
   text-shadow:2px 2px 0 #000;pointer-events:none;animation:pulse .7s ease-in-out infinite alternate;white-space:nowrap}
 @keyframes pulse{from{opacity:.55;transform:translateX(-50%) scale(.96)}to{opacity:1;transform:translateX(-50%) scale(1.04)}}
 @media (prefers-reduced-motion:reduce){.hint{animation:none}}
@@ -165,7 +167,7 @@ button:focus-visible,a:focus-visible,select:focus-visible{outline:2px solid var(
 <canvas id="cv"></canvas>
 
 <div class="hud">
-  <a class="home" href="/">&lt; porkgorilla</a>
+  <a class="home" id="homeLink" href="/">&lt; porkgorilla</a>
   <span class="raceinfo" id="raceInfo"></span>
   <span class="money" id="moneyHud"></span>
   <button class="snd" id="sndBtn" type="button" aria-label="音のオン・オフ">音 ON</button>
@@ -252,7 +254,7 @@ const cv = $('cv'), ctx = cv.getContext('2d');
 let ctxOverride = null;
 
 const GAME_URL = 'https://porkgorilla.com/works/seikimatsu-derby.html';
-const OG_CACHE_VERSION = 1;
+const OG_CACHE_VERSION = 2; // 2026-11-23 説明文から最後のキャラを外した
 const SHARE_URL = GAME_URL + '?ogv=' + OG_CACHE_VERSION;
 const HASHTAG = '#世紀末ダービー';
 function setShare(el, text){
@@ -295,9 +297,12 @@ const RANKS = [[0,'一般人'],[1e5,'小金持ち'],[1e6,'馬主見習い'],[1e7
 const rankOf = m => { let r = RANKS[0][1]; for (const [v,k] of RANKS) if (m >= v) r = k; return r; };
 
 /* ---------- screen ---------- */
-let W=1,H=1,DPR=1,SC=1,LW=1,LH=1,TRACK_TOP=280,TRACK_BOT=480;
+let W=0,H=0,DPR=1,SC=1,LW=1,LH=1,TRACK_TOP=280,TRACK_BOT=480;
 function resize(){
-  W = Math.max(1, innerWidth || 0); H = Math.max(1, innerHeight || 0);
+  // 大きさは入れ物(body)から決める。0のあいだ(プレビュー・裏タブ)は何もしない
+  const bw = document.body.clientWidth || 0, bh = document.body.clientHeight || 0;
+  if (bw < 1 || bh < 1){ W = 0; H = 0; return; }
+  W = bw; H = bh;
   DPR = Math.min(2, devicePixelRatio || 1);
   cv.width = Math.round(W*DPR); cv.height = Math.round(H*DPR);
   SC = Math.max(0.01, Math.min(W/560, H/500));
@@ -313,9 +318,35 @@ const laneS = i => 0.9 + i*0.02;
 let AC = null, master = null, crowdG = null, noiseB = null;
 let soundOn = store.get(KEY_SND) !== '0';
 const MASTER_VOL = 0.55;
+let unmuteEl = null;
+function silentWav(){            // 8kHz・8bit・0.1秒の無音(マナーモード対策のループ用)
+  const n = 800, buf = new ArrayBuffer(44 + n), v = new DataView(buf);
+  const w = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+  w(0,'RIFF'); v.setUint32(4, 36 + n, true); w(8,'WAVE'); w(12,'fmt '); v.setUint32(16,16,true);
+  v.setUint16(20,1,true); v.setUint16(22,1,true); v.setUint32(24,8000,true); v.setUint32(28,8000,true);
+  v.setUint16(32,1,true); v.setUint16(34,8,true); w(36,'data'); v.setUint32(40, n, true);
+  for (let i = 0; i < n; i++) v.setUint8(44 + i, 128);
+  let bin = ''; const u8 = new Uint8Array(buf); for (let i = 0; i < u8.length; i++) bin += String.fromCharCode(u8[i]);
+  return 'data:audio/wav;base64,' + btoa(bin);
+}
+function unlockIOS(){            // スタート・次のレースのタップの中で呼ぶ(iPhone のマナーモードでも鳴らすため)
+  try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch(e){}
+  try {
+    if (!unmuteEl){ unmuteEl = document.createElement('audio'); unmuteEl.src = silentWav(); unmuteEl.loop = true;
+      unmuteEl.setAttribute('playsinline',''); unmuteEl.setAttribute('x-webkit-airplay','deny'); }
+    const p = unmuteEl.play(); if (p && p.catch) p.catch(() => {});
+  } catch(e){}
+}
+function stopUnlock(){ try { if (unmuteEl) unmuteEl.pause(); } catch(e){} }
 function initAudio(force){
-  // 動いているコンテキストは作り直さない（作り直しの瞬間に鳴っている音が途切れてプチッとなるため）
-  if (AC && force && AC.state !== 'running'){ try { AC.close().catch(()=>{}); } catch(e){} AC = null; }
+  // 覚書5章・14章: ユーザー操作のときは、状態に関係なく作り直す(iPhone で X などから戻ると running のまま無音になるため)。
+  // 古いほうは音量を下げてから少し後に閉じる(鳴っている音がブツッと切れないように)
+  if (AC && force){
+    const old = AC, oldMaster = master;
+    try { oldMaster.gain.setTargetAtTime(0, old.currentTime, 0.01); } catch(e){}
+    setTimeout(() => { try { old.close().catch(()=>{}); } catch(e){} }, 80);
+    AC = null;
+  }
   else if (AC){ if (AC.state === 'closed') AC = null; else { if (AC.state === 'suspended') AC.resume(); return; } }
   const C = window.AudioContext || window.webkitAudioContext; if (!C) return;
   try { AC = new C(); } catch(e){ AC = null; return; }
@@ -324,6 +355,7 @@ function initAudio(force){
   const lim = AC.createDynamicsCompressor();
   lim.threshold.value = -12; lim.knee.value = 6; lim.ratio.value = 20; lim.attack.value = 0.002; lim.release.value = 0.2;
   master.connect(lim); lim.connect(AC.destination);
+  try { const sb = AC.createBufferSource(); sb.buffer = AC.createBuffer(1, 1, AC.sampleRate); sb.connect(AC.destination); sb.start(0); } catch(e){}
   noiseB = AC.createBuffer(1, AC.sampleRate*2, AC.sampleRate);
   const d = noiseB.getChannelData(0); for (let i=0;i<d.length;i++) d[i] = Math.random()*2-1;
   const src = AC.createBufferSource(); src.buffer = noiseB; src.loop = true;
@@ -384,7 +416,7 @@ const sfx = {
     const fn = sfx[k], gap = GAP[k] ?? 0.04;
     sfx[k] = (...a) => {
       if (!AC) return;
-      const now = AC.currentTime;
+      const now = performance.now()/1000;   // AudioContext の時計は作り直すと0に戻るので使わない
       if (lastAt[k] !== undefined && now - lastAt[k] < gap) return;
       lastAt[k] = now; fn(...a);
     };
@@ -601,9 +633,10 @@ function renderBet(){
 document.querySelectorAll('#chips .chip').forEach(c => c.addEventListener('click', () => { betK = c.dataset.k; sfx.pick(); renderBet(); }));
 function updateMoneyHud(){ $('moneyHud').textContent = fmtYen(money); }
 
+function setHome(on){ $('homeLink').classList.toggle('off', !on); }
 function hideAll(){ ['titleOv','betOv','resOv','zukanOv'].forEach(id => $(id).hidden = true); $('talk').hidden = true; $('hint').hidden = true; }
 function showBet(){
-  state = 'bet';
+  state = 'bet'; setHome(false);
   if (!R || R.finishT || R.t > 0) R = makeRace();
   else raceNo = R.no;
   sel = -1;
@@ -611,7 +644,7 @@ function showBet(){
   $('raceInfo').textContent = '第' + R.no + '競走 ' + R.name;
   renderBet(); $('betOv').scrollTop = 0;
 }
-$('startBtn').addEventListener('click', () => { initAudio(true); showBet(); });
+$('startBtn').addEventListener('click', () => { unlockIOS(); initAudio(true); showBet(); });
 
 function startRace(i){
   const amt = betAmount();
@@ -623,11 +656,11 @@ function startRace(i){
   R.GD = R.ch.GD;
   R.giantName = pick(R.ch.names);
   hideAll();
-  state = 'race';
+  state = 'race'; setHome(false);
   R.t = 0;
   say('各馬ゲートに収まりました。第' + R.no + '競走 ' + R.name + '、まもなくスタートです。');
 }
-$('betBtn').addEventListener('click', () => { if (sel < 0) return; initAudio(true); startRace(sel); });
+$('betBtn').addEventListener('click', () => { if (sel < 0) return; unlockIOS(); initAudio(true); startRace(sel); });
 
 /* ---------- race logic ---------- */
 function partBurst(x, y, n, opt){
@@ -1623,9 +1656,14 @@ function render(){
     ctx.translate(LW/2, Math.min(TRACK_TOP - 120, LH*0.34)); ctx.scale(sc, sc);
     const disp = getComputedStyle(document.documentElement).getPropertyValue('--disp');
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    const fs = R.ch.id === 'oji' ? 34 : Math.min(64, LW/(R.giantName.length + 1));
-    ctx.font = '800 15px ' + disp; ctx.lineWidth = 4; ctx.lineJoin = 'round'; ctx.strokeStyle = '#000';
+    const maxW = LW*0.9;
+    let fs = R.ch.id === 'oji' ? 34 : Math.min(64, LW/(R.giantName.length + 1));
+    ctx.font = '800 ' + fs + 'px ' + disp;
+    const nw = ctx.measureText(R.giantName).width; if (nw > maxW) fs *= maxW/nw;   // 描く直前に測って収める
     const sub = R.p.name + (R.ch.id === 'oji' ? '　の代わりに' : '　改め');
+    let ss = 15; ctx.font = '800 ' + ss + 'px ' + disp;
+    const sw = ctx.measureText(sub).width; if (sw > maxW){ ss *= maxW/sw; ctx.font = '800 ' + ss + 'px ' + disp; }
+    ctx.lineWidth = 4; ctx.lineJoin = 'round'; ctx.strokeStyle = '#000';
     ctx.strokeText(sub, 0, -fs*0.62 - 12); ctx.fillStyle = '#e9b649'; ctx.fillText(sub, 0, -fs*0.62 - 12);
     ctx.font = '800 ' + fs + 'px ' + disp;
     ctx.fillStyle = 'rgba(0,0,0,.8)'; ctx.fillText(R.giantName, 3, 3);
@@ -1638,7 +1676,7 @@ function render(){
 /* ---------- result ---------- */
 let countAnim = null;
 function showResult(){
-  R.resultShown = true; state = 'result';
+  R.resultShown = true; state = 'result'; setHome(true);
   $('talk').hidden = true; $('hint').hidden = true;
   const p = R.p, ch = R.ch;
   const before = unlockedCount();
@@ -1685,9 +1723,9 @@ function showResult(){
   };
   countAnim = requestAnimationFrame(step);
 }
-$('againBtn').addEventListener('click', () => { initAudio(true); showBet(); });
+$('againBtn').addEventListener('click', () => { unlockIOS(); initAudio(true); showBet(); });
 function backToTitle(){
-  state = 'title';
+  state = 'title'; setHome(true); stopUnlock();
   hideAll(); $('titleOv').hidden = false;
   R = makeRace(); raceNo--;
   $('raceInfo').textContent = '';
@@ -1771,7 +1809,7 @@ function loop(now){
     const quiet = R && R.ch && R.ch.id === 'oji' && R.finishT;
     try { crowdG.gain.setTargetAtTime(state === 'race' && !quiet ? 0.05 + (R ? R.sky : 0)*0.05 : 0, AC.currentTime, 0.25); } catch(e){}
   }
-  if (innerWidth < 1 || innerHeight < 1) return;
+  if (W < 1 || H < 1){ resize(); return; }
   try {
     T += dt; update(dt);
     render();
